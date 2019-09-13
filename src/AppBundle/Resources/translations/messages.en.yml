@@ -1,0 +1,44 @@
+# messages.en.yml file for saving message translations for Application.
+#
+# @category Resource
+# @author Sobhan Thakur
+#
+api:
+    response:
+        error:
+            request_unauthorized: The request was found unauthorized to perform the specified task.
+            invalid_content: Request couldn't be processed due to Invalid Content.
+            invalid_credentials: Invalid Credentials found in Request Content.
+            internal_error: An error occurred on the server.
+            unprocessable_auth_token: The auth token cannot be processed.
+            invalid_auth_content: Invalid Auth Format
+            invalid_content_type: "Content-Type not set in the header or the content type/content is invalid."
+            invalid_request_data: "The transaction was rejected due to invalid request content provided."
+            invalid_authentication: This request failed to be authenticated.
+            invalid_authorization: This Request failed because User was denied access of requested Resource.
+            resource_not_found: The resource request could not be found on the server.
+            request_method_not_allowed: This operation is not allowed on the requested url.
+            resource_already_exists: The resource being created in this request already exists.
+            request_timed_out: "The request has timed out,
+              i.e. request was not received within expected time interval by server."
+            service_unavailable: "Service is currently under maintenance, please try again later."
+            servicer_not_found: "Servicer Not Found"
+
+            invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
+            incomplete_req: "Incomplete Request."
+            invalid_content_length: "Content Length not set or the content length set is incorrect."
+            empty_auth_header: "The authorization fields have empty or null data."
+            empty_auth_fields: "The authorization header has some missing fields."
+            invalid_username: "Invalid username provided in request."
+            invalid_credentials: "Invalid credentials provided in request."
+            invalid_auth_token: "Invalid Access Token provided in request auth header."
+            auth_token_expired: "Access Token provided in request has been expired."
+            username_exists: "Username provided in request is taken by someone else, please try with another username."
+        success:
+            message: success
+            password_reset: The password was reset successfully.
+            user_created: User was created successfully.
+            user_updated: User was updated successfully.
+
+        failure:
+            message: failure

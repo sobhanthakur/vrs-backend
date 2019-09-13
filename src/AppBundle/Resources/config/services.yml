@@ -1,0 +1,41 @@
+services:
+    vrscheduler.base_service:
+        abstract: true
+        class: AppBundle\Service\BaseService
+        calls:
+            - [setServiceContainer, ['@service_container']]
+            - [setLogger, ['@monolog.logger.exception']]
+            - [setEntityManager, ['@doctrine.orm.entity_manager']]
+            - [setTranslator, ['@translator.default']]
+    vrscheduler.request_listener:
+        class: AppBundle\EventListener\RequestListener
+        parent: vrscheduler.base_service
+        arguments:
+            - '@monolog.logger.api'
+        tags:
+            - {name: kernel.event_listener, event: kernel.request, method: onKernelRequest}
+            - {name: monolog.logger, channel: api}
+        public: true
+    vrscheduler.response_listener:
+        class: AppBundle\EventListener\ResponseListener
+        parent: vrscheduler.base_service
+        arguments: ["@monolog.logger.api"]
+        tags:
+            - {name: kernel.event_listener, event: kernel.response, method: onKernelResponse}
+    vrscheduler.exception_listener:
+        class: AppBundle\EventListener\ExceptionListener
+        parent: vrscheduler.base_service
+        tags:
+            - {name: kernel.event_listener, event: kernel.exception, method: onKernelException}
+            - {name: monolog.logger, channel: exception}
+        public: true
+
+    vrscheduler.authentication_service:
+            class: AppBundle\Service\AuthenticationService
+            parent: vrscheduler.base_service
+            public: true
+
+    vrscheduler.api_response_service:
+        class: AppBundle\Service\ApiResponse
+        parent: vrscheduler.base_service
+        public: true

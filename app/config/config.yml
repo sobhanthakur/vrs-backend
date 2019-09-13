@@ -1,0 +1,135 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+    - { resource: "@AppBundle/Resources/config/services.yml" }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+
+framework:
+    #esi: ~
+    translator: { fallbacks: ['%locale%'] }
+    secret: '%secret%'
+    router:
+        resource: '%kernel.project_dir%/app/config/routing.yml'
+        strict_requirements: ~
+    form: ~
+    csrf_protection: ~
+    validation: { enable_annotations: true }
+    #serializer: { enable_annotations: true }
+    default_locale: '%locale%'
+    trusted_hosts: ~
+    session:
+        # https://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+    fragments: ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+    templating:
+            engines: ['twig']
+
+# Twig Configuration
+twig:
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver: pdo_sqlsrv
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: UTF8
+
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: '%mailer_transport%'
+    host: '%mailer_host%'
+    username: '%mailer_user%'
+    password: '%mailer_password%'
+    spool: { type: memory }
+
+fos_rest:
+    param_fetcher_listener: true
+    body_listener: true
+    format_listener: ~
+    allowed_methods_listener: true
+    view:
+        view_response_listener: 'force'
+        formats:
+            rss: false
+            json: true
+            xml: false
+        templating_formats:
+            html: true
+        force_redirects:
+            html: true
+        failed_validation: HTTP_BAD_REQUEST
+        default_engine: php
+    service:
+        serializer: ~
+    serializer:
+        serialize_null: true
+
+
+sensio_framework_extra:
+   router:
+        annotations: false
+
+jms_serializer:
+    visitors:
+        json:
+            options: JSON_UNESCAPED_UNICODE
+
+nelmio_api_doc:
+    documentation:
+            host: '%api_host%'
+            schemes: [http, https]
+            info:
+                title: VRScheduler
+                version: 1.0.0
+                description: VRScheduler API documentation
+            securityDefinitions:
+              AuthToken:
+                    type: apiKey
+                    description: 'value: VRS {jwt}'
+                    name: Authorization
+                    in: header
+            security:
+                - AuthToken: []
+            areas:
+              default:
+                path_patterns: # an array of regexps
+                  - ^/v1/vrs.
+
+              integrationportal:
+                path_patterns:
+                  - ^/v1/vrs/oauth/validate
+
+monolog:
+    handlers:
+        api:
+            type: stream
+            path: "%kernel.logs_dir%/apiRequestResponse.log"
+            level: debug
+            channels: [api]
+        exception:
+            type: stream
+            path: "%kernel.logs_dir%/exception.log"
+            level: error
+            channels: [exception]
+    channels: [api,exception]

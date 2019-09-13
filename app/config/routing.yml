@@ -1,0 +1,10 @@
+app:
+    resource: '@AppBundle/Controller/API/V10/PrivateAPI'
+    type: annotation
+    prefix:   /v1/vrs
+    defaults: {_format:json}
+
+app.swagger_ui:
+    path: /doc/{areas}
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, areas:[integrationportal]}
