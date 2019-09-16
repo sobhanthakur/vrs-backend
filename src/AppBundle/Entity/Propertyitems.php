@@ -22,6 +22,13 @@ class Propertyitems
     private $propertyitemid;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyItemTypeID", type="integer", nullable=true)
+     */
+    private $propertyitemtypeid;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="Store", type="string", length=50, nullable=true)
@@ -122,16 +129,6 @@ class Propertyitems
      */
     private $propertyid;
 
-    /**
-     * @var \Propertyitemtypes
-     *
-     * @ORM\ManyToOne(targetEntity="Propertyitemtypes")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyItemTypeID", referencedColumnName="PropertyItemTypeID")
-     * })
-     */
-    private $propertyitemtypeid;
-
 
 
     /**
@@ -142,6 +139,30 @@ class Propertyitems
     public function getPropertyitemid()
     {
         return $this->propertyitemid;
+    }
+
+    /**
+     * Set propertyitemtypeid.
+     *
+     * @param int|null $propertyitemtypeid
+     *
+     * @return Propertyitems
+     */
+    public function setPropertyitemtypeid($propertyitemtypeid = null)
+    {
+        $this->propertyitemtypeid = $propertyitemtypeid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyitemtypeid.
+     *
+     * @return int|null
+     */
+    public function getPropertyitemtypeid()
+    {
+        return $this->propertyitemtypeid;
     }
 
     /**
@@ -478,29 +499,5 @@ class Propertyitems
     public function getPropertyid()
     {
         return $this->propertyid;
-    }
-
-    /**
-     * Set propertyitemtypeid.
-     *
-     * @param \AppBundle\Entity\Propertyitemtypes|null $propertyitemtypeid
-     *
-     * @return Propertyitems
-     */
-    public function setPropertyitemtypeid(\AppBundle\Entity\Propertyitemtypes $propertyitemtypeid = null)
-    {
-        $this->propertyitemtypeid = $propertyitemtypeid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertyitemtypeid.
-     *
-     * @return \AppBundle\Entity\Propertyitemtypes|null
-     */
-    public function getPropertyitemtypeid()
-    {
-        return $this->propertyitemtypeid;
     }
 }

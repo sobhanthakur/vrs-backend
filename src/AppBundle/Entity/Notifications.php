@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Notifications
  *
- * @ORM\Table(name="Notifications", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="TypeID", columns={"TypeID"}), @ORM\Index(name="IDX_D37EFB26176EED95", columns={"CustomerNotificationID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_D37EFB261528B8C2", columns={"FromCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
+ * @ORM\Table(name="Notifications", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="TypeID", columns={"TypeID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
  * @ORM\Entity
  */
 class Notifications
@@ -29,11 +29,32 @@ class Notifications
     private $messageid;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="CustomerNotificationID", type="integer", nullable=true)
+     */
+    private $customernotificationid;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="TypeID", type="integer", nullable=false)
      */
     private $typeid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="CustomerID", type="integer", nullable=true)
+     */
+    private $customerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="FromCustomerID", type="integer", nullable=true)
+     */
+    private $fromcustomerid;
 
     /**
      * @var int|null
@@ -92,14 +113,14 @@ class Notifications
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Customernotifications
+     * @var \Tasks
      *
-     * @ORM\ManyToOne(targetEntity="Customernotifications")
+     * @ORM\ManyToOne(targetEntity="Tasks")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerNotificationID", referencedColumnName="CustomerNotificationID")
+     *   @ORM\JoinColumn(name="TaskID", referencedColumnName="TaskID")
      * })
      */
-    private $customernotificationid;
+    private $taskid;
 
     /**
      * @var \Customers
@@ -112,26 +133,6 @@ class Notifications
     private $accountcustomerid;
 
     /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
-     * })
-     */
-    private $customerid;
-
-    /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="FromCustomerID", referencedColumnName="CustomerID")
-     * })
-     */
-    private $fromcustomerid;
-
-    /**
      * @var \Owners
      *
      * @ORM\ManyToOne(targetEntity="Owners")
@@ -140,6 +141,16 @@ class Notifications
      * })
      */
     private $ownerid;
+
+    /**
+     * @var \Servicers
+     *
+     * @ORM\ManyToOne(targetEntity="Servicers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
+     * })
+     */
+    private $servicerid;
 
     /**
      * @var \Propertybookings
@@ -156,30 +167,10 @@ class Notifications
      *
      * @ORM\ManyToOne(targetEntity="Servicers")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $servicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="FromServicerID", referencedColumnName="ServicerID")
      * })
      */
     private $fromservicerid;
-
-    /**
-     * @var \Tasks
-     *
-     * @ORM\ManyToOne(targetEntity="Tasks")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="TaskID", referencedColumnName="TaskID")
-     * })
-     */
-    private $taskid;
 
 
 
@@ -218,6 +209,30 @@ class Notifications
     }
 
     /**
+     * Set customernotificationid.
+     *
+     * @param int|null $customernotificationid
+     *
+     * @return Notifications
+     */
+    public function setCustomernotificationid($customernotificationid = null)
+    {
+        $this->customernotificationid = $customernotificationid;
+
+        return $this;
+    }
+
+    /**
+     * Get customernotificationid.
+     *
+     * @return int|null
+     */
+    public function getCustomernotificationid()
+    {
+        return $this->customernotificationid;
+    }
+
+    /**
      * Set typeid.
      *
      * @param int $typeid
@@ -239,6 +254,54 @@ class Notifications
     public function getTypeid()
     {
         return $this->typeid;
+    }
+
+    /**
+     * Set customerid.
+     *
+     * @param int|null $customerid
+     *
+     * @return Notifications
+     */
+    public function setCustomerid($customerid = null)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return int|null
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
+    }
+
+    /**
+     * Set fromcustomerid.
+     *
+     * @param int|null $fromcustomerid
+     *
+     * @return Notifications
+     */
+    public function setFromcustomerid($fromcustomerid = null)
+    {
+        $this->fromcustomerid = $fromcustomerid;
+
+        return $this;
+    }
+
+    /**
+     * Get fromcustomerid.
+     *
+     * @return int|null
+     */
+    public function getFromcustomerid()
+    {
+        return $this->fromcustomerid;
     }
 
     /**
@@ -434,27 +497,27 @@ class Notifications
     }
 
     /**
-     * Set customernotificationid.
+     * Set taskid.
      *
-     * @param \AppBundle\Entity\Customernotifications|null $customernotificationid
+     * @param \AppBundle\Entity\Tasks|null $taskid
      *
      * @return Notifications
      */
-    public function setCustomernotificationid(\AppBundle\Entity\Customernotifications $customernotificationid = null)
+    public function setTaskid(\AppBundle\Entity\Tasks $taskid = null)
     {
-        $this->customernotificationid = $customernotificationid;
+        $this->taskid = $taskid;
 
         return $this;
     }
 
     /**
-     * Get customernotificationid.
+     * Get taskid.
      *
-     * @return \AppBundle\Entity\Customernotifications|null
+     * @return \AppBundle\Entity\Tasks|null
      */
-    public function getCustomernotificationid()
+    public function getTaskid()
     {
-        return $this->customernotificationid;
+        return $this->taskid;
     }
 
     /**
@@ -482,54 +545,6 @@ class Notifications
     }
 
     /**
-     * Set customerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $customerid
-     *
-     * @return Notifications
-     */
-    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
-    }
-
-    /**
-     * Set fromcustomerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $fromcustomerid
-     *
-     * @return Notifications
-     */
-    public function setFromcustomerid(\AppBundle\Entity\Customers $fromcustomerid = null)
-    {
-        $this->fromcustomerid = $fromcustomerid;
-
-        return $this;
-    }
-
-    /**
-     * Get fromcustomerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getFromcustomerid()
-    {
-        return $this->fromcustomerid;
-    }
-
-    /**
      * Set ownerid.
      *
      * @param \AppBundle\Entity\Owners|null $ownerid
@@ -551,30 +566,6 @@ class Notifications
     public function getOwnerid()
     {
         return $this->ownerid;
-    }
-
-    /**
-     * Set propertybookingid.
-     *
-     * @param \AppBundle\Entity\Propertybookings|null $propertybookingid
-     *
-     * @return Notifications
-     */
-    public function setPropertybookingid(\AppBundle\Entity\Propertybookings $propertybookingid = null)
-    {
-        $this->propertybookingid = $propertybookingid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertybookingid.
-     *
-     * @return \AppBundle\Entity\Propertybookings|null
-     */
-    public function getPropertybookingid()
-    {
-        return $this->propertybookingid;
     }
 
     /**
@@ -602,6 +593,30 @@ class Notifications
     }
 
     /**
+     * Set propertybookingid.
+     *
+     * @param \AppBundle\Entity\Propertybookings|null $propertybookingid
+     *
+     * @return Notifications
+     */
+    public function setPropertybookingid(\AppBundle\Entity\Propertybookings $propertybookingid = null)
+    {
+        $this->propertybookingid = $propertybookingid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertybookingid.
+     *
+     * @return \AppBundle\Entity\Propertybookings|null
+     */
+    public function getPropertybookingid()
+    {
+        return $this->propertybookingid;
+    }
+
+    /**
      * Set fromservicerid.
      *
      * @param \AppBundle\Entity\Servicers|null $fromservicerid
@@ -623,29 +638,5 @@ class Notifications
     public function getFromservicerid()
     {
         return $this->fromservicerid;
-    }
-
-    /**
-     * Set taskid.
-     *
-     * @param \AppBundle\Entity\Tasks|null $taskid
-     *
-     * @return Notifications
-     */
-    public function setTaskid(\AppBundle\Entity\Tasks $taskid = null)
-    {
-        $this->taskid = $taskid;
-
-        return $this;
-    }
-
-    /**
-     * Get taskid.
-     *
-     * @return \AppBundle\Entity\Tasks|null
-     */
-    public function getTaskid()
-    {
-        return $this->taskid;
     }
 }

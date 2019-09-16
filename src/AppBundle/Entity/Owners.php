@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Owners
  *
- * @ORM\Table(name="Owners", indexes={@ORM\Index(name="IDX_45DE97CC423D04DF", columns={"CountryID"}), @ORM\Index(name="IDX_45DE97CC854CF4BD", columns={"CustomerID"})})
+ * @ORM\Table(name="Owners", indexes={@ORM\Index(name="IDX_45DE97CC854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_45DE97CC423D04DF", columns={"CountryID"})})
  * @ORM\Entity
  */
 class Owners
@@ -176,16 +176,6 @@ class Owners
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Countries
-     *
-     * @ORM\ManyToOne(targetEntity="Countries")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CountryID", referencedColumnName="CountryID")
-     * })
-     */
-    private $countryid;
-
-    /**
      * @var \Customers
      *
      * @ORM\ManyToOne(targetEntity="Customers")
@@ -194,6 +184,16 @@ class Owners
      * })
      */
     private $customerid;
+
+    /**
+     * @var \Countries
+     *
+     * @ORM\ManyToOne(targetEntity="Countries")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CountryID", referencedColumnName="CountryID")
+     * })
+     */
+    private $countryid;
 
 
 
@@ -736,30 +736,6 @@ class Owners
     }
 
     /**
-     * Set countryid.
-     *
-     * @param \AppBundle\Entity\Countries|null $countryid
-     *
-     * @return Owners
-     */
-    public function setCountryid(\AppBundle\Entity\Countries $countryid = null)
-    {
-        $this->countryid = $countryid;
-
-        return $this;
-    }
-
-    /**
-     * Get countryid.
-     *
-     * @return \AppBundle\Entity\Countries|null
-     */
-    public function getCountryid()
-    {
-        return $this->countryid;
-    }
-
-    /**
      * Set customerid.
      *
      * @param \AppBundle\Entity\Customers|null $customerid
@@ -781,5 +757,29 @@ class Owners
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * Set countryid.
+     *
+     * @param \AppBundle\Entity\Countries|null $countryid
+     *
+     * @return Owners
+     */
+    public function setCountryid(\AppBundle\Entity\Countries $countryid = null)
+    {
+        $this->countryid = $countryid;
+
+        return $this;
+    }
+
+    /**
+     * Get countryid.
+     *
+     * @return \AppBundle\Entity\Countries|null
+     */
+    public function getCountryid()
+    {
+        return $this->countryid;
     }
 }

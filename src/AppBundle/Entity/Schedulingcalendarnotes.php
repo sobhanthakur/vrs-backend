@@ -57,9 +57,9 @@ class Schedulingcalendarnotes
     private $showonemployeedashboard = '0';
 
     /**
-     * @var int|null
+     * @var int
      *
-     * @ORM\Column(name="CreatedByServicerID", type="integer", nullable=true)
+     * @ORM\Column(name="CreatedByServicerID", type="integer", nullable=false)
      */
     private $createdbyservicerid;
 
@@ -225,11 +225,11 @@ class Schedulingcalendarnotes
     /**
      * Set createdbyservicerid.
      *
-     * @param int|null $createdbyservicerid
+     * @param int $createdbyservicerid
      *
      * @return Schedulingcalendarnotes
      */
-    public function setCreatedbyservicerid($createdbyservicerid = null)
+    public function setCreatedbyservicerid($createdbyservicerid)
     {
         $this->createdbyservicerid = $createdbyservicerid;
 
@@ -239,7 +239,7 @@ class Schedulingcalendarnotes
     /**
      * Get createdbyservicerid.
      *
-     * @return int|null
+     * @return int
      */
     public function getCreatedbyservicerid()
     {

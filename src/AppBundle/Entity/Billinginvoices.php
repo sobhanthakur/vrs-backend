@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Billinginvoices
  *
- * @ORM\Table(name="BillingInvoices")
+ * @ORM\Table(name="BillingInvoices", indexes={@ORM\Index(name="IDX_4FA19F7854CF4BD", columns={"CustomerID"})})
  * @ORM\Entity
  */
 class Billinginvoices
@@ -20,13 +20,6 @@ class Billinginvoices
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $billinginvoiceid;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="CustomerID", type="integer", nullable=false)
-     */
-    private $customerid;
 
     /**
      * @var string|null
@@ -147,6 +140,16 @@ class Billinginvoices
      */
     private $createdate = 'CURRENT_TIMESTAMP';
 
+    /**
+     * @var \Customers
+     *
+     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     * })
+     */
+    private $customerid;
+
 
 
     /**
@@ -157,30 +160,6 @@ class Billinginvoices
     public function getBillinginvoiceid()
     {
         return $this->billinginvoiceid;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param int $customerid
-     *
-     * @return Billinginvoices
-     */
-    public function setCustomerid($customerid)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return int
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
     }
 
     /**
@@ -589,5 +568,29 @@ class Billinginvoices
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * Set customerid.
+     *
+     * @param \AppBundle\Entity\Customers|null $customerid
+     *
+     * @return Billinginvoices
+     */
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return \AppBundle\Entity\Customers|null
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
     }
 }

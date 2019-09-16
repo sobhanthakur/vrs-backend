@@ -22,16 +22,6 @@ class Servicerstoemployeegroups
     private $servicertoemployeegroupid;
 
     /**
-     * @var \Employeegroups
-     *
-     * @ORM\ManyToOne(targetEntity="Employeegroups")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="EmployeeGroupID", referencedColumnName="EmployeeGroupID")
-     * })
-     */
-    private $employeegroupid;
-
-    /**
      * @var \Servicers
      *
      * @ORM\ManyToOne(targetEntity="Servicers")
@@ -40,6 +30,16 @@ class Servicerstoemployeegroups
      * })
      */
     private $servicerid;
+
+    /**
+     * @var \Employeegroups
+     *
+     * @ORM\ManyToOne(targetEntity="Employeegroups")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="EmployeeGroupID", referencedColumnName="EmployeeGroupID")
+     * })
+     */
+    private $employeegroupid;
 
 
 
@@ -51,30 +51,6 @@ class Servicerstoemployeegroups
     public function getServicertoemployeegroupid()
     {
         return $this->servicertoemployeegroupid;
-    }
-
-    /**
-     * Set employeegroupid.
-     *
-     * @param \AppBundle\Entity\Employeegroups|null $employeegroupid
-     *
-     * @return Servicerstoemployeegroups
-     */
-    public function setEmployeegroupid(\AppBundle\Entity\Employeegroups $employeegroupid = null)
-    {
-        $this->employeegroupid = $employeegroupid;
-
-        return $this;
-    }
-
-    /**
-     * Get employeegroupid.
-     *
-     * @return \AppBundle\Entity\Employeegroups|null
-     */
-    public function getEmployeegroupid()
-    {
-        return $this->employeegroupid;
     }
 
     /**
@@ -99,5 +75,29 @@ class Servicerstoemployeegroups
     public function getServicerid()
     {
         return $this->servicerid;
+    }
+
+    /**
+     * Set employeegroupid.
+     *
+     * @param \AppBundle\Entity\Employeegroups|null $employeegroupid
+     *
+     * @return Servicerstoemployeegroups
+     */
+    public function setEmployeegroupid(\AppBundle\Entity\Employeegroups $employeegroupid = null)
+    {
+        $this->employeegroupid = $employeegroupid;
+
+        return $this;
+    }
+
+    /**
+     * Get employeegroupid.
+     *
+     * @return \AppBundle\Entity\Employeegroups|null
+     */
+    public function getEmployeegroupid()
+    {
+        return $this->employeegroupid;
     }
 }

@@ -52,7 +52,7 @@ class Taskchanges
     /**
      * @var string|null
      *
-     * @ORM\Column(name="Description", type="text", length=-1, nullable=true)
+     * @ORM\Column(name="Description", type="string", length=200, nullable=true)
      */
     private $description;
 

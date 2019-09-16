@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Checklists
  *
- * @ORM\Table(name="Checklists")
+ * @ORM\Table(name="Checklists", indexes={@ORM\Index(name="IDX_FFDE98EFBCFBD3DE", columns={"ParentChecklistID"}), @ORM\Index(name="IDX_FFDE98EF854CF4BD", columns={"CustomerID"})})
  * @ORM\Entity
  */
 class Checklists
@@ -20,20 +20,6 @@ class Checklists
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $checklistid;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="ParentChecklistID", type="integer", nullable=true)
-     */
-    private $parentchecklistid;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="CustomerID", type="integer", nullable=false)
-     */
-    private $customerid;
 
     /**
      * @var string
@@ -49,6 +35,26 @@ class Checklists
      */
     private $createdate = 'getutcdate()';
 
+    /**
+     * @var \Checklists
+     *
+     * @ORM\ManyToOne(targetEntity="Checklists")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ParentChecklistID", referencedColumnName="ChecklistID")
+     * })
+     */
+    private $parentchecklistid;
+
+    /**
+     * @var \Customers
+     *
+     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     * })
+     */
+    private $customerid;
+
 
 
     /**
@@ -59,54 +65,6 @@ class Checklists
     public function getChecklistid()
     {
         return $this->checklistid;
-    }
-
-    /**
-     * Set parentchecklistid.
-     *
-     * @param int|null $parentchecklistid
-     *
-     * @return Checklists
-     */
-    public function setParentchecklistid($parentchecklistid = null)
-    {
-        $this->parentchecklistid = $parentchecklistid;
-
-        return $this;
-    }
-
-    /**
-     * Get parentchecklistid.
-     *
-     * @return int|null
-     */
-    public function getParentchecklistid()
-    {
-        return $this->parentchecklistid;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param int $customerid
-     *
-     * @return Checklists
-     */
-    public function setCustomerid($customerid)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return int
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
     }
 
     /**
@@ -155,5 +113,53 @@ class Checklists
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * Set parentchecklistid.
+     *
+     * @param \AppBundle\Entity\Checklists|null $parentchecklistid
+     *
+     * @return Checklists
+     */
+    public function setParentchecklistid(\AppBundle\Entity\Checklists $parentchecklistid = null)
+    {
+        $this->parentchecklistid = $parentchecklistid;
+
+        return $this;
+    }
+
+    /**
+     * Get parentchecklistid.
+     *
+     * @return \AppBundle\Entity\Checklists|null
+     */
+    public function getParentchecklistid()
+    {
+        return $this->parentchecklistid;
+    }
+
+    /**
+     * Set customerid.
+     *
+     * @param \AppBundle\Entity\Customers|null $customerid
+     *
+     * @return Checklists
+     */
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return \AppBundle\Entity\Customers|null
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
     }
 }

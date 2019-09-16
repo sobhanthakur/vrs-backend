@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Tasks
  *
- * @ORM\Table(name="Tasks", indexes={@ORM\Index(name="Active", columns={"Active"}), @ORM\Index(name="backtobakck", columns={"BackToBack"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="completeconfirmeddate", columns={"CompleteConfirmedDate"}), @ORM\Index(name="CompleteConfirmedDAte-Active", columns={"CompleteConfirmedDate", "Active"}), @ORM\Index(name="CompletedByServicerID", columns={"CompletedByServicerID"}), @ORM\Index(name="IssueID", columns={"IssueID"}), @ORM\Index(name="NextPropertyBOokingID", columns={"NextPropertyBookingID"}), @ORM\Index(name="ParentTaskID", columns={"ParentTaskID"}), @ORM\Index(name="propertyBOokingID", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="PropertyItemID", columns={"PropertyItemID"}), @ORM\Index(name="ServiceID", columns={"ServiceID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskDate", columns={"TaskDate"}), @ORM\Index(name="TaskTime", columns={"TaskTime"}), @ORM\Index(name="TaskTimeMinutes", columns={"TaskTimeMinutes"}), @ORM\Index(name="TaskType", columns={"TaskType"}), @ORM\Index(name="IDX_91994A93245F4372", columns={"CreatedByServicerID"}), @ORM\Index(name="IDX_91994A9314202D84", columns={"DeactivatedByServicerID"}), @ORM\Index(name="IDX_91994A93854CF4BD", columns={"CustomerID"})})
+ * @ORM\Table(name="Tasks", indexes={@ORM\Index(name="Active", columns={"Active"}), @ORM\Index(name="backtobakck", columns={"BackToBack"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="Closed", columns={"Closed"}), @ORM\Index(name="completeconfirmeddate", columns={"CompleteConfirmedDate"}), @ORM\Index(name="CompleteConfirmedDAte_Active", columns={"CompleteConfirmedDate", "Active"}), @ORM\Index(name="CompletedByServicerID", columns={"CompletedByServicerID"}), @ORM\Index(name="IssueID", columns={"IssueID"}), @ORM\Index(name="NextPropertyBOokingID", columns={"NextPropertyBookingID"}), @ORM\Index(name="ParentTaskID", columns={"ParentTaskID"}), @ORM\Index(name="propertyBOokingID", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="PropertyItemID", columns={"PropertyItemID"}), @ORM\Index(name="ServiceID", columns={"ServiceID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskDate", columns={"TaskDate"}), @ORM\Index(name="TaskTime", columns={"TaskTime"}), @ORM\Index(name="TaskTimeMinutes", columns={"TaskTimeMinutes"}), @ORM\Index(name="TaskType", columns={"TaskType"})})
  * @ORM\Entity
  */
 class Tasks
@@ -20,6 +20,20 @@ class Tasks
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $taskid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NextPropertyBookingID", type="integer", nullable=true)
+     */
+    private $nextpropertybookingid = '0';
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyItemID", type="integer", nullable=true)
+     */
+    private $propertyitemid = '0';
 
     /**
      * @var string|null
@@ -134,6 +148,48 @@ class Tasks
     private $taskcompletebytimeminutes = '0';
 
     /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="TaskFirstStartDate", type="date", nullable=true)
+     */
+    private $taskfirststartdate;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="TaskFirstStartTime", type="integer", nullable=true)
+     */
+    private $taskfirststarttime;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="LastEventDay", type="date", nullable=true)
+     */
+    private $lasteventday;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="LastEventTime", type="integer", nullable=true)
+     */
+    private $lasteventtime;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="LastEventIsCheckin", type="boolean", nullable=true)
+     */
+    private $lasteventischeckin;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="ServiceID", type="integer", nullable=true)
+     */
+    private $serviceid;
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="ServicerID", type="integer", nullable=true)
@@ -153,6 +209,13 @@ class Tasks
      * @ORM\Column(name="MaxTimeToComplete", type="float", precision=53, scale=0, nullable=true)
      */
     private $maxtimetocomplete;
+
+    /**
+     * @var float|null
+     *
+     * @ORM\Column(name="ActualTimeToComplete", type="float", precision=53, scale=0, nullable=true)
+     */
+    private $actualtimetocomplete;
 
     /**
      * @var bool|null
@@ -190,6 +253,13 @@ class Tasks
     private $urgent;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="Closed", type="boolean", nullable=true)
+     */
+    private $closed = '0';
+
+    /**
      * @var int
      *
      * @ORM\Column(name="SortOrder", type="integer", nullable=false)
@@ -199,9 +269,65 @@ class Tasks
     /**
      * @var \DateTime|null
      *
+     * @ORM\Column(name="SentInTaskListDate", type="datetime", nullable=true)
+     */
+    private $sentintasklistdate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="BookingNotifiedDate", type="datetime", nullable=true)
+     */
+    private $bookingnotifieddate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="BookingConfirmedDate", type="datetime", nullable=true)
+     */
+    private $bookingconfirmeddate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="BookingDeclinedDate", type="datetime", nullable=true)
+     */
+    private $bookingdeclineddate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ReminderNotifiedDate", type="datetime", nullable=true)
+     */
+    private $remindernotifieddate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ReminderConfirmedDate", type="datetime", nullable=true)
+     */
+    private $reminderconfirmeddate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="CompleteConfirmationRequestedDate", type="datetime", nullable=true)
+     */
+    private $completeconfirmationrequesteddate;
+
+    /**
+     * @var \DateTime|null
+     *
      * @ORM\Column(name="CompleteConfirmedDate", type="datetime", nullable=true)
      */
     private $completeconfirmeddate;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="CompletedByServicerID", type="integer", nullable=true)
+     */
+    private $completedbyservicerid;
 
     /**
      * @var string|null
@@ -267,13 +393,6 @@ class Tasks
     private $active = '1';
 
     /**
-     * @var int|null
-     *
-     * @ORM\Column(name="ParentTaskID", type="integer", nullable=true)
-     */
-    private $parenttaskid;
-
-    /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="ClosedDate", type="datetime", nullable=true)
@@ -307,6 +426,55 @@ class Tasks
      * @ORM\Column(name="ManagerServicerID", type="integer", nullable=true)
      */
     private $managerservicerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnCompletion", type="integer", nullable=true, options={"comment"="0=off,1=email only, 2=text only, 3= both text and email"})
+     */
+    private $notifycustomeroncompletion;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnOverdue", type="integer", nullable=true, options={"comment"="0=off,1=test only, 2=email only, 3= both text and email"})
+     */
+    private $notifycustomeronoverdue;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnDamage", type="integer", nullable=true)
+     */
+    private $notifycustomerondamage;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnMaintenance", type="integer", nullable=true)
+     */
+    private $notifycustomeronmaintenance;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnLostAndFound", type="integer", nullable=true)
+     */
+    private $notifycustomeronlostandfound;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnSupplyFlag", type="integer", nullable=true)
+     */
+    private $notifycustomeronsupplyflag;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnServicerNote", type="integer", nullable=true)
+     */
+    private $notifycustomeronservicernote;
 
     /**
      * @var bool|null
@@ -363,6 +531,13 @@ class Tasks
      * @ORM\Column(name="NotifyServicerOnOverdue", type="integer", nullable=true)
      */
     private $notifyserviceronoverdue;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="NotifyCustomerOnNotYetDone", type="integer", nullable=true)
+     */
+    private $notifycustomeronnotyetdone;
 
     /**
      * @var int|null
@@ -470,6 +645,20 @@ class Tasks
     private $activeforowner = '1';
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="IncludeGuestName", type="boolean", nullable=true)
+     */
+    private $includeguestname;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="IncludeGuestNumbers", type="boolean", nullable=true)
+     */
+    private $includeguestnumbers;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="Image1", type="string", length=250, nullable=true)
@@ -547,6 +736,20 @@ class Tasks
     private $schedulechangedate = 'getutcdate()';
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="CreatedByServicerID", type="integer", nullable=true)
+     */
+    private $createdbyservicerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="DeactivatedByServicerID", type="integer", nullable=true)
+     */
+    private $deactivatedbyservicerid;
+
+    /**
      * @var int
      *
      * @ORM\Column(name="AutosaveCount", type="integer", nullable=false, options={"comment"="used in employee dashboard to ensure ajax submit does not overright due to latency = <<VRAUTOSAVE>>"})
@@ -591,7 +794,7 @@ class Tasks
     /**
      * @var bool
      *
-     * @ORM\Column(name="Locked", type="boolean", nullable=false, options={"comment"="If the task is locked, the record can no longer be edited. Locked with QB batches."})
+     * @ORM\Column(name="Locked", type="boolean", nullable=false)
      */
     private $locked = '0';
 
@@ -613,14 +816,14 @@ class Tasks
     private $issueid;
 
     /**
-     * @var \Properties
+     * @var \Tasks
      *
-     * @ORM\ManyToOne(targetEntity="Properties")
+     * @ORM\ManyToOne(targetEntity="Tasks")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
+     *   @ORM\JoinColumn(name="ParentTaskID", referencedColumnName="TaskID")
      * })
      */
-    private $propertyid;
+    private $parenttaskid;
 
     /**
      * @var \Propertybookings
@@ -633,74 +836,14 @@ class Tasks
     private $propertybookingid;
 
     /**
-     * @var \Propertybookings
+     * @var \Properties
      *
-     * @ORM\ManyToOne(targetEntity="Propertybookings")
+     * @ORM\ManyToOne(targetEntity="Properties")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="NextPropertyBookingID", referencedColumnName="PropertyBookingID")
+     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
      * })
      */
-    private $nextpropertybookingid;
-
-    /**
-     * @var \Propertyitems
-     *
-     * @ORM\ManyToOne(targetEntity="Propertyitems")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyItemID", referencedColumnName="PropertyItemID")
-     * })
-     */
-    private $propertyitemid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CompletedByServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $completedbyservicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CreatedByServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $createdbyservicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="DeactivatedByServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $deactivatedbyservicerid;
-
-    /**
-     * @var \Services
-     *
-     * @ORM\ManyToOne(targetEntity="Services")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ServiceID", referencedColumnName="ServiceID")
-     * })
-     */
-    private $serviceid;
-
-    /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
-     * })
-     */
-    private $customerid;
+    private $propertyid;
 
 
 
@@ -712,6 +855,54 @@ class Tasks
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * Set nextpropertybookingid.
+     *
+     * @param int|null $nextpropertybookingid
+     *
+     * @return Tasks
+     */
+    public function setNextpropertybookingid($nextpropertybookingid = null)
+    {
+        $this->nextpropertybookingid = $nextpropertybookingid;
+
+        return $this;
+    }
+
+    /**
+     * Get nextpropertybookingid.
+     *
+     * @return int|null
+     */
+    public function getNextpropertybookingid()
+    {
+        return $this->nextpropertybookingid;
+    }
+
+    /**
+     * Set propertyitemid.
+     *
+     * @param int|null $propertyitemid
+     *
+     * @return Tasks
+     */
+    public function setPropertyitemid($propertyitemid = null)
+    {
+        $this->propertyitemid = $propertyitemid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyitemid.
+     *
+     * @return int|null
+     */
+    public function getPropertyitemid()
+    {
+        return $this->propertyitemid;
     }
 
     /**
@@ -1099,6 +1290,150 @@ class Tasks
     }
 
     /**
+     * Set taskfirststartdate.
+     *
+     * @param \DateTime|null $taskfirststartdate
+     *
+     * @return Tasks
+     */
+    public function setTaskfirststartdate($taskfirststartdate = null)
+    {
+        $this->taskfirststartdate = $taskfirststartdate;
+
+        return $this;
+    }
+
+    /**
+     * Get taskfirststartdate.
+     *
+     * @return \DateTime|null
+     */
+    public function getTaskfirststartdate()
+    {
+        return $this->taskfirststartdate;
+    }
+
+    /**
+     * Set taskfirststarttime.
+     *
+     * @param int|null $taskfirststarttime
+     *
+     * @return Tasks
+     */
+    public function setTaskfirststarttime($taskfirststarttime = null)
+    {
+        $this->taskfirststarttime = $taskfirststarttime;
+
+        return $this;
+    }
+
+    /**
+     * Get taskfirststarttime.
+     *
+     * @return int|null
+     */
+    public function getTaskfirststarttime()
+    {
+        return $this->taskfirststarttime;
+    }
+
+    /**
+     * Set lasteventday.
+     *
+     * @param \DateTime|null $lasteventday
+     *
+     * @return Tasks
+     */
+    public function setLasteventday($lasteventday = null)
+    {
+        $this->lasteventday = $lasteventday;
+
+        return $this;
+    }
+
+    /**
+     * Get lasteventday.
+     *
+     * @return \DateTime|null
+     */
+    public function getLasteventday()
+    {
+        return $this->lasteventday;
+    }
+
+    /**
+     * Set lasteventtime.
+     *
+     * @param int|null $lasteventtime
+     *
+     * @return Tasks
+     */
+    public function setLasteventtime($lasteventtime = null)
+    {
+        $this->lasteventtime = $lasteventtime;
+
+        return $this;
+    }
+
+    /**
+     * Get lasteventtime.
+     *
+     * @return int|null
+     */
+    public function getLasteventtime()
+    {
+        return $this->lasteventtime;
+    }
+
+    /**
+     * Set lasteventischeckin.
+     *
+     * @param bool|null $lasteventischeckin
+     *
+     * @return Tasks
+     */
+    public function setLasteventischeckin($lasteventischeckin = null)
+    {
+        $this->lasteventischeckin = $lasteventischeckin;
+
+        return $this;
+    }
+
+    /**
+     * Get lasteventischeckin.
+     *
+     * @return bool|null
+     */
+    public function getLasteventischeckin()
+    {
+        return $this->lasteventischeckin;
+    }
+
+    /**
+     * Set serviceid.
+     *
+     * @param int|null $serviceid
+     *
+     * @return Tasks
+     */
+    public function setServiceid($serviceid = null)
+    {
+        $this->serviceid = $serviceid;
+
+        return $this;
+    }
+
+    /**
+     * Get serviceid.
+     *
+     * @return int|null
+     */
+    public function getServiceid()
+    {
+        return $this->serviceid;
+    }
+
+    /**
      * Set servicerid.
      *
      * @param int|null $servicerid
@@ -1168,6 +1503,30 @@ class Tasks
     public function getMaxtimetocomplete()
     {
         return $this->maxtimetocomplete;
+    }
+
+    /**
+     * Set actualtimetocomplete.
+     *
+     * @param float|null $actualtimetocomplete
+     *
+     * @return Tasks
+     */
+    public function setActualtimetocomplete($actualtimetocomplete = null)
+    {
+        $this->actualtimetocomplete = $actualtimetocomplete;
+
+        return $this;
+    }
+
+    /**
+     * Get actualtimetocomplete.
+     *
+     * @return float|null
+     */
+    public function getActualtimetocomplete()
+    {
+        return $this->actualtimetocomplete;
     }
 
     /**
@@ -1291,6 +1650,30 @@ class Tasks
     }
 
     /**
+     * Set closed.
+     *
+     * @param bool|null $closed
+     *
+     * @return Tasks
+     */
+    public function setClosed($closed = null)
+    {
+        $this->closed = $closed;
+
+        return $this;
+    }
+
+    /**
+     * Get closed.
+     *
+     * @return bool|null
+     */
+    public function getClosed()
+    {
+        return $this->closed;
+    }
+
+    /**
      * Set sortorder.
      *
      * @param int $sortorder
@@ -1315,6 +1698,174 @@ class Tasks
     }
 
     /**
+     * Set sentintasklistdate.
+     *
+     * @param \DateTime|null $sentintasklistdate
+     *
+     * @return Tasks
+     */
+    public function setSentintasklistdate($sentintasklistdate = null)
+    {
+        $this->sentintasklistdate = $sentintasklistdate;
+
+        return $this;
+    }
+
+    /**
+     * Get sentintasklistdate.
+     *
+     * @return \DateTime|null
+     */
+    public function getSentintasklistdate()
+    {
+        return $this->sentintasklistdate;
+    }
+
+    /**
+     * Set bookingnotifieddate.
+     *
+     * @param \DateTime|null $bookingnotifieddate
+     *
+     * @return Tasks
+     */
+    public function setBookingnotifieddate($bookingnotifieddate = null)
+    {
+        $this->bookingnotifieddate = $bookingnotifieddate;
+
+        return $this;
+    }
+
+    /**
+     * Get bookingnotifieddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getBookingnotifieddate()
+    {
+        return $this->bookingnotifieddate;
+    }
+
+    /**
+     * Set bookingconfirmeddate.
+     *
+     * @param \DateTime|null $bookingconfirmeddate
+     *
+     * @return Tasks
+     */
+    public function setBookingconfirmeddate($bookingconfirmeddate = null)
+    {
+        $this->bookingconfirmeddate = $bookingconfirmeddate;
+
+        return $this;
+    }
+
+    /**
+     * Get bookingconfirmeddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getBookingconfirmeddate()
+    {
+        return $this->bookingconfirmeddate;
+    }
+
+    /**
+     * Set bookingdeclineddate.
+     *
+     * @param \DateTime|null $bookingdeclineddate
+     *
+     * @return Tasks
+     */
+    public function setBookingdeclineddate($bookingdeclineddate = null)
+    {
+        $this->bookingdeclineddate = $bookingdeclineddate;
+
+        return $this;
+    }
+
+    /**
+     * Get bookingdeclineddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getBookingdeclineddate()
+    {
+        return $this->bookingdeclineddate;
+    }
+
+    /**
+     * Set remindernotifieddate.
+     *
+     * @param \DateTime|null $remindernotifieddate
+     *
+     * @return Tasks
+     */
+    public function setRemindernotifieddate($remindernotifieddate = null)
+    {
+        $this->remindernotifieddate = $remindernotifieddate;
+
+        return $this;
+    }
+
+    /**
+     * Get remindernotifieddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getRemindernotifieddate()
+    {
+        return $this->remindernotifieddate;
+    }
+
+    /**
+     * Set reminderconfirmeddate.
+     *
+     * @param \DateTime|null $reminderconfirmeddate
+     *
+     * @return Tasks
+     */
+    public function setReminderconfirmeddate($reminderconfirmeddate = null)
+    {
+        $this->reminderconfirmeddate = $reminderconfirmeddate;
+
+        return $this;
+    }
+
+    /**
+     * Get reminderconfirmeddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getReminderconfirmeddate()
+    {
+        return $this->reminderconfirmeddate;
+    }
+
+    /**
+     * Set completeconfirmationrequesteddate.
+     *
+     * @param \DateTime|null $completeconfirmationrequesteddate
+     *
+     * @return Tasks
+     */
+    public function setCompleteconfirmationrequesteddate($completeconfirmationrequesteddate = null)
+    {
+        $this->completeconfirmationrequesteddate = $completeconfirmationrequesteddate;
+
+        return $this;
+    }
+
+    /**
+     * Get completeconfirmationrequesteddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getCompleteconfirmationrequesteddate()
+    {
+        return $this->completeconfirmationrequesteddate;
+    }
+
+    /**
      * Set completeconfirmeddate.
      *
      * @param \DateTime|null $completeconfirmeddate
@@ -1336,6 +1887,30 @@ class Tasks
     public function getCompleteconfirmeddate()
     {
         return $this->completeconfirmeddate;
+    }
+
+    /**
+     * Set completedbyservicerid.
+     *
+     * @param int|null $completedbyservicerid
+     *
+     * @return Tasks
+     */
+    public function setCompletedbyservicerid($completedbyservicerid = null)
+    {
+        $this->completedbyservicerid = $completedbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get completedbyservicerid.
+     *
+     * @return int|null
+     */
+    public function getCompletedbyservicerid()
+    {
+        return $this->completedbyservicerid;
     }
 
     /**
@@ -1555,30 +2130,6 @@ class Tasks
     }
 
     /**
-     * Set parenttaskid.
-     *
-     * @param int|null $parenttaskid
-     *
-     * @return Tasks
-     */
-    public function setParenttaskid($parenttaskid = null)
-    {
-        $this->parenttaskid = $parenttaskid;
-
-        return $this;
-    }
-
-    /**
-     * Get parenttaskid.
-     *
-     * @return int|null
-     */
-    public function getParenttaskid()
-    {
-        return $this->parenttaskid;
-    }
-
-    /**
      * Set closeddate.
      *
      * @param \DateTime|null $closeddate
@@ -1696,6 +2247,174 @@ class Tasks
     public function getManagerservicerid()
     {
         return $this->managerservicerid;
+    }
+
+    /**
+     * Set notifycustomeroncompletion.
+     *
+     * @param int|null $notifycustomeroncompletion
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeroncompletion($notifycustomeroncompletion = null)
+    {
+        $this->notifycustomeroncompletion = $notifycustomeroncompletion;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeroncompletion.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeroncompletion()
+    {
+        return $this->notifycustomeroncompletion;
+    }
+
+    /**
+     * Set notifycustomeronoverdue.
+     *
+     * @param int|null $notifycustomeronoverdue
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronoverdue($notifycustomeronoverdue = null)
+    {
+        $this->notifycustomeronoverdue = $notifycustomeronoverdue;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronoverdue.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronoverdue()
+    {
+        return $this->notifycustomeronoverdue;
+    }
+
+    /**
+     * Set notifycustomerondamage.
+     *
+     * @param int|null $notifycustomerondamage
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomerondamage($notifycustomerondamage = null)
+    {
+        $this->notifycustomerondamage = $notifycustomerondamage;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomerondamage.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomerondamage()
+    {
+        return $this->notifycustomerondamage;
+    }
+
+    /**
+     * Set notifycustomeronmaintenance.
+     *
+     * @param int|null $notifycustomeronmaintenance
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronmaintenance($notifycustomeronmaintenance = null)
+    {
+        $this->notifycustomeronmaintenance = $notifycustomeronmaintenance;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronmaintenance.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronmaintenance()
+    {
+        return $this->notifycustomeronmaintenance;
+    }
+
+    /**
+     * Set notifycustomeronlostandfound.
+     *
+     * @param int|null $notifycustomeronlostandfound
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronlostandfound($notifycustomeronlostandfound = null)
+    {
+        $this->notifycustomeronlostandfound = $notifycustomeronlostandfound;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronlostandfound.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronlostandfound()
+    {
+        return $this->notifycustomeronlostandfound;
+    }
+
+    /**
+     * Set notifycustomeronsupplyflag.
+     *
+     * @param int|null $notifycustomeronsupplyflag
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronsupplyflag($notifycustomeronsupplyflag = null)
+    {
+        $this->notifycustomeronsupplyflag = $notifycustomeronsupplyflag;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronsupplyflag.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronsupplyflag()
+    {
+        return $this->notifycustomeronsupplyflag;
+    }
+
+    /**
+     * Set notifycustomeronservicernote.
+     *
+     * @param int|null $notifycustomeronservicernote
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronservicernote($notifycustomeronservicernote = null)
+    {
+        $this->notifycustomeronservicernote = $notifycustomeronservicernote;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronservicernote.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronservicernote()
+    {
+        return $this->notifycustomeronservicernote;
     }
 
     /**
@@ -1888,6 +2607,30 @@ class Tasks
     public function getNotifyserviceronoverdue()
     {
         return $this->notifyserviceronoverdue;
+    }
+
+    /**
+     * Set notifycustomeronnotyetdone.
+     *
+     * @param int|null $notifycustomeronnotyetdone
+     *
+     * @return Tasks
+     */
+    public function setNotifycustomeronnotyetdone($notifycustomeronnotyetdone = null)
+    {
+        $this->notifycustomeronnotyetdone = $notifycustomeronnotyetdone;
+
+        return $this;
+    }
+
+    /**
+     * Get notifycustomeronnotyetdone.
+     *
+     * @return int|null
+     */
+    public function getNotifycustomeronnotyetdone()
+    {
+        return $this->notifycustomeronnotyetdone;
     }
 
     /**
@@ -2251,6 +2994,54 @@ class Tasks
     }
 
     /**
+     * Set includeguestname.
+     *
+     * @param bool|null $includeguestname
+     *
+     * @return Tasks
+     */
+    public function setIncludeguestname($includeguestname = null)
+    {
+        $this->includeguestname = $includeguestname;
+
+        return $this;
+    }
+
+    /**
+     * Get includeguestname.
+     *
+     * @return bool|null
+     */
+    public function getIncludeguestname()
+    {
+        return $this->includeguestname;
+    }
+
+    /**
+     * Set includeguestnumbers.
+     *
+     * @param bool|null $includeguestnumbers
+     *
+     * @return Tasks
+     */
+    public function setIncludeguestnumbers($includeguestnumbers = null)
+    {
+        $this->includeguestnumbers = $includeguestnumbers;
+
+        return $this;
+    }
+
+    /**
+     * Get includeguestnumbers.
+     *
+     * @return bool|null
+     */
+    public function getIncludeguestnumbers()
+    {
+        return $this->includeguestnumbers;
+    }
+
+    /**
      * Set image1.
      *
      * @param string|null $image1
@@ -2515,6 +3306,54 @@ class Tasks
     }
 
     /**
+     * Set createdbyservicerid.
+     *
+     * @param int|null $createdbyservicerid
+     *
+     * @return Tasks
+     */
+    public function setCreatedbyservicerid($createdbyservicerid = null)
+    {
+        $this->createdbyservicerid = $createdbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get createdbyservicerid.
+     *
+     * @return int|null
+     */
+    public function getCreatedbyservicerid()
+    {
+        return $this->createdbyservicerid;
+    }
+
+    /**
+     * Set deactivatedbyservicerid.
+     *
+     * @param int|null $deactivatedbyservicerid
+     *
+     * @return Tasks
+     */
+    public function setDeactivatedbyservicerid($deactivatedbyservicerid = null)
+    {
+        $this->deactivatedbyservicerid = $deactivatedbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get deactivatedbyservicerid.
+     *
+     * @return int|null
+     */
+    public function getDeactivatedbyservicerid()
+    {
+        return $this->deactivatedbyservicerid;
+    }
+
+    /**
      * Set autosavecount.
      *
      * @param int $autosavecount
@@ -2731,27 +3570,27 @@ class Tasks
     }
 
     /**
-     * Set propertyid.
+     * Set parenttaskid.
      *
-     * @param \AppBundle\Entity\Properties|null $propertyid
+     * @param \AppBundle\Entity\Tasks|null $parenttaskid
      *
      * @return Tasks
      */
-    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
+    public function setParenttaskid(\AppBundle\Entity\Tasks $parenttaskid = null)
     {
-        $this->propertyid = $propertyid;
+        $this->parenttaskid = $parenttaskid;
 
         return $this;
     }
 
     /**
-     * Get propertyid.
+     * Get parenttaskid.
      *
-     * @return \AppBundle\Entity\Properties|null
+     * @return \AppBundle\Entity\Tasks|null
      */
-    public function getPropertyid()
+    public function getParenttaskid()
     {
-        return $this->propertyid;
+        return $this->parenttaskid;
     }
 
     /**
@@ -2779,170 +3618,26 @@ class Tasks
     }
 
     /**
-     * Set nextpropertybookingid.
+     * Set propertyid.
      *
-     * @param \AppBundle\Entity\Propertybookings|null $nextpropertybookingid
+     * @param \AppBundle\Entity\Properties|null $propertyid
      *
      * @return Tasks
      */
-    public function setNextpropertybookingid(\AppBundle\Entity\Propertybookings $nextpropertybookingid = null)
+    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
     {
-        $this->nextpropertybookingid = $nextpropertybookingid;
+        $this->propertyid = $propertyid;
 
         return $this;
     }
 
     /**
-     * Get nextpropertybookingid.
+     * Get propertyid.
      *
-     * @return \AppBundle\Entity\Propertybookings|null
+     * @return \AppBundle\Entity\Properties|null
      */
-    public function getNextpropertybookingid()
+    public function getPropertyid()
     {
-        return $this->nextpropertybookingid;
-    }
-
-    /**
-     * Set propertyitemid.
-     *
-     * @param \AppBundle\Entity\Propertyitems|null $propertyitemid
-     *
-     * @return Tasks
-     */
-    public function setPropertyitemid(\AppBundle\Entity\Propertyitems $propertyitemid = null)
-    {
-        $this->propertyitemid = $propertyitemid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertyitemid.
-     *
-     * @return \AppBundle\Entity\Propertyitems|null
-     */
-    public function getPropertyitemid()
-    {
-        return $this->propertyitemid;
-    }
-
-    /**
-     * Set completedbyservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $completedbyservicerid
-     *
-     * @return Tasks
-     */
-    public function setCompletedbyservicerid(\AppBundle\Entity\Servicers $completedbyservicerid = null)
-    {
-        $this->completedbyservicerid = $completedbyservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get completedbyservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getCompletedbyservicerid()
-    {
-        return $this->completedbyservicerid;
-    }
-
-    /**
-     * Set createdbyservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $createdbyservicerid
-     *
-     * @return Tasks
-     */
-    public function setCreatedbyservicerid(\AppBundle\Entity\Servicers $createdbyservicerid = null)
-    {
-        $this->createdbyservicerid = $createdbyservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get createdbyservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getCreatedbyservicerid()
-    {
-        return $this->createdbyservicerid;
-    }
-
-    /**
-     * Set deactivatedbyservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $deactivatedbyservicerid
-     *
-     * @return Tasks
-     */
-    public function setDeactivatedbyservicerid(\AppBundle\Entity\Servicers $deactivatedbyservicerid = null)
-    {
-        $this->deactivatedbyservicerid = $deactivatedbyservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get deactivatedbyservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getDeactivatedbyservicerid()
-    {
-        return $this->deactivatedbyservicerid;
-    }
-
-    /**
-     * Set serviceid.
-     *
-     * @param \AppBundle\Entity\Services|null $serviceid
-     *
-     * @return Tasks
-     */
-    public function setServiceid(\AppBundle\Entity\Services $serviceid = null)
-    {
-        $this->serviceid = $serviceid;
-
-        return $this;
-    }
-
-    /**
-     * Get serviceid.
-     *
-     * @return \AppBundle\Entity\Services|null
-     */
-    public function getServiceid()
-    {
-        return $this->serviceid;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $customerid
-     *
-     * @return Tasks
-     */
-    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
+        return $this->propertyid;
     }
 }

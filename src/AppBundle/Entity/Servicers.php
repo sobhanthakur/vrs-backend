@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Servicers
  *
- * @ORM\Table(name="Servicers", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="customerid", columns={"CustomerID"}), @ORM\Index(name="LinkedCustomerid", columns={"LinkedCustomerID"}), @ORM\Index(name="password", columns={"Password"}), @ORM\Index(name="servicertype", columns={"ServicerType"}), @ORM\Index(name="sortorder", columns={"SortOrder"}), @ORM\Index(name="TIMETRACKING", columns={"TimeTracking"})})
+ * @ORM\Table(name="Servicers", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="customerid", columns={"CustomerID"}), @ORM\Index(name="LinkedCustomerid", columns={"LinkedCustomerID"}), @ORM\Index(name="password", columns={"Password"}), @ORM\Index(name="servicertype", columns={"ServicerType"}), @ORM\Index(name="sortorder", columns={"SortOrder"}), @ORM\Index(name="TIMETRACKING", columns={"TimeTracking"}), @ORM\Index(name="IDX_B4F997F4424D9CA0", columns={"TimeZoneID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ServicersRepository")
  */
 class Servicers
@@ -20,13 +20,6 @@ class Servicers
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $servicerid;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="TimeZoneID", type="integer", nullable=true)
-     */
-    private $timezoneid;
 
     /**
      * @var int|null
@@ -899,6 +892,16 @@ class Servicers
      */
     private $customerid;
 
+    /**
+     * @var \Timezones
+     *
+     * @ORM\ManyToOne(targetEntity="Timezones")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="TimeZoneID", referencedColumnName="TimeZoneID")
+     * })
+     */
+    private $timezoneid;
+
 
 
     /**
@@ -909,30 +912,6 @@ class Servicers
     public function getServicerid()
     {
         return $this->servicerid;
-    }
-
-    /**
-     * Set timezoneid.
-     *
-     * @param int|null $timezoneid
-     *
-     * @return Servicers
-     */
-    public function setTimezoneid($timezoneid = null)
-    {
-        $this->timezoneid = $timezoneid;
-
-        return $this;
-    }
-
-    /**
-     * Get timezoneid.
-     *
-     * @return int|null
-     */
-    public function getTimezoneid()
-    {
-        return $this->timezoneid;
     }
 
     /**
@@ -3909,5 +3888,29 @@ class Servicers
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * Set timezoneid.
+     *
+     * @param \AppBundle\Entity\Timezones|null $timezoneid
+     *
+     * @return Servicers
+     */
+    public function setTimezoneid(\AppBundle\Entity\Timezones $timezoneid = null)
+    {
+        $this->timezoneid = $timezoneid;
+
+        return $this;
+    }
+
+    /**
+     * Get timezoneid.
+     *
+     * @return \AppBundle\Entity\Timezones|null
+     */
+    public function getTimezoneid()
+    {
+        return $this->timezoneid;
     }
 }

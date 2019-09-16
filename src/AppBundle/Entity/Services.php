@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Services
  *
- * @ORM\Table(name="Services", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="NonClusteredIndex-20180406-230717", columns={"Active"}), @ORM\Index(name="ParentServiceID", columns={"ParentServiceID"}), @ORM\Index(name="servicergroupid", columns={"ServiceGroupID"}), @ORM\Index(name="TaskType", columns={"TaskType"}), @ORM\Index(name="IDX_8A44833FB650950C", columns={"ChecklistID"})})
+ * @ORM\Table(name="Services", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="NonClusteredIndex_20180406_230717", columns={"Active"}), @ORM\Index(name="ParentServiceID", columns={"ParentServiceID"}), @ORM\Index(name="servicergroupid", columns={"ServiceGroupID"}), @ORM\Index(name="TaskType", columns={"TaskType"}), @ORM\Index(name="IDX_8A44833FB650950C", columns={"ChecklistID"})})
  * @ORM\Entity
  */
 class Services
@@ -20,13 +20,6 @@ class Services
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $serviceid;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="CustomerID", type="integer", nullable=true)
-     */
-    private $customerid = '0';
 
     /**
      * @var string
@@ -722,16 +715,6 @@ class Services
     private $opertostatus;
 
     /**
-     * @var \Checklists
-     *
-     * @ORM\ManyToOne(targetEntity="Checklists")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ChecklistID", referencedColumnName="ChecklistID")
-     * })
-     */
-    private $checklistid;
-
-    /**
      * @var \Servicegroups
      *
      * @ORM\ManyToOne(targetEntity="Servicegroups")
@@ -740,6 +723,26 @@ class Services
      * })
      */
     private $servicegroupid;
+
+    /**
+     * @var \Customers
+     *
+     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     * })
+     */
+    private $customerid;
+
+    /**
+     * @var \Checklists
+     *
+     * @ORM\ManyToOne(targetEntity="Checklists")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ChecklistID", referencedColumnName="ChecklistID")
+     * })
+     */
+    private $checklistid;
 
 
 
@@ -751,30 +754,6 @@ class Services
     public function getServiceid()
     {
         return $this->serviceid;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param int|null $customerid
-     *
-     * @return Services
-     */
-    public function setCustomerid($customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return int|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
     }
 
     /**
@@ -3154,30 +3133,6 @@ class Services
     }
 
     /**
-     * Set checklistid.
-     *
-     * @param \AppBundle\Entity\Checklists|null $checklistid
-     *
-     * @return Services
-     */
-    public function setChecklistid(\AppBundle\Entity\Checklists $checklistid = null)
-    {
-        $this->checklistid = $checklistid;
-
-        return $this;
-    }
-
-    /**
-     * Get checklistid.
-     *
-     * @return \AppBundle\Entity\Checklists|null
-     */
-    public function getChecklistid()
-    {
-        return $this->checklistid;
-    }
-
-    /**
      * Set servicegroupid.
      *
      * @param \AppBundle\Entity\Servicegroups|null $servicegroupid
@@ -3199,5 +3154,53 @@ class Services
     public function getServicegroupid()
     {
         return $this->servicegroupid;
+    }
+
+    /**
+     * Set customerid.
+     *
+     * @param \AppBundle\Entity\Customers|null $customerid
+     *
+     * @return Services
+     */
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return \AppBundle\Entity\Customers|null
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
+    }
+
+    /**
+     * Set checklistid.
+     *
+     * @param \AppBundle\Entity\Checklists|null $checklistid
+     *
+     * @return Services
+     */
+    public function setChecklistid(\AppBundle\Entity\Checklists $checklistid = null)
+    {
+        $this->checklistid = $checklistid;
+
+        return $this;
+    }
+
+    /**
+     * Get checklistid.
+     *
+     * @return \AppBundle\Entity\Checklists|null
+     */
+    public function getChecklistid()
+    {
+        return $this->checklistid;
     }
 }

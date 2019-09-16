@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Servicerstoregiongroups
  *
- * @ORM\Table(name="ServicersToRegionGroups", indexes={@ORM\Index(name="IDX_4F3E73D23C7E7BEF", columns={"ServicerID"})})
+ * @ORM\Table(name="ServicersToRegionGroups", indexes={@ORM\Index(name="IDX_4F3E73D240CBC1C7", columns={"RegionGroupID"}), @ORM\Index(name="IDX_4F3E73D23C7E7BEF", columns={"ServicerID"})})
  * @ORM\Entity
  */
 class Servicerstoregiongroups
@@ -22,9 +22,12 @@ class Servicerstoregiongroups
     private $servicertoregiongroupid;
 
     /**
-     * @var int
+     * @var \Regiongroups
      *
-     * @ORM\Column(name="RegionGroupID", type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="Regiongroups")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="RegionGroupID", referencedColumnName="RegionGroupID")
+     * })
      */
     private $regiongroupid;
 
@@ -53,11 +56,11 @@ class Servicerstoregiongroups
     /**
      * Set regiongroupid.
      *
-     * @param int $regiongroupid
+     * @param \AppBundle\Entity\Regiongroups|null $regiongroupid
      *
      * @return Servicerstoregiongroups
      */
-    public function setRegiongroupid($regiongroupid)
+    public function setRegiongroupid(\AppBundle\Entity\Regiongroups $regiongroupid = null)
     {
         $this->regiongroupid = $regiongroupid;
 
@@ -67,7 +70,7 @@ class Servicerstoregiongroups
     /**
      * Get regiongroupid.
      *
-     * @return int
+     * @return \AppBundle\Entity\Regiongroups|null
      */
     public function getRegiongroupid()
     {

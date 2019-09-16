@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Integrationstocustomers
  *
- * @ORM\Table(name="IntegrationsToCustomers", indexes={@ORM\Index(name="IDX_EE874FDF854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_EE874FDF31B9B12", columns={"IntegrationID"})})
+ * @ORM\Table(name="IntegrationsToCustomers", indexes={@ORM\Index(name="IDX_EE874FDF1389864B", columns={"IntegrationQBDHourWageTypeID"}), @ORM\Index(name="IDX_EE874FDF4182F12B", columns={"IntegrationQBDRateWageTypeID"}), @ORM\Index(name="IDX_EE874FDF854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_EE874FDF31B9B12", columns={"IntegrationID"})})
  * @ORM\Entity
  */
 class Integrationstocustomers
@@ -50,27 +50,6 @@ class Integrationstocustomers
     private $qbdsyncpayroll = '0';
 
     /**
-     * @var int|null
-     *
-     * @ORM\Column(name="IntegrationQBDHourWageTypeID", type="integer", nullable=true)
-     */
-    private $integrationqbdhourwagetypeid;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="IntegrationQBDRateWageTypeID", type="integer", nullable=true)
-     */
-    private $integrationqbdratewagetypeid;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="IntegrationQBDAccountID", type="integer", nullable=true)
-     */
-    private $integrationqbdaccountid;
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
@@ -83,6 +62,33 @@ class Integrationstocustomers
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
     private $createdate = 'getutcdate()';
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="StartDate", type="datetime", nullable=true)
+     */
+    private $startdate;
+
+    /**
+     * @var \Integrationqbdpayrollitemwages
+     *
+     * @ORM\ManyToOne(targetEntity="Integrationqbdpayrollitemwages")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="IntegrationQBDHourWageTypeID", referencedColumnName="IntegrationQBDPayrollItemWageID")
+     * })
+     */
+    private $integrationqbdhourwagetypeid;
+
+    /**
+     * @var \Integrationqbdpayrollitemwages
+     *
+     * @ORM\ManyToOne(targetEntity="Integrationqbdpayrollitemwages")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="IntegrationQBDRateWageTypeID", referencedColumnName="IntegrationQBDPayrollItemWageID")
+     * })
+     */
+    private $integrationqbdratewagetypeid;
 
     /**
      * @var \Customers
@@ -213,78 +219,6 @@ class Integrationstocustomers
     }
 
     /**
-     * Set integrationqbdhourwagetypeid.
-     *
-     * @param int|null $integrationqbdhourwagetypeid
-     *
-     * @return Integrationstocustomers
-     */
-    public function setIntegrationqbdhourwagetypeid($integrationqbdhourwagetypeid = null)
-    {
-        $this->integrationqbdhourwagetypeid = $integrationqbdhourwagetypeid;
-
-        return $this;
-    }
-
-    /**
-     * Get integrationqbdhourwagetypeid.
-     *
-     * @return int|null
-     */
-    public function getIntegrationqbdhourwagetypeid()
-    {
-        return $this->integrationqbdhourwagetypeid;
-    }
-
-    /**
-     * Set integrationqbdratewagetypeid.
-     *
-     * @param int|null $integrationqbdratewagetypeid
-     *
-     * @return Integrationstocustomers
-     */
-    public function setIntegrationqbdratewagetypeid($integrationqbdratewagetypeid = null)
-    {
-        $this->integrationqbdratewagetypeid = $integrationqbdratewagetypeid;
-
-        return $this;
-    }
-
-    /**
-     * Get integrationqbdratewagetypeid.
-     *
-     * @return int|null
-     */
-    public function getIntegrationqbdratewagetypeid()
-    {
-        return $this->integrationqbdratewagetypeid;
-    }
-
-    /**
-     * Set integrationqbdaccountid.
-     *
-     * @param int|null $integrationqbdaccountid
-     *
-     * @return Integrationstocustomers
-     */
-    public function setIntegrationqbdaccountid($integrationqbdaccountid = null)
-    {
-        $this->integrationqbdaccountid = $integrationqbdaccountid;
-
-        return $this;
-    }
-
-    /**
-     * Get integrationqbdaccountid.
-     *
-     * @return int|null
-     */
-    public function getIntegrationqbdaccountid()
-    {
-        return $this->integrationqbdaccountid;
-    }
-
-    /**
      * Set active.
      *
      * @param bool $active
@@ -330,6 +264,78 @@ class Integrationstocustomers
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * Set startdate.
+     *
+     * @param \DateTime|null $startdate
+     *
+     * @return Integrationstocustomers
+     */
+    public function setStartdate($startdate = null)
+    {
+        $this->startdate = $startdate;
+
+        return $this;
+    }
+
+    /**
+     * Get startdate.
+     *
+     * @return \DateTime|null
+     */
+    public function getStartdate()
+    {
+        return $this->startdate;
+    }
+
+    /**
+     * Set integrationqbdhourwagetypeid.
+     *
+     * @param \AppBundle\Entity\Integrationqbdpayrollitemwages|null $integrationqbdhourwagetypeid
+     *
+     * @return Integrationstocustomers
+     */
+    public function setIntegrationqbdhourwagetypeid(\AppBundle\Entity\Integrationqbdpayrollitemwages $integrationqbdhourwagetypeid = null)
+    {
+        $this->integrationqbdhourwagetypeid = $integrationqbdhourwagetypeid;
+
+        return $this;
+    }
+
+    /**
+     * Get integrationqbdhourwagetypeid.
+     *
+     * @return \AppBundle\Entity\Integrationqbdpayrollitemwages|null
+     */
+    public function getIntegrationqbdhourwagetypeid()
+    {
+        return $this->integrationqbdhourwagetypeid;
+    }
+
+    /**
+     * Set integrationqbdratewagetypeid.
+     *
+     * @param \AppBundle\Entity\Integrationqbdpayrollitemwages|null $integrationqbdratewagetypeid
+     *
+     * @return Integrationstocustomers
+     */
+    public function setIntegrationqbdratewagetypeid(\AppBundle\Entity\Integrationqbdpayrollitemwages $integrationqbdratewagetypeid = null)
+    {
+        $this->integrationqbdratewagetypeid = $integrationqbdratewagetypeid;
+
+        return $this;
+    }
+
+    /**
+     * Get integrationqbdratewagetypeid.
+     *
+     * @return \AppBundle\Entity\Integrationqbdpayrollitemwages|null
+     */
+    public function getIntegrationqbdratewagetypeid()
+    {
+        return $this->integrationqbdratewagetypeid;
     }
 
     /**

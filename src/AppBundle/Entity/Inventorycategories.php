@@ -5,35 +5,35 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Apikeys
+ * Inventorycategories
  *
- * @ORM\Table(name="APIKeys", indexes={@ORM\Index(name="IDX_1385A7B2854CF4BD", columns={"CustomerID"})})
+ * @ORM\Table(name="InventoryCategories", indexes={@ORM\Index(name="IDX_990A7BD9854CF4BD", columns={"CustomerID"})})
  * @ORM\Entity
  */
-class Apikeys
+class Inventorycategories
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="APIKeyID", type="integer", nullable=false)
+     * @ORM\Column(name="InventoryCategoryID", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $apikeyid;
+    private $inventorycategoryid;
 
     /**
-     * @var string|null
+     * @var string
      *
-     * @ORM\Column(name="APIKey", type="text", length=-1, nullable=true)
+     * @ORM\Column(name="InventoryCategory", type="string", length=200, nullable=false)
      */
-    private $apikey;
+    private $inventorycategory;
 
     /**
-     * @var string|null
+     * @var int
      *
-     * @ORM\Column(name="Value", type="text", length=-1, nullable=true)
+     * @ORM\Column(name="SortOrder", type="integer", nullable=false)
      */
-    private $value;
+    private $sortorder;
 
     /**
      * @var \DateTime
@@ -41,13 +41,6 @@ class Apikeys
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
     private $createdate = 'getutcdate()';
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="APIKeyName", type="string", length=100, nullable=true)
-     */
-    private $apikeyname;
 
     /**
      * @var \Customers
@@ -62,61 +55,61 @@ class Apikeys
 
 
     /**
-     * Get apikeyid.
+     * Get inventorycategoryid.
      *
      * @return int
      */
-    public function getApikeyid()
+    public function getInventorycategoryid()
     {
-        return $this->apikeyid;
+        return $this->inventorycategoryid;
     }
 
     /**
-     * Set apikey.
+     * Set inventorycategory.
      *
-     * @param string|null $apikey
+     * @param string $inventorycategory
      *
-     * @return Apikeys
+     * @return Inventorycategories
      */
-    public function setApikey($apikey = null)
+    public function setInventorycategory($inventorycategory)
     {
-        $this->apikey = $apikey;
+        $this->inventorycategory = $inventorycategory;
 
         return $this;
     }
 
     /**
-     * Get apikey.
+     * Get inventorycategory.
      *
-     * @return string|null
+     * @return string
      */
-    public function getApikey()
+    public function getInventorycategory()
     {
-        return $this->apikey;
+        return $this->inventorycategory;
     }
 
     /**
-     * Set value.
+     * Set sortorder.
      *
-     * @param string|null $value
+     * @param int $sortorder
      *
-     * @return Apikeys
+     * @return Inventorycategories
      */
-    public function setValue($value = null)
+    public function setSortorder($sortorder)
     {
-        $this->value = $value;
+        $this->sortorder = $sortorder;
 
         return $this;
     }
 
     /**
-     * Get value.
+     * Get sortorder.
      *
-     * @return string|null
+     * @return int
      */
-    public function getValue()
+    public function getSortorder()
     {
-        return $this->value;
+        return $this->sortorder;
     }
 
     /**
@@ -124,7 +117,7 @@ class Apikeys
      *
      * @param \DateTime $createdate
      *
-     * @return Apikeys
+     * @return Inventorycategories
      */
     public function setCreatedate($createdate)
     {
@@ -144,35 +137,11 @@ class Apikeys
     }
 
     /**
-     * Set apikeyname.
-     *
-     * @param string|null $apikeyname
-     *
-     * @return Apikeys
-     */
-    public function setApikeyname($apikeyname = null)
-    {
-        $this->apikeyname = $apikeyname;
-
-        return $this;
-    }
-
-    /**
-     * Get apikeyname.
-     *
-     * @return string|null
-     */
-    public function getApikeyname()
-    {
-        return $this->apikeyname;
-    }
-
-    /**
      * Set customerid.
      *
      * @param \AppBundle\Entity\Customers|null $customerid
      *
-     * @return Apikeys
+     * @return Inventorycategories
      */
     public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
     {

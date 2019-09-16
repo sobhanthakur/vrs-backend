@@ -29,16 +29,6 @@ class Managerstoproperties
     private $createdate = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Properties
-     *
-     * @ORM\ManyToOne(targetEntity="Properties")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
-     * })
-     */
-    private $propertyid;
-
-    /**
      * @var \Servicers
      *
      * @ORM\ManyToOne(targetEntity="Servicers")
@@ -47,6 +37,16 @@ class Managerstoproperties
      * })
      */
     private $managerservicerid;
+
+    /**
+     * @var \Properties
+     *
+     * @ORM\ManyToOne(targetEntity="Properties")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
+     * })
+     */
+    private $propertyid;
 
 
 
@@ -85,30 +85,6 @@ class Managerstoproperties
     }
 
     /**
-     * Set propertyid.
-     *
-     * @param \AppBundle\Entity\Properties|null $propertyid
-     *
-     * @return Managerstoproperties
-     */
-    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
-    {
-        $this->propertyid = $propertyid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertyid.
-     *
-     * @return \AppBundle\Entity\Properties|null
-     */
-    public function getPropertyid()
-    {
-        return $this->propertyid;
-    }
-
-    /**
      * Set managerservicerid.
      *
      * @param \AppBundle\Entity\Servicers|null $managerservicerid
@@ -130,5 +106,29 @@ class Managerstoproperties
     public function getManagerservicerid()
     {
         return $this->managerservicerid;
+    }
+
+    /**
+     * Set propertyid.
+     *
+     * @param \AppBundle\Entity\Properties|null $propertyid
+     *
+     * @return Managerstoproperties
+     */
+    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
+    {
+        $this->propertyid = $propertyid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyid.
+     *
+     * @return \AppBundle\Entity\Properties|null
+     */
+    public function getPropertyid()
+    {
+        return $this->propertyid;
     }
 }

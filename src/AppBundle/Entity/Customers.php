@@ -85,6 +85,13 @@ class Customers
     private $useoperto = '0';
 
     /**
+     * @var float
+     *
+     * @ORM\Column(name="OpertoPerPropertyCharge", type="float", precision=53, scale=0, nullable=false)
+     */
+    private $opertoperpropertycharge = '0';
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="TagsToUse", type="text", length=-1, nullable=true)
@@ -589,20 +596,6 @@ class Customers
     private $workorderintegrationcompanyid;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="UseIntegrationPortal", type="boolean", nullable=false)
-     */
-    private $useintegrationportal = '0';
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="OpertoPerPropertyCharge", type="float", precision=53, scale=0, nullable=false)
-     */
-    private $opertoperpropertycharge = '0';
-
-    /**
      * @var string|null
      *
      * @ORM\Column(name="WorkOrderIntegrationCompanyCategoryID", type="string", length=50, nullable=true)
@@ -617,28 +610,11 @@ class Customers
     private $workorderintegrationcompanysubcategoryid;
 
     /**
-     * @var int
+     * @var bool
      *
-     * @ORM\Column(name="BasePricePerProperty", type="integer", nullable=false, options={"default"="2"})
+     * @ORM\Column(name="UseIntegrationPortal", type="boolean", nullable=false)
      */
-    private $basepriceperproperty = '2';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="MinimumMonthlyCharge", type="integer", nullable=false, options={"default"="40"})
-     */
-    private $minimummonthlycharge = '40';
-
-    /**
-     * @var \Countries
-     *
-     * @ORM\ManyToOne(targetEntity="Countries")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CountryID", referencedColumnName="CountryID")
-     * })
-     */
-    private $countryid;
+    private $useintegrationportal = '0';
 
     /**
      * @var \Timezones
@@ -649,6 +625,16 @@ class Customers
      * })
      */
     private $timezoneid;
+
+    /**
+     * @var \Countries
+     *
+     * @ORM\ManyToOne(targetEntity="Countries")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CountryID", referencedColumnName="CountryID")
+     * })
+     */
+    private $countryid;
 
 
 
@@ -876,6 +862,30 @@ class Customers
     public function getUseoperto()
     {
         return $this->useoperto;
+    }
+
+    /**
+     * Set opertoperpropertycharge.
+     *
+     * @param float $opertoperpropertycharge
+     *
+     * @return Customers
+     */
+    public function setOpertoperpropertycharge($opertoperpropertycharge)
+    {
+        $this->opertoperpropertycharge = $opertoperpropertycharge;
+
+        return $this;
+    }
+
+    /**
+     * Get opertoperpropertycharge.
+     *
+     * @return float
+     */
+    public function getOpertoperpropertycharge()
+    {
+        return $this->opertoperpropertycharge;
     }
 
     /**
@@ -2607,54 +2617,6 @@ class Customers
     }
 
     /**
-     * Set useintegrationportal.
-     *
-     * @param bool $useintegrationportal
-     *
-     * @return Customers
-     */
-    public function setUseintegrationportal($useintegrationportal)
-    {
-        $this->useintegrationportal = $useintegrationportal;
-
-        return $this;
-    }
-
-    /**
-     * Get useintegrationportal.
-     *
-     * @return bool
-     */
-    public function getUseintegrationportal()
-    {
-        return $this->useintegrationportal;
-    }
-
-    /**
-     * Set opertoperpropertycharge.
-     *
-     * @param float $opertoperpropertycharge
-     *
-     * @return Customers
-     */
-    public function setOpertoperpropertycharge($opertoperpropertycharge)
-    {
-        $this->opertoperpropertycharge = $opertoperpropertycharge;
-
-        return $this;
-    }
-
-    /**
-     * Get opertoperpropertycharge.
-     *
-     * @return float
-     */
-    public function getOpertoperpropertycharge()
-    {
-        return $this->opertoperpropertycharge;
-    }
-
-    /**
      * Set workorderintegrationcompanycategoryid.
      *
      * @param string|null $workorderintegrationcompanycategoryid
@@ -2703,75 +2665,27 @@ class Customers
     }
 
     /**
-     * Set basepriceperproperty.
+     * Set useintegrationportal.
      *
-     * @param int $basepriceperproperty
+     * @param bool $useintegrationportal
      *
      * @return Customers
      */
-    public function setBasepriceperproperty($basepriceperproperty)
+    public function setUseintegrationportal($useintegrationportal)
     {
-        $this->basepriceperproperty = $basepriceperproperty;
+        $this->useintegrationportal = $useintegrationportal;
 
         return $this;
     }
 
     /**
-     * Get basepriceperproperty.
+     * Get useintegrationportal.
      *
-     * @return int
+     * @return bool
      */
-    public function getBasepriceperproperty()
+    public function getUseintegrationportal()
     {
-        return $this->basepriceperproperty;
-    }
-
-    /**
-     * Set minimummonthlycharge.
-     *
-     * @param int $minimummonthlycharge
-     *
-     * @return Customers
-     */
-    public function setMinimummonthlycharge($minimummonthlycharge)
-    {
-        $this->minimummonthlycharge = $minimummonthlycharge;
-
-        return $this;
-    }
-
-    /**
-     * Get minimummonthlycharge.
-     *
-     * @return int
-     */
-    public function getMinimummonthlycharge()
-    {
-        return $this->minimummonthlycharge;
-    }
-
-    /**
-     * Set countryid.
-     *
-     * @param \AppBundle\Entity\Countries|null $countryid
-     *
-     * @return Customers
-     */
-    public function setCountryid(\AppBundle\Entity\Countries $countryid = null)
-    {
-        $this->countryid = $countryid;
-
-        return $this;
-    }
-
-    /**
-     * Get countryid.
-     *
-     * @return \AppBundle\Entity\Countries|null
-     */
-    public function getCountryid()
-    {
-        return $this->countryid;
+        return $this->useintegrationportal;
     }
 
     /**
@@ -2796,5 +2710,29 @@ class Customers
     public function getTimezoneid()
     {
         return $this->timezoneid;
+    }
+
+    /**
+     * Set countryid.
+     *
+     * @param \AppBundle\Entity\Countries|null $countryid
+     *
+     * @return Customers
+     */
+    public function setCountryid(\AppBundle\Entity\Countries $countryid = null)
+    {
+        $this->countryid = $countryid;
+
+        return $this;
+    }
+
+    /**
+     * Get countryid.
+     *
+     * @return \AppBundle\Entity\Countries|null
+     */
+    public function getCountryid()
+    {
+        return $this->countryid;
     }
 }

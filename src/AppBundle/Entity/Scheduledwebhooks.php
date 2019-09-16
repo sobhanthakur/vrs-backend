@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Scheduledwebhooks
  *
- * @ORM\Table(name="ScheduledWebHooks", indexes={@ORM\Index(name="IDX_9F17874C854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_9F17874C55345FC6", columns={"PropertyID"}), @ORM\Index(name="IDX_9F17874CCC6341F", columns={"PropertyBookingID"})})
+ * @ORM\Table(name="ScheduledWebHooks")
  * @ORM\Entity
  */
 class Scheduledwebhooks
@@ -22,6 +22,13 @@ class Scheduledwebhooks
     private $scheduledwebhookid;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="CustomerID", type="integer", nullable=false)
+     */
+    private $customerid;
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="TaskID", type="integer", nullable=true)
@@ -34,6 +41,20 @@ class Scheduledwebhooks
      * @ORM\Column(name="ServicerID", type="integer", nullable=true)
      */
     private $servicerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyID", type="integer", nullable=true)
+     */
+    private $propertyid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyBookingID", type="integer", nullable=true)
+     */
+    private $propertybookingid;
 
     /**
      * @var int
@@ -105,36 +126,6 @@ class Scheduledwebhooks
      */
     private $createdate = 'getutcdate()';
 
-    /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
-     * })
-     */
-    private $customerid;
-
-    /**
-     * @var \Properties
-     *
-     * @ORM\ManyToOne(targetEntity="Properties")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
-     * })
-     */
-    private $propertyid;
-
-    /**
-     * @var \Propertybookings
-     *
-     * @ORM\ManyToOne(targetEntity="Propertybookings")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyBookingID", referencedColumnName="PropertyBookingID")
-     * })
-     */
-    private $propertybookingid;
-
 
 
     /**
@@ -145,6 +136,30 @@ class Scheduledwebhooks
     public function getScheduledwebhookid()
     {
         return $this->scheduledwebhookid;
+    }
+
+    /**
+     * Set customerid.
+     *
+     * @param int $customerid
+     *
+     * @return Scheduledwebhooks
+     */
+    public function setCustomerid($customerid)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return int
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
     }
 
     /**
@@ -193,6 +208,54 @@ class Scheduledwebhooks
     public function getServicerid()
     {
         return $this->servicerid;
+    }
+
+    /**
+     * Set propertyid.
+     *
+     * @param int|null $propertyid
+     *
+     * @return Scheduledwebhooks
+     */
+    public function setPropertyid($propertyid = null)
+    {
+        $this->propertyid = $propertyid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyid.
+     *
+     * @return int|null
+     */
+    public function getPropertyid()
+    {
+        return $this->propertyid;
+    }
+
+    /**
+     * Set propertybookingid.
+     *
+     * @param int|null $propertybookingid
+     *
+     * @return Scheduledwebhooks
+     */
+    public function setPropertybookingid($propertybookingid = null)
+    {
+        $this->propertybookingid = $propertybookingid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertybookingid.
+     *
+     * @return int|null
+     */
+    public function getPropertybookingid()
+    {
+        return $this->propertybookingid;
     }
 
     /**
@@ -433,77 +496,5 @@ class Scheduledwebhooks
     public function getCreatedate()
     {
         return $this->createdate;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $customerid
-     *
-     * @return Scheduledwebhooks
-     */
-    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
-    }
-
-    /**
-     * Set propertyid.
-     *
-     * @param \AppBundle\Entity\Properties|null $propertyid
-     *
-     * @return Scheduledwebhooks
-     */
-    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
-    {
-        $this->propertyid = $propertyid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertyid.
-     *
-     * @return \AppBundle\Entity\Properties|null
-     */
-    public function getPropertyid()
-    {
-        return $this->propertyid;
-    }
-
-    /**
-     * Set propertybookingid.
-     *
-     * @param \AppBundle\Entity\Propertybookings|null $propertybookingid
-     *
-     * @return Scheduledwebhooks
-     */
-    public function setPropertybookingid(\AppBundle\Entity\Propertybookings $propertybookingid = null)
-    {
-        $this->propertybookingid = $propertybookingid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertybookingid.
-     *
-     * @return \AppBundle\Entity\Propertybookings|null
-     */
-    public function getPropertybookingid()
-    {
-        return $this->propertybookingid;
     }
 }

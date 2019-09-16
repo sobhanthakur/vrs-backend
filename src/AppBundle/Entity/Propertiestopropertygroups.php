@@ -22,16 +22,6 @@ class Propertiestopropertygroups
     private $propertytopropertygroupid;
 
     /**
-     * @var \Properties
-     *
-     * @ORM\ManyToOne(targetEntity="Properties")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
-     * })
-     */
-    private $propertyid;
-
-    /**
      * @var \Propertygroups
      *
      * @ORM\ManyToOne(targetEntity="Propertygroups")
@@ -40,6 +30,16 @@ class Propertiestopropertygroups
      * })
      */
     private $propertygroupid;
+
+    /**
+     * @var \Properties
+     *
+     * @ORM\ManyToOne(targetEntity="Properties")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
+     * })
+     */
+    private $propertyid;
 
 
 
@@ -51,30 +51,6 @@ class Propertiestopropertygroups
     public function getPropertytopropertygroupid()
     {
         return $this->propertytopropertygroupid;
-    }
-
-    /**
-     * Set propertyid.
-     *
-     * @param \AppBundle\Entity\Properties|null $propertyid
-     *
-     * @return Propertiestopropertygroups
-     */
-    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
-    {
-        $this->propertyid = $propertyid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertyid.
-     *
-     * @return \AppBundle\Entity\Properties|null
-     */
-    public function getPropertyid()
-    {
-        return $this->propertyid;
     }
 
     /**
@@ -99,5 +75,29 @@ class Propertiestopropertygroups
     public function getPropertygroupid()
     {
         return $this->propertygroupid;
+    }
+
+    /**
+     * Set propertyid.
+     *
+     * @param \AppBundle\Entity\Properties|null $propertyid
+     *
+     * @return Propertiestopropertygroups
+     */
+    public function setPropertyid(\AppBundle\Entity\Properties $propertyid = null)
+    {
+        $this->propertyid = $propertyid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyid.
+     *
+     * @return \AppBundle\Entity\Properties|null
+     */
+    public function getPropertyid()
+    {
+        return $this->propertyid;
     }
 }

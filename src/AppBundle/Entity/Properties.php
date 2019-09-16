@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Properties
  *
- * @ORM\Table(name="Properties", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="LinkedPropertyID", columns={"LinkedPropertyID"}), @ORM\Index(name="OwnerID", columns={"OwnerID"}), @ORM\Index(name="Performing Import", columns={"PerformingImport"}), @ORM\Index(name="Performing Import Date", columns={"PerformingImportDate"}), @ORM\Index(name="PropertyName", columns={"PropertyName"}), @ORM\Index(name="RegionID", columns={"RegionID"}), @ORM\Index(name="sortorder", columns={"SortOrder"})})
+ * @ORM\Table(name="Properties", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="LinkedPropertyID", columns={"LinkedPropertyID"}), @ORM\Index(name="OwnerID", columns={"OwnerID"}), @ORM\Index(name="Performing_Import", columns={"PerformingImport"}), @ORM\Index(name="Performing_Import_Date", columns={"PerformingImportDate"}), @ORM\Index(name="PropertyName", columns={"PropertyName"}), @ORM\Index(name="RegionID", columns={"RegionID"}), @ORM\Index(name="sortorder", columns={"SortOrder"})})
  * @ORM\Entity
  */
 class Properties
@@ -41,6 +41,20 @@ class Properties
      * @ORM\Column(name="OpertoFlag", type="boolean", nullable=false)
      */
     private $opertoflag = '0';
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="OpertoStartDate", type="datetime", nullable=true)
+     */
+    private $opertostartdate;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="OpertoEndDate", type="datetime", nullable=true)
+     */
+    private $opertoenddate;
 
     /**
      * @var int|null
@@ -456,28 +470,14 @@ class Properties
     private $updatedate;
 
     /**
-     * @var \DateTime|null
+     * @var \Regions
      *
-     * @ORM\Column(name="OpertoStartDate", type="datetime", nullable=true)
-     */
-    private $opertostartdate;
-
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(name="OpertoEndDate", type="datetime", nullable=true)
-     */
-    private $opertoenddate;
-
-    /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\ManyToOne(targetEntity="Regions")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     *   @ORM\JoinColumn(name="RegionID", referencedColumnName="RegionID")
      * })
      */
-    private $customerid;
+    private $regionid;
 
     /**
      * @var \Owners
@@ -490,14 +490,14 @@ class Properties
     private $ownerid;
 
     /**
-     * @var \Regions
+     * @var \Customers
      *
-     * @ORM\ManyToOne(targetEntity="Regions")
+     * @ORM\ManyToOne(targetEntity="Customers")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="RegionID", referencedColumnName="RegionID")
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
      * })
      */
-    private $regionid;
+    private $customerid;
 
 
 
@@ -581,6 +581,54 @@ class Properties
     public function getOpertoflag()
     {
         return $this->opertoflag;
+    }
+
+    /**
+     * Set opertostartdate.
+     *
+     * @param \DateTime|null $opertostartdate
+     *
+     * @return Properties
+     */
+    public function setOpertostartdate($opertostartdate = null)
+    {
+        $this->opertostartdate = $opertostartdate;
+
+        return $this;
+    }
+
+    /**
+     * Get opertostartdate.
+     *
+     * @return \DateTime|null
+     */
+    public function getOpertostartdate()
+    {
+        return $this->opertostartdate;
+    }
+
+    /**
+     * Set opertoenddate.
+     *
+     * @param \DateTime|null $opertoenddate
+     *
+     * @return Properties
+     */
+    public function setOpertoenddate($opertoenddate = null)
+    {
+        $this->opertoenddate = $opertoenddate;
+
+        return $this;
+    }
+
+    /**
+     * Get opertoenddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getOpertoenddate()
+    {
+        return $this->opertoenddate;
     }
 
     /**
@@ -2000,75 +2048,27 @@ class Properties
     }
 
     /**
-     * Set opertostartdate.
+     * Set regionid.
      *
-     * @param \DateTime|null $opertostartdate
+     * @param \AppBundle\Entity\Regions|null $regionid
      *
      * @return Properties
      */
-    public function setOpertostartdate($opertostartdate = null)
+    public function setRegionid(\AppBundle\Entity\Regions $regionid = null)
     {
-        $this->opertostartdate = $opertostartdate;
+        $this->regionid = $regionid;
 
         return $this;
     }
 
     /**
-     * Get opertostartdate.
+     * Get regionid.
      *
-     * @return \DateTime|null
+     * @return \AppBundle\Entity\Regions|null
      */
-    public function getOpertostartdate()
+    public function getRegionid()
     {
-        return $this->opertostartdate;
-    }
-
-    /**
-     * Set opertoenddate.
-     *
-     * @param \DateTime|null $opertoenddate
-     *
-     * @return Properties
-     */
-    public function setOpertoenddate($opertoenddate = null)
-    {
-        $this->opertoenddate = $opertoenddate;
-
-        return $this;
-    }
-
-    /**
-     * Get opertoenddate.
-     *
-     * @return \DateTime|null
-     */
-    public function getOpertoenddate()
-    {
-        return $this->opertoenddate;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $customerid
-     *
-     * @return Properties
-     */
-    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
+        return $this->regionid;
     }
 
     /**
@@ -2096,26 +2096,26 @@ class Properties
     }
 
     /**
-     * Set regionid.
+     * Set customerid.
      *
-     * @param \AppBundle\Entity\Regions|null $regionid
+     * @param \AppBundle\Entity\Customers|null $customerid
      *
      * @return Properties
      */
-    public function setRegionid(\AppBundle\Entity\Regions $regionid = null)
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
     {
-        $this->regionid = $regionid;
+        $this->customerid = $customerid;
 
         return $this;
     }
 
     /**
-     * Get regionid.
+     * Get customerid.
      *
-     * @return \AppBundle\Entity\Regions|null
+     * @return \AppBundle\Entity\Customers|null
      */
-    public function getRegionid()
+    public function getCustomerid()
     {
-        return $this->regionid;
+        return $this->customerid;
     }
 }

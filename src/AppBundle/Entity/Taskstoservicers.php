@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Taskstoservicers
  *
- * @ORM\Table(name="TasksToServicers", indexes={@ORM\Index(name="IsLead", columns={"IsLead"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="ServicerIDwithTaskID", columns={"TaskID", "ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="IDX_9D8D83DB689C6A26", columns={"ApprovedServicerID"}), @ORM\Index(name="IDX_9D8D83DB43A3F7D1", columns={"FlaggedServicerID"}), @ORM\Index(name="IDX_9D8D83DBAFD7113B", columns={"PaidServicerID"})})
+ * @ORM\Table(name="TasksToServicers", indexes={@ORM\Index(name="IsLead", columns={"IsLead"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="ServicerIDwithTaskID", columns={"TaskID", "ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
  * @ORM\Entity
  */
 class Taskstoservicers
@@ -55,6 +55,27 @@ class Taskstoservicers
      * @ORM\Column(name="PiecePayStatus", type="integer", nullable=false)
      */
     private $piecepaystatus = '0';
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="ApprovedServicerID", type="integer", nullable=true)
+     */
+    private $approvedservicerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PaidServicerID", type="integer", nullable=true)
+     */
+    private $paidservicerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="FlaggedServicerID", type="integer", nullable=true)
+     */
+    private $flaggedservicerid;
 
     /**
      * @var string|null
@@ -148,46 +169,6 @@ class Taskstoservicers
     private $troubleshootingnote;
 
     /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $servicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ApprovedServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $approvedservicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="FlaggedServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $flaggedservicerid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PaidServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $paidservicerid;
-
-    /**
      * @var \Tasks
      *
      * @ORM\ManyToOne(targetEntity="Tasks")
@@ -196,6 +177,16 @@ class Taskstoservicers
      * })
      */
     private $taskid;
+
+    /**
+     * @var \Servicers
+     *
+     * @ORM\ManyToOne(targetEntity="Servicers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
+     * })
+     */
+    private $servicerid;
 
 
 
@@ -327,6 +318,78 @@ class Taskstoservicers
     public function getPiecepaystatus()
     {
         return $this->piecepaystatus;
+    }
+
+    /**
+     * Set approvedservicerid.
+     *
+     * @param int|null $approvedservicerid
+     *
+     * @return Taskstoservicers
+     */
+    public function setApprovedservicerid($approvedservicerid = null)
+    {
+        $this->approvedservicerid = $approvedservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get approvedservicerid.
+     *
+     * @return int|null
+     */
+    public function getApprovedservicerid()
+    {
+        return $this->approvedservicerid;
+    }
+
+    /**
+     * Set paidservicerid.
+     *
+     * @param int|null $paidservicerid
+     *
+     * @return Taskstoservicers
+     */
+    public function setPaidservicerid($paidservicerid = null)
+    {
+        $this->paidservicerid = $paidservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get paidservicerid.
+     *
+     * @return int|null
+     */
+    public function getPaidservicerid()
+    {
+        return $this->paidservicerid;
+    }
+
+    /**
+     * Set flaggedservicerid.
+     *
+     * @param int|null $flaggedservicerid
+     *
+     * @return Taskstoservicers
+     */
+    public function setFlaggedservicerid($flaggedservicerid = null)
+    {
+        $this->flaggedservicerid = $flaggedservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get flaggedservicerid.
+     *
+     * @return int|null
+     */
+    public function getFlaggedservicerid()
+    {
+        return $this->flaggedservicerid;
     }
 
     /**
@@ -642,102 +705,6 @@ class Taskstoservicers
     }
 
     /**
-     * Set servicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $servicerid
-     *
-     * @return Taskstoservicers
-     */
-    public function setServicerid(\AppBundle\Entity\Servicers $servicerid = null)
-    {
-        $this->servicerid = $servicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get servicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getServicerid()
-    {
-        return $this->servicerid;
-    }
-
-    /**
-     * Set approvedservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $approvedservicerid
-     *
-     * @return Taskstoservicers
-     */
-    public function setApprovedservicerid(\AppBundle\Entity\Servicers $approvedservicerid = null)
-    {
-        $this->approvedservicerid = $approvedservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get approvedservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getApprovedservicerid()
-    {
-        return $this->approvedservicerid;
-    }
-
-    /**
-     * Set flaggedservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $flaggedservicerid
-     *
-     * @return Taskstoservicers
-     */
-    public function setFlaggedservicerid(\AppBundle\Entity\Servicers $flaggedservicerid = null)
-    {
-        $this->flaggedservicerid = $flaggedservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get flaggedservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getFlaggedservicerid()
-    {
-        return $this->flaggedservicerid;
-    }
-
-    /**
-     * Set paidservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $paidservicerid
-     *
-     * @return Taskstoservicers
-     */
-    public function setPaidservicerid(\AppBundle\Entity\Servicers $paidservicerid = null)
-    {
-        $this->paidservicerid = $paidservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get paidservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getPaidservicerid()
-    {
-        return $this->paidservicerid;
-    }
-
-    /**
      * Set taskid.
      *
      * @param \AppBundle\Entity\Tasks|null $taskid
@@ -759,5 +726,29 @@ class Taskstoservicers
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * Set servicerid.
+     *
+     * @param \AppBundle\Entity\Servicers|null $servicerid
+     *
+     * @return Taskstoservicers
+     */
+    public function setServicerid(\AppBundle\Entity\Servicers $servicerid = null)
+    {
+        $this->servicerid = $servicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get servicerid.
+     *
+     * @return \AppBundle\Entity\Servicers|null
+     */
+    public function getServicerid()
+    {
+        return $this->servicerid;
     }
 }

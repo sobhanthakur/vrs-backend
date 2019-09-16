@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Billingrefunds
  *
- * @ORM\Table(name="BillingRefunds", indexes={@ORM\Index(name="IDX_C0D5BF4EA5C729DB", columns={"BillingInvoiceID"})})
+ * @ORM\Table(name="BillingRefunds", indexes={@ORM\Index(name="IDX_C0D5BF4EED7AE224", columns={"BillingPaymentID"}), @ORM\Index(name="IDX_C0D5BF4EA5C729DB", columns={"BillingInvoiceID"})})
  * @ORM\Entity
  */
 class Billingrefunds
@@ -20,13 +20,6 @@ class Billingrefunds
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $billingrefundid;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="BillingPaymentID", type="integer", nullable=false)
-     */
-    private $billingpaymentid;
 
     /**
      * @var string|null
@@ -71,6 +64,16 @@ class Billingrefunds
     private $createdate = 'getutcdate()';
 
     /**
+     * @var \Billingpayments
+     *
+     * @ORM\ManyToOne(targetEntity="Billingpayments")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="BillingPaymentID", referencedColumnName="BillingPaymentID")
+     * })
+     */
+    private $billingpaymentid;
+
+    /**
      * @var \Billinginvoices
      *
      * @ORM\ManyToOne(targetEntity="Billinginvoices")
@@ -90,30 +93,6 @@ class Billingrefunds
     public function getBillingrefundid()
     {
         return $this->billingrefundid;
-    }
-
-    /**
-     * Set billingpaymentid.
-     *
-     * @param int $billingpaymentid
-     *
-     * @return Billingrefunds
-     */
-    public function setBillingpaymentid($billingpaymentid)
-    {
-        $this->billingpaymentid = $billingpaymentid;
-
-        return $this;
-    }
-
-    /**
-     * Get billingpaymentid.
-     *
-     * @return int
-     */
-    public function getBillingpaymentid()
-    {
-        return $this->billingpaymentid;
     }
 
     /**
@@ -258,6 +237,30 @@ class Billingrefunds
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * Set billingpaymentid.
+     *
+     * @param \AppBundle\Entity\Billingpayments|null $billingpaymentid
+     *
+     * @return Billingrefunds
+     */
+    public function setBillingpaymentid(\AppBundle\Entity\Billingpayments $billingpaymentid = null)
+    {
+        $this->billingpaymentid = $billingpaymentid;
+
+        return $this;
+    }
+
+    /**
+     * Get billingpaymentid.
+     *
+     * @return \AppBundle\Entity\Billingpayments|null
+     */
+    public function getBillingpaymentid()
+    {
+        return $this->billingpaymentid;
     }
 
     /**

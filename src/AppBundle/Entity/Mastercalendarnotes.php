@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Mastercalendarnotes
  *
- * @ORM\Table(name="MasterCalendarNotes", indexes={@ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="EndDate", columns={"EndDate"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="StartDate", columns={"StartDate"})})
+ * @ORM\Table(name="MasterCalendarNotes", indexes={@ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="EndDate", columns={"EndDate"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="StartDate", columns={"StartDate"}), @ORM\Index(name="IDX_9D105A90245F4372", columns={"CreatedByServicerID"})})
  * @ORM\Entity
  */
 class Mastercalendarnotes
@@ -20,13 +20,6 @@ class Mastercalendarnotes
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $mastercalendarnoteid;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="CustomerID", type="integer", nullable=false)
-     */
-    private $customerid;
 
     /**
      * @var \DateTime
@@ -64,18 +57,21 @@ class Mastercalendarnotes
     private $longdescription;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="CreatedByServicerID", type="integer", nullable=false)
-     */
-    private $createdbyservicerid;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $createdate = 'CURRENT_TIMESTAMP';
+
+    /**
+     * @var \Customers
+     *
+     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     * })
+     */
+    private $customerid;
 
     /**
      * @var \Properties
@@ -87,6 +83,16 @@ class Mastercalendarnotes
      */
     private $propertyid;
 
+    /**
+     * @var \Servicers
+     *
+     * @ORM\ManyToOne(targetEntity="Servicers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CreatedByServicerID", referencedColumnName="ServicerID")
+     * })
+     */
+    private $createdbyservicerid;
+
 
 
     /**
@@ -97,30 +103,6 @@ class Mastercalendarnotes
     public function getMastercalendarnoteid()
     {
         return $this->mastercalendarnoteid;
-    }
-
-    /**
-     * Set customerid.
-     *
-     * @param int $customerid
-     *
-     * @return Mastercalendarnotes
-     */
-    public function setCustomerid($customerid)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return int
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
     }
 
     /**
@@ -244,30 +226,6 @@ class Mastercalendarnotes
     }
 
     /**
-     * Set createdbyservicerid.
-     *
-     * @param int $createdbyservicerid
-     *
-     * @return Mastercalendarnotes
-     */
-    public function setCreatedbyservicerid($createdbyservicerid)
-    {
-        $this->createdbyservicerid = $createdbyservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get createdbyservicerid.
-     *
-     * @return int
-     */
-    public function getCreatedbyservicerid()
-    {
-        return $this->createdbyservicerid;
-    }
-
-    /**
      * Set createdate.
      *
      * @param \DateTime $createdate
@@ -292,6 +250,30 @@ class Mastercalendarnotes
     }
 
     /**
+     * Set customerid.
+     *
+     * @param \AppBundle\Entity\Customers|null $customerid
+     *
+     * @return Mastercalendarnotes
+     */
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
+    {
+        $this->customerid = $customerid;
+
+        return $this;
+    }
+
+    /**
+     * Get customerid.
+     *
+     * @return \AppBundle\Entity\Customers|null
+     */
+    public function getCustomerid()
+    {
+        return $this->customerid;
+    }
+
+    /**
      * Set propertyid.
      *
      * @param \AppBundle\Entity\Properties|null $propertyid
@@ -313,5 +295,29 @@ class Mastercalendarnotes
     public function getPropertyid()
     {
         return $this->propertyid;
+    }
+
+    /**
+     * Set createdbyservicerid.
+     *
+     * @param \AppBundle\Entity\Servicers|null $createdbyservicerid
+     *
+     * @return Mastercalendarnotes
+     */
+    public function setCreatedbyservicerid(\AppBundle\Entity\Servicers $createdbyservicerid = null)
+    {
+        $this->createdbyservicerid = $createdbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get createdbyservicerid.
+     *
+     * @return \AppBundle\Entity\Servicers|null
+     */
+    public function getCreatedbyservicerid()
+    {
+        return $this->createdbyservicerid;
     }
 }

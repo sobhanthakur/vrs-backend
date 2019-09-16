@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Servicestoservicers
  *
- * @ORM\Table(name="ServicesToServicers", indexes={@ORM\Index(name="IDX_26D9052C3C7E7BEF", columns={"ServicerID"}), @ORM\Index(name="IDX_26D9052C30F6DDC3", columns={"ServiceID"})})
+ * @ORM\Table(name="ServicesToServicers", indexes={@ORM\Index(name="IDX_26D9052C30F6DDC3", columns={"ServiceID"})})
  * @ORM\Entity
  */
 class Servicestoservicers
@@ -20,6 +20,13 @@ class Servicestoservicers
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $servicetoservicerid;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="ServicerID", type="integer", nullable=false)
+     */
+    private $servicerid;
 
     /**
      * @var int
@@ -120,16 +127,6 @@ class Servicestoservicers
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $servicerid;
-
-    /**
      * @var \Services
      *
      * @ORM\ManyToOne(targetEntity="Services")
@@ -149,6 +146,30 @@ class Servicestoservicers
     public function getServicetoservicerid()
     {
         return $this->servicetoservicerid;
+    }
+
+    /**
+     * Set servicerid.
+     *
+     * @param int $servicerid
+     *
+     * @return Servicestoservicers
+     */
+    public function setServicerid($servicerid)
+    {
+        $this->servicerid = $servicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get servicerid.
+     *
+     * @return int
+     */
+    public function getServicerid()
+    {
+        return $this->servicerid;
     }
 
     /**
@@ -485,30 +506,6 @@ class Servicestoservicers
     public function getCreatedate()
     {
         return $this->createdate;
-    }
-
-    /**
-     * Set servicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $servicerid
-     *
-     * @return Servicestoservicers
-     */
-    public function setServicerid(\AppBundle\Entity\Servicers $servicerid = null)
-    {
-        $this->servicerid = $servicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get servicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getServicerid()
-    {
-        return $this->servicerid;
     }
 
     /**

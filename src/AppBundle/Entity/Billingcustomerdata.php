@@ -185,16 +185,16 @@ class Billingcustomerdata
     /**
      * @var int
      *
-     * @ORM\Column(name="BasePricePerProperty", type="integer", nullable=false, options={"default"="2"})
+     * @ORM\Column(name="BasePricePerProperty", type="integer", nullable=false, options={"default"="5"})
      */
-    private $basepriceperproperty = '2';
+    private $basepriceperproperty = '5';
 
     /**
      * @var int
      *
-     * @ORM\Column(name="MinimumMonthlyCharge", type="integer", nullable=false, options={"default"="40"})
+     * @ORM\Column(name="MinimumMonthlyCharge", type="integer", nullable=false, options={"default"="50"})
      */
-    private $minimummonthlycharge = '40';
+    private $minimummonthlycharge = '50';
 
     /**
      * @var \Customers

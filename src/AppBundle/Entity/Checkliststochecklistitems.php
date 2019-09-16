@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Checkliststochecklistitems
  *
- * @ORM\Table(name="ChecklistsToChecklistItems", indexes={@ORM\Index(name="IDX_7D87A201B52FC753", columns={"ChecklistItemID"}), @ORM\Index(name="IDX_7D87A201B650950C", columns={"ChecklistID"})})
+ * @ORM\Table(name="ChecklistsToChecklistItems", indexes={@ORM\Index(name="IDX_7D87A201B650950C", columns={"ChecklistID"}), @ORM\Index(name="IDX_7D87A201B52FC753", columns={"ChecklistItemID"})})
  * @ORM\Entity
  */
 class Checkliststochecklistitems
@@ -36,16 +36,6 @@ class Checkliststochecklistitems
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Checklistitems
-     *
-     * @ORM\ManyToOne(targetEntity="Checklistitems")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ChecklistItemID", referencedColumnName="ChecklistItemID")
-     * })
-     */
-    private $checklistitemid;
-
-    /**
      * @var \Checklists
      *
      * @ORM\ManyToOne(targetEntity="Checklists")
@@ -54,6 +44,16 @@ class Checkliststochecklistitems
      * })
      */
     private $checklistid;
+
+    /**
+     * @var \Checklistitems
+     *
+     * @ORM\ManyToOne(targetEntity="Checklistitems")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ChecklistItemID", referencedColumnName="ChecklistItemID")
+     * })
+     */
+    private $checklistitemid;
 
 
 
@@ -116,30 +116,6 @@ class Checkliststochecklistitems
     }
 
     /**
-     * Set checklistitemid.
-     *
-     * @param \AppBundle\Entity\Checklistitems|null $checklistitemid
-     *
-     * @return Checkliststochecklistitems
-     */
-    public function setChecklistitemid(\AppBundle\Entity\Checklistitems $checklistitemid = null)
-    {
-        $this->checklistitemid = $checklistitemid;
-
-        return $this;
-    }
-
-    /**
-     * Get checklistitemid.
-     *
-     * @return \AppBundle\Entity\Checklistitems|null
-     */
-    public function getChecklistitemid()
-    {
-        return $this->checklistitemid;
-    }
-
-    /**
      * Set checklistid.
      *
      * @param \AppBundle\Entity\Checklists|null $checklistid
@@ -161,5 +137,29 @@ class Checkliststochecklistitems
     public function getChecklistid()
     {
         return $this->checklistid;
+    }
+
+    /**
+     * Set checklistitemid.
+     *
+     * @param \AppBundle\Entity\Checklistitems|null $checklistitemid
+     *
+     * @return Checkliststochecklistitems
+     */
+    public function setChecklistitemid(\AppBundle\Entity\Checklistitems $checklistitemid = null)
+    {
+        $this->checklistitemid = $checklistitemid;
+
+        return $this;
+    }
+
+    /**
+     * Get checklistitemid.
+     *
+     * @return \AppBundle\Entity\Checklistitems|null
+     */
+    public function getChecklistitemid()
+    {
+        return $this->checklistitemid;
     }
 }

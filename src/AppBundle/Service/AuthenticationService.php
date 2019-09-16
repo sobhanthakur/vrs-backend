@@ -126,7 +126,6 @@ class AuthenticationService extends BaseService
                     $restrictions['Restrictions']['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
                     $restrictions['Restrictions']['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
                     $restrictions['Restrictions']['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowTracking'] = ($servicersResponse['allowtracking'] === true ? 1 : 0);
                     $restrictions['Restrictions']['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
                     $restrictions['Restrictions']['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
 
@@ -171,8 +170,8 @@ class AuthenticationService extends BaseService
                         $restrictions['Restrictions']['PiecePay'] = 0;
                         $restrictions['Restrictions']['ICalAddOn'] = 0;
                     } else {
-                        $restrictions['Restrictions']['PiecePay'] = $customerResponse[0]['piecepay'];
-                        $restrictions['Restrictions']['ICalAddOn'] = $customerResponse[0]['icaladdon'];
+                        $restrictions['Restrictions']['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
+                        $restrictions['Restrictions']['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                     }
                 }
             }

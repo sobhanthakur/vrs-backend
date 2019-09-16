@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Propertyblocks
  *
- * @ORM\Table(name="PropertyBlocks", indexes={@ORM\Index(name="checkin", columns={"CheckIn"}), @ORM\Index(name="checkout", columns={"CheckOut"}), @ORM\Index(name="propertybookingid", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="IDX_480EC5079E421AC2", columns={"IgnoreServicerID"})})
+ * @ORM\Table(name="PropertyBlocks", indexes={@ORM\Index(name="checkin", columns={"CheckIn"}), @ORM\Index(name="checkout", columns={"CheckOut"}), @ORM\Index(name="propertybookingid", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"})})
  * @ORM\Entity
  */
 class Propertyblocks
@@ -71,13 +71,6 @@ class Propertyblocks
     private $reservationid;
 
     /**
-     * @var int|null
-     *
-     * @ORM\Column(name="PropertyBookingID", type="integer", nullable=true)
-     */
-    private $propertybookingid = '0';
-
-    /**
      * @var bool
      *
      * @ORM\Column(name="Ignore", type="boolean", nullable=false)
@@ -90,6 +83,13 @@ class Propertyblocks
      * @ORM\Column(name="IgnoreDate", type="datetime", nullable=true)
      */
     private $ignoredate;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="IgnoreServicerID", type="integer", nullable=false)
+     */
+    private $ignoreservicerid = '0';
 
     /**
      * @var \DateTime
@@ -109,14 +109,14 @@ class Propertyblocks
     private $propertyid;
 
     /**
-     * @var \Servicers
+     * @var \Propertybookings
      *
-     * @ORM\ManyToOne(targetEntity="Servicers")
+     * @ORM\ManyToOne(targetEntity="Propertybookings")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="IgnoreServicerID", referencedColumnName="ServicerID")
+     *   @ORM\JoinColumn(name="PropertyBookingID", referencedColumnName="PropertyBookingID")
      * })
      */
-    private $ignoreservicerid;
+    private $propertybookingid;
 
 
 
@@ -299,30 +299,6 @@ class Propertyblocks
     }
 
     /**
-     * Set propertybookingid.
-     *
-     * @param int|null $propertybookingid
-     *
-     * @return Propertyblocks
-     */
-    public function setPropertybookingid($propertybookingid = null)
-    {
-        $this->propertybookingid = $propertybookingid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertybookingid.
-     *
-     * @return int|null
-     */
-    public function getPropertybookingid()
-    {
-        return $this->propertybookingid;
-    }
-
-    /**
      * Set ignore.
      *
      * @param bool $ignore
@@ -368,6 +344,30 @@ class Propertyblocks
     public function getIgnoredate()
     {
         return $this->ignoredate;
+    }
+
+    /**
+     * Set ignoreservicerid.
+     *
+     * @param int $ignoreservicerid
+     *
+     * @return Propertyblocks
+     */
+    public function setIgnoreservicerid($ignoreservicerid)
+    {
+        $this->ignoreservicerid = $ignoreservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get ignoreservicerid.
+     *
+     * @return int
+     */
+    public function getIgnoreservicerid()
+    {
+        return $this->ignoreservicerid;
     }
 
     /**
@@ -419,26 +419,26 @@ class Propertyblocks
     }
 
     /**
-     * Set ignoreservicerid.
+     * Set propertybookingid.
      *
-     * @param \AppBundle\Entity\Servicers|null $ignoreservicerid
+     * @param \AppBundle\Entity\Propertybookings|null $propertybookingid
      *
      * @return Propertyblocks
      */
-    public function setIgnoreservicerid(\AppBundle\Entity\Servicers $ignoreservicerid = null)
+    public function setPropertybookingid(\AppBundle\Entity\Propertybookings $propertybookingid = null)
     {
-        $this->ignoreservicerid = $ignoreservicerid;
+        $this->propertybookingid = $propertybookingid;
 
         return $this;
     }
 
     /**
-     * Get ignoreservicerid.
+     * Get propertybookingid.
      *
-     * @return \AppBundle\Entity\Servicers|null
+     * @return \AppBundle\Entity\Propertybookings|null
      */
-    public function getIgnoreservicerid()
+    public function getPropertybookingid()
     {
-        return $this->ignoreservicerid;
+        return $this->propertybookingid;
     }
 }

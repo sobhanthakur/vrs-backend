@@ -78,14 +78,14 @@ class Servicestoproperties
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Checklists
+     * @var \Services
      *
-     * @ORM\ManyToOne(targetEntity="Checklists")
+     * @ORM\ManyToOne(targetEntity="Services")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ChecklistID", referencedColumnName="ChecklistID")
+     *   @ORM\JoinColumn(name="ServiceID", referencedColumnName="ServiceID")
      * })
      */
-    private $checklistid;
+    private $serviceid;
 
     /**
      * @var \Properties
@@ -98,6 +98,16 @@ class Servicestoproperties
     private $propertyid;
 
     /**
+     * @var \Checklists
+     *
+     * @ORM\ManyToOne(targetEntity="Checklists")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ChecklistID", referencedColumnName="ChecklistID")
+     * })
+     */
+    private $checklistid;
+
+    /**
      * @var \Servicers
      *
      * @ORM\ManyToOne(targetEntity="Servicers")
@@ -106,16 +116,6 @@ class Servicestoproperties
      * })
      */
     private $defaultservicerid;
-
-    /**
-     * @var \Services
-     *
-     * @ORM\ManyToOne(targetEntity="Services")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ServiceID", referencedColumnName="ServiceID")
-     * })
-     */
-    private $serviceid;
 
 
 
@@ -322,27 +322,27 @@ class Servicestoproperties
     }
 
     /**
-     * Set checklistid.
+     * Set serviceid.
      *
-     * @param \AppBundle\Entity\Checklists|null $checklistid
+     * @param \AppBundle\Entity\Services|null $serviceid
      *
      * @return Servicestoproperties
      */
-    public function setChecklistid(\AppBundle\Entity\Checklists $checklistid = null)
+    public function setServiceid(\AppBundle\Entity\Services $serviceid = null)
     {
-        $this->checklistid = $checklistid;
+        $this->serviceid = $serviceid;
 
         return $this;
     }
 
     /**
-     * Get checklistid.
+     * Get serviceid.
      *
-     * @return \AppBundle\Entity\Checklists|null
+     * @return \AppBundle\Entity\Services|null
      */
-    public function getChecklistid()
+    public function getServiceid()
     {
-        return $this->checklistid;
+        return $this->serviceid;
     }
 
     /**
@@ -370,6 +370,30 @@ class Servicestoproperties
     }
 
     /**
+     * Set checklistid.
+     *
+     * @param \AppBundle\Entity\Checklists|null $checklistid
+     *
+     * @return Servicestoproperties
+     */
+    public function setChecklistid(\AppBundle\Entity\Checklists $checklistid = null)
+    {
+        $this->checklistid = $checklistid;
+
+        return $this;
+    }
+
+    /**
+     * Get checklistid.
+     *
+     * @return \AppBundle\Entity\Checklists|null
+     */
+    public function getChecklistid()
+    {
+        return $this->checklistid;
+    }
+
+    /**
      * Set defaultservicerid.
      *
      * @param \AppBundle\Entity\Servicers|null $defaultservicerid
@@ -391,29 +415,5 @@ class Servicestoproperties
     public function getDefaultservicerid()
     {
         return $this->defaultservicerid;
-    }
-
-    /**
-     * Set serviceid.
-     *
-     * @param \AppBundle\Entity\Services|null $serviceid
-     *
-     * @return Servicestoproperties
-     */
-    public function setServiceid(\AppBundle\Entity\Services $serviceid = null)
-    {
-        $this->serviceid = $serviceid;
-
-        return $this;
-    }
-
-    /**
-     * Get serviceid.
-     *
-     * @return \AppBundle\Entity\Services|null
-     */
-    public function getServiceid()
-    {
-        return $this->serviceid;
     }
 }

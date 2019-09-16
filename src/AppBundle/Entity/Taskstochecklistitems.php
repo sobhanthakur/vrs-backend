@@ -127,16 +127,6 @@ class Taskstochecklistitems
     private $createdate = 'getutcdate()';
 
     /**
-     * @var \Checklistitems
-     *
-     * @ORM\ManyToOne(targetEntity="Checklistitems")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ChecklistItemID", referencedColumnName="ChecklistItemID")
-     * })
-     */
-    private $checklistitemid;
-
-    /**
      * @var \Tasks
      *
      * @ORM\ManyToOne(targetEntity="Tasks")
@@ -145,6 +135,16 @@ class Taskstochecklistitems
      * })
      */
     private $taskid;
+
+    /**
+     * @var \Checklistitems
+     *
+     * @ORM\ManyToOne(targetEntity="Checklistitems")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="ChecklistItemID", referencedColumnName="ChecklistItemID")
+     * })
+     */
+    private $checklistitemid;
 
 
 
@@ -519,30 +519,6 @@ class Taskstochecklistitems
     }
 
     /**
-     * Set checklistitemid.
-     *
-     * @param \AppBundle\Entity\Checklistitems|null $checklistitemid
-     *
-     * @return Taskstochecklistitems
-     */
-    public function setChecklistitemid(\AppBundle\Entity\Checklistitems $checklistitemid = null)
-    {
-        $this->checklistitemid = $checklistitemid;
-
-        return $this;
-    }
-
-    /**
-     * Get checklistitemid.
-     *
-     * @return \AppBundle\Entity\Checklistitems|null
-     */
-    public function getChecklistitemid()
-    {
-        return $this->checklistitemid;
-    }
-
-    /**
      * Set taskid.
      *
      * @param \AppBundle\Entity\Tasks|null $taskid
@@ -564,5 +540,29 @@ class Taskstochecklistitems
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * Set checklistitemid.
+     *
+     * @param \AppBundle\Entity\Checklistitems|null $checklistitemid
+     *
+     * @return Taskstochecklistitems
+     */
+    public function setChecklistitemid(\AppBundle\Entity\Checklistitems $checklistitemid = null)
+    {
+        $this->checklistitemid = $checklistitemid;
+
+        return $this;
+    }
+
+    /**
+     * Get checklistitemid.
+     *
+     * @return \AppBundle\Entity\Checklistitems|null
+     */
+    public function getChecklistitemid()
+    {
+        return $this->checklistitemid;
     }
 }

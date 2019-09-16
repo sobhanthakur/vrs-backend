@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Performingimports
  *
- * @ORM\Table(name="PerformingImports", indexes={@ORM\Index(name="NonClusteredIndex-20181217-160400", columns={"PropertyID"}), @ORM\Index(name="NonClusteredIndex-20181217-160444", columns={"LastPropertyID"})})
+ * @ORM\Table(name="PerformingImports", indexes={@ORM\Index(name="NonClusteredIndex_20181217_160400", columns={"PropertyID"}), @ORM\Index(name="NonClusteredIndex_20181217_160444", columns={"LastPropertyID"})})
  * @ORM\Entity
  */
 class Performingimports

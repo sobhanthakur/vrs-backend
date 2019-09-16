@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Issues
  *
- * @ORM\Table(name="Issues", indexes={@ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="ClosedDate", columns={"CreateDate"}), @ORM\Index(name="CreateDAte", columns={"CreateDate"}), @ORM\Index(name="fromtaskID", columns={"FromTaskID"}), @ORM\Index(name="issuetype", columns={"IssueType"}), @ORM\Index(name="propertyid", columns={"PropertyID"}), @ORM\Index(name="PropertyITemID", columns={"PropertyItemID"}), @ORM\Index(name="SubmittedByServicerID", columns={"SubmittedByServicerID"}), @ORM\Index(name="taskid", columns={"TaskID"})})
+ * @ORM\Table(name="Issues", indexes={@ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="ClosedDate", columns={"CreateDate"}), @ORM\Index(name="CreateDAte", columns={"CreateDate"}), @ORM\Index(name="fromtaskID", columns={"FromTaskID"}), @ORM\Index(name="issuetype", columns={"IssueType"}), @ORM\Index(name="propertyid", columns={"PropertyID"}), @ORM\Index(name="PropertyITemID", columns={"PropertyItemID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="SubmittedByServicerID", columns={"SubmittedByServicerID"}), @ORM\Index(name="taskid", columns={"TaskID"})})
  * @ORM\Entity
  */
 class Issues
@@ -50,6 +50,13 @@ class Issues
     private $issue;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyItemID", type="integer", nullable=true)
+     */
+    private $propertyitemid;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="Notes", type="string", length=0, nullable=false)
@@ -69,13 +76,6 @@ class Issues
      * @ORM\Column(name="InternalNotes", type="string", length=0, nullable=true)
      */
     private $internalnotes;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="FromTaskID", type="integer", nullable=true)
-     */
-    private $fromtaskid = '0';
 
     /**
      * @var string|null
@@ -190,6 +190,13 @@ class Issues
     private $updatedate = 'getutcdate()';
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
+     */
+    private $active = '1';
+
+    /**
      * @var bool|null
      *
      * @ORM\Column(name="SendWorkOrder", type="boolean", nullable=true)
@@ -225,11 +232,24 @@ class Issues
     private $workordererror;
 
     /**
-     * @var bool
+     * @var \Tasks
      *
-     * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
+     * @ORM\ManyToOne(targetEntity="Tasks")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="FromTaskID", referencedColumnName="TaskID")
+     * })
      */
-    private $active = '1';
+    private $fromtaskid;
+
+    /**
+     * @var \Tasks
+     *
+     * @ORM\ManyToOne(targetEntity="Tasks")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="TaskID", referencedColumnName="TaskID")
+     * })
+     */
+    private $taskid;
 
     /**
      * @var \Properties
@@ -242,14 +262,14 @@ class Issues
     private $propertyid;
 
     /**
-     * @var \Propertyitems
+     * @var \Servicers
      *
-     * @ORM\ManyToOne(targetEntity="Propertyitems")
+     * @ORM\ManyToOne(targetEntity="Servicers")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyItemID", referencedColumnName="PropertyItemID")
+     *   @ORM\JoinColumn(name="ServicerID", referencedColumnName="ServicerID")
      * })
      */
-    private $propertyitemid;
+    private $servicerid;
 
     /**
      * @var \Servicers
@@ -260,16 +280,6 @@ class Issues
      * })
      */
     private $submittedbyservicerid;
-
-    /**
-     * @var \Tasks
-     *
-     * @ORM\ManyToOne(targetEntity="Tasks")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="TaskID", referencedColumnName="TaskID")
-     * })
-     */
-    private $taskid;
 
 
 
@@ -380,6 +390,30 @@ class Issues
     }
 
     /**
+     * Set propertyitemid.
+     *
+     * @param int|null $propertyitemid
+     *
+     * @return Issues
+     */
+    public function setPropertyitemid($propertyitemid = null)
+    {
+        $this->propertyitemid = $propertyitemid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyitemid.
+     *
+     * @return int|null
+     */
+    public function getPropertyitemid()
+    {
+        return $this->propertyitemid;
+    }
+
+    /**
      * Set notes.
      *
      * @param string $notes
@@ -449,30 +483,6 @@ class Issues
     public function getInternalnotes()
     {
         return $this->internalnotes;
-    }
-
-    /**
-     * Set fromtaskid.
-     *
-     * @param int|null $fromtaskid
-     *
-     * @return Issues
-     */
-    public function setFromtaskid($fromtaskid = null)
-    {
-        $this->fromtaskid = $fromtaskid;
-
-        return $this;
-    }
-
-    /**
-     * Get fromtaskid.
-     *
-     * @return int|null
-     */
-    public function getFromtaskid()
-    {
-        return $this->fromtaskid;
     }
 
     /**
@@ -860,6 +870,30 @@ class Issues
     }
 
     /**
+     * Set active.
+     *
+     * @param bool $active
+     *
+     * @return Issues
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active.
+     *
+     * @return bool
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
      * Set sendworkorder.
      *
      * @param bool|null $sendworkorder
@@ -980,27 +1014,51 @@ class Issues
     }
 
     /**
-     * Set active.
+     * Set fromtaskid.
      *
-     * @param bool $active
+     * @param \AppBundle\Entity\Tasks|null $fromtaskid
      *
      * @return Issues
      */
-    public function setActive($active)
+    public function setFromtaskid(\AppBundle\Entity\Tasks $fromtaskid = null)
     {
-        $this->active = $active;
+        $this->fromtaskid = $fromtaskid;
 
         return $this;
     }
 
     /**
-     * Get active.
+     * Get fromtaskid.
      *
-     * @return bool
+     * @return \AppBundle\Entity\Tasks|null
      */
-    public function getActive()
+    public function getFromtaskid()
     {
-        return $this->active;
+        return $this->fromtaskid;
+    }
+
+    /**
+     * Set taskid.
+     *
+     * @param \AppBundle\Entity\Tasks|null $taskid
+     *
+     * @return Issues
+     */
+    public function setTaskid(\AppBundle\Entity\Tasks $taskid = null)
+    {
+        $this->taskid = $taskid;
+
+        return $this;
+    }
+
+    /**
+     * Get taskid.
+     *
+     * @return \AppBundle\Entity\Tasks|null
+     */
+    public function getTaskid()
+    {
+        return $this->taskid;
     }
 
     /**
@@ -1028,27 +1086,27 @@ class Issues
     }
 
     /**
-     * Set propertyitemid.
+     * Set servicerid.
      *
-     * @param \AppBundle\Entity\Propertyitems|null $propertyitemid
+     * @param \AppBundle\Entity\Servicers|null $servicerid
      *
      * @return Issues
      */
-    public function setPropertyitemid(\AppBundle\Entity\Propertyitems $propertyitemid = null)
+    public function setServicerid(\AppBundle\Entity\Servicers $servicerid = null)
     {
-        $this->propertyitemid = $propertyitemid;
+        $this->servicerid = $servicerid;
 
         return $this;
     }
 
     /**
-     * Get propertyitemid.
+     * Get servicerid.
      *
-     * @return \AppBundle\Entity\Propertyitems|null
+     * @return \AppBundle\Entity\Servicers|null
      */
-    public function getPropertyitemid()
+    public function getServicerid()
     {
-        return $this->propertyitemid;
+        return $this->servicerid;
     }
 
     /**
@@ -1073,29 +1131,5 @@ class Issues
     public function getSubmittedbyservicerid()
     {
         return $this->submittedbyservicerid;
-    }
-
-    /**
-     * Set taskid.
-     *
-     * @param \AppBundle\Entity\Tasks|null $taskid
-     *
-     * @return Issues
-     */
-    public function setTaskid(\AppBundle\Entity\Tasks $taskid = null)
-    {
-        $this->taskid = $taskid;
-
-        return $this;
-    }
-
-    /**
-     * Get taskid.
-     *
-     * @return \AppBundle\Entity\Tasks|null
-     */
-    public function getTaskid()
-    {
-        return $this->taskid;
     }
 }
