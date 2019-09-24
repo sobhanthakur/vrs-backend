@@ -194,7 +194,7 @@ class AuthenticationService extends BaseService
     {
         try {
             // Get headers and claims from the tokens
-            $exp = $token->getHeader('exp') / 60;
+            $exp = $token->getHeader('exp');
             $createTime = $token->getClaim('CreateDateTime');
             $loggedInStaffID = $token->getClaim('LoggedInStaffID');
             $customerID = $token->getClaim('CustomerID');
@@ -204,7 +204,7 @@ class AuthenticationService extends BaseService
             $currentTime = new \DateTime("now", new \DateTimeZone("UTC"));
 
             // Check if the token is expired
-            if ($currentTime->diff($tokenTime)->format("%i") > $exp) {
+            if ($currentTime->getTimestamp() - $tokenTime->getTimestamp() > $exp) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::TOKEN_EXPIRED);
             }
         } catch (UnauthorizedHttpException $exception) {

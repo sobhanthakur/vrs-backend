@@ -5,7 +5,11 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
          backupGlobals="false"
          colors="true"
+         stopOnFailure="false"
          bootstrap="vendor/autoload.php"
+         convertErrorsToExceptions="false"
+         convertNoticesToExceptions="false"
+         convertWarningsToExceptions="false"
 >
     <php>
         <ini name="error_reporting" value="-1" />
@@ -17,6 +21,13 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
+    <logging>
+        <log type="coverage-clover" target="tests/report/tests-clover.xml" />
+        <log type="junit" target="tests/report/tests-junit.xml" />
+        <log type="coverage-html" target="tests/report" />
+        <log type="testdox-html" target="tests/report/testdox.html" />
+    </logging>
 
     <filter>
         <whitelist>
