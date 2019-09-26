@@ -10,6 +10,7 @@
 
 namespace AppBundle\EventListener;
 
+use AppBundle\Constants\ApiRoutes;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +38,15 @@ class RequestListener extends BaseService
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
+
+        if(in_array($route, ApiRoutes::ROUTES)) {
+            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            $authenticateResult = $authService->VerifyAuthToken($request);
+            if($authenticateResult['status']) {
+                $request->attributes->set('AuthPayload',$authenticateResult);
+            }
+        }
         $this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),

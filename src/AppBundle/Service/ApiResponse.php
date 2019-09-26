@@ -29,13 +29,9 @@ class ApiResponse extends BaseService
     {
         $response = [
             'Response' => [
-                'ReasonCode' => 1,
-                'ReasonText' => $this->translator->trans('api.response.failure.message'),
-                'Error' => [
-                    'Code' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
-                    'Text' => $this->translator
+                'ReasonCode' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
+                'ReasonText' => $this->translator
                         ->trans(ErrorConstants::$errorCodeMap[$errorCode]['message'])
-                ],
             ]
         ];
         return $response;

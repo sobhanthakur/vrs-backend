@@ -35,13 +35,8 @@ final class ErrorConstants
     const SERVICE_ACCESS_NOT_ALLOWED = 'SERVICENOTALLOWED';
     const INVALID_EMAIL = 'INVALIDEMAIL';
     const INVALID_USERNAME = 'INVALIDUSERNAME';
-    const INVALID_PASS = 'INVALIDPASS';
-    const INVALID_CRED = 'INVALIDCRED';
     const INVALID_AUTH_TOKEN = 'INVALIDAUTHTOKEN';
     const TOKEN_EXPIRED = 'TOKENEXPIRED';
-    const USERNAME_EXISTS = 'USERNAMEPREEXIST';
-    const INVALID_REFRESH_TOKEN = 'INVALIDREFRESHTOKEN';
-    const EXPIRED_REFRESH_TOKEN = 'EXPIREDREFRESHTOKEN';
 
     public static $errorCodeMap = [
         self::INVALID_AUTH_CONTENT => ['code' => '401', 'message' => 'api.response.error.invalid_auth_content'],
@@ -56,22 +51,7 @@ final class ErrorConstants
         self::BAD_GATEWAY => ['code' => '502', 'message' => 'api.response.error.bad_gateway'],
         self::SERVICE_UNAVAIL => ['code' => '503', 'message' => 'api.response.error.service_unavailable'],
         self::GATEWAY_TIMEOUT => ['code' => '504', 'message' => 'api.response.error.gateway_timeout'],
-        self::INVALID_AUTHENTICATION => ['code' => '1001', 'message' => 'api.response.error.invalid_auth_fields'],
-        self::INCOMPLETE_REQ => ['code' => '1002', 'message' => 'api.response.error.incomplete_req'],
-        self::INVALID_REQ_DATA => ['code' => '1003', 'message' => 'api.response.error.invalid_request_data'],
-        self::INVALID_DATE_TIME => ['code' => '1007', 'message' => 'api.response.error.invalid_date_time'],
-        self::INVALID_CONTENT_TYPE => ['code' => '1008', 'message' => 'api.response.error.invalid_content_type'],
-        self::INVALID_CONTENT_LENGTH => ['code' => '1009', 'message' => 'api.response.error.invalid_content_length'],
-        self::EMPTY_AUTH_HEADER => ['code' => '1011', 'message' => 'api.response.error.empty_auth_header'],
-        self::MISSING_AUTH_FIELD => ['code' => '1013', 'message' => 'api.response.error.empty_auth_fields'],
-        self::SERVICE_ACCESS_NOT_ALLOWED => ['code' => '1019', 'message' => 'api.response.error.service_not_allowed'],
-        self::INVALID_EMAIL => ['code' => '1024', 'message' => 'api.response.error.invalid_email'],
-        self::INVALID_USERNAME => ['code' => '1034', 'message' => 'api.response.error.invalid_username'],
-        self::INVALID_CRED => ['code' => '1035', 'message' => 'api.response.error.invalid_credentials'],
         self::INVALID_AUTH_TOKEN => ['code' => '401', 'message' => 'api.response.error.invalid_auth_token'],
-        self::TOKEN_EXPIRED => ['code' => '401', 'message' => 'api.response.error.auth_token_expired'],
-        self::USERNAME_EXISTS => ['code' => '1040', 'message' => 'api.response.error.username_exists'],
-        self::INVALID_REFRESH_TOKEN => ['code' => '1042', 'message' => 'api.response.error.invalid_refresh_token'],
-        self::EXPIRED_REFRESH_TOKEN => ['code' => '1043', 'message' => 'api.response.error.expired_refresh_token'],
+        self::TOKEN_EXPIRED => ['code' => '401', 'message' => 'api.response.error.auth_token_expired']
     ];
 }
