@@ -29,7 +29,7 @@ class ApiResponse extends BaseService
     {
         $response = [
             'Response' => [
-                'ReasonCode' => '1',
+                'ReasonCode' => 1,
                 'ReasonText' => $this->translator->trans('api.response.failure.message'),
                 'Error' => [
                     'Code' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
@@ -48,14 +48,18 @@ class ApiResponse extends BaseService
      * @param $restrictions
      * @return array
      */
-    public function createAuthApiSuccessResponse($result)
+    public function createAuthApiSuccessResponse($result, $authenticateResult)
     {
         return [
-            'ReasonCode' => '0',
+            'ReasonCode' => 0,
             'ReasonText' => $this->translator->trans('api.response.success.message'),
             'LoggedInStaffID' => $result['LoggedInStaffID'],
             'AccessToken' => $result['AccessToken'],
-            'Restrictions' => $result['Restrictions']
+            'Permissions' => $result['Restrictions'],
+            'UserDetails' => array(
+                'CustomerID' => $authenticateResult['message']['CustomerID'],
+                'CustomerName' => $authenticateResult['message']['CustomerName']
+            )
         ];
     }
 }

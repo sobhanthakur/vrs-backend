@@ -50,7 +50,7 @@ class AuthController extends FOSRestController
 
                 //Structure the API response
                 $authResponse = $this->container->get('vrscheduler.api_response_service');
-                $response = $authResponse->createAuthApiSuccessResponse($validateResponse);
+                $response = $authResponse->createAuthApiSuccessResponse($validateResponse, $authenticateResult);
             }
         } catch (BadRequestHttpException $exception) {
             throw $exception;
