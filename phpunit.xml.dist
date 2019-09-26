@@ -18,7 +18,8 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>tests</directory>
+            <file>tests/AppBundle/Service</file>
+            <file>tests/AppBundle/Repository</file>
         </testsuite>
     </testsuites>
 
@@ -33,9 +34,14 @@
         <whitelist>
             <directory>src</directory>
             <exclude>
-                <directory>src/*Bundle/Resources</directory>
-                <directory>src/*/*Bundle/Resources</directory>
-                <directory>src/*/Bundle/*Bundle/Resources</directory>
+                <directory>src/AppBundle/Entity</directory>
+                <directory>src/AppBundle/Constants</directory>
+                <directory>src/AppBundle/Controller</directory>
+                <directory>src/AppBundle/EventListener</directory>
+                <directory>src/AppBundle/Repository</directory>
+                <file>src/AppBundle/AppBundle.php</file>
+                <file>src/AppBundle/Service/ApiResponse.php</file>
+                <file>src/AppBundle/Service/BaseService.php</file>
             </exclude>
         </whitelist>
     </filter>

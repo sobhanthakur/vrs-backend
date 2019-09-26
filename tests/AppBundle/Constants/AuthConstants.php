@@ -22,4 +22,41 @@ final class AuthConstants
        'LoggedInStaffID' => 0,
        'CustomerName' => 'John'
     ));
+
+    public const AUTHENTICATION_RESULT_RESTRICTIONS = array(
+        'status' => true,
+            'message'=>array(
+                'CustomerID' => 1,
+                'LoggedInStaffID' => 1,
+                'CustomerName' => 'John Doe'
+    ));
+
+    public const MOCK_CUSTOMERS = array(
+        'piecepay' => 1,
+        'icaladdon' => 1
+    );
+
+    public const MOCK_SERVICERS = array(
+        'allowadminaccess' => 0,
+        'allowmanage'=> 0,
+        'allowreports' => 0,
+        'allowsetupaccess' => 0,
+        'allowaccountaccess' => 0,
+        'allowissuesaccess' => 0,
+        'allowquickreports' => 0,
+        'allowscheduleaccess' => 0,
+        'allowmastercalendar' => 0
+    );
+
+    public const MOCK_TIME_TRACKING = array(
+      'timetracking' => 1
+    );
+
+    public const MOCK_PROPERTY_GROUPS = array(
+        'propertygroupid' => 1
+    );
+
+    public const MOCK_REGION_GROUPS = array(
+        'regiongroupid' => 1
+    );
 }
