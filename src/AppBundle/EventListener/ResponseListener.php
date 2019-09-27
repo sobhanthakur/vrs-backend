@@ -35,7 +35,14 @@ class ResponseListener extends BaseService
      */
     public function onKernelResponse(FilterResponseEvent $event)
     {
-        $responseContent = $event->getResponse()->getContent();
+        $response = $event->getResponse();
+
+        //Enable Headers for CORS
+        $response->headers->set('Access-Control-Allow-Origin','*');
+        $response->headers->set('Access-Control-Allow-Credentials', true);
+
+        $responseContent = $response->getContent();
+
         $request = $event->getRequest();
         $this->apiLogger->debug('API Request/Response',
             array_merge($request->headers->all(),

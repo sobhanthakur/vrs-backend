@@ -24,7 +24,6 @@ class IntegrationController extends FOSRestController
      * @return array
      * @param Request $request
      * @Get("/integrations", name="vrs_integrations_get")
-     * @Options("/integrations", name="vrs_integrations_options")
      */
     public function ValidateAuthToken(Request $request)
     {

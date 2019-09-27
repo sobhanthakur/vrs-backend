@@ -27,7 +27,6 @@ class AuthController extends FOSRestController
      * @return null
      * @param Request $request
      * @Post("/oauth/validate", name="oauth_validate_post")
-     * @Options("/oauth/validate", name="oauth_validate_options")
      */
     public function ValidateAuthToken(Request $request)
     {
@@ -68,7 +67,6 @@ class AuthController extends FOSRestController
      * @return array
      * @param Request $request
      * @Post("/oauth/refresh", name="oauth_refresh_post")
-     * @Options("/oauth/refresh", name="oauth_refresh_options")
      */
     public function RefreshAuthToken(Request $request)
     {

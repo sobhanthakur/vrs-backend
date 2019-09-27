@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use AppBundle\Service\BaseService;
+use Symfony\Component\HttpFoundation\Response;
 
 class RequestListener extends BaseService
 {
@@ -38,8 +39,22 @@ class RequestListener extends BaseService
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+
+        // If Request Method is OPTIONS, then send set the necessary headers.
+        if ($event->getRequest()->getMethod() === 'OPTIONS') {
+            $event->setResponse(
+                new Response('', 204, [
+                    'Access-Control-Allow-Origin' => '*',
+                    'Access-Control-Allow-Credentials' => 'true',
+                    'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers' => 'X-Requested-With, Cache-Control, Content-Type, Authorization'
+                ])
+            );
+            return ;
+        }
         $route = $request->attributes->get('_route');
 
+        // Check if the incoming route is present in the array
         if(in_array($route, ApiRoutes::ROUTES)) {
             $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
             $authenticateResult = $authService->VerifyAuthToken($request);
