@@ -11,6 +11,7 @@
 namespace AppBundle\EventListener;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use AppBundle\Service\BaseService;
 use AppBundle\Constants\ErrorConstants;
@@ -95,6 +96,7 @@ class ExceptionListener extends BaseService
                 'Content' => $response->getContent()
             ]
         ]);
+        $response->headers->set('X-Status-Code', 200);
         $event->setResponse($response);
     }
 }

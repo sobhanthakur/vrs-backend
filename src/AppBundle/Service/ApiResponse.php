@@ -28,11 +28,9 @@ class ApiResponse extends BaseService
     public function createApiErrorResponse($errorCode, $status)
     {
         $response = [
-            'Response' => [
-                'ReasonCode' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
-                'ReasonText' => $this->translator
-                        ->trans(ErrorConstants::$errorCodeMap[$errorCode]['message'])
-            ]
+            'ReasonCode' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
+            'ReasonText' => $this->translator
+                ->trans(ErrorConstants::$errorCodeMap[$errorCode]['message'])
         ];
         return $response;
     }
