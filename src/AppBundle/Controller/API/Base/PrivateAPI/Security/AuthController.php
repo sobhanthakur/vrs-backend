@@ -8,14 +8,10 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Security;
 
 use AppBundle\Constants\ErrorConstants;
-use AppBundle\Constants\GeneralConstants;
-use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Options;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
-use Swagger\Annotations as SWG;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -27,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class AuthController extends FOSRestController
 {
     /**
+     * Validate your JWT Access Token
      * @return null
      * @param Request $request
      * @Post("/oauth/validate", name="oauth_validate_post")
@@ -67,6 +64,7 @@ class AuthController extends FOSRestController
     }
 
     /**
+     * RefreshToken API to create new token.
      * @return array
      * @param Request $request
      * @Post("/oauth/refresh", name="oauth_refresh_post")

@@ -13,6 +13,8 @@ final class ApiRoutes
 {
     const ROUTES = array(
         "oauth_refresh_post",
-        "oauth_refresh_options"
+        "oauth_refresh_options",
+        "vrs_integrations_get",
+        "vrs_integrations_options"
     );
 }

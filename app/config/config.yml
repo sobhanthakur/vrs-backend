@@ -120,6 +120,7 @@ nelmio_api_doc:
                 path_patterns:
                   - ^/v1/vrs/oauth/validate
                   - ^/v1/vrs/oauth/refresh
+                  - ^/v1/vrs/integrations
 
 monolog:
     handlers:

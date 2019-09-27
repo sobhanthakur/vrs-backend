@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrations
  *
  * @ORM\Table(name="Integrations")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationsRepository")
  */
 class Integrations
 {

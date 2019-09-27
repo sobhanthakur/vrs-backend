@@ -39,3 +39,8 @@ services:
         class: AppBundle\Service\ApiResponse
         parent: vrscheduler.base_service
         public: true
+
+    vrscheduler.integration_service:
+        class: AppBundle\Service\GetIntegrations
+        parent: vrscheduler.base_service
+        public: true

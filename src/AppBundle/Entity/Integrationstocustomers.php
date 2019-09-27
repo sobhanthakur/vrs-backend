@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrationstocustomers
  *
  * @ORM\Table(name="IntegrationsToCustomers", indexes={@ORM\Index(name="IDX_EE874FDF1389864B", columns={"IntegrationQBDHourWageTypeID"}), @ORM\Index(name="IDX_EE874FDF4182F12B", columns={"IntegrationQBDRateWageTypeID"}), @ORM\Index(name="IDX_EE874FDF854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_EE874FDF31B9B12", columns={"IntegrationID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationsToCustomersRepository")
  */
 class Integrationstocustomers
 {
