@@ -22,10 +22,10 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Tests\AppBundle\Constants\AuthConstants;
 
 /**
- * Class TestAuthenticationService
+ * Class AuthenticationServiceTest
  * @package Tests\AppBundle\Service
  */
-class TestAuthenticationService extends KernelTestCase
+class AuthenticationServiceTest extends KernelTestCase
 {
     private static $request;
     private static $authenticationService;
@@ -270,5 +270,6 @@ class TestAuthenticationService extends KernelTestCase
     public static function tearDownAfterClass(): void
     {
         self::$request = null;
+        self::$authenticationService = null;
     }
 }

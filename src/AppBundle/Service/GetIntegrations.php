@@ -43,7 +43,8 @@ class GetIntegrations extends BaseService
                     $integrationDetails = array(
                         'QBDSyncBilling' => $installedObject['qbdsyncbilling'],
                         'QBDSyncTimeTracking' => $installedObject['qbdsyncpayroll'],
-                        'CreateDate' => $installedObject['createdate']
+                        'CreateDate' => $installedObject['createdate'],
+                        'StartDate' => $installedObject['startdate']
                     );
                 }
                 $integrationResponse[$i] = array(

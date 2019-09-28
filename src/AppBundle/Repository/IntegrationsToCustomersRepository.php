@@ -17,7 +17,7 @@ class IntegrationsToCustomersRepository extends EntityRepository
     {
         $integrationsToCustomers = $this
             ->createQueryBuilder('i')
-            ->select('i.active, i.createdate, i.qbdsyncbilling, i.qbdsyncpayroll, IDENTITY(i.integrationid) as integrationid')
+            ->select('i.active, i.createdate, i.qbdsyncbilling, i.qbdsyncpayroll, IDENTITY(i.integrationid) as integrationid, i.startdate')
             ->where('i.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->getQuery()

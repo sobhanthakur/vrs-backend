@@ -18,8 +18,7 @@
 
     <testsuites>
         <testsuite name="Project Test Suite">
-            <file>tests/AppBundle/Service</file>
-            <file>tests/AppBundle/Repository</file>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
