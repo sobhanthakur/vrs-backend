@@ -39,7 +39,6 @@ class IntegrationsTest extends KernelTestCase
         $integrations = new Integrations();
         $integrations->setIntegration(IntegrationConstants::MOCK_INTEGRATIONS['Integration']);
         $integrations->setLogo(IntegrationConstants::MOCK_INTEGRATIONS['Logo']);
-        $integrations->setSortorder(IntegrationConstants::MOCK_INTEGRATIONS['SortOrder']);
         $integrations->setActive(1);
 
         $value = [

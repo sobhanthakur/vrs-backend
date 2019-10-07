@@ -25,7 +25,7 @@ class IntegrationController extends FOSRestController
      * @param Request $request
      * @Get("/integrations", name="vrs_integrations_get")
      */
-    public function ValidateAuthToken(Request $request)
+    public function ListIntegrations(Request $request)
     {
         $logger = $this->container->get('monolog.logger.exception');
         $response = null;

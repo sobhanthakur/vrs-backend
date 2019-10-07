@@ -51,7 +51,6 @@ class GetIntegrations extends BaseService
                     'IntegrationID' => $integrations[$i]->getIntegrationid(),
                     'Integration' => $integrations[$i]->getIntegration(),
                     'Logo' => $integrations[$i]->getLogo(),
-                    'SortOrder' => $integrations[$i]->getSortorder(),
                     'Installed' => $installedStatus,
                     'Details' => $integrationDetails
                 );

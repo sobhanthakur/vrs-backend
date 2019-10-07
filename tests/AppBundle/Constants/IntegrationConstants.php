@@ -21,8 +21,7 @@ class IntegrationConstants
 
     public const MOCK_INTEGRATIONS = array(
         'Integration' => 'QuickBooks Enterprise',
-        'Logo' => 'https://example.com/abc.jpg',
-        'SortOrder' => 0
+        'Logo' => 'https://example.com/abc.jpg'
     );
 
     public const MOCK_INTEGRATIONS_TO_CUSTOMERS = array(
