@@ -3,14 +3,17 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * Integrationstocustomers
  *
  * @ORM\Table(name="IntegrationsToCustomers", indexes={@ORM\Index(name="IDX_EE874FDF1389864B", columns={"IntegrationQBDHourWageTypeID"}), @ORM\Index(name="IDX_EE874FDF4182F12B", columns={"IntegrationQBDRateWageTypeID"}), @ORM\Index(name="IDX_EE874FDF854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_EE874FDF31B9B12", columns={"IntegrationID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationsToCustomersRepository")
+ * @ORM\HasLifecycleCallbacks
  */
-class Integrationstocustomers
+class Integrationstocustomers implements UserInterface
 {
     /**
      * @var int
@@ -59,9 +62,9 @@ class Integrationstocustomers
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \DateTime|null
@@ -384,5 +387,39 @@ class Integrationstocustomers
     public function getIntegrationid()
     {
         return $this->integrationid;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSalt()
+    {
+        return null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoles()
+    {
+        return [];
+    }
+
+    /**
+     *
+     */
+    public function eraseCredentials()
+    {
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

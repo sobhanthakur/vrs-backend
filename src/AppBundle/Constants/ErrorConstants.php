@@ -22,6 +22,7 @@ final class ErrorConstants
     const INVALID_AUTHORIZATION = 'INVALIDAUTHORIZATION';
     const METHOD_NOT_ALLOWED = 'METHODNOTALLOWED';
     const SERVICER_NOT_FOUND='SERVICERNOTFOUND';
+    const INTEGRATION_ALREADY_PRESENT='INTEGRATIONALREADYPRESENT';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -52,6 +53,7 @@ final class ErrorConstants
         self::SERVICE_UNAVAIL => ['code' => 503, 'message' => 'api.response.error.service_unavailable'],
         self::GATEWAY_TIMEOUT => ['code' => 504, 'message' => 'api.response.error.gateway_timeout'],
         self::INVALID_AUTH_TOKEN => ['code' => 401, 'message' => 'api.response.error.invalid_auth_token'],
-        self::TOKEN_EXPIRED => ['code' => 401, 'message' => 'api.response.error.auth_token_expired']
+        self::TOKEN_EXPIRED => ['code' => 401, 'message' => 'api.response.error.auth_token_expired'],
+        self::INTEGRATION_ALREADY_PRESENT => ['code' => 422, 'message' => 'api.response.error.integration_already_present']
     ];
 }

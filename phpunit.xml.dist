@@ -38,6 +38,7 @@
                 <directory>src/AppBundle/Controller</directory>
                 <directory>src/AppBundle/EventListener</directory>
                 <directory>src/AppBundle/Repository</directory>
+                <directory>src/AppBundle/CustomClasses</directory>
                 <file>src/AppBundle/AppBundle.php</file>
                 <file>src/AppBundle/Service/ApiResponse.php</file>
                 <file>src/AppBundle/Service/BaseService.php</file>

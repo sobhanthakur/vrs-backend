@@ -41,6 +41,6 @@ services:
         public: true
 
     vrscheduler.integration_service:
-        class: AppBundle\Service\GetIntegrations
+        class: AppBundle\Service\IntegrationsService
         parent: vrscheduler.base_service
         public: true

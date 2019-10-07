@@ -56,4 +56,12 @@ class ApiResponse extends BaseService
             )
         ];
     }
+
+    public function GenericSuccessResponse()
+    {
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message')
+        );
+    }
 }
