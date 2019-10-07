@@ -16,10 +16,9 @@ class PropertyGroupsRepository extends EntityRepository
     {
         $propertyGroupRestrictions = $this
             ->createQueryBuilder('p')
-            ->select('p.propertygroupid')
+            ->select('p.propertygroupid as PropertyGroupID, p.propertygroup as PropertyGroup')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
-            ->setMaxResults(1)
             ->getQuery()
             ->execute();
         return $propertyGroupRestrictions;

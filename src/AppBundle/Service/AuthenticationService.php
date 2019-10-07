@@ -105,74 +105,76 @@ class AuthenticationService extends BaseService
             if ($authenticationResult['status']) {
                 $restrictions['LoggedInStaffID'] = $authenticationResult['message']['LoggedInStaffID'];
                 $restrictions['Restrictions'] = null;
-                if ($authenticationResult['message']['LoggedInStaffID'] !== 0) {
 
-                    /*
-                     * Check restrictions from the Servicers Table.
-                     */
-                    $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
-                    $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult['message']['LoggedInStaffID']);
-                    if(empty($servicersResponse)) {
-                        throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
-                    }
+                /*
+                 * Check restrictions from the Servicers Table.
+                 */
+                $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
+                $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult['message']['LoggedInStaffID']);
+                if (empty($servicersResponse)) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
+                }
 
-                    $servicersResponse = $servicersResponse[0]; // The query returns an array
+                $servicersResponse = $servicersResponse[0]; // The query returns an array
 
-                    // Set Servicers Responses in the restrictions array.
-                    $restrictions['Restrictions']['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
+                // Set Servicers Responses in the restrictions array.
+                $restrictions['Restrictions']['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
+                $restrictions['Restrictions']['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
 
-                    /*
-                     * Check if Servicer is active and time tracking
-                     */
-                    $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult['message']['CustomerID']);
-                    if(empty($servicersTimeTracking)) {
-                        $restrictions['Restrictions']['TimeTracking'] = 0;
-                    } else {
-                        $restrictions['Restrictions']['TimeTracking'] = 1;
-                    }
+                /*
+                 * Check if Servicer is active and time tracking
+                 */
+                $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult['message']['CustomerID']);
+                if (empty($servicersTimeTracking)) {
+                    $restrictions['Restrictions']['TimeTracking'] = 0;
+                } else {
+                    $restrictions['Restrictions']['TimeTracking'] = 1;
+                }
 
-                    /*
-                     * Check if region Group is present or not
-                     */
-                    $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
-                    $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult['message']['CustomerID']);
-                    if(empty($regionGroupResponse)) {
-                        $restrictions['Restrictions']['RegionGroup'] = 0;
-                    } else {
-                        $restrictions['Restrictions']['RegionGroup'] = 1;
-                    }
+                /*
+                 * Check if region Group is present or not
+                 */
+                $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
+                $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult['message']['CustomerID']);
+                if (empty($regionGroupResponse)) {
+                    $restrictions['Restrictions']['RegionGroup'] = 0;
+                    $restrictions['Restrictions']['RegionGroupDetails'] = null;
+                } else {
+                    $restrictions['Restrictions']['RegionGroup'] = 1;
+                    $restrictions['Restrictions']['RegionGroupDetails'] = $regionGroupResponse;
+                }
 
-                    /*
-                     * Check if property Group is present or not
-                     */
-                    $propertyGroupRepo = $this->entityManager->getRepository('AppBundle:Propertygroups');
-                    $propertyGroupResponse = $propertyGroupRepo->GetPropertyGroupsRestrictions($authenticationResult['message']['CustomerID']);
-                    if(empty($propertyGroupResponse)) {
-                        $restrictions['Restrictions']['PropertyGroup'] = 0;
-                    } else {
-                        $restrictions['Restrictions']['PropertyGroup'] = 1;
-                    }
+                /*
+                 * Check if property Group is present or not
+                 */
+                $propertyGroupRepo = $this->entityManager->getRepository('AppBundle:Propertygroups');
+                $propertyGroupResponse = $propertyGroupRepo->GetPropertyGroupsRestrictions($authenticationResult['message']['CustomerID']);
+                if (empty($propertyGroupResponse)) {
+                    $restrictions['Restrictions']['PropertyGroup'] = 0;
+                    $restrictions['Restrictions']['PropertyGroupDetails'] = null;
+                } else {
+                    $restrictions['Restrictions']['PropertyGroup'] = 1;
+                    $restrictions['Restrictions']['PropertyGroupDetails'] = $propertyGroupResponse;
+                }
 
-                    /*
-                     * Check if Customer is piece pay and ICalAddOn
-                     */
-                    $customerRepo = $this->entityManager->getRepository('AppBundle:Customers');
-                    $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult['message']['CustomerID']);
-                    if(empty($customerResponse)) {
-                        $restrictions['Restrictions']['PiecePay'] = 0;
-                        $restrictions['Restrictions']['ICalAddOn'] = 0;
-                    } else {
-                        $restrictions['Restrictions']['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
-                        $restrictions['Restrictions']['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
-                    }
+                /*
+                 * Check if Customer is piece pay and ICalAddOn
+                 */
+                $customerRepo = $this->entityManager->getRepository('AppBundle:Customers');
+                $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult['message']['CustomerID']);
+                if (empty($customerResponse)) {
+                    $restrictions['Restrictions']['PiecePay'] = 0;
+                    $restrictions['Restrictions']['ICalAddOn'] = 0;
+                } else {
+                    $restrictions['Restrictions']['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
+                    $restrictions['Restrictions']['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                 }
             }
         } catch (UnprocessableEntityHttpException $exception) {

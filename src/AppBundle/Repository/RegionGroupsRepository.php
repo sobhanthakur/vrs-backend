@@ -14,10 +14,9 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
     {
         $regionGroupRestrictions = $this
             ->createQueryBuilder('r')
-            ->select('r.regiongroupid')
+            ->select('r.regiongroupid as RegionGroupID, r.regiongroup as RegionGroup')
             ->where('r.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
-            ->setMaxResults(1)
             ->getQuery()
             ->execute();
         return $regionGroupRestrictions;

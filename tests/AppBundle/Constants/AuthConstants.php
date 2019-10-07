@@ -53,10 +53,12 @@ final class AuthConstants
     );
 
     public const MOCK_PROPERTY_GROUPS = array(
-        'propertygroupid' => 1
+        'PropertyGroupID' => 1,
+        'PropertyGroup' => 'CCM'
     );
 
     public const MOCK_REGION_GROUPS = array(
-        'regiongroupid' => 1
+        'RegionGroupID' => 1,
+        'RegionGroup' => 'Leavenworth'
     );
 }
