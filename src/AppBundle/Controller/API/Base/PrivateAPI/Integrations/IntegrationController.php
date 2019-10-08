@@ -111,10 +111,16 @@ class IntegrationController extends FOSRestController
         $response = null;
         try {
             $integrationService = $this->container->get('vrscheduler.integration_service');
-            if($request->getMethod() === 'POST') {
-                $response = $integrationService->InstallQuickbooksDesktop($request);
-            } else {
-//                $response = $integrationService->InstallQuickbooksDesktop($request);
+            $method = $request->getMethod();
+            $content = json_decode($request->getContent(),true);
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            switch ($method) {
+                case 'POST' :
+                    $response = $integrationService->InstallQuickbooksDesktop($content,$customerID);
+                    break;
+                case 'PUT':
+                    $response = $integrationService->UpdateQuickbooksDesktop($content,$customerID);
+                    break;
             }
             return $response;
         } catch (BadRequestHttpException $exception) {

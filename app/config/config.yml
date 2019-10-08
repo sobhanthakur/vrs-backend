@@ -50,7 +50,9 @@ doctrine:
         password: '%database_password%'
         charset: UTF8
         types:
-              datetime: AppBundle\CustomClasses\DateTime
+              datetime:
+                  class: AppBundle\CustomClasses\DateTime
+                  commented: false
 
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'

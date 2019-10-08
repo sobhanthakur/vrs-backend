@@ -8,7 +8,6 @@ api:
         error:
             request_unauthorized: The request was found unauthorized to perform the specified task.
             invalid_content: Request couldn't be processed due to Invalid Content.
-            invalid_credentials: Invalid Credentials found in Request Content.
             internal_error: An error occurred on the server.
             unprocessable_auth_token: The auth token cannot be processed.
             invalid_auth_content: Invalid Auth Format

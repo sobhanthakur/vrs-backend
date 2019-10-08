@@ -86,23 +86,23 @@ class IntegrationsService extends BaseService
         return null;
     }
 
+
     /**
-     * @param Request $request
+     * @param $customerID
+     * @param $content
      * @return array
      */
-    public function InstallQuickbooksDesktop(Request $request)
+    public function InstallQuickbooksDesktop($content, $customerID)
     {
         try {
             /*
-             * Read Request object. Extract attrbutes and parameters.
+             * Read Request object. Extract attributes and parameters.
              */
-            $authenticationResult = $request->attributes->get('AuthPayload');
-            $startDate = $request->get('StartDate');
-            $qbdSyncBilling = $request->get('QBDSyncBilling');
-            $qbdSyncTimeTracking = $request->get('QBDSyncTimeTracking');
-            $password = $request->get('Password');
-            $customerID = $authenticationResult['message']['CustomerID'];
-            $integrationID = $request->get('IntegrationID');
+            $startDate = $content['StartDate'];
+            $qbdSyncBilling = $content['QBDSyncBilling'];
+            $qbdSyncTimeTracking = $content['QBDSyncTimeTracking'];
+            $password = $content['Password'];
+            $integrationID = $content['IntegrationID'];
 
             /*
              * Integration Object
@@ -155,6 +155,57 @@ class IntegrationsService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to create new integration due To : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $content
+     * @param $customerID
+     * @return array
+     */
+    public function UpdateQuickbooksDesktop($content, $customerID)
+    {
+        try {
+            /*
+             * Read Request object. Extract attributes and parameters.
+             */
+            $integrationID = $content['IntegrationID'];
+
+            // Check if the record is present or not
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+            if(!$integrationToCustomer) {
+                throw new HttpException(404, '');
+            }
+
+            if(array_key_exists('StartDate',$content)) {
+                $integrationToCustomer->setStartdate(new \DateTime($content['StartDate'], new \DateTimeZone('UTC')));
+            }
+
+            if(array_key_exists('Password',$content)) {
+                $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content['Password']);
+                $integrationToCustomer->setPassword($encoder);
+            }
+
+            if(array_key_exists('QBDSyncBilling',$content)) {
+                $integrationToCustomer->setQbdsyncbilling($content['QBDSyncBilling']);
+            }
+
+            if(array_key_exists('QBDSyncTimeTracking',$content)) {
+                $integrationToCustomer->setQbdsyncpayroll($content['QBDSyncTimeTracking']);
+            }
+
+            // Persist the record in DB.
+            $this->entityManager->persist($integrationToCustomer);
+            $this->entityManager->flush();
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to update integration due To : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
