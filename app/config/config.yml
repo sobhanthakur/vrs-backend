@@ -49,6 +49,7 @@ doctrine:
         user: '%database_user%'
         password: '%database_password%'
         charset: UTF8
+        MultipleActiveResultSets: true
         types:
               datetime:
                   class: AppBundle\CustomClasses\DateTime

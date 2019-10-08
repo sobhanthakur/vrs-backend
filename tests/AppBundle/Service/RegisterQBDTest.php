@@ -35,6 +35,30 @@ class RegisterQBDTest extends KernelTestCase
     }
 
     /*
+     * Test Failed Integration
+     */
+    public function testFailedIntegration()
+    {
+        try {
+            $integrationRepository = $this->createMock(IntegrationsRepository::class);
+            $integrationRepository->expects($this->any())
+                ->method('find')
+                ->with(null)
+                ->willReturn(null);
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->once())
+                ->method('getRepository')
+                ->willReturn($integrationRepository);
+
+            self::$integrationService->setEntityManager($entityManager);
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(500, $exception->getStatusCode());
+        }
+    }
+
+    /*
      * Test Integration Not Found
      */
     public function testIntegrationNotFound()
@@ -154,6 +178,75 @@ class RegisterQBDTest extends KernelTestCase
 
         self::$integrationService->setEntityManager($entityManager);
         $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
+        $this->assertNotNull($response);
+    }
+
+    /*
+     * Test Failed Update integration Service
+     */
+    public function testFailedUpdate()
+    {
+        try {
+            $integrationToCustomersRepository = $this->createMock(IntegrationsToCustomersRepository::class);
+            $integrationToCustomersRepository->expects($this->any())
+                ->method('findOneBy')
+                ->with(['customerid'=>1,'integrationid'=>1])
+                ->willReturn(null);
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->any())
+                ->method('getRepository')
+                ->willReturn($integrationToCustomersRepository);
+
+            self::$integrationService->setEntityManager($entityManager);
+            $response = self::$integrationService->UpdateQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(404, $exception->getStatusCode());
+        }
+    }
+
+    /*
+     * Test Wrong format for findOneBy
+     */
+    public function testInternalServerErr()
+    {
+        try {
+            $integrationToCustomersRepository = $this->createMock(IntegrationsToCustomersRepository::class);
+            $integrationToCustomersRepository->expects($this->any())
+                ->method('findOneBy')
+                ->with(1)
+                ->willReturn(new Integrationstocustomers());
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->any())
+                ->method('getRepository','persist','flush')
+                ->willReturn($integrationToCustomersRepository);
+
+            self::$integrationService->setEntityManager($entityManager);
+            $response = self::$integrationService->UpdateQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(500, $exception->getStatusCode());
+        }
+    }
+
+    /*
+     * Test Update integration Service
+     */
+    public function testUpdate()
+    {
+        $integrationToCustomersRepository = $this->createMock(IntegrationsToCustomersRepository::class);
+        $integrationToCustomersRepository->expects($this->any())
+            ->method('findOneBy')
+            ->with(['customerid'=>1,'integrationid'=>1])
+            ->willReturn(new Integrationstocustomers());
+
+        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager->expects($this->any())
+            ->method('getRepository','persist','flush')
+            ->willReturn($integrationToCustomersRepository);
+
+        self::$integrationService->setEntityManager($entityManager);
+        $response = self::$integrationService->UpdateQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
         $this->assertNotNull($response);
     }
 
