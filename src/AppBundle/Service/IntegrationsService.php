@@ -151,8 +151,6 @@ class IntegrationsService extends BaseService
 
         } catch (HttpException $exception) {
             throw $exception;
-        } catch (UnprocessableEntityHttpException $exception) {
-            throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to create new integration due To : ' .
                 $exception->getMessage());
@@ -201,8 +199,6 @@ class IntegrationsService extends BaseService
             $this->entityManager->flush();
             return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
         } catch (HttpException $exception) {
-            throw $exception;
-        } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to update integration due To : ' .

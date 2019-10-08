@@ -32,4 +32,14 @@ class IntegrationConstants
         'integrationid' => null,
         'startdate' => '2019-09-27T07:05:16+05:30'
     );
+
+    public const MOCK_CONTENT = array(
+        "StartDate" => "2019-12-30",
+        "Password" => "Sobhan",
+        "QBDSyncBilling" => true,
+        "QBDSyncTimeTracking" => true,
+        "IntegrationID" => 1
+    );
+
+
 }
