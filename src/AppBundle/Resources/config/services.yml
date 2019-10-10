@@ -31,9 +31,9 @@ services:
         public: true
 
     vrscheduler.authentication_service:
-            class: AppBundle\Service\AuthenticationService
-            parent: vrscheduler.base_service
-            public: true
+        class: AppBundle\Service\AuthenticationService
+        parent: vrscheduler.base_service
+        public: true
 
     vrscheduler.api_response_service:
         class: AppBundle\Service\ApiResponse
@@ -42,5 +42,10 @@ services:
 
     vrscheduler.integration_service:
         class: AppBundle\Service\IntegrationsService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.file_export:
+        class: AppBundle\Service\FileExportService
         parent: vrscheduler.base_service
         public: true

@@ -11,6 +11,8 @@ parameters:
     #database_path: '%kernel.project_dir%/var/data/data.sqlite'
     api_secret: ~
     api_host: ~
+    filepath: '%kernel.project_dir%/'
+    SSL: http://
 
     mailer_transport: smtp
     mailer_host: 127.0.0.1

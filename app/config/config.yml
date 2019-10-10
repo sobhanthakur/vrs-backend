@@ -123,6 +123,7 @@ nelmio_api_doc:
 
         integrationportal:
             path_patterns:
+                - /v1/vrs/qwc/file/export
                 - /v1/vrs/integrations
                 - /v1/vrs/qwc/register
                 - /v1/vrs/oauth/validate

@@ -38,6 +38,7 @@ final class ErrorConstants
     const INVALID_USERNAME = 'INVALIDUSERNAME';
     const INVALID_AUTH_TOKEN = 'INVALIDAUTHTOKEN';
     const TOKEN_EXPIRED = 'TOKENEXPIRED';
+    const INTEGRATION_NOT_ACTIVE = 'INTEGRATIONNOTACTIVE';
 
     public static $errorCodeMap = [
         self::INVALID_AUTH_CONTENT => ['code' => 401, 'message' => 'api.response.error.invalid_auth_content'],
@@ -54,6 +55,7 @@ final class ErrorConstants
         self::GATEWAY_TIMEOUT => ['code' => 504, 'message' => 'api.response.error.gateway_timeout'],
         self::INVALID_AUTH_TOKEN => ['code' => 401, 'message' => 'api.response.error.invalid_auth_token'],
         self::TOKEN_EXPIRED => ['code' => 401, 'message' => 'api.response.error.auth_token_expired'],
-        self::INTEGRATION_ALREADY_PRESENT => ['code' => 422, 'message' => 'api.response.error.integration_already_present']
+        self::INTEGRATION_ALREADY_PRESENT => ['code' => 422, 'message' => 'api.response.error.integration_already_present'],
+        self::INTEGRATION_NOT_ACTIVE => ['code' => 422, 'message' => 'api.response.error.integration_not_active']
     ];
 }

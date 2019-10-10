@@ -23,6 +23,7 @@ api:
             service_unavailable: "Service is currently under maintenance, please try again later."
             servicer_not_found: "Servicer Not Found"
             integration_already_present: "Integration already present"
+            integration_not_active: "The integration is not active"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

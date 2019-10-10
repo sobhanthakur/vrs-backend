@@ -39,4 +39,19 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->execute();
         return $integrationsToCustomers;
     }
+
+    public function GetSyncRecords($integrationID, $customerID)
+    {
+        $integrationsToCustomers = $this
+            ->createQueryBuilder('i')
+            ->select('i.username, i.qbdsyncbilling, i.qbdsyncpayroll, i.active')
+            ->where('i.customerid= :CustomerID')
+            ->andWhere('i.integrationid= :IntegrationID')
+            ->setParameter('CustomerID', $customerID)
+            ->setParameter('IntegrationID', $integrationID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+        return $integrationsToCustomers;
+    }
 }

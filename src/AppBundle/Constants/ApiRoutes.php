@@ -16,5 +16,6 @@ final class ApiRoutes
         "vrs_integrations_get",
         "vrs_qwc_register_post",
         "vrs_qwc_register_put",
+        "vrs_qwc_file_export"
     );
 }
