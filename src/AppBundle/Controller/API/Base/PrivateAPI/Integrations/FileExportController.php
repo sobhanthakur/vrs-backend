@@ -12,7 +12,6 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\Integrations;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -46,13 +45,8 @@ class FileExportController extends FOSRestController
             $integrationID = $data['IntegrationID'];
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $integrationService = $this->container->get('vrscheduler.file_export');
-            $zipPath = $integrationService->DownloadQWC($integrationID,$customerID);
-            $response = new Response(file_get_contents($zipPath));
-            $response->headers->set('Content-Type', 'application/zip');
-            $response->headers->set('Content-Disposition', 'attachment;filename="WebConnectFiles.zip"');
-            $response->headers->set('Content-length', filesize($zipPath));
+            return $integrationService->DownloadQWC($integrationID,$customerID);
 
-            return $response;
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -64,13 +58,6 @@ class FileExportController extends FOSRestController
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
-        }  finally {
-            // Delete the zip file from the server.
-            if (file_exists($zipPath) &&
-                readfile($zipPath)) {
-                unlink($zipPath);
-            }
         }
-
     }
 }

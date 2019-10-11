@@ -27,12 +27,11 @@ class ApiResponse extends BaseService
      */
     public function createApiErrorResponse($errorCode, $status)
     {
-        $response = [
-            'ReasonCode' => ErrorConstants::$errorCodeMap[$errorCode]['code'],
-            'ReasonText' => $this->translator
-                ->trans(ErrorConstants::$errorCodeMap[$errorCode]['message'])
+        return [
+            GeneralConstants::REASON_CODE => ErrorConstants::$errorCodeMap[$errorCode]['code'],
+            GeneralConstants::REASON_TEXT => $this->translator
+                ->trans(ErrorConstants::$errorCodeMap[$errorCode][GeneralConstants::MESSAGE])
         ];
-        return $response;
     }
 
 
@@ -45,14 +44,14 @@ class ApiResponse extends BaseService
     public function createAuthApiSuccessResponse($result, $authenticateResult)
     {
         return [
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans('api.response.success.message'),
             'LoggedInStaffID' => $result['LoggedInStaffID'],
             'AccessToken' => $result['AccessToken'],
             'Permissions' => $result['Restrictions'],
             'UserDetails' => array(
-                'CustomerID' => $authenticateResult['message']['CustomerID'],
-                'CustomerName' => $authenticateResult['message']['CustomerName']
+                'CustomerID' => $authenticateResult[GeneralConstants::MESSAGE]['CustomerID'],
+                'CustomerName' => $authenticateResult[GeneralConstants::MESSAGE]['CustomerName']
             )
         ];
     }
@@ -60,8 +59,8 @@ class ApiResponse extends BaseService
     public function GenericSuccessResponse()
     {
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message')
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans('api.response.success.message')
         );
     }
 }

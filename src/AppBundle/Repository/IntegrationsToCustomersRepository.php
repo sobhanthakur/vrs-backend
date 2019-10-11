@@ -9,49 +9,47 @@
 namespace AppBundle\Repository;
 
 
+use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 
 class IntegrationsToCustomersRepository extends EntityRepository
 {
     public function GetAllIntegrations($customerID)
     {
-        $integrationsToCustomers = $this
+        return $this
             ->createQueryBuilder('i')
             ->select('i.active, i.createdate, i.qbdsyncbilling, i.qbdsyncpayroll, IDENTITY(i.integrationid) as integrationid, i.startdate')
-            ->where('i.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
+            ->where(GeneralConstants::CUSTOMER_CONDITION)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
             ->getQuery()
             ->execute();
-        return $integrationsToCustomers;
     }
 
     public function CheckIntegration($integrationID, $customerID)
     {
-        $integrationsToCustomers = $this
+        return $this
             ->createQueryBuilder('i')
             ->select('i.integrationtocustomerid')
-            ->where('i.customerid= :CustomerID')
+            ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere('i.integrationid= :IntegrationID')
-            ->setParameter('CustomerID', $customerID)
-            ->setParameter('IntegrationID', $integrationID)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->setParameter(GeneralConstants::INTEGRATION_ID, $integrationID)
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
-        return $integrationsToCustomers;
     }
 
     public function GetSyncRecords($integrationID, $customerID)
     {
-        $integrationsToCustomers = $this
+        return $this
             ->createQueryBuilder('i')
             ->select('i.username, i.qbdsyncbilling, i.qbdsyncpayroll, i.active')
-            ->where('i.customerid= :CustomerID')
+            ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere('i.integrationid= :IntegrationID')
-            ->setParameter('CustomerID', $customerID)
-            ->setParameter('IntegrationID', $integrationID)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->setParameter(GeneralConstants::INTEGRATION_ID, $integrationID)
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
-        return $integrationsToCustomers;
     }
 }

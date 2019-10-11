@@ -7,6 +7,7 @@
 
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\Entity\Integrationstocustomers;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -34,7 +35,7 @@ class IntegrationsService extends BaseService
 
             // Get All Integrations based on Customer ID
             $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers');
-            $integrationsToCustomers = $integrationsToCustomers->GetAllIntegrations($authenticationResult['message']['CustomerID']);
+            $integrationsToCustomers = $integrationsToCustomers->GetAllIntegrations($customerID);
 
             for ($i=0; $i<sizeof($integrations); $i++) {
                 $installedObject = $this->InstalledIntegration($integrations[$i]->getIntegrationid(), $integrationsToCustomers);
@@ -45,14 +46,14 @@ class IntegrationsService extends BaseService
                 if($installedObject) {
                     $installedStatus = ($installedObject['active'] === true ? 1 : 0);
                     $integrationDetails = array(
-                        'QBDSyncBilling' => $installedObject['qbdsyncbilling'],
-                        'QBDSyncTimeTracking' => $installedObject['qbdsyncpayroll'],
+                        GeneralConstants::QBDSYNCBILLING => $installedObject['qbdsyncbilling'],
+                        GeneralConstants::QBDSYNCTT => $installedObject['qbdsyncpayroll'],
                         'CreateDate' => $installedObject['createdate'],
                         'StartDate' => $installedObject['startdate']
                     );
                 }
                 $integrationResponse[$i] = array(
-                    'IntegrationID' => $integrations[$i]->getIntegrationid(),
+                    GeneralConstants::INTEGRATION_ID => $integrations[$i]->getIntegrationid(),
                     'Integration' => $integrations[$i]->getIntegration(),
                     'Logo' => $integrations[$i]->getLogo(),
                     'Installed' => $installedStatus,
@@ -98,11 +99,11 @@ class IntegrationsService extends BaseService
             /*
              * Read Request object. Extract attributes and parameters.
              */
-            $startDate = $content['StartDate'];
-            $qbdSyncBilling = $content['QBDSyncBilling'];
-            $qbdSyncTimeTracking = $content['QBDSyncTimeTracking'];
-            $password = $content['Password'];
-            $integrationID = $content['IntegrationID'];
+            $startDate = $content[GeneralConstants::START_DATE];
+            $qbdSyncBilling = $content[GeneralConstants::QBDSYNCBILLING];
+            $qbdSyncTimeTracking = $content[GeneralConstants::QBDSYNCTT];
+            $password = $content[GeneralConstants::PASS];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             /*
              * Integration Object
@@ -169,7 +170,7 @@ class IntegrationsService extends BaseService
             /*
              * Read Request object. Extract attributes and parameters.
              */
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             // Check if the record is present or not
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
@@ -177,21 +178,21 @@ class IntegrationsService extends BaseService
                 throw new HttpException(404, '');
             }
 
-            if(array_key_exists('StartDate',$content)) {
-                $integrationToCustomer->setStartdate(new \DateTime($content['StartDate'], new \DateTimeZone('UTC')));
+            if(array_key_exists(GeneralConstants::START_DATE,$content)) {
+                $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
             }
 
-            if(array_key_exists('Password',$content)) {
-                $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content['Password']);
+            if(array_key_exists(GeneralConstants::PASS,$content)) {
+                $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
                 $integrationToCustomer->setPassword($encoder);
             }
 
-            if(array_key_exists('QBDSyncBilling',$content)) {
-                $integrationToCustomer->setQbdsyncbilling($content['QBDSyncBilling']);
+            if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
+                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
             }
 
-            if(array_key_exists('QBDSyncTimeTracking',$content)) {
-                $integrationToCustomer->setQbdsyncpayroll($content['QBDSyncTimeTracking']);
+            if(array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
+                $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
             }
 
             // Persist the record in DB.

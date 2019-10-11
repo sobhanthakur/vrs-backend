@@ -9,6 +9,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use \ZipArchive as ZipArchive;
@@ -58,7 +59,7 @@ class FileExportService extends BaseService
              * Generate XMLs for QB Sync
              */
             $syncFileName = 'Sync_' . $username . '.qwc';
-            $syncXML = $this->SyncQWCFile($username, $filePath, $syncFileName);
+            $this->SyncQWCFile($username, $filePath, $syncFileName);
             $zipFileName = 'QWC_' . $username . '.zip';
             $zipPath = $filePath . $zipFileName;
 
@@ -71,7 +72,7 @@ class FileExportService extends BaseService
              * Create XMLs for Billing Info
              */
             if ($billing) {
-                $syncXML = $this->BillingQWCFile($username, $filePath);
+                $this->BillingQWCFile($username, $filePath);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_BILLING_SUCCESS, GeneralConstants::QWC_BILLING_SUCCESS);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_BILLING_FAIL, GeneralConstants::QWC_BILLING_FAIL);
             }
@@ -80,7 +81,7 @@ class FileExportService extends BaseService
              * Create XMLs for Time Tracking Info
              */
             if ($timeTracking) {
-                $syncXML = $this->TimeTrackingQWCFile($username, $filePath);
+                $this->TimeTrackingQWCFile($username, $filePath);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_TIMETRACKING_SUCCESS, GeneralConstants::QWC_TIMETRACKING_SUCCESS);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_TIMETRACKING_FAIL, GeneralConstants::QWC_TIMETRACKING_FAIL);
             }
@@ -109,13 +110,23 @@ class FileExportService extends BaseService
                 unlink($filePath . $username . GeneralConstants::QWC_TIMETRACKING_FAIL);
             }
 
-            return $zipPath;
+            $response = new Response(file_get_contents($zipPath));
+            $response->headers->set('Content-Type', 'application/zip');
+            $response->headers->set('Content-Disposition', 'attachment;filename="WebConnectFiles.zip"');
+            $response->headers->set('Content-length', filesize($zipPath));
+            return $response;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed Downloading QWC Files due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        } finally {
+            // Delete the zip file from the server.
+            if (file_exists($zipPath) &&
+                readfile($zipPath)) {
+                unlink($zipPath);
+            }
         }
     }
 
@@ -127,22 +138,21 @@ class FileExportService extends BaseService
      */
     public function SyncQWCFile($username, $filePath, $syncFileName)
     {
-        $xml = new \SimpleXMLElement('<QBWCXML />');
+        $xml = new \SimpleXMLElement(GeneralConstants::QBWCXML);
 
-        $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_SYNC_INFO['AppName']);
+        $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::APP_NAME]);
         $xml->addChild(GeneralConstants::APP_ID, GeneralConstants::QWC_APP_ID);
-        $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host') . GeneralConstants::QWC_SYNC_INFO['AppURL']);
-        $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_SYNC_INFO['AppDescription']);
-        $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host'));
+        $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST) . GeneralConstants::QWC_SYNC_INFO[GeneralConstants::APP_URL]);
+        $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::APP_DESCRIPTION]);
+        $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST));
         $xml->addChild(GeneralConstants::USERNAME, $username);
-        $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_SYNC_INFO['OwnerID']);
-        $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_SYNC_INFO['FileID']);
+        $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::OWNERID]);
+        $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::FILEID]);
         $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBTYPE);
         $xml->addChild(GeneralConstants::ISREADONLY, false);
 
         $fileName = $filePath . $syncFileName;
-        $result = file_put_contents($fileName, $xml->asXML());
-        return $result;
+        return file_put_contents($fileName, $xml->asXML());
     }
 
     /**
@@ -153,16 +163,16 @@ class FileExportService extends BaseService
     {
         $fileName = null;
         for ($i = 0; $i < 2; $i++) {
-            $xml = new \SimpleXMLElement('<QBWCXML />');
+            $xml = new \SimpleXMLElement(GeneralConstants::QBWCXML);
 
-            $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_BILLING[$i]['AppName']);
+            $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_NAME]);
             $xml->addChild(GeneralConstants::APP_ID, GeneralConstants::QWC_APP_ID);
-            $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host') . GeneralConstants::QWC_BILLING[$i]['AppURL']);
-            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i]['AppDescription']);
-            $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host'));
+            $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST) . GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_URL]);
+            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_DESCRIPTION]);
+            $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST));
             $xml->addChild(GeneralConstants::USERNAME, $username);
-            $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_BILLING[$i]['OwnerID']);
-            $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_BILLING[$i]['FileID']);
+            $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_BILLING[$i][GeneralConstants::OWNERID]);
+            $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_BILLING[$i][GeneralConstants::FILEID]);
             $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBTYPE);
             $xml->addChild(GeneralConstants::ISREADONLY, false);
 
@@ -174,7 +184,7 @@ class FileExportService extends BaseService
                     $fileName = $username . GeneralConstants::QWC_BILLING_FAIL;
                     break;
             }
-            $result = file_put_contents($filePath . $fileName, $xml->asXML());
+            file_put_contents($filePath . $fileName, $xml->asXML());
         }
         return true;
     }
@@ -188,16 +198,16 @@ class FileExportService extends BaseService
     {
         $fileName = null;
         for ($i = 0; $i < 2; $i++) {
-            $xml = new \SimpleXMLElement('<QBWCXML />');
+            $xml = new \SimpleXMLElement(GeneralConstants::QBWCXML);
 
-            $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_TIMETRACKING[$i]['AppName']);
+            $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::APP_NAME]);
             $xml->addChild(GeneralConstants::APP_ID, GeneralConstants::QWC_APP_ID);
-            $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host') . GeneralConstants::QWC_TIMETRACKING[$i]['AppURL']);
-            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i]['AppDescription']);
-            $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter('api_host'));
+            $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST) . GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::APP_URL]);
+            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_DESCRIPTION]);
+            $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST));
             $xml->addChild(GeneralConstants::USERNAME, $username);
-            $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_TIMETRACKING[$i]['OwnerID']);
-            $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_TIMETRACKING[$i]['FileID']);
+            $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::OWNERID]);
+            $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::FILEID]);
             $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBTYPE);
             $xml->addChild(GeneralConstants::ISREADONLY, false);
 
@@ -209,7 +219,7 @@ class FileExportService extends BaseService
                     $fileName = $username . GeneralConstants::QWC_TIMETRACKING_FAIL;
                     break;
             }
-            $result = file_put_contents($filePath . $fileName, $xml->asXML());
+            file_put_contents($filePath . $fileName, $xml->asXML());
         }
         return true;
     }

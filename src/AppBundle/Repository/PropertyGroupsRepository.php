@@ -14,13 +14,12 @@ class PropertyGroupsRepository extends EntityRepository
 {
     public function GetPropertyGroupsRestrictions($customerID)
     {
-        $propertyGroupRestrictions = $this
+        return $this
             ->createQueryBuilder('p')
             ->select('p.propertygroupid as PropertyGroupID, p.propertygroup as PropertyGroup')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
-        return $propertyGroupRestrictions;
     }
 }

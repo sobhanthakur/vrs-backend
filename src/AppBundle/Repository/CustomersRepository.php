@@ -20,7 +20,7 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
      */
     public function PiecePayRestrictions($customerID)
     {
-        $customersRestrictions = $this
+        return $this
             ->createQueryBuilder('c')
             ->select('c.piecepay, c.icaladdon')
             ->where('c.customerid= :CustomerID')
@@ -28,6 +28,5 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
-        return $customersRestrictions;
     }
 }

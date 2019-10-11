@@ -12,13 +12,12 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
 {
     public function GetRegionGroupsRestrictions($customerID)
     {
-        $regionGroupRestrictions = $this
+        return $this
             ->createQueryBuilder('r')
             ->select('r.regiongroupid as RegionGroupID, r.regiongroup as RegionGroup')
             ->where('r.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
-        return $regionGroupRestrictions;
     }
 }

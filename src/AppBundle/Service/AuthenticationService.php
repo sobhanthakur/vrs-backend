@@ -39,8 +39,7 @@ class AuthenticationService extends BaseService
      */
     public function VerifyAuthToken(Request $request)
     {
-        $authenticateResult['status'] = false;
-        $restrictions = [];
+        $authenticateResult[GeneralConstants::STATUS] = false;
         try {
             // Checking Authorization Key for validating Token.
             $authorizationParts = explode(" ", $request->headers->get('Authorization'));
@@ -65,19 +64,19 @@ class AuthenticationService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNPROCESSABLE_AUTH_TOKEN);
             }
             // Checking That access_token must be used in API Calls.
-            if (!$token->hasClaim('CustomerID') || !$token->hasClaim('LoggedInStaffID')
-                || !$token->hasClaim('CustomerName') || !$token->hasClaim('CreateDateTime')
+            if (!$token->hasClaim(GeneralConstants::CUSTOMER_ID) || !$token->hasClaim(GeneralConstants::LOGGEDINSTAFFID)
+                || !$token->hasClaim(GeneralConstants::CUSTOMER_NAME) || !$token->hasClaim(GeneralConstants::CREATEDATETIME)
             ) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
             }
 
             // Set token claims in authenticateResult array
-            $authenticateResult['message']['CustomerID'] = $token->getClaim('CustomerID');
-            $authenticateResult['message']['CustomerName'] = $token->getClaim('CustomerName');
-            $authenticateResult['message']['LoggedInStaffID'] = $token->getClaim('LoggedInStaffID');
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID] = $token->getClaim(GeneralConstants::CUSTOMER_ID);
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $token->getClaim(GeneralConstants::CUSTOMER_NAME);
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] = $token->getClaim(GeneralConstants::LOGGEDINSTAFFID);
 
             //Set authenticated status to true
-            $authenticateResult['status'] = true;
+            $authenticateResult[GeneralConstants::STATUS] = true;
         } catch (InvalidArgumentException $ex) {
             throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
         } catch (UnprocessableEntityHttpException $exception) {
@@ -85,7 +84,7 @@ class AuthenticationService extends BaseService
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Authentication could not be complete due to Error : ' .
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -102,15 +101,15 @@ class AuthenticationService extends BaseService
     {
         $restrictions = [];
         try {
-            if ($authenticationResult['status']) {
-                $restrictions['LoggedInStaffID'] = $authenticationResult['message']['LoggedInStaffID'];
-                $restrictions['Restrictions'] = null;
+            if ($authenticationResult[GeneralConstants::STATUS]) {
+                $restrictions[GeneralConstants::LOGGEDINSTAFFID] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID];
+                $restrictions[GeneralConstants::RESTRICTIONS] = null;
 
                 /*
                  * Check restrictions from the Servicers Table.
                  */
                 $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
-                $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult['message']['LoggedInStaffID']);
+                $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
                 if (empty($servicersResponse)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
                 }
@@ -118,69 +117,69 @@ class AuthenticationService extends BaseService
                 $servicersResponse = $servicersResponse[0]; // The query returns an array
 
                 // Set Servicers Responses in the restrictions array.
-                $restrictions['Restrictions']['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
-                $restrictions['Restrictions']['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
+                $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
 
                 /*
                  * Check if Servicer is active and time tracking
                  */
-                $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult['message']['CustomerID']);
+                $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($servicersTimeTracking)) {
-                    $restrictions['Restrictions']['TimeTracking'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = 0;
                 } else {
-                    $restrictions['Restrictions']['TimeTracking'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = 1;
                 }
 
                 /*
                  * Check if region Group is present or not
                  */
                 $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
-                $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult['message']['CustomerID']);
+                $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($regionGroupResponse)) {
-                    $restrictions['Restrictions']['RegionGroup'] = 0;
-                    $restrictions['Restrictions']['RegionGroupDetails'] = null;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
                 } else {
-                    $restrictions['Restrictions']['RegionGroup'] = 1;
-                    $restrictions['Restrictions']['RegionGroupDetails'] = $regionGroupResponse;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
                 }
 
                 /*
                  * Check if property Group is present or not
                  */
                 $propertyGroupRepo = $this->entityManager->getRepository('AppBundle:Propertygroups');
-                $propertyGroupResponse = $propertyGroupRepo->GetPropertyGroupsRestrictions($authenticationResult['message']['CustomerID']);
+                $propertyGroupResponse = $propertyGroupRepo->GetPropertyGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($propertyGroupResponse)) {
-                    $restrictions['Restrictions']['PropertyGroup'] = 0;
-                    $restrictions['Restrictions']['PropertyGroupDetails'] = null;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PropertyGroup'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PropertyGroupDetails'] = null;
                 } else {
-                    $restrictions['Restrictions']['PropertyGroup'] = 1;
-                    $restrictions['Restrictions']['PropertyGroupDetails'] = $propertyGroupResponse;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PropertyGroup'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PropertyGroupDetails'] = $propertyGroupResponse;
                 }
 
                 /*
                  * Check if Customer is piece pay and ICalAddOn
                  */
                 $customerRepo = $this->entityManager->getRepository('AppBundle:Customers');
-                $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult['message']['CustomerID']);
+                $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($customerResponse)) {
-                    $restrictions['Restrictions']['PiecePay'] = 0;
-                    $restrictions['Restrictions']['ICalAddOn'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PiecePay'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = 0;
                 } else {
-                    $restrictions['Restrictions']['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
-                    $restrictions['Restrictions']['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                 }
             }
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Authentication could not be complete due to Error : ' .
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -197,10 +196,7 @@ class AuthenticationService extends BaseService
         try {
             // Get headers and claims from the tokens
             $exp = $token->getHeader('exp');
-            $createTime = $token->getClaim('CreateDateTime');
-            $loggedInStaffID = $token->getClaim('LoggedInStaffID');
-            $customerID = $token->getClaim('CustomerID');
-            $customerName = $token->getClaim('CustomerName');
+            $createTime = $token->getClaim(GeneralConstants::CREATEDATETIME);
 
             $tokenTime = new \DateTime($createTime, new \DateTimeZone("UTC"));
             $currentTime = new \DateTime("now", new \DateTimeZone("UTC"));
@@ -212,7 +208,7 @@ class AuthenticationService extends BaseService
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Authentication could not be complete due to Error : ' .
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -226,19 +222,17 @@ class AuthenticationService extends BaseService
      */
     public function CreateNewToken($authenticationResult)
     {
-        $accessToken = null;
         $signer = new Sha256();
-        $token = (new Builder())
-            ->set('CustomerID', $authenticationResult['message']['CustomerID'])
-            ->set('LoggedInStaffID', $authenticationResult['message']['LoggedInStaffID'])
-            ->set('CustomerName', $authenticationResult['message']['CustomerName'])
-            ->set('CreateDateTime', (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
+        return (new Builder())
+            ->set(GeneralConstants::CUSTOMER_ID, $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID])
+            ->set(GeneralConstants::LOGGEDINSTAFFID, $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID])
+            ->set(GeneralConstants::CUSTOMER_NAME, $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME])
+            ->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
             ->setHeader('exp',GeneralConstants::TOKEN_EXPIRY_TIME)
 
             // Creating Signature.
             ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
             ->getToken() // Retrieves Generated Token Object
             ->__toString(); // Converts Token into encoded String.
-        return $token;
     }
 }

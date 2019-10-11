@@ -44,9 +44,10 @@ class ExceptionListener extends BaseService
 
         switch ($status) {
             case 400:
-                $messageKey = $exceptionMessage;
-                break;
             case 401:
+            case 409:
+            case 422:
+            case 502:
                 $messageKey = $exceptionMessage;
                 break;
             case 403:
@@ -61,17 +62,8 @@ class ExceptionListener extends BaseService
             case 408:
                 $messageKey = ErrorConstants::REQ_TIME_OUT;
                 break;
-            case 409:
-                $messageKey = $exceptionMessage;
-                break;
-            case 422:
-                $messageKey = $exceptionMessage;
-                break;
             case 500:
                 $messageKey = ErrorConstants::INTERNAL_ERR;
-                break;
-            case 502:
-                $messageKey = $exceptionMessage;
                 break;
             case 503:
                 $messageKey = ErrorConstants::SERVICE_UNAVAIL;

@@ -19,7 +19,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      */
     public function GetRestrictions($staffID)
     {
-        $servicersRestrictions = $this
+        return $this
             ->createQueryBuilder('s')
             ->select('s.allowadminaccess, s.allowmanage, s.allowreports, s.allowsetupaccess, s.allowaccountaccess, s.allowissuesaccess, s.allowquickreports, s.allowscheduleaccess, s.allowmastercalendar')
             ->where('s.servicerid= :StaffID')
@@ -27,7 +27,6 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
-        return $servicersRestrictions;
     }
 
     /**
@@ -37,7 +36,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      */
     public function GetTimeTrackingRestrictions($customerID)
     {
-        $servicersRestrictions = $this
+        return $this
             ->createQueryBuilder('s')
             ->select('s.timetracking')
             ->where('s.customerid= :CustomerID')
@@ -47,6 +46,5 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
-        return $servicersRestrictions;
     }
 }
