@@ -109,23 +109,37 @@ class AuthenticationService extends BaseService
                  * Check restrictions from the Servicers Table.
                  */
                 $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
-                $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
-                if (empty($servicersResponse)) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
+                if($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] === 0) {
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = 0;
+                } else {
+                    $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
+                    if (empty($servicersResponse)) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
+                    }
+
+                    $servicersResponse = $servicersResponse[0]; // The query returns an array
+
+                    // Set Servicers Responses in the restrictions array.
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = ($servicersResponse['allowtracking'] === true ? 1 : 0);
                 }
-
-                $servicersResponse = $servicersResponse[0]; // The query returns an array
-
-                // Set Servicers Responses in the restrictions array.
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = ($servicersResponse['allowaccountaccess'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = ($servicersResponse['allowissuesaccess'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = ($servicersResponse['allowquickreports'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
-                $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
 
                 /*
                  * Check if Servicer is active and time tracking

@@ -45,7 +45,8 @@ final class AuthConstants
         'allowissuesaccess' => 0,
         'allowquickreports' => 0,
         'allowscheduleaccess' => 0,
-        'allowmastercalendar' => 0
+        'allowmastercalendar' => 0,
+        'allowtracking' => 1
     );
 
     public const MOCK_TIME_TRACKING = array(
