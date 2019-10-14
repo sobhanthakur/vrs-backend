@@ -130,6 +130,10 @@ nelmio_api_doc:
                 - /v1/vrs/oauth/refresh
                 - /v1/vrs/propertytags
                 - /v1/vrs/regions
+                - /v1/vrs/owners
+                - /v1/vrs/stafftags
+                - /v1/vrs/departments
+                - /v1/vrs/property
 
 monolog:
     handlers:

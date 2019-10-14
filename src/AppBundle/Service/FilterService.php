@@ -43,4 +43,60 @@ class FilterService extends BaseService
             'Data' => $regionGroup
         );
     }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function OwnersFilter($customerID)
+    {
+        $owners = $this->entityManager->getRepository('AppBundle:Owners')->GetOwners($customerID);
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            'Data' => $owners
+        );
+    }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function StaffTagFilter($customerID)
+    {
+        $staffTags = $this->entityManager->getRepository('AppBundle:Employeegroups')->GetEmployeeGroups($customerID);
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            'Data' => $staffTags
+        );
+    }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function DepartmentsFilter($customerID)
+    {
+        $departments = $this->entityManager->getRepository('AppBundle:Servicegroups')->GetServiceGroups($customerID);
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            'Data' => $departments
+        );
+    }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function PropertyFilter($customerID)
+    {
+        $properties = $this->entityManager->getRepository('AppBundle:Properties')->GetProperties($customerID);
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            'Data' => $properties
+        );
+    }
 }

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Properties
  *
  * @ORM\Table(name="Properties", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="LinkedPropertyID", columns={"LinkedPropertyID"}), @ORM\Index(name="OwnerID", columns={"OwnerID"}), @ORM\Index(name="Performing_Import", columns={"PerformingImport"}), @ORM\Index(name="Performing_Import_Date", columns={"PerformingImportDate"}), @ORM\Index(name="PropertyName", columns={"PropertyName"}), @ORM\Index(name="RegionID", columns={"RegionID"}), @ORM\Index(name="sortorder", columns={"SortOrder"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\PropertiesRepository")
  */
 class Properties
 {

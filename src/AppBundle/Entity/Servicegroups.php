@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Servicegroups
  *
  * @ORM\Table(name="ServiceGroups", indexes={@ORM\Index(name="customerid", columns={"CustomerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ServiceGroupRepository")
  */
 class Servicegroups
 {

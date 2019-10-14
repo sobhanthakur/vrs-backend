@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Owners
  *
  * @ORM\Table(name="Owners", indexes={@ORM\Index(name="IDX_45DE97CC854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_45DE97CC423D04DF", columns={"CountryID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\OwnersRepository")
  */
 class Owners
 {

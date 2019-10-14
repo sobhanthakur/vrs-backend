@@ -18,6 +18,10 @@ final class ApiRoutes
         "vrs_qwc_register_put",
         "vrs_qwc_file_export",
         "vrs_propertytags",
-        "vrs_regions"
+        "vrs_regions",
+        "vrs_owners",
+        "vrs_stafftags",
+        "vrs_departments",
+        "vrs_property"
     );
 }
