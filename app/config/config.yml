@@ -128,6 +128,8 @@ nelmio_api_doc:
                 - /v1/vrs/qwc/register
                 - /v1/vrs/oauth/validate
                 - /v1/vrs/oauth/refresh
+                - /v1/vrs/propertytags
+                - /v1/vrs/regions
 
 monolog:
     handlers:

@@ -24,6 +24,11 @@ class IntegrationController extends FOSRestController
 {
     /**
      * Get List Of Available and Installed integrations
+     * @SWG\Tag(name="IntegrationDetails")
+     * * @SWG\Response(
+     *     response=200,
+     *     description="Shows list of installed + available integrations"
+     * )
      * @return array
      * @param Request $request
      * @Get("/integrations", name="vrs_integrations_get")
@@ -52,6 +57,7 @@ class IntegrationController extends FOSRestController
 
     /**
      * Install/Updates Quickbooks Integration.
+     * @SWG\Tag(name="IntegrationDetails")
      * @Post("/qwc/register", name="vrs_qwc_register_post")
      * @Put("/qwc/register", name="vrs_qwc_register_put")
      * @SWG\Parameter(

@@ -21,6 +21,7 @@ class FileExportController extends FOSRestController
 {
     /**
      * Get the qwc files in zip format
+     * @SWG\Tag(name="QWCs Download")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",

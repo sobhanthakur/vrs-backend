@@ -49,3 +49,7 @@ services:
         class: AppBundle\Service\FileExportService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.filter_service:
+        class: AppBundle\Service\FilterService
+        parent: vrscheduler.base_service
+        public: true

@@ -110,16 +110,16 @@ class AuthenticationService extends BaseService
                  */
                 $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
                 if($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] === 0) {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAccountAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowIssuesAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowQuickReports'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = 1;
                 } else {
                     $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
                     if (empty($servicersResponse)) {

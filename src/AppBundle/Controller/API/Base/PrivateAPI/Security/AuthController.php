@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Swagger\Annotations as SWG;
 
 /**
  * Class AuthController
@@ -24,6 +25,11 @@ class AuthController extends FOSRestController
 {
     /**
      * Validate your JWT Access Token
+     * @SWG\Tag(name="Authentication")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Validate access token"
+     * )
      * @return null
      * @param Request $request
      * @Post("/oauth/validate", name="oauth_validate_post")
@@ -64,6 +70,11 @@ class AuthController extends FOSRestController
 
     /**
      * RefreshToken API to create new token.
+     * @SWG\Tag(name="Authentication")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Renew the access token"
+     * )
      * @return array
      * @param Request $request
      * @Post("/oauth/refresh", name="oauth_refresh_post")
