@@ -89,9 +89,7 @@ class AuthController extends FOSRestController
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
-                'AuthenticationResponse' => array(
-                    'Token' => $newToken
-                )
+                'Token' => $newToken
             );
         } catch (BadRequestHttpException $exception) {
             throw $exception;
