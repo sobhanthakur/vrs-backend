@@ -31,6 +31,14 @@ final class AuthConstants
                 'CustomerName' => 'John Doe'
     ));
 
+    public const AUTHENTICATION_RESULT_RESTRICTIONS1 = array(
+        'status' => true,
+        'message'=>array(
+            'CustomerID' => 1,
+            'LoggedInStaffID' => 0,
+            'CustomerName' => 'John Doe'
+        ));
+
     public const MOCK_CUSTOMERS = array(
         'piecepay' => 1,
         'icaladdon' => 1

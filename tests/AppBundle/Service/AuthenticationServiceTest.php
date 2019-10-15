@@ -258,6 +258,53 @@ class AuthenticationServiceTest extends KernelTestCase
 
     }
 
+    /*
+     * Test for LoggedInStaffID = 0
+     */
+    public function test0LoggedInStaffID()
+    {
+        $value = [];
+
+        $servicersRepository = $this->createMock(ServicersRepository::class);
+        $regionGroupRepository = $this->createMock(RegionGroupsRepository::class);
+        $propertyGroupRepository = $this->createMock(PropertyGroupsRepository::class);
+        $customerRepository = $this->createMock(CustomersRepository::class);
+
+        $entityManager = $this->getEntitymanager();
+
+        $servicers = [
+            0 => AuthConstants::MOCK_SERVICERS
+        ];
+        $servicersRepository->expects($this->any())
+            ->method('GetRestrictions')
+            ->willReturn($servicers);
+
+        $servicersRepository->expects($this->any())
+            ->method('GetTimeTrackingRestrictions')
+            ->willReturn($value);
+
+        $regionGroupRepository->expects($this->any())
+            ->method('GetRegionGroupsRestrictions')
+            ->willReturn($value);
+
+        $propertyGroupRepository->expects($this->any())
+            ->method('GetPropertyGroupsRestrictions')
+            ->willReturn($value);
+
+        $customerRepository->expects($this->any())
+            ->method('PiecePayRestrictions')
+            ->willReturn($value);
+
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
+
+        self::$authenticationService->setEntityManager($entityManager);
+        $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS1);
+        $this->assertNotNull($response);
+
+    }
+
     public function getEntitymanager()
     {
         $entityManager = $this->createMock(EntityManager::class);

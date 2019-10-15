@@ -131,7 +131,7 @@ class FiltersController extends FOSRestController
         try {
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $filterService = $this->container->get('vrscheduler.filter_service');
-            return $filterService->OwnersFilter($customerID);
+            return $filterService->StaffTagFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
