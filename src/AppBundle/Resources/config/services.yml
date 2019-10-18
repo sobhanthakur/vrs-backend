@@ -53,3 +53,7 @@ services:
         class: AppBundle\Service\FilterService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.map_billing:
+        class: AppBundle\Service\MapBillingService
+        parent: vrscheduler.base_service
+        public: true
