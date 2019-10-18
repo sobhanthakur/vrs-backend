@@ -94,7 +94,7 @@ class IntegrationController extends FOSRestController
      *  )
      * @SWG\Response(
      *     response=200,
-     *     description="Send Success ReasonText with 200 status code",
+     *     description="Creates/Updates the integration info for the customer",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="ReasonCode",

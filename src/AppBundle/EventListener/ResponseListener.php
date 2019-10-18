@@ -36,16 +36,18 @@ class ResponseListener extends BaseService
     public function onKernelResponse(FilterResponseEvent $event)
     {
         $response = $event->getResponse();
+        $request = $event->getRequest();
+        if($request->getMethod() === 'POST') {
+            $response->setStatusCode(201);
+        }
 
         //Enable Headers for CORS
         $response->headers->set('Access-Control-Allow-Origin','*');
         $response->headers->set('Access-Control-Allow-Headers','*');
         $response->headers->set('Access-Control-Allow-Credentials', true);
 
-
         $responseContent = $response->getContent();
 
-        $request = $event->getRequest();
         $this->apiLogger->debug('API Request/Response',
             array_merge($request->headers->all(),
                 [

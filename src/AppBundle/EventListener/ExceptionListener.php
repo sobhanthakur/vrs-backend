@@ -88,7 +88,6 @@ class ExceptionListener extends BaseService
                 'Content' => $response->getContent()
             ]
         ]);
-        $response->headers->set('X-Status-Code', 200);
         $event->setResponse($response);
     }
 }
