@@ -65,7 +65,10 @@ class PropertiesRepository extends EntityRepository
                 ->setParameter('From', $createDate['From'])
                 ->setParameter('To', $createDate['To']);
         }
-        $result->setFirstResult(($offset-1)*$limit)->setMaxResults($limit);
+        $result
+            ->orderBy('p.createdate','DESC')
+            ->setFirstResult(($offset-1)*$limit)
+            ->setMaxResults($limit);
         return $result
             ->getQuery()
             ->getResult();

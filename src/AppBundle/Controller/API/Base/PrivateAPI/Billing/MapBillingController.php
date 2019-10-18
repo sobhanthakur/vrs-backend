@@ -58,6 +58,9 @@ class MapBillingController extends FOSRestController
         $logger = $this->container->get('monolog.logger.exception');
         try {
             $data = json_decode(base64_decode($request->get('data')),true);
+            if(empty($data)) {
+                $data = [];
+            }
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapBillingService = $this->container->get('vrscheduler.map_billing');
             return $mapBillingService->MapProperties($customerID, $data);
