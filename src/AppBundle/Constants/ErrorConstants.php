@@ -24,6 +24,11 @@ final class ErrorConstants
     const METHOD_NOT_ALLOWED = 'METHODNOTALLOWED';
     const SERVICER_NOT_FOUND='SERVICERNOTFOUND';
     const INTEGRATION_ALREADY_PRESENT='INTEGRATIONALREADYPRESENT';
+    const EMPTY_START_DATE='EMPTYSTARTDATE';
+    const EMPTY_QBDSYNCBILLING='EMPTYQBDSYNCBILLING';
+    const EMPTY_QBDSYNCTT='EMPTYQBDSYNCTT';
+    const EMPTY_PASS='EMPTYPASS';
+    const EMPTY_INTEGRATION_ID='EMPTYINTEGRATIONID';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -57,6 +62,11 @@ final class ErrorConstants
         self::INVALID_AUTH_TOKEN => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_token'],
         self::TOKEN_EXPIRED => ['code' => 401, self::MESSAGE => 'api.response.error.auth_token_expired'],
         self::INTEGRATION_ALREADY_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_already_present'],
-        self::INTEGRATION_NOT_ACTIVE => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_active']
+        self::INTEGRATION_NOT_ACTIVE => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_active'],
+        self::EMPTY_START_DATE => ['code' => 422, self::MESSAGE => 'api.response.error.empty_start_date'],
+        self::EMPTY_QBDSYNCBILLING => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_sync_billing'],
+        self::EMPTY_QBDSYNCTT => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_sync_tt'],
+        self::EMPTY_PASS => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_password'],
+        self::EMPTY_INTEGRATION_ID => ['code' => 422, self::MESSAGE => 'api.response.error.empty_integration_id']
     ];
 }

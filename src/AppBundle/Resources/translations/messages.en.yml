@@ -24,6 +24,11 @@ api:
             servicer_not_found: "Servicer Not Found"
             integration_already_present: "Integration already present"
             integration_not_active: "The integration is not active"
+            empty_start_date: "Request should contain Start Date"
+            empty_qbd_sync_billing: "Request should contain QBDSyncBilling"
+            empty_qbd_sync_tt: "Request should contain QBDSyncTimeTracking"
+            empty_qbd_password: "Request should contain Password"
+            empty_integration_id: "Request should contain IntegrationID"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

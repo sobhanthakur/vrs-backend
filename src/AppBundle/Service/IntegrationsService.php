@@ -96,9 +96,27 @@ class IntegrationsService extends BaseService
     public function InstallQuickbooksDesktop($content, $customerID)
     {
         try {
+            // Validate Request
+            if(!array_key_exists(GeneralConstants::START_DATE,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_START_DATE);
+            }
+            if(!array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_QBDSYNCBILLING);
+            }
+            if(!array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_QBDSYNCTT);
+            }
+            if(!array_key_exists(GeneralConstants::PASS,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_PASS);
+            }
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
+            }
+
             /*
              * Read Request object. Extract attributes and parameters.
              */
+
             $startDate = $content[GeneralConstants::START_DATE];
             $qbdSyncBilling = $content[GeneralConstants::QBDSYNCBILLING];
             $qbdSyncTimeTracking = $content[GeneralConstants::QBDSYNCTT];
@@ -150,6 +168,8 @@ class IntegrationsService extends BaseService
 
             return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
 
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
