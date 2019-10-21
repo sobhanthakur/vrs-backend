@@ -78,4 +78,36 @@ class MapPropertiesController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Fetch Customers from VRS.
+     * @SWG\Tag(name="Map Properties")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Fetch the list of active customers"
+     * )
+     * @return array
+     * @param Request $request
+     * @Get("/qbdcustomers", name="vrs_qbdcustomers")
+     */
+    public function FetchCustomers(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $mapBillingService = $this->container->get('vrscheduler.map_properties');
+            return $mapBillingService->FetchCustomers($customerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

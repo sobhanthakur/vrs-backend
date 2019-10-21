@@ -13,8 +13,17 @@ use AppBundle\Constants\GeneralConstants;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+/**
+ * Class MapPropertiesService
+ * @package AppBundle\Service
+ */
 class MapPropertiesService extends BaseService
 {
+    /**
+     * @param $customerID
+     * @param $data
+     * @return array
+     */
     public function MapProperties($customerID, $data)
     {
         try {
@@ -92,6 +101,28 @@ class MapPropertiesService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed mapping properties due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function FetchCustomers($customerID)
+    {
+        try {
+            $customers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->QBDCustomers($customerID);
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                'Data' => $customers
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed fetching customers due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
