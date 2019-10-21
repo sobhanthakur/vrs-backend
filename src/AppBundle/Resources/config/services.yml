@@ -57,3 +57,7 @@ services:
         class: AppBundle\Service\MapPropertiesService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.map_staffs:
+        class: AppBundle\Service\MapStaffsService
+        parent: vrscheduler.base_service
+        public: true
