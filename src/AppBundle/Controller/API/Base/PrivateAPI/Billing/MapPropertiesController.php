@@ -16,11 +16,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
 
 
-class MapBillingController extends FOSRestController
+class MapPropertiesController extends FOSRestController
 {
     /**
      * Fetch Properties from VRS.
-     * @SWG\Tag(name="Map Billing")
+     * @SWG\Tag(name="Map Properties")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",
@@ -28,6 +28,7 @@ class MapBillingController extends FOSRestController
      *     type="string",
      *     description="Make changes and encode the following to Base64:
           {
+            ""IntegrationID"":1,
             ""Filters"": {
             ""Status"": [""Matched"",""Not Yet Matched""],
             ""PropertyTag"": [1,2,3,4,5],
@@ -62,7 +63,7 @@ class MapBillingController extends FOSRestController
                 $data = [];
             }
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapBillingService = $this->container->get('vrscheduler.map_billing');
+            $mapBillingService = $this->container->get('vrscheduler.map_properties');
             return $mapBillingService->MapProperties($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;

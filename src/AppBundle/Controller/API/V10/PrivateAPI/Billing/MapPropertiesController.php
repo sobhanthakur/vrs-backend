@@ -7,10 +7,10 @@
  */
 
 namespace AppBundle\Controller\API\V10\PrivateAPI\Billing;
-use AppBundle\Controller\API\Base\PrivateAPI\Billing\MapBillingController as BaseController;
+use AppBundle\Controller\API\Base\PrivateAPI\Billing\MapPropertiesController as BaseController;
 
 
-class MapBillingController extends BaseController
+class MapPropertiesController extends BaseController
 {
 
 }

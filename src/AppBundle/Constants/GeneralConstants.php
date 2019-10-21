@@ -75,6 +75,7 @@ final class GeneralConstants
     const QWC_TIMETRACKING_FAIL = 'VRS-Failed-TimeTrackingBatch.qwc';
 
     const CUSTOMER_CONDITION = 'i.customerid= :CustomerID';
+    const INTEGRATION_CONDITION = 'i.integrationid= :IntegrationID';
     const CUSTOMER_ID = 'CustomerID';
     const INTEGRATION_ID = 'IntegrationID';
 

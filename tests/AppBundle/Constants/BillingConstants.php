@@ -13,6 +13,7 @@ final class BillingConstants
     public const PROPERTIES_MATCH = [1,2,3,4,5];
 
     public const FILTERS = array (
+        'IntegrationID' =>1,
         'Filters' =>
             array (
                 'Status' =>
@@ -62,6 +63,12 @@ final class BillingConstants
             "PropertyAbbreviation" => "DLAL",
             "RegionName" => "Plain",
             "OwnerName" => "Destination Leavenworth"
+        ]
+    ];
+
+    public const INTEGRATIONTOCUSTOMERS = [
+        [
+            'integrationtocustomerid' => 1
         ]
     ];
 }

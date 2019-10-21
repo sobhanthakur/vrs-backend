@@ -29,6 +29,7 @@ final class ErrorConstants
     const EMPTY_QBDSYNCTT='EMPTYQBDSYNCTT';
     const EMPTY_PASS='EMPTYPASS';
     const EMPTY_INTEGRATION_ID='EMPTYINTEGRATIONID';
+    const BILLING_NOT_ENABLED = 'BILLINGNOTENABLED';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -67,6 +68,7 @@ final class ErrorConstants
         self::EMPTY_QBDSYNCBILLING => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_sync_billing'],
         self::EMPTY_QBDSYNCTT => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_sync_tt'],
         self::EMPTY_PASS => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_password'],
-        self::EMPTY_INTEGRATION_ID => ['code' => 422, self::MESSAGE => 'api.response.error.empty_integration_id']
+        self::EMPTY_INTEGRATION_ID => ['code' => 422, self::MESSAGE => 'api.response.error.empty_integration_id'],
+        self::BILLING_NOT_ENABLED => ['code' => 422, self::MESSAGE => 'api.response.error.billing_not_enabled']
     ];
 }

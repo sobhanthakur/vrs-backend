@@ -19,6 +19,7 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
             ->createQueryBuilder('icp')
             ->select('IDENTITY(icp.propertyid)')
             ->where('ic.customerid= :CustomerID')
+            ->andWhere('ic.active=1')
             ->innerJoin('icp.integrationqbdcustomerid','ic')
             ->setParameter('CustomerID', $customerID)
             ->getQuery()

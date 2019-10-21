@@ -29,6 +29,7 @@ api:
             empty_qbd_sync_tt: "Request should contain QBDSyncTimeTracking"
             empty_qbd_password: "Request should contain Password"
             empty_integration_id: "Request should contain IntegrationID"
+            billing_not_enabled: "Billing is not enabled"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."
