@@ -37,7 +37,9 @@ class ResponseListener extends BaseService
     {
         $response = $event->getResponse();
         $request = $event->getRequest();
-        if($request->getMethod() === 'POST') {
+        if($request->getMethod() === 'POST' &&
+            $response->getStatusCode() === 200
+        ) {
             $response->setStatusCode(201);
         }
 
