@@ -30,6 +30,8 @@ final class ErrorConstants
     const EMPTY_PASS='EMPTYPASS';
     const EMPTY_INTEGRATION_ID='EMPTYINTEGRATIONID';
     const BILLING_NOT_ENABLED = 'BILLINGNOTENABLED';
+    const CUSTOMER_NOT_FOUND = 'CUSTOMERNOTFOUND';
+    const INTEGRATION_NOT_PRESENT = 'INTEGRATIONNOTPRESENT';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -46,6 +48,7 @@ final class ErrorConstants
     const INVALID_AUTH_TOKEN = 'INVALIDAUTHTOKEN';
     const TOKEN_EXPIRED = 'TOKENEXPIRED';
     const INTEGRATION_NOT_ACTIVE = 'INTEGRATIONNOTACTIVE';
+    const INVALID_INTEGRATION = 'INVALIDINTEGRATION';
 
     public static $errorCodeMap = [
         self::INVALID_AUTH_CONTENT => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_content'],
@@ -69,6 +72,9 @@ final class ErrorConstants
         self::EMPTY_QBDSYNCTT => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_sync_tt'],
         self::EMPTY_PASS => ['code' => 422, self::MESSAGE => 'api.response.error.empty_qbd_password'],
         self::EMPTY_INTEGRATION_ID => ['code' => 422, self::MESSAGE => 'api.response.error.empty_integration_id'],
-        self::BILLING_NOT_ENABLED => ['code' => 422, self::MESSAGE => 'api.response.error.billing_not_enabled']
+        self::BILLING_NOT_ENABLED => ['code' => 422, self::MESSAGE => 'api.response.error.billing_not_enabled'],
+        self::INVALID_INTEGRATION => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration'],
+        self::CUSTOMER_NOT_FOUND => ['code' => 422, self::MESSAGE => 'api.response.error.customer_not_found'],
+        self::INTEGRATION_NOT_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_present']
     ];
 }

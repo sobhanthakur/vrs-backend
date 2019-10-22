@@ -30,6 +30,9 @@ api:
             empty_qbd_password: "Request should contain Password"
             empty_integration_id: "Request should contain IntegrationID"
             billing_not_enabled: "Billing is not enabled"
+            invalid_integration: "Invalid Integration ID"
+            customer_not_found: "Customer Not Found"
+            integration_not_present: "Integration Not Present"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

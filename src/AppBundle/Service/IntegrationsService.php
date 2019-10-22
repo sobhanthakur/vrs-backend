@@ -128,7 +128,7 @@ class IntegrationsService extends BaseService
              */
             $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
             if(empty($integration)) {
-                throw new HttpException(404, '');
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
 
             /*
@@ -144,7 +144,7 @@ class IntegrationsService extends BaseService
              */
             $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
             if(empty($customer)) {
-                throw new HttpException(404, '');
+                throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
             }
 
             /*
@@ -195,7 +195,7 @@ class IntegrationsService extends BaseService
             // Check if the record is present or not
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
             if(!$integrationToCustomer) {
-                throw new HttpException(404, '');
+                throw new UnprocessableEntityHttpException(ErrorConstants::INTEGRATION_NOT_PRESENT);
             }
 
             if(array_key_exists(GeneralConstants::START_DATE,$content)) {

@@ -105,6 +105,12 @@ class AuthenticationService extends BaseService
                 $restrictions[GeneralConstants::LOGGEDINSTAFFID] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID];
                 $restrictions[GeneralConstants::RESTRICTIONS] = null;
 
+                $customerRepo = $this->entityManager->getRepository('AppBundle:Customers');
+                $customerID = $customerRepo->TestValidCustomer($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+                if (empty($customerID)) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
+                }
+
                 /*
                  * Check restrictions from the Servicers Table.
                  */
@@ -180,7 +186,7 @@ class AuthenticationService extends BaseService
                 /*
                  * Check if Customer is piece pay and ICalAddOn
                  */
-                $customerRepo = $this->entityManager->getRepository('AppBundle:Customers');
+
                 $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($customerResponse)) {
                     $restrictions[GeneralConstants::RESTRICTIONS]['PiecePay'] = 0;
@@ -190,6 +196,8 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                 }
             }
+        } catch (HttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

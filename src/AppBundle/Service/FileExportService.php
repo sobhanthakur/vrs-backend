@@ -40,7 +40,7 @@ class FileExportService extends BaseService
              */
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->GetSyncRecords($integrationID, $customerID);
             if (!$integrationToCustomers) {
-                throw new HttpException(404, '');
+                throw new UnprocessableEntityHttpException(ErrorConstants::INTEGRATION_NOT_PRESENT);
             }
 
             $active = $integrationToCustomers[0]['active'];

@@ -54,6 +54,14 @@ class RequestListener extends BaseService
         }
         $route = $request->attributes->get('_route');
 
+        // Add authorization header
+        if (!$request->headers->has('Authorization') && function_exists('apache_request_headers')) {
+            $all = apache_request_headers();
+            if (isset($all['Authorization'])) {
+                $request->headers->set('Authorization', $all['Authorization']);
+            }
+        }
+
         // Check if the incoming route is present in the array
         if(in_array($route, ApiRoutes::ROUTES)) {
             $authService = $this->serviceContainer->get('vrscheduler.authentication_service');

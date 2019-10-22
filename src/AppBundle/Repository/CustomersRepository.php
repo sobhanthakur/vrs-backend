@@ -29,4 +29,20 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function TestValidCustomer($customerID)
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->select('c.customerid')
+            ->where('c.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }

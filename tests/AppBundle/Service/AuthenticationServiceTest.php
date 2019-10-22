@@ -17,6 +17,7 @@ use AppBundle\Service\AuthenticationService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Tests\AppBundle\Constants\AuthConstants;
@@ -121,6 +122,31 @@ class AuthenticationServiceTest extends KernelTestCase
     }
 
     /*
+     * Test Customer Not Found
+     */
+    public function testCustomerNotFound()
+    {
+        try {
+            $customerRepository = $this->createMock(CustomersRepository::class);
+            $customerRepository->expects($this->any())
+                ->method('TestValidCustomer')
+                ->willReturn([]);
+
+            $entityManager = $this->getEntitymanager();
+
+            $entityManager->expects($this->any())
+                ->method('getRepository')
+                ->willReturn($customerRepository);
+
+            self::$authenticationService->setEntityManager($entityManager);
+            $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS);
+
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    /*
      * Test Servicer Not Found
      */
     public function testServicerNotFound()
@@ -131,15 +157,20 @@ class AuthenticationServiceTest extends KernelTestCase
 
             $servicersRepository = $this->createMock(ServicersRepository::class);
 
+            $customerRepository = $this->createMock(CustomersRepository::class);
+            $customerRepository->expects($this->any())
+                ->method('TestValidCustomer')
+                ->willReturn(AuthConstants::CUSTOMER);
+
             $entityManager = $this->getEntitymanager();
 
             $servicersRepository->expects($this->any())
                 ->method('GetRestrictions')
                 ->willReturn($value);
 
-            $entityManager->expects($this->once())
+            $entityManager->expects($this->any())
                 ->method('getRepository')
-                ->willReturn($servicersRepository);
+                ->willReturn($customerRepository, $servicersRepository);
 
             self::$authenticationService->setEntityManager($entityManager);
             $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS);
@@ -179,7 +210,9 @@ class AuthenticationServiceTest extends KernelTestCase
         $regionGroupRepository = $this->createMock(RegionGroupsRepository::class);
         $propertyGroupRepository = $this->createMock(PropertyGroupsRepository::class);
         $customerRepository = $this->createMock(CustomersRepository::class);
-
+        $customerRepository->expects($this->any())
+            ->method('TestValidCustomer')
+            ->willReturn(AuthConstants::CUSTOMER);
         $entityManager = $this->getEntitymanager();
 
         $servicersRepository->expects($this->any())
@@ -204,7 +237,7 @@ class AuthenticationServiceTest extends KernelTestCase
 
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
+            ->willReturn($customerRepository,$servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
 
         self::$authenticationService->setEntityManager($entityManager);
         $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS);
@@ -222,6 +255,9 @@ class AuthenticationServiceTest extends KernelTestCase
         $regionGroupRepository = $this->createMock(RegionGroupsRepository::class);
         $propertyGroupRepository = $this->createMock(PropertyGroupsRepository::class);
         $customerRepository = $this->createMock(CustomersRepository::class);
+        $customerRepository->expects($this->any())
+            ->method('TestValidCustomer')
+            ->willReturn(AuthConstants::CUSTOMER);
 
         $entityManager = $this->getEntitymanager();
 
@@ -250,7 +286,7 @@ class AuthenticationServiceTest extends KernelTestCase
 
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
+            ->willReturn($customerRepository,$servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
 
         self::$authenticationService->setEntityManager($entityManager);
         $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS);
@@ -269,6 +305,9 @@ class AuthenticationServiceTest extends KernelTestCase
         $regionGroupRepository = $this->createMock(RegionGroupsRepository::class);
         $propertyGroupRepository = $this->createMock(PropertyGroupsRepository::class);
         $customerRepository = $this->createMock(CustomersRepository::class);
+        $customerRepository->expects($this->any())
+            ->method('TestValidCustomer')
+            ->willReturn(AuthConstants::CUSTOMER);
 
         $entityManager = $this->getEntitymanager();
 
@@ -297,7 +336,7 @@ class AuthenticationServiceTest extends KernelTestCase
 
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
+            ->willReturn($customerRepository, $servicersRepository, $regionGroupRepository, $propertyGroupRepository, $customerRepository);
 
         self::$authenticationService->setEntityManager($entityManager);
         $response = self::$authenticationService->ValidateRestrictions(AuthConstants::AUTHENTICATION_RESULT_RESTRICTIONS1);

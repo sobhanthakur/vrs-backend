@@ -71,7 +71,7 @@ class FileExportServiceTest extends KernelTestCase
             $response = self::$fileExportService->DownloadQWC(1,1);
             $this->assertNotNull($response);
         } catch (HttpException $exception) {
-            $this->assertEquals(404, $exception->getStatusCode());
+            $this->assertEquals(422, $exception->getStatusCode());
         }
     }
 

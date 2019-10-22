@@ -78,7 +78,7 @@ class RegisterQBDTest extends KernelTestCase
             self::$integrationService->setEntityManager($entityManager);
             $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
         } catch (HttpException $exception) {
-            $this->assertEquals(404, $exception->getStatusCode());
+            $this->assertEquals(422, $exception->getStatusCode());
         }
     }
 
@@ -144,7 +144,7 @@ class RegisterQBDTest extends KernelTestCase
             self::$integrationService->setEntityManager($entityManager);
             $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
         } catch (HttpException $exception) {
-            $this->assertEquals(404, $exception->getStatusCode());
+            $this->assertEquals(422, $exception->getStatusCode());
         }
     }
 
@@ -201,7 +201,7 @@ class RegisterQBDTest extends KernelTestCase
             self::$integrationService->setEntityManager($entityManager);
             $response = self::$integrationService->UpdateQuickbooksDesktop(IntegrationConstants::MOCK_CONTENT, 1);
         } catch (HttpException $exception) {
-            $this->assertEquals(404, $exception->getStatusCode());
+            $this->assertEquals(422, $exception->getStatusCode());
         }
     }
 

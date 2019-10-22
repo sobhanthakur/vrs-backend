@@ -70,4 +70,10 @@ final class AuthConstants
         'RegionGroupID' => 1,
         'RegionGroup' => 'Leavenworth'
     );
+
+    const CUSTOMER = [
+        0 => array(
+            'customerid' => 1
+        )
+    ];
 }
