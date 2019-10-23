@@ -57,7 +57,7 @@ class PropertiesRepository extends EntityRepository
                 ->setParameter('Owners', $owner);
         }
         if ($propertyTags) {
-            $result->andWhere('p.linkedpropertyid IN (:PropertyTags)')
+            $result->andWhere('p.propertyid IN (:PropertyTags)')
                 ->setParameter('PropertyTags', $propertyTags);
         }
         if ($createDate) {

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Propertiestopropertygroups
  *
  * @ORM\Table(name="PropertiesToPropertyGroups", indexes={@ORM\Index(name="PropertyGroupID", columns={"PropertyGroupID"}), @ORM\Index(name="Propertyid", columns={"PropertyID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\PropertiestopropertygroupsRepository")
  */
 class Propertiestopropertygroups
 {

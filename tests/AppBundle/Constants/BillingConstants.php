@@ -71,4 +71,15 @@ final class BillingConstants
             'integrationtocustomerid' => 1
         ]
     ];
+
+    public const INTEGRATION_ID = array(
+        "IntegrationID" =>1
+    );
+
+    public const PROPERTIES_TO_PROPERTY_GROUPS = array(
+        0 => array(
+            1 => 1837
+        )
+    );
+
 }
