@@ -35,6 +35,54 @@ class RegisterQBDTest extends KernelTestCase
     }
 
     /*
+     * Test Request Validations
+     */
+    public function testStartDateMissing()
+    {
+        try {
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::START_DATE_MISSING, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    public function testSyncBillingMissing()
+    {
+        try {
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::SYNC_BILLING_MISSING, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    public function testSyncTimeTrackingMissing()
+    {
+        try {
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::SYNC_TIMETRACKING_MISSING, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    public function testPasswordMissing()
+    {
+        try {
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::PASSWORD_MISSING, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    public function testIntegrationIDMissing()
+    {
+        try {
+            $response = self::$integrationService->InstallQuickbooksDesktop(IntegrationConstants::INTEGRATIONID_MISSING, 1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(422, $exception->getStatusCode());
+        }
+    }
+
+    /*
      * Test Failed Integration
      */
     public function testFailedIntegration()

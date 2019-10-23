@@ -9,6 +9,8 @@
 namespace Tests\AppBundle\Constants;
 
 
+use AppBundle\Constants\GeneralConstants;
+
 class IntegrationConstants
 {
     public const AUTHENTICATION_RESULT = array(
@@ -34,12 +36,48 @@ class IntegrationConstants
     );
 
     public const MOCK_CONTENT = array(
-        "StartDate" => "2019-12-30",
-        "Password" => "Sobhan",
-        "QBDSyncBilling" => true,
-        "QBDSyncTimeTracking" => true,
-        "IntegrationID" => 1
+        GeneralConstants::START_DATE => "2019-12-30",
+        GeneralConstants::PASS => "Sobhan",
+        GeneralConstants::QBDSYNCBILLING => true,
+        GeneralConstants::QBDSYNCTT => true,
+        GeneralConstants::INTEGRATION_ID => 1
     );
+
+    public const START_DATE_MISSING = array(
+        GeneralConstants::PASS => "John",
+        GeneralConstants::QBDSYNCBILLING => true,
+        GeneralConstants::QBDSYNCTT => true,
+        GeneralConstants::INTEGRATION_ID => 1
+    );
+
+    public const SYNC_BILLING_MISSING = array(
+        GeneralConstants::START_DATE => "2019-12-30",
+        GeneralConstants::PASS => "Sobhan",
+        GeneralConstants::QBDSYNCTT => true,
+        GeneralConstants::INTEGRATION_ID => 1
+    );
+
+    public const SYNC_TIMETRACKING_MISSING = array(
+        GeneralConstants::START_DATE => "2019-12-30",
+        GeneralConstants::PASS => "Sobhan",
+        GeneralConstants::QBDSYNCBILLING => true,
+        GeneralConstants::INTEGRATION_ID => 1
+    );
+
+    public const PASSWORD_MISSING = array(
+        GeneralConstants::START_DATE => "2019-12-30",
+        GeneralConstants::QBDSYNCBILLING => true,
+        GeneralConstants::QBDSYNCTT => true,
+        GeneralConstants::INTEGRATION_ID => 1
+    );
+
+    public const INTEGRATIONID_MISSING = array(
+        GeneralConstants::START_DATE => "2019-12-30",
+        GeneralConstants::PASS => "Sobhan",
+        GeneralConstants::QBDSYNCBILLING => true,
+        GeneralConstants::QBDSYNCTT => true
+    );
+
 
 
 }

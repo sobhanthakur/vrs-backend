@@ -82,4 +82,10 @@ final class BillingConstants
         )
     );
 
+    public const QBDCUSTOMERS = [
+     [
+      'IntegrationQBDCustomerID' => 1,
+      'QBDCustomerFullName' => 1
+     ]
+    ];
 }

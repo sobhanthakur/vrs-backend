@@ -8,6 +8,7 @@
 
 namespace Tests\AppBundle\Service;
 
+use AppBundle\Repository\IntegrationqbdcustomersRepository;
 use AppBundle\Repository\IntegrationqbdcustomerstopropertiesRepository;
 use AppBundle\Repository\IntegrationsToCustomersRepository;
 use AppBundle\Repository\PropertiesRepository;
@@ -172,6 +173,26 @@ class MapPropertiesServiceTest extends KernelTestCase
         $filters['Filters']['Status'][0] = 'Matched';
         self::$billingMapProperties->setEntityManager($entityManager);
         $response = self::$billingMapProperties->MapProperties(1, $filters);
+        $this->assertNotNull($response);
+    }
+
+    /*
+     * Test Fetch QBD Customers
+     */
+    public function testQBDCustomers()
+    {
+        $qbdCustomers = $this->createMock(IntegrationqbdcustomersRepository::class);
+        $qbdCustomers->expects($this->any())
+            ->method('QBDCustomers')
+            ->willReturn(BillingConstants::QBDCUSTOMERS);
+
+        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($qbdCustomers);
+
+        self::$billingMapProperties->setEntityManager($entityManager);
+        $response = self::$billingMapProperties->FetchCustomers(1);
         $this->assertNotNull($response);
     }
 
