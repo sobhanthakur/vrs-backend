@@ -33,6 +33,7 @@ api:
             invalid_integration: "Invalid Integration ID"
             customer_not_found: "Customer Not Found"
             integration_not_present: "Integration Not Present"
+            inactive: "Integration is not active"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

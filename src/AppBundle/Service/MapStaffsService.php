@@ -21,16 +21,16 @@ class MapStaffsService extends BaseService
     public function FetchEmployees($customerID)
     {
         try {
-            $customers = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->QBDEmployees($customerID);
+            $employees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->QBDEmployees($customerID);
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Data' => $customers
+                'Data' => $employees
             );
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed fetching customers due to : ' .
+            $this->logger->error('Failed fetching employees due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

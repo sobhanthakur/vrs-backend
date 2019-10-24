@@ -32,6 +32,7 @@ final class ErrorConstants
     const BILLING_NOT_ENABLED = 'BILLINGNOTENABLED';
     const CUSTOMER_NOT_FOUND = 'CUSTOMERNOTFOUND';
     const INTEGRATION_NOT_PRESENT = 'INTEGRATIONNOTPRESENT';
+    const INACTIVE = 'INACTIVE';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -75,6 +76,7 @@ final class ErrorConstants
         self::BILLING_NOT_ENABLED => ['code' => 422, self::MESSAGE => 'api.response.error.billing_not_enabled'],
         self::INVALID_INTEGRATION => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration'],
         self::CUSTOMER_NOT_FOUND => ['code' => 422, self::MESSAGE => 'api.response.error.customer_not_found'],
-        self::INTEGRATION_NOT_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_present']
+        self::INTEGRATION_NOT_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_present'],
+        self::INACTIVE => ['code' => 1001, self::MESSAGE => 'api.response.error.inactive']
     ];
 }

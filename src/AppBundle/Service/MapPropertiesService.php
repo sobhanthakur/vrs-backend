@@ -48,7 +48,7 @@ class MapPropertiesService extends BaseService
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
             if(empty($integrationToCustomers)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::BILLING_NOT_ENABLED);
+                throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
             if (!empty($data)) {

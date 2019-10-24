@@ -8,6 +8,8 @@
 
 namespace Tests\AppBundle\Service;
 
+use AppBundle\Entity\Customers;
+use AppBundle\Entity\Integrationqbdcustomers;
 use AppBundle\Repository\IntegrationqbdcustomersRepository;
 use AppBundle\Repository\IntegrationqbdcustomerstopropertiesRepository;
 use AppBundle\Repository\IntegrationsToCustomersRepository;
@@ -177,6 +179,33 @@ class MapPropertiesServiceTest extends KernelTestCase
     }
 
     /*
+     * Test MapProperties with all the Filters (Properties Matched) with Exception
+     */
+    public function testMapPropertiesMatchedException()
+    {
+        try {
+            $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
+            $integrationToCustomers->expects($this->any())
+                ->method('IsQBDSyncBillingEnabled')
+                ->with(new Customers())
+                ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->any())
+                ->method('getRepository')
+                ->willReturn($integrationToCustomers);
+
+            $filters = BillingConstants::FILTERS;
+            $filters['Filters']['Status'][0] = 'Matched';
+            self::$billingMapProperties->setEntityManager($entityManager);
+            $response = self::$billingMapProperties->MapProperties(1, $filters);
+            $this->assertNotNull($response);
+        } catch (HttpException $exception) {
+            $this->assertEquals(500, $exception->getStatusCode());
+        }
+    }
+
+    /*
      * Test Fetch QBD Customers
      */
     public function testQBDCustomers()
@@ -194,6 +223,31 @@ class MapPropertiesServiceTest extends KernelTestCase
         self::$billingMapProperties->setEntityManager($entityManager);
         $response = self::$billingMapProperties->FetchCustomers(1);
         $this->assertNotNull($response);
+    }
+
+    /*
+     * Test Exception
+     */
+    public function testException()
+    {
+        try {
+            $qbdCustomers = $this->createMock(IntegrationqbdcustomersRepository::class);
+            $qbdCustomers->expects($this->any())
+                ->method('QBDCustomers')
+                ->with(new Integrationqbdcustomers())
+                ->willReturn(BillingConstants::QBDCUSTOMERS);
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->any())
+                ->method('getRepository')
+                ->willReturn($qbdCustomers);
+
+            self::$billingMapProperties->setEntityManager($entityManager);
+            $response = self::$billingMapProperties->FetchCustomers(1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(500, $exception->getStatusCode());
+        }
+
     }
 
     /**
