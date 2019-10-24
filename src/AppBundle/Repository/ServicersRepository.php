@@ -47,4 +47,47 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    public function SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus)
+    {
+        $result = null;
+        $result = $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid AS StaffID, s.name AS StaffName, s.servicerabbreviation as ServicerAbbreviation')
+            ->where('s.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.active=1');
+
+        switch ($matchStatus) {
+            case 0:
+                $result->andWhere('s.servicerid NOT IN (:EmployeeToServicers)')
+                    ->setParameter('EmployeeToServicers', $employeeToServicers);
+                break;
+            case 1:
+                $result->andWhere('s.servicerid IN (:EmployeeToServicers)')
+                    ->setParameter('EmployeeToServicers', $employeeToServicers);
+                break;
+        }
+
+        if ($staffTags) {
+            $result->andWhere('s.servicerid IN (:StaffTag)')
+                ->setParameter('StaffTag', $staffTags);
+        }
+        if ($department) {
+            $result->andWhere('s.servicerid IN (:Department)')
+                ->setParameter('Department', $department);
+        }
+        if ($createDate) {
+            $result->andWhere('s.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
+        $result
+            ->orderBy('s.createdate','DESC')
+            ->setFirstResult(($offset-1)*$limit)
+            ->setMaxResults($limit);
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
 }

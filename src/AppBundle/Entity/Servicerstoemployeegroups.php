@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Servicerstoemployeegroups
  *
  * @ORM\Table(name="ServicersToEmployeeGroups", indexes={@ORM\Index(name="employeegroupid", columns={"EmployeeGroupID"}), @ORM\Index(name="servicerid", columns={"ServicerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ServicerstoemployeegroupsRepository")
  */
 class Servicerstoemployeegroups
 {

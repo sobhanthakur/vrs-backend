@@ -68,4 +68,20 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    public function IsQBDSyncTimeTrackingEnabled($integrationID, $customerID)
+    {
+        return $this
+            ->createQueryBuilder('i')
+            ->select('i.integrationtocustomerid')
+            ->where(GeneralConstants::CUSTOMER_CONDITION)
+            ->andWhere(GeneralConstants::INTEGRATION_CONDITION)
+            ->andWhere('i.active=1')
+            ->andWhere('i.qbdsyncpayroll=1')
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->setParameter(GeneralConstants::INTEGRATION_ID, $integrationID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }
