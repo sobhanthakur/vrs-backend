@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityRepository;
 
 class IntegrationqbdemployeestoservicersRepository extends EntityRepository
 {
-    public function PropertiesJoinMatched($customerID)
+    public function StaffsJoinMatched($customerID)
     {
         return $this
             ->createQueryBuilder('ies')

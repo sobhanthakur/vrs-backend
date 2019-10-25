@@ -41,17 +41,6 @@ class MapPropertiesServiceTest extends KernelTestCase
     public function testIntegrationIDNotPresent()
     {
         try {
-            $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
-            $integrationToCustomers->expects($this->any())
-                ->method('IsQBDSyncBillingEnabled')
-                ->willReturn(null);
-
-            $entityManager = $this->createMock(EntityManager::class);
-            $entityManager->expects($this->any())
-                ->method('getRepository')
-                ->willReturn($integrationToCustomers);
-
-            self::$billingMapProperties->setEntityManager($entityManager);
             $response = self::$billingMapProperties->MapProperties(1, []);
         } catch (HttpException $exception) {
             $this->assertEquals(422, $exception->getStatusCode());

@@ -71,7 +71,7 @@ class MapStaffsService extends BaseService
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
                 if (array_key_exists('Status', $filters)) {
                     $status = $filters['Status'];
-                    $employeeToServicers = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->PropertiesJoinMatched($customerID);
+                    $employeeToServicers = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID);
 
                     // If status is only set to matched
                     if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
@@ -113,7 +113,7 @@ class MapStaffsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed mapping properties due to : ' .
+            $this->logger->error('Failed mapping Staffs due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
