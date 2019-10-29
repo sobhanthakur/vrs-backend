@@ -61,3 +61,7 @@ services:
         class: AppBundle\Service\MapStaffsService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.map_task_rules:
+        class: AppBundle\Service\MapTaskRulesService
+        parent: vrscheduler.base_service
+        public: true

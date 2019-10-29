@@ -26,6 +26,7 @@ final class ApiRoutes
         "vrs_properties",
         "vrs_qbdcustomers",
         "vrs_qbdemployees",
-        "vrs_staffs"
+        "vrs_staffs",
+        "vrs_task_rules"
     );
 }

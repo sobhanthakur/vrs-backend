@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Services
  *
  * @ORM\Table(name="Services", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="NonClusteredIndex_20180406_230717", columns={"Active"}), @ORM\Index(name="ParentServiceID", columns={"ParentServiceID"}), @ORM\Index(name="servicergroupid", columns={"ServiceGroupID"}), @ORM\Index(name="TaskType", columns={"TaskType"}), @ORM\Index(name="IDX_8A44833FB650950C", columns={"ChecklistID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ServicesRepository")
  */
 class Services
 {
