@@ -122,38 +122,7 @@ class MapStaffsTest extends KernelTestCase
      */
     public function testMapStaffsMatched()
     {
-        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
-        $integrationToCustomers->expects($this->any())
-            ->method('IsQBDSyncTimeTrackingEnabled')
-            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
-
-        $employeeToServicers = $this->createMock(IntegrationqbdemployeestoservicersRepository::class);
-        $employeeToServicers->expects($this->any())
-            ->method('StaffsJoinMatched')
-            ->willReturn(TimeTrackingConstants::SERVICERS_MATCHED);
-
-        $staffTags = $this->createMock(ServicerstoemployeegroupsRepository::class);
-        $staffTags->expects($this->any())
-            ->method('ServicerstoEmployeeGroupsJoinMatched')
-            ->willReturn(TimeTrackingConstants::MATCHED);
-
-        $department = $this->createMock(ServicerstoservicegroupsRepository::class);
-        $department->expects($this->any())
-            ->method('ServicerstoServiceGroupsJoinMatched')
-            ->willReturn(TimeTrackingConstants::MATCHED);
-
-        $servicers = $this->createMock(ServicersRepository::class);
-        $servicers->expects($this->any())
-            ->method('SyncServicers')
-            ->willReturn(TimeTrackingConstants::SERVICERS);
-
-
-        $entityManager = $this->createMock(EntityManager::class);
-        $entityManager->expects($this->any())
-            ->method('getRepository')
-            ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
-
-        self::$staffMapService->setEntityManager($entityManager);
+        self::$staffMapService->setEntityManager($this->SetEntityManagers());
         $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS_STAFFS);
         $this->assertNotNull($response);
     }
@@ -163,41 +132,10 @@ class MapStaffsTest extends KernelTestCase
      */
     public function testMapStaffsNotMatched()
     {
-        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
-        $integrationToCustomers->expects($this->any())
-            ->method('IsQBDSyncTimeTrackingEnabled')
-            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
-
-        $employeeToServicers = $this->createMock(IntegrationqbdemployeestoservicersRepository::class);
-        $employeeToServicers->expects($this->any())
-            ->method('StaffsJoinMatched')
-            ->willReturn(TimeTrackingConstants::SERVICERS_MATCHED);
-
-        $staffTags = $this->createMock(ServicerstoemployeegroupsRepository::class);
-        $staffTags->expects($this->any())
-            ->method('ServicerstoEmployeeGroupsJoinMatched')
-            ->willReturn(TimeTrackingConstants::MATCHED);
-
-        $department = $this->createMock(ServicerstoservicegroupsRepository::class);
-        $department->expects($this->any())
-            ->method('ServicerstoServiceGroupsJoinMatched')
-            ->willReturn(TimeTrackingConstants::MATCHED);
-
-        $servicers = $this->createMock(ServicersRepository::class);
-        $servicers->expects($this->any())
-            ->method('SyncServicers')
-            ->willReturn(TimeTrackingConstants::SERVICERS);
-
-
-        $entityManager = $this->createMock(EntityManager::class);
-        $entityManager->expects($this->any())
-            ->method('getRepository')
-            ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
-
         $filters = TimeTrackingConstants::FILTERS_STAFFS;
         $filters['Filters']['Status'] = ["Not Yet Matched"];
 
-        self::$staffMapService->setEntityManager($entityManager);
+        self::$staffMapService->setEntityManager($this->SetEntityManagers());
         $response = self::$staffMapService->MapStaffs(1, $filters);
         $this->assertNotNull($response);
     }
@@ -224,6 +162,42 @@ class MapStaffsTest extends KernelTestCase
         } catch (HttpException $exception) {
             $this->assertEquals(500, $exception->getStatusCode());
         }
+    }
+
+    public function SetEntityManagers()
+    {
+        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
+        $integrationToCustomers->expects($this->any())
+            ->method('IsQBDSyncTimeTrackingEnabled')
+            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
+
+        $employeeToServicers = $this->createMock(IntegrationqbdemployeestoservicersRepository::class);
+        $employeeToServicers->expects($this->any())
+            ->method('StaffsJoinMatched')
+            ->willReturn(TimeTrackingConstants::SERVICERS_MATCHED);
+
+        $staffTags = $this->createMock(ServicerstoemployeegroupsRepository::class);
+        $staffTags->expects($this->any())
+            ->method('ServicerstoEmployeeGroupsJoinMatched')
+            ->willReturn(TimeTrackingConstants::MATCHED);
+
+        $department = $this->createMock(ServicerstoservicegroupsRepository::class);
+        $department->expects($this->any())
+            ->method('ServicerstoServiceGroupsJoinMatched')
+            ->willReturn(TimeTrackingConstants::MATCHED);
+
+        $servicers = $this->createMock(ServicersRepository::class);
+        $servicers->expects($this->any())
+            ->method('SyncServicers')
+            ->willReturn(TimeTrackingConstants::SERVICERS);
+
+
+        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
+
+        return $entityManager;
     }
 
     /**

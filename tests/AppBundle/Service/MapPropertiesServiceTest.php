@@ -98,34 +98,9 @@ class MapPropertiesServiceTest extends KernelTestCase
     /*
      * Test MapProperties with all the Filters (Properties Not Matched)
      */
-    public function testMapProperties()
+    public function testMapPropertiesNotMatched()
     {
-        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
-        $integrationToCustomers->expects($this->any())
-            ->method('IsQBDSyncBillingEnabled')
-            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
-
-        $propertiesToPropertyGroups = $this->createMock(PropertiestopropertygroupsRepository::class);
-        $propertiesToPropertyGroups->expects($this->any())
-            ->method('PropertiestoPropertyGroupsJoinMatched')
-            ->willReturn(BillingConstants::PROPERTIES_TO_PROPERTY_GROUPS);
-
-        $customersToProperties = $this->createMock(IntegrationqbdcustomerstopropertiesRepository::class);
-        $customersToProperties->expects($this->any())
-            ->method('PropertiesJoinMatched')
-            ->willReturn(BillingConstants::PROPERTIES_MATCH);
-
-        $propertiesRepository = $this->createMock(PropertiesRepository::class);
-        $propertiesRepository->expects($this->any())
-            ->method('SyncProperties')
-            ->willReturn(BillingConstants::PROPERTIES);
-
-        $entityManager = $this->createMock(EntityManager::class);
-        $entityManager->expects($this->any())
-            ->method('getRepository')
-            ->willReturn($integrationToCustomers,$customersToProperties,$propertiesToPropertyGroups,$propertiesRepository);
-
-        self::$billingMapProperties->setEntityManager($entityManager);
+        self::$billingMapProperties->setEntityManager($this->SetEntityManagers());
         $response = self::$billingMapProperties->MapProperties(1, BillingConstants::FILTERS);
         $this->assertNotNull($response);
     }
@@ -135,34 +110,9 @@ class MapPropertiesServiceTest extends KernelTestCase
      */
     public function testMapPropertiesMatched()
     {
-        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
-        $integrationToCustomers->expects($this->any())
-            ->method('IsQBDSyncBillingEnabled')
-            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
-
-        $propertiesToPropertyGroups = $this->createMock(PropertiestopropertygroupsRepository::class);
-        $propertiesToPropertyGroups->expects($this->any())
-            ->method('PropertiestoPropertyGroupsJoinMatched')
-            ->willReturn(BillingConstants::PROPERTIES_TO_PROPERTY_GROUPS);
-
-        $customersToProperties = $this->createMock(IntegrationqbdcustomerstopropertiesRepository::class);
-        $customersToProperties->expects($this->any())
-            ->method('PropertiesJoinMatched')
-            ->willReturn(BillingConstants::PROPERTIES_MATCH);
-
-        $propertiesRepository = $this->createMock(PropertiesRepository::class);
-        $propertiesRepository->expects($this->any())
-            ->method('SyncProperties')
-            ->willReturn(BillingConstants::PROPERTIES);
-
-        $entityManager = $this->createMock(EntityManager::class);
-        $entityManager->expects($this->any())
-            ->method('getRepository')
-            ->willReturn($integrationToCustomers,$customersToProperties,$propertiesToPropertyGroups,$propertiesRepository);
-
         $filters = BillingConstants::FILTERS;
         $filters['Filters']['Status'][0] = 'Matched';
-        self::$billingMapProperties->setEntityManager($entityManager);
+        self::$billingMapProperties->setEntityManager($this->SetEntityManagers());
         $response = self::$billingMapProperties->MapProperties(1, $filters);
         $this->assertNotNull($response);
     }
@@ -184,10 +134,8 @@ class MapPropertiesServiceTest extends KernelTestCase
                 ->method('getRepository')
                 ->willReturn($integrationToCustomers);
 
-            $filters = BillingConstants::FILTERS;
-            $filters['Filters']['Status'][0] = 'Matched';
             self::$billingMapProperties->setEntityManager($entityManager);
-            $response = self::$billingMapProperties->MapProperties(1, $filters);
+            $response = self::$billingMapProperties->MapProperties(1, BillingConstants::FILTERS);
             $this->assertNotNull($response);
         } catch (HttpException $exception) {
             $this->assertEquals(500, $exception->getStatusCode());
@@ -237,6 +185,36 @@ class MapPropertiesServiceTest extends KernelTestCase
             $this->assertEquals(500, $exception->getStatusCode());
         }
 
+    }
+
+    public function SetEntityManagers()
+    {
+        $integrationToCustomers = $this->createMock(IntegrationsToCustomersRepository::class);
+        $integrationToCustomers->expects($this->any())
+            ->method('IsQBDSyncBillingEnabled')
+            ->willReturn(BillingConstants::INTEGRATIONTOCUSTOMERS);
+
+        $propertiesToPropertyGroups = $this->createMock(PropertiestopropertygroupsRepository::class);
+        $propertiesToPropertyGroups->expects($this->any())
+            ->method('PropertiestoPropertyGroupsJoinMatched')
+            ->willReturn(BillingConstants::PROPERTIES_TO_PROPERTY_GROUPS);
+
+        $customersToProperties = $this->createMock(IntegrationqbdcustomerstopropertiesRepository::class);
+        $customersToProperties->expects($this->any())
+            ->method('PropertiesJoinMatched')
+            ->willReturn(BillingConstants::PROPERTIES_MATCH);
+
+        $propertiesRepository = $this->createMock(PropertiesRepository::class);
+        $propertiesRepository->expects($this->any())
+            ->method('SyncProperties')
+            ->willReturn(BillingConstants::PROPERTIES);
+
+        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($integrationToCustomers,$customersToProperties,$propertiesToPropertyGroups,$propertiesRepository);
+
+        return $entityManager;
     }
 
     /**
