@@ -83,9 +83,9 @@ class MapStaffsTest extends KernelTestCase
     }
 
     /*
-     * Test Staff Map with empty filter
+     * Test Integration ID Not present
      */
-    public function testStaffMapWithEmptyFilter()
+    public function testIntegrationIDNotPresent()
     {
         try {
             $response = self::$staffMapService->MapStaffs(1, []);
@@ -111,7 +111,7 @@ class MapStaffsTest extends KernelTestCase
                 ->willReturn($integrationToCustomers);
 
             self::$staffMapService->setEntityManager($entityManager);
-            $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS);
+            $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS_STAFFS);
         } catch (HttpException $exception) {
             $this->assertEquals(422, $exception->getStatusCode());
         }
@@ -154,7 +154,7 @@ class MapStaffsTest extends KernelTestCase
             ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
 
         self::$staffMapService->setEntityManager($entityManager);
-        $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS);
+        $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS_STAFFS);
         $this->assertNotNull($response);
     }
 
@@ -194,7 +194,7 @@ class MapStaffsTest extends KernelTestCase
             ->method('getRepository')
             ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
 
-        $filters = TimeTrackingConstants::FILTERS;
+        $filters = TimeTrackingConstants::FILTERS_STAFFS;
         $filters['Filters']['Status'] = ["Not Yet Matched"];
 
         self::$staffMapService->setEntityManager($entityManager);
@@ -220,7 +220,7 @@ class MapStaffsTest extends KernelTestCase
                 ->willReturn($integrationToCustomers);
 
             self::$staffMapService->setEntityManager($entityManager);
-            $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS);
+            $response = self::$staffMapService->MapStaffs(1, TimeTrackingConstants::FILTERS_STAFFS);
         } catch (HttpException $exception) {
             $this->assertEquals(500, $exception->getStatusCode());
         }

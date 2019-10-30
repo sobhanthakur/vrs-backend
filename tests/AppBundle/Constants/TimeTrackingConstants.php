@@ -18,7 +18,7 @@ class TimeTrackingConstants
         ]
     ];
 
-    public const FILTERS = array (
+    public const FILTERS_STAFFS = array (
         'IntegrationID' => 1,
         'Filters' =>
             array (
@@ -65,5 +65,32 @@ class TimeTrackingConstants
             "ServicerAbbreviation" => "JB"
         ]
     ];
+
+    public const SERVICES = [
+        [
+            "TaskRuleID" => 1,
+            "TaskRuleName" => "Weekly-Thursday"
+        ]
+    ];
+
+    public const FILTERS_TASK_TULES = array (
+        'IntegrationID' => 1,
+        'Filters' =>
+            array (
+                'Department' => [1],
+                'Billable' => true,
+                'Status' => ["Matched"],
+                'CreateDate' =>
+                    array (
+                        'From' => '2018-09-09',
+                        'To' => '2018-09-09',
+                    ),
+            ),
+        'Pagination' =>
+            array (
+                'Offset' => 1,
+                'Limit' => 10,
+            ),
+    );
 
 }
