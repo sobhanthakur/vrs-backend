@@ -76,4 +76,36 @@ class MapTaskRulesController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Fetch Items from VRS.
+     * @SWG\Tag(name="Map Task Rules")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Fetch the list of active Items"
+     * )
+     * @return array
+     * @param Request $request
+     * @Get("/qbditems", name="vrs_qbditems")
+     */
+    public function FetchItems(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $mapTaskRuleService = $this->container->get('vrscheduler.map_task_rules');
+            return $mapTaskRuleService->FetchItems($customerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

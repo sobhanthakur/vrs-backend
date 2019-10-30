@@ -25,7 +25,6 @@ class IntegrationqbdcustomersRepository extends EntityRepository
             ->where('c.customerid= :CustomerID')
             ->andWhere('c.active=1')
             ->setParameter('CustomerID', $customerID)
-            ->setMaxResults(1)
             ->getQuery()
             ->execute();
     }

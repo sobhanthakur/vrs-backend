@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrationqbditems
  *
  * @ORM\Table(name="IntegrationQBDItems")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbditemsRepository")
  */
 class Integrationqbditems
 {

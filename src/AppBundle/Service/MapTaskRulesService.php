@@ -101,4 +101,26 @@ class MapTaskRulesService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function FetchItems($customerID)
+    {
+        try {
+            $items = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->QBDItems($customerID);
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                'Data' => $items
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed fetching items due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
