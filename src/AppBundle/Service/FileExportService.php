@@ -24,7 +24,7 @@ class FileExportService extends BaseService
     /**
      * @param $integrationID
      * @param $customerID
-     * @return string
+     * @return Response
      */
     public function DownloadQWC($integrationID, $customerID)
     {
@@ -110,13 +110,23 @@ class FileExportService extends BaseService
                 unlink($filePath . $username . GeneralConstants::QWC_TIMETRACKING_FAIL);
             }
 
-            return $zipPath;
+            $response = new Response(file_get_contents($zipPath));
+            $response->headers->set('Content-Type', 'application/zip');
+            $response->headers->set('Content-Disposition', 'attachment;filename="WebConnectFiles.zip"');
+            $response->headers->set('Content-length', filesize($zipPath));
+            return $response;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed Downloading QWC Files due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        } finally {
+            // Delete the zip file from the server.
+            if (file_exists($zipPath) &&
+                readfile($zipPath)) {
+                unlink($zipPath);
+            }
         }
     }
 
