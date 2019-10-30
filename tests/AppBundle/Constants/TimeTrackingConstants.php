@@ -93,4 +93,11 @@ class TimeTrackingConstants
             ),
     );
 
+    public const QBDITEMS = [
+        [
+            'IntegrationQBDItemID' => 1,
+            'QBDItemFullName' => "Item1"
+        ]
+    ];
+
 }

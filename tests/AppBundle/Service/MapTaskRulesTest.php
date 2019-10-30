@@ -8,7 +8,9 @@
 
 namespace Tests\AppBundle\Service;
 
+use AppBundle\Entity\Integrationqbditems;
 use AppBundle\Entity\Integrationstocustomers;
+use AppBundle\Repository\IntegrationqbditemsRepository;
 use AppBundle\Repository\IntegrationqbditemstoservicesRepository;
 use AppBundle\Repository\IntegrationsToCustomersRepository;
 use AppBundle\Repository\ServicesRepository;
@@ -139,6 +141,51 @@ class MapTaskRulesTest extends KernelTestCase
         } catch (HttpException $exception) {
             $this->assertEquals(500, $exception->getStatusCode());
         }
+    }
+
+    /*
+     * Test Fetch QBD Items
+     */
+    public function testFetchItems()
+    {
+        $qbdItems = $this->createMock(IntegrationqbditemsRepository::class);
+        $qbdItems->expects($this->any())
+            ->method('QBDItems')
+            ->willReturn(TimeTrackingConstants::QBDITEMS);
+
+        $entityManager = $this->createMock(EntityManager::class);
+        $entityManager->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($qbdItems);
+
+        self::$taskRulesMapService->setEntityManager($entityManager);
+        $response = self::$taskRulesMapService->FetchItems(1);
+        $this->assertNotNull($response);
+    }
+
+    /*
+     * Test Exception
+     */
+    public function testFetchItemsException()
+    {
+        try {
+            $qbdItems = $this->createMock(IntegrationqbditemsRepository::class);
+            $qbdItems->expects($this->any())
+                ->method('QBDItems')
+                ->with(Integrationqbditems::class)
+                ->willReturn(TimeTrackingConstants::QBDITEMS);
+
+            $entityManager = $this->createMock(EntityManager::class);
+            $entityManager->expects($this->any())
+                ->method('getRepository')
+                ->willReturn($qbdItems);
+
+            self::$taskRulesMapService->setEntityManager($entityManager);
+            $response = self::$taskRulesMapService->FetchItems(1);
+        } catch (HttpException $exception) {
+            $this->assertEquals(500, $exception->getStatusCode());
+        }
+
     }
 
     /**
