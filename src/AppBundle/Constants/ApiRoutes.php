@@ -29,6 +29,8 @@ final class ApiRoutes
         "vrs_staffs",
         "vrs_task_rules",
         "vrs_qbditems",
-        "vrs_qbd_wageitem"
+        "vrs_qbd_wageitem",
+        "vrs_put_wageitem",
+        "vrs_get_wageitem"
     );
 }

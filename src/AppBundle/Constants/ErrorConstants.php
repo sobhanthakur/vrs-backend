@@ -33,6 +33,7 @@ final class ErrorConstants
     const CUSTOMER_NOT_FOUND = 'CUSTOMERNOTFOUND';
     const INTEGRATION_NOT_PRESENT = 'INTEGRATIONNOTPRESENT';
     const INACTIVE = 'INACTIVE';
+    const INVALID_WAGE_ITEM_ID = 'INVALIDWAGEITEMID';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -77,6 +78,7 @@ final class ErrorConstants
         self::INVALID_INTEGRATION => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration'],
         self::CUSTOMER_NOT_FOUND => ['code' => 422, self::MESSAGE => 'api.response.error.customer_not_found'],
         self::INTEGRATION_NOT_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_present'],
-        self::INACTIVE => ['code' => 1001, self::MESSAGE => 'api.response.error.inactive']
+        self::INACTIVE => ['code' => 1001, self::MESSAGE => 'api.response.error.inactive'],
+        self::INVALID_WAGE_ITEM_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_wage_item_id']
     ];
 }

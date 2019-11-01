@@ -34,6 +34,7 @@ api:
             customer_not_found: "Customer Not Found"
             integration_not_present: "Integration Not Present"
             inactive: "Integration is not active"
+            invalid_wage_item_id: "Invalid QBD Item Wage ID"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."
