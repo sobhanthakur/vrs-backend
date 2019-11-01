@@ -103,4 +103,7 @@ final class GeneralConstants
 
     const FILTER_MATCHED = 'Matched';
     const FILTER_NOT_MATCHED = 'Not Yet Matched';
+
+    const PAY_BY_HOUR = 'PayByHour';
+    const PAY_BY_RATE = 'PayByRate';
 }

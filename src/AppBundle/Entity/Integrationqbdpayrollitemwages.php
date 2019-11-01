@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrationqbdpayrollitemwages
  *
  * @ORM\Table(name="IntegrationQBDPayrollItemWages", indexes={@ORM\Index(name="IDX_F203B0DA854CF4BD", columns={"CustomerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdpayrollitemwagesRepository")
  */
 class Integrationqbdpayrollitemwages
 {

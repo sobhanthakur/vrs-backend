@@ -56,6 +56,9 @@ class ApiResponse extends BaseService
         ];
     }
 
+    /**
+     * @return array
+     */
     public function GenericSuccessResponse()
     {
         return array(

@@ -20,7 +20,7 @@ class MapStaffsController extends FOSRestController
 {
     /**
      * Fetch Employees from VRS.
-     * @SWG\Tag(name="Map Staffs")
+     * @SWG\Tag(name="Time Tracking")
      * @SWG\Response(
      *     response=200,
      *     description="Fetch the list of active Employees"
@@ -52,7 +52,7 @@ class MapStaffsController extends FOSRestController
 
     /**
      * Fetch Staffs from VRS.
-     * @SWG\Tag(name="Map Staffs")
+     * @SWG\Tag(name="Time Tracking")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",

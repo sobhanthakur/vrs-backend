@@ -20,7 +20,7 @@ class MapPropertiesController extends FOSRestController
 {
     /**
      * Fetch Properties from VRS.
-     * @SWG\Tag(name="Map Properties")
+     * @SWG\Tag(name="Billing")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",
@@ -81,7 +81,7 @@ class MapPropertiesController extends FOSRestController
 
     /**
      * Fetch Customers from VRS.
-     * @SWG\Tag(name="Map Properties")
+     * @SWG\Tag(name="Billing")
      * @SWG\Response(
      *     response=200,
      *     description="Fetch the list of active customers"

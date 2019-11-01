@@ -19,7 +19,7 @@ class MapTaskRulesController extends FOSRestController
 {
     /**
      * Fetch Task Rules from VRS.
-     * @SWG\Tag(name="Map Task Rules")
+     * @SWG\Tag(name="Billing")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",
@@ -79,7 +79,7 @@ class MapTaskRulesController extends FOSRestController
 
     /**
      * Fetch Items from VRS.
-     * @SWG\Tag(name="Map Task Rules")
+     * @SWG\Tag(name="Billing")
      * @SWG\Response(
      *     response=200,
      *     description="Fetch the list of active Items"

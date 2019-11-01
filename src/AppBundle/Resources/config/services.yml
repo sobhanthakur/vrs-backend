@@ -65,3 +65,7 @@ services:
         class: AppBundle\Service\MapTaskRulesService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.map_wage_item:
+        class: AppBundle\Service\MapWageItemsService
+        parent: vrscheduler.base_service
+        public: true
