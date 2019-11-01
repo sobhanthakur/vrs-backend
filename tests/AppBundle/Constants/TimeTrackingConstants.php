@@ -100,4 +100,17 @@ class TimeTrackingConstants
         ]
     ];
 
+    public const QBD_PAYROLL_ITEM_WAGES = [
+        [
+            'IntegrationQBDPayrollItemWageID' => 1,
+            'QBDPayrollItemWageName' => "Expenses"
+        ]
+    ];
+
+    public const UPDATE_PAYROLL_MAPPING = [
+        "IntegrationID" => 1,
+        "PayByHour" => 1,
+        "PayByRate" => 2
+    ];
+
 }
