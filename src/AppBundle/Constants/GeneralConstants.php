@@ -88,6 +88,7 @@ final class GeneralConstants
     const CUSTOMER_NAME = 'CustomerName';
     const LOGGEDINSTAFFID = 'LoggedInStaffID';
     const CREATEDATETIME = 'CreateDateTime';
+    const LOGGED_IN_SERVICER_PASSWORD = 'LoggedInServicerPassword';
 
     const RESTRICTIONS = 'Restrictions';
 

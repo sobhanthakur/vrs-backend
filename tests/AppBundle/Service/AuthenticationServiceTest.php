@@ -249,6 +249,10 @@ class AuthenticationServiceTest extends KernelTestCase
      */
     public function testEmptyResults()
     {
+        $servicersTimeTracking = [
+            0 => AuthConstants::MOCK_TIME_TRACKING
+        ];
+
         $value = [];
 
         $servicersRepository = $this->createMock(ServicersRepository::class);
@@ -270,7 +274,7 @@ class AuthenticationServiceTest extends KernelTestCase
 
         $servicersRepository->expects($this->any())
             ->method('GetTimeTrackingRestrictions')
-            ->willReturn($value);
+            ->willReturn($servicersTimeTracking);
 
         $regionGroupRepository->expects($this->any())
             ->method('GetRegionGroupsRestrictions')
@@ -299,6 +303,10 @@ class AuthenticationServiceTest extends KernelTestCase
      */
     public function test0LoggedInStaffID()
     {
+        $servicersTimeTracking = [
+            0 => AuthConstants::MOCK_TIME_TRACKING
+        ];
+
         $value = [];
 
         $servicersRepository = $this->createMock(ServicersRepository::class);
@@ -320,7 +328,7 @@ class AuthenticationServiceTest extends KernelTestCase
 
         $servicersRepository->expects($this->any())
             ->method('GetTimeTrackingRestrictions')
-            ->willReturn($value);
+            ->willReturn($servicersTimeTracking);
 
         $regionGroupRepository->expects($this->any())
             ->method('GetRegionGroupsRestrictions')

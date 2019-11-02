@@ -107,6 +107,9 @@ class MapTaskRulesTest extends KernelTestCase
 
         $services = $this->createMock(ServicesRepository::class);
         $services->expects($this->any())
+            ->method('CountSyncServices')
+            ->willReturn(BillingConstants::COUNT);
+        $services->expects($this->any())
             ->method('SyncServices')
             ->willReturn(TimeTrackingConstants::SERVICES);
 
@@ -114,7 +117,7 @@ class MapTaskRulesTest extends KernelTestCase
         $entityManager = $this->createMock(EntityManager::class);
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($integrationToCustomers,$itemsToServices, $services);
+            ->willReturn($integrationToCustomers,$itemsToServices, $services, $services);
 
         return $entityManager;
     }

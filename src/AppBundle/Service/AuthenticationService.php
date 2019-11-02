@@ -111,6 +111,10 @@ class AuthenticationService extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
                 }
 
+                // Set Username
+                $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME];
+                $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = null;
+
                 /*
                  * Check restrictions from the Servicers Table.
                  */
@@ -126,6 +130,7 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowEditBookings'] = 1;
                 } else {
                     $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
                     if (empty($servicersResponse)) {
@@ -133,6 +138,10 @@ class AuthenticationService extends BaseService
                     }
 
                     $servicersResponse = $servicersResponse[0]; // The query returns an array
+
+                    // Set Username and password
+                    $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = trim($servicersResponse['password2']);
+                    $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $servicersResponse['name'];
 
                     // Set Servicers Responses in the restrictions array.
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
@@ -145,17 +154,14 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowScheduleAccess'] = ($servicersResponse['allowscheduleaccess'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = ($servicersResponse['allowtracking'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowEditBookings'] = ($servicersResponse['alloweditbookings'] === true ? 1 : 0);
                 }
 
                 /*
                  * Check if Servicer is active and time tracking
                  */
                 $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
-                if (empty($servicersTimeTracking)) {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = 0;
-                } else {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = 1;
-                }
+                $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
 
                 /*
                  * Check if region Group is present or not

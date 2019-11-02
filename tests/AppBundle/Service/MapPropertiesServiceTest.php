@@ -84,11 +84,14 @@ class MapPropertiesServiceTest extends KernelTestCase
         $propertiesRepository->expects($this->any())
             ->method('SyncProperties')
             ->willReturn(BillingConstants::PROPERTIES);
+        $propertiesRepository->expects($this->any())
+            ->method('CountSyncProperties')
+            ->willReturn(BillingConstants::COUNT);
 
         $entityManager = $this->createMock(EntityManager::class);
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($integrationToCustomers, $propertiesRepository);
+            ->willReturn($integrationToCustomers, $propertiesRepository, $propertiesRepository);
 
         self::$billingMapProperties->setEntityManager($entityManager);
         $response = self::$billingMapProperties->MapProperties(1, BillingConstants::INTEGRATION_ID);

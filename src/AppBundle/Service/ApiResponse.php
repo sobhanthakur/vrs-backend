@@ -36,9 +36,8 @@ class ApiResponse extends BaseService
 
 
     /**
-     * Function to create final Success Admin API response.
-     * @param $loggedInStaffID
-     * @param $restrictions
+     * @param $result
+     * @param $authenticateResult
      * @return array
      */
     public function createAuthApiSuccessResponse($result, $authenticateResult)
@@ -47,11 +46,12 @@ class ApiResponse extends BaseService
             GeneralConstants::REASON_CODE => 0,
             GeneralConstants::REASON_TEXT => $this->translator->trans('api.response.success.message'),
             'LoggedInStaffID' => $result['LoggedInStaffID'],
+            GeneralConstants::LOGGED_IN_SERVICER_PASSWORD => $result[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD],
             'AccessToken' => $result['AccessToken'],
             'Permissions' => $result['Restrictions'],
             'UserDetails' => array(
                 'CustomerID' => $authenticateResult[GeneralConstants::MESSAGE]['CustomerID'],
-                'CustomerName' => $authenticateResult[GeneralConstants::MESSAGE]['CustomerName']
+                'CustomerName' => $result[GeneralConstants::MESSAGE]['CustomerName']
             )
         ];
     }

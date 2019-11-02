@@ -45,6 +45,8 @@ final class AuthConstants
     );
 
     public const MOCK_SERVICERS = array(
+        'name' => 'Buttler',
+        'password2' => 'ola121jb',
         'allowadminaccess' => 0,
         'allowmanage'=> 0,
         'allowreports' => 0,
@@ -54,7 +56,8 @@ final class AuthConstants
         'allowquickreports' => 0,
         'allowscheduleaccess' => 0,
         'allowmastercalendar' => 0,
-        'allowtracking' => 1
+        'allowtracking' => 1,
+        'alloweditbookings' => 1
     );
 
     public const MOCK_TIME_TRACKING = array(

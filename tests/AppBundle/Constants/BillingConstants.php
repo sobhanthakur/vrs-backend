@@ -44,7 +44,7 @@ final class BillingConstants
             ),
         'Pagination' =>
             array (
-                'Offset' => 1,
+                'Offset' => 2,
                 'Limit' => 10,
             ),
     );
@@ -87,5 +87,9 @@ final class BillingConstants
       'IntegrationQBDCustomerID' => 1,
       'QBDCustomerFullName' => 1
      ]
+    ];
+
+    public const COUNT = [
+        0 => 300
     ];
 }

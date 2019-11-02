@@ -188,6 +188,9 @@ class MapStaffsTest extends KernelTestCase
 
         $servicers = $this->createMock(ServicersRepository::class);
         $servicers->expects($this->any())
+            ->method('CountSyncServicers')
+            ->willReturn(BillingConstants::COUNT);
+        $servicers->expects($this->any())
             ->method('SyncServicers')
             ->willReturn(TimeTrackingConstants::SERVICERS);
 
@@ -195,7 +198,7 @@ class MapStaffsTest extends KernelTestCase
         $entityManager = $this->createMock(EntityManager::class);
         $entityManager->expects($this->any())
             ->method('getRepository')
-            ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers);
+            ->willReturn($integrationToCustomers,$employeeToServicers, $staffTags, $department, $servicers, $servicers);
 
         return $entityManager;
     }
