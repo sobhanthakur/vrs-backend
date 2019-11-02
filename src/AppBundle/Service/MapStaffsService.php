@@ -55,6 +55,7 @@ class MapStaffsService extends BaseService
             $employeeToServicers = null;
             $matchStatus = 2;
             $integrationID = null;
+            $count = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -102,10 +103,19 @@ class MapStaffsService extends BaseService
                 }
             }
 
+            // Send page count if offset is 1.
+            if($offset === 1) {
+                $count1 = $this->entityManager->getRepository('AppBundle:Servicers')->CountSyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus);
+                if($count1) {
+                    $count = (int)$count1[0]['Count'];
+                }
+            }
+
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus);
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
+                'Count' => $count,
                 'Data' => $servicers
             );
         } catch (UnprocessableEntityHttpException $exception) {

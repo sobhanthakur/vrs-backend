@@ -12,8 +12,16 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class PropertiesRepository
+ * @package AppBundle\Repository
+ */
 class PropertiesRepository extends EntityRepository
 {
+    /**
+     * @param $customerID
+     * @return mixed
+     */
     public function GetProperties($customerID)
     {
         return $this
@@ -25,7 +33,19 @@ class PropertiesRepository extends EntityRepository
             ->execute();
     }
 
-    public function SyncProperties($properties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID,$matchStatus)
+    /**
+     * @param $properties
+     * @param $propertyTags
+     * @param $region
+     * @param $owner
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @param $customerID
+     * @param $matchStatus
+     * @return mixed
+     */
+    public function SyncProperties($properties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus)
     {
         $result = null;
         $result = $this
@@ -69,6 +89,63 @@ class PropertiesRepository extends EntityRepository
             ->orderBy('p.createdate','DESC')
             ->setFirstResult(($offset-1)*$limit)
             ->setMaxResults($limit);
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $properties
+     * @param $propertyTags
+     * @param $region
+     * @param $owner
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @param $customerID
+     * @param $matchStatus
+     * @return mixed
+     */
+    public function CountSyncProperties($properties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus)
+    {
+        $result = null;
+        $result = $this
+            ->createQueryBuilder('p')
+            ->select('count(p.propertyid) AS Count')
+            ->innerJoin('p.regionid', 'r')
+            ->innerJoin('p.ownerid', 'o')
+            ->where('p.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('p.active=1');
+
+        switch ($matchStatus) {
+            case 0:
+                $result->andWhere('p.propertyid NOT IN (:Properties)')
+                    ->setParameter('Properties', $properties);
+                break;
+            case 1:
+                $result->andWhere('p.propertyid IN (:Properties)')
+                    ->setParameter('Properties', $properties);
+                break;
+        }
+
+        if ($region) {
+            $result->andWhere('p.regionid IN (:Regions)')
+                ->setParameter('Regions', $region);
+        }
+        if ($owner) {
+            $result->andWhere('p.ownerid IN (:Owners)')
+                ->setParameter('Owners', $owner);
+        }
+        if ($propertyTags) {
+            $result->andWhere('p.propertyid IN (:PropertyTags)')
+                ->setParameter('PropertyTags', $propertyTags);
+        }
+        if ($createDate) {
+            $result->andWhere('p.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
         return $result
             ->getQuery()
             ->getResult();

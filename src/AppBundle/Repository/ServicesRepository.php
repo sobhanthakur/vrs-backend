@@ -55,4 +55,43 @@ class ServicesRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function CountSyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus)
+    {
+        $result = null;
+        $result = $this
+            ->createQueryBuilder('s')
+            ->select('count(s.serviceid) AS Count')
+            ->where('s.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.active=1');
+
+        switch ($matchStatus) {
+            case 0:
+                $result->andWhere('s.serviceid NOT IN (:ItemsToServices)')
+                    ->setParameter('ItemsToServices', $itemsToServices);
+                break;
+            case 1:
+                $result->andWhere('s.serviceid IN (:ItemsToServices)')
+                    ->setParameter('ItemsToServices', $itemsToServices);
+                break;
+        }
+
+        if ($department) {
+            $result->andWhere('s.servicegroupid IN (:Departments)')
+                ->setParameter('Regions', $department);
+        }
+        if ($billable) {
+            $result->andWhere('s.billable= :Owners')
+                ->setParameter('Owners', $billable);
+        }
+        if ($createDate) {
+            $result->andWhere('s.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
 }

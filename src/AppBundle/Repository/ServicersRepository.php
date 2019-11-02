@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
  * Class ServicersRepository
  * @package AppBundle\Repository
  */
+/**
+ * Class ServicersRepository
+ * @package AppBundle\Repository
+ */
 class ServicersRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
@@ -21,7 +25,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.allowadminaccess, s.allowtracking, s.allowmanage, s.allowreports, s.allowsetupaccess, s.allowaccountaccess, s.allowissuesaccess, s.allowquickreports, s.allowscheduleaccess, s.allowmastercalendar')
+            ->select('s.name,s.password2,s.allowadminaccess, s.alloweditbookings,s.allowtracking, s.allowmanage, s.allowreports, s.allowsetupaccess, s.allowaccountaccess, s.allowissuesaccess, s.allowquickreports, s.allowscheduleaccess, s.allowmastercalendar')
             ->where('s.servicerid= :StaffID')
             ->setParameter('StaffID', $staffID)
             ->setMaxResults(1)
@@ -48,6 +52,17 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $employeeToServicers
+     * @param $staffTags
+     * @param $department
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @param $customerID
+     * @param $matchStatus
+     * @return mixed
+     */
     public function SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus)
     {
         $result = null;
@@ -86,6 +101,56 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->orderBy('s.createdate','DESC')
             ->setFirstResult(($offset-1)*$limit)
             ->setMaxResults($limit);
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $employeeToServicers
+     * @param $staffTags
+     * @param $department
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @param $customerID
+     * @param $matchStatus
+     * @return mixed
+     */
+    public function CountSyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus)
+    {
+        $result = null;
+        $result = $this
+            ->createQueryBuilder('s')
+            ->select('count(s.servicerid) AS Count')
+            ->where('s.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.active=1');
+
+        switch ($matchStatus) {
+            case 0:
+                $result->andWhere('s.servicerid NOT IN (:EmployeeToServicers)')
+                    ->setParameter('EmployeeToServicers', $employeeToServicers);
+                break;
+            case 1:
+                $result->andWhere('s.servicerid IN (:EmployeeToServicers)')
+                    ->setParameter('EmployeeToServicers', $employeeToServicers);
+                break;
+        }
+
+        if ($staffTags) {
+            $result->andWhere('s.servicerid IN (:StaffTag)')
+                ->setParameter('StaffTag', $staffTags);
+        }
+        if ($department) {
+            $result->andWhere('s.servicerid IN (:Department)')
+                ->setParameter('Department', $department);
+        }
+        if ($createDate) {
+            $result->andWhere('s.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
         return $result
             ->getQuery()
             ->getResult();

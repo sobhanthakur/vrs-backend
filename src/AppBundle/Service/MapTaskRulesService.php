@@ -38,6 +38,7 @@ class MapTaskRulesService extends BaseService
             $itemsToServices = null;
             $matchStatus = 2;
             $integrationID = null;
+            $count = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -85,10 +86,19 @@ class MapTaskRulesService extends BaseService
                 }
             }
 
+            // Send page count if offset is 1.
+            if($offset === 1) {
+                $count1 = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus);
+                if($count1) {
+                    $count = (int)$count1[0]['Count'];
+                }
+            }
+
             $taskRules = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus);
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
+                'Count' => $count,
                 'Data' => $taskRules
             );
         } catch (UnprocessableEntityHttpException $exception) {
