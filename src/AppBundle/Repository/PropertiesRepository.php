@@ -150,4 +150,56 @@ class PropertiesRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetPropertiesID($customerID)
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->select('p.propertyid')
+            ->where('p.customerid= :CustomerID')
+            ->andWhere('p.active=1')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $customerID
+     * @param $properties
+     * @return mixed
+     */
+    public function SearchPropertiesByID($customerID, $properties)
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->select('p.propertyid')
+            ->where('p.customerid= :CustomerID')
+            ->andWhere('p.active=1')
+            ->andWhere('p.propertyid IN (:Properties)')
+            ->setParameter('Properties',$properties)
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $customerID
+     * @param $properties
+     * @return mixed
+     */
+    public function GetRegionByID($managersToProperties)
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->select('IDENTITY(p.regionid)')
+            ->where('p.active=1')
+            ->andWhere('p.propertyid IN (:Properties)')
+            ->setParameter('Properties',$managersToProperties)
+            ->getQuery()
+            ->execute();
+    }
 }

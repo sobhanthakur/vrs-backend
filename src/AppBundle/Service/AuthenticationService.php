@@ -100,6 +100,9 @@ class AuthenticationService extends BaseService
     public function ValidateRestrictions($authenticationResult)
     {
         $restrictions = [];
+        $managersToProperties = null;
+        $properties = null;
+        $regions = null;
         try {
             if ($authenticationResult[GeneralConstants::STATUS]) {
                 $restrictions[GeneralConstants::LOGGEDINSTAFFID] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID];
@@ -114,6 +117,10 @@ class AuthenticationService extends BaseService
                 // Set Username
                 $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME];
                 $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = null;
+
+                // Region Groups and Regions Repository
+                $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
+                $regionsRepo = $this->entityManager->getRepository('AppBundle:Regions');
 
                 /*
                  * Check restrictions from the Servicers Table.
@@ -131,6 +138,17 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowEditBookings'] = 1;
+
+                    // Region Group Restrictions
+                    $regions = $regionsRepo->GetRegionIDLoggedInStaffID0($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+                    $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID],$regions);
+                    if(!empty($regionGroupResponse)) {
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
+                    } else {
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
+                    }
                 } else {
                     $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
                     if (empty($servicersResponse)) {
@@ -155,6 +173,27 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowMasterCalendar'] = ($servicersResponse['allowmastercalendar'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowTracking'] = ($servicersResponse['allowtracking'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowEditBookings'] = ($servicersResponse['alloweditbookings'] === true ? 1 : 0);
+
+                    // Fetch Property ID from ManagersToProperties Table.
+                    $managersToPropertiesRepo = $this->entityManager->getRepository('AppBundle:Managerstoproperties');
+                    $managersToProperties = $managersToPropertiesRepo->GetPropertyID($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
+
+                    // Fetch RegionID from properties
+                    $propertiesRepo = $this->entityManager->getRepository('AppBundle:Properties');
+                    $properties = $propertiesRepo->GetRegionByID($managersToProperties);
+
+                    // Fetch RegionID from Regions
+                    $regions = $regionsRepo->GetRegionID($properties,$authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+
+                    // Region Group Restrictions
+                    $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID],$regions);
+                    if(!empty($regionGroupResponse)) {
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
+                    } else {
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
+                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
+                    }
                 }
 
                 /*
@@ -163,18 +202,6 @@ class AuthenticationService extends BaseService
                 $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
 
-                /*
-                 * Check if region Group is present or not
-                 */
-                $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
-                $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
-                if (empty($regionGroupResponse)) {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
-                } else {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
-                    $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
-                }
 
                 /*
                  * Check if property Group is present or not

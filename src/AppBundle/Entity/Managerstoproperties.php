@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Managerstoproperties
  *
  * @ORM\Table(name="ManagersToProperties", indexes={@ORM\Index(name="ManagerServicerID", columns={"ManagerServicerID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ManagerstopropertiesRepository")
  */
 class Managerstoproperties
 {

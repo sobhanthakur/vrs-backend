@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Regions
  *
  * @ORM\Table(name="Regions", indexes={@ORM\Index(name="customerid", columns={"CustomerID"}), @ORM\Index(name="sortorder", columns={"SortOrder"}), @ORM\Index(name="IDX_6DDA406F40CBC1C7", columns={"RegionGroupID"}), @ORM\Index(name="IDX_6DDA406F424D9CA0", columns={"TimeZoneID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\RegionsRepository")
  */
 class Regions
 {
