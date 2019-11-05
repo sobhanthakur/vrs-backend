@@ -102,8 +102,10 @@ class MapPropertiesService extends BaseService
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Count' => $count,
-                'Data' => $properties
+                'Data' => array(
+                    'Count' => $count,
+                    'Details' => $properties
+                )
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

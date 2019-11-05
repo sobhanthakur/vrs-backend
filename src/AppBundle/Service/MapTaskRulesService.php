@@ -98,8 +98,10 @@ class MapTaskRulesService extends BaseService
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Count' => $count,
-                'Data' => $taskRules
+                'Data' => array(
+                    'Count' => $count,
+                    'Details' => $taskRules
+                )
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

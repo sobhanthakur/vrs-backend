@@ -115,8 +115,10 @@ class MapStaffsService extends BaseService
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Count' => $count,
-                'Data' => $servicers
+                'Data' => array(
+                    'Count' => $count,
+                    'Details' => $servicers
+                )
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
