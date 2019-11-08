@@ -39,9 +39,10 @@ class MapStaffsService extends BaseService
     /**
      * @param $customerID
      * @param $data
+     * @param $session
      * @return array
      */
-    public function MapStaffs($customerID, $data)
+    public function MapStaffs($customerID, $data,$session)
     {
         try {
             // Initialize variables
@@ -109,6 +110,7 @@ class MapStaffsService extends BaseService
                 if($count1) {
                     $count = (int)$count1[0]['Count'];
                 }
+                $session->set('StaffsCount',$count);
             }
 
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus);
@@ -116,7 +118,7 @@ class MapStaffsService extends BaseService
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
-                    'Count' => $count,
+                    'Count' => $session->get('StaffsCount'),
                     'Details' => $servicers
                 )
             );

@@ -95,7 +95,7 @@ class MapStaffsController extends FOSRestController
             }
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapStaffs = $this->container->get('vrscheduler.map_staffs');
-            return $mapStaffs->MapStaffs($customerID, $data);
+            return $mapStaffs->MapStaffs($customerID, $data,$request->getSession());
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
