@@ -64,7 +64,7 @@ class MapPropertiesController extends FOSRestController
             }
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapBillingService = $this->container->get('vrscheduler.map_properties');
-            return $mapBillingService->MapProperties($customerID, $data,$request->getSession());
+            return $mapBillingService->MapProperties($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

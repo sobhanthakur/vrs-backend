@@ -62,7 +62,7 @@ class MapTaskRulesController extends FOSRestController
             }
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapTaskRuleService = $this->container->get('vrscheduler.map_task_rules');
-            return $mapTaskRuleService->MapTaskRules($customerID, $data,$request->getSession());
+            return $mapTaskRuleService->MapTaskRules($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

@@ -22,10 +22,9 @@ class MapPropertiesService extends BaseService
     /**
      * @param $customerID
      * @param $data
-     * @param $session
      * @return array
      */
-    public function MapProperties($customerID, $data, $session)
+    public function MapProperties($customerID, $data)
     {
         try {
             // Initialize variables
@@ -97,7 +96,6 @@ class MapPropertiesService extends BaseService
                 if($count1) {
                     $count = (int)$count1[0]['Count'];
                 }
-                $session->set('PropertiesCount',$count);
             }
 
             $properties = $this->entityManager->getRepository('AppBundle:Properties')->SyncProperties($customersToProperties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus);
@@ -105,7 +103,7 @@ class MapPropertiesService extends BaseService
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
-                    'Count' => $session->get('PropertiesCount'),
+                    'Count' => $count,
                     'Details' => $properties
                 )
             );

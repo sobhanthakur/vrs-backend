@@ -22,10 +22,9 @@ class MapTaskRulesService extends BaseService
     /**
      * @param $customerID
      * @param $data
-     * @param $session
      * @return array
      */
-    public function MapTaskRules($customerID, $data, $session)
+    public function MapTaskRules($customerID, $data)
     {
         try {
             // Initialize variables
@@ -93,7 +92,6 @@ class MapTaskRulesService extends BaseService
                 if($count1) {
                     $count = (int)$count1[0]['Count'];
                 }
-                $session->set('TaskRulesCount',$count);
             }
 
             $taskRules = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus);
@@ -101,7 +99,7 @@ class MapTaskRulesService extends BaseService
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
-                    'Count' => $session->get('TaskRulesCount'),
+                    'Count' => $count,
                     'Details' => $taskRules
                 )
             );
