@@ -105,6 +105,7 @@ class MapWageItemsService extends BaseService
     public function GetPayrollMapping($customerID, $content)
     {
         try {
+            $response = null;
             /*
              * Read Request object. Extract attributes and parameters.
              */
@@ -119,19 +120,24 @@ class MapWageItemsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
+            if($integrationToCustomer->getIntegrationqbdratewagetypeid()) {
+                $response[GeneralConstants::PAY_BY_RATE] = array(
+                    'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdratewagetypeid()->getIntegrationqbdpayrollitemwageid(),
+                    'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdratewagetypeid()->getQbdpayrollitemwagename())
+                );
+            }
+
+            if($integrationToCustomer->getIntegrationqbdhourwagetypeid()) {
+                $response[GeneralConstants::PAY_BY_RATE] = array(
+                    'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdhourwagetypeid()->getIntegrationqbdpayrollitemwageid(),
+                    'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdhourwagetypeid()->getQbdpayrollitemwagename())
+                );
+            }
+
             return array(
                 GeneralConstants::REASON_CODE => 0,
                 GeneralConstants::REASON_TEXT => $this->translator->trans('api.response.success.message'),
-                'Details' => array(
-                    GeneralConstants::PAY_BY_RATE => array(
-                        'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdratewagetypeid()->getIntegrationqbdpayrollitemwageid(),
-                        'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdratewagetypeid()->getQbdpayrollitemwagename())
-                    ),
-                    GeneralConstants::PAY_BY_HOUR => array(
-                        'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdhourwagetypeid()->getIntegrationqbdpayrollitemwageid(),
-                        'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdhourwagetypeid()->getQbdpayrollitemwagename())
-                    ),
-                )
+                'Details' => $response
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
