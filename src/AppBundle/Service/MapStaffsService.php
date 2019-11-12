@@ -53,9 +53,9 @@ class MapStaffsService extends BaseService
             $limit = 10;
             $offset = 1;
             $employeeToServicers = null;
-            $matchStatus = 2;
             $integrationID = null;
             $count = null;
+            $response = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -70,24 +70,7 @@ class MapStaffsService extends BaseService
 
             if (!empty($data)) {
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
-                    $employeeToServicers = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID);
 
-                    // If status is only set to matched
-                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 1;
-                    }
-
-                    // If status is only set to not yet matched
-                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 0;
-                    }
-                }
                 if (array_key_exists('StaffTag', $filters)) {
                     $staffTags = $this->entityManager->getRepository('AppBundle:Servicerstoemployeegroups')->ServicerstoEmployeeGroupsJoinMatched($filters['StaffTag']);
                 }
@@ -101,23 +84,75 @@ class MapStaffsService extends BaseService
                     $limit = $data['Pagination']['Limit'];
                     $offset = $data['Pagination']['Offset'];
                 }
-            }
 
-            // Send page count if offset is 1.
-            if($offset === 1) {
-                $count1 = $this->entityManager->getRepository('AppBundle:Servicers')->CountSyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus);
-                if($count1) {
-                    $count = (int)$count1[0]['Count'];
+                if (array_key_exists('Status', $filters)) {
+                    $status = $filters['Status'];
+
+
+                    // If status is only set to matched
+                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        if($offset === 1) {
+                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->CountStaffsJoinMatched($customerID,$staffTags, $department, $createDate);
+                            if($count) {
+                                $count = (int)$count[0][1];
+                            }
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                    }
+
+                    // If status is only set to not yet matched
+                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        $count = $this->entityManager->getRepository('AppBundle:Servicers')->CountSyncServicers($customerID,$staffTags, $department, $createDate);
+                        if($count) {
+                            $count = (int)$count[0][1];
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                        for($i=0;$i<count($response);$i++) {
+                            $response[$i]["IntegrationQBDEmployeeID"] = null;
+                        }
+                    }
                 }
             }
 
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus);
+            // Default Case
+            if(!$response) {
+                if($offset === 1) {
+                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->CountStaffsJoinMatched($customerID,$staffTags, $department, $createDate);
+                    if($count1) {
+                        $count1 = (int)$count1[0][1];
+                    }
+                    $count2 = $this->entityManager->getRepository('AppBundle:Servicers')->CountSyncServicers($customerID,$staffTags, $department, $createDate);
+
+                    if($count2) {
+                        $count2 = (int)$count2[0][1];
+                    }
+                    $count = $count1 + $count2;
+                }
+                $response2 = null;
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                $countResponse = count($response);
+                if($countResponse < $limit) {
+                    $limit = $limit-$countResponse;
+                    $response2 = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                    for($i=0;$i<count($response2);$i++) {
+                        $response2[$i]["IntegrationQBDEmployeeID"] = null;
+                    }
+                }
+                $response = array_merge($response,$response2);
+            }
+
+
+//            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($customerID,$staffTags, $department, $createDate, $limit, $offset);
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
                     'Count' => $count,
-                    'Details' => $servicers
+                    'Details' => $response
                 )
             );
         } catch (UnprocessableEntityHttpException $exception) {

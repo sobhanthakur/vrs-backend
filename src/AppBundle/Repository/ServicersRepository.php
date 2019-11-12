@@ -63,7 +63,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      * @param $matchStatus
      * @return mixed
      */
-    public function SyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus)
+    public function SyncServicers($customerID,$staffTags, $department, $createDate, $limit, $offset)
     {
         $result = null;
         $result = $this
@@ -73,15 +73,13 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.active=1');
 
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('s.servicerid NOT IN (:EmployeeToServicers)')
-                    ->setParameter('EmployeeToServicers', $employeeToServicers);
-                break;
-            case 1:
-                $result->andWhere('s.servicerid IN (:EmployeeToServicers)')
-                    ->setParameter('EmployeeToServicers', $employeeToServicers);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.servicerid) from AppBundle:Integrationqbdemployeestoservicers b1 inner join AppBundle:Integrationqbdemployees t2 with b1.integrationqbdemployeeid=t2.integrationqbdemployeeid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if($subQuery) {
+            $result->andWhere('s.servicerid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery);
         }
 
         if ($staffTags) {
@@ -117,25 +115,23 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      * @param $matchStatus
      * @return mixed
      */
-    public function CountSyncServicers($employeeToServicers, $staffTags, $department, $createDate, $limit, $offset, $customerID, $matchStatus)
+    public function CountSyncServicers($customerID,$staffTags, $department, $createDate)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('s')
-            ->select('count(s.servicerid) AS Count')
+            ->select('count(s.servicerid)')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.active=1');
 
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('s.servicerid NOT IN (:EmployeeToServicers)')
-                    ->setParameter('EmployeeToServicers', $employeeToServicers);
-                break;
-            case 1:
-                $result->andWhere('s.servicerid IN (:EmployeeToServicers)')
-                    ->setParameter('EmployeeToServicers', $employeeToServicers);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.servicerid) from AppBundle:Integrationqbdemployeestoservicers b1 inner join AppBundle:Integrationqbdemployees t2 with b1.integrationqbdemployeeid=t2.integrationqbdemployeeid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if($subQuery) {
+            $result->andWhere('s.servicerid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery);
         }
 
         if ($staffTags) {

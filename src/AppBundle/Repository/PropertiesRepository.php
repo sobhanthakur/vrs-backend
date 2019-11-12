@@ -42,7 +42,6 @@ class PropertiesRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $customerID
-     * @param $matchStatus
      * @return mixed
      */
     public function PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset)
@@ -103,7 +102,6 @@ class PropertiesRepository extends EntityRepository
      * @param $limit
      * @param $offset
      * @param $customerID
-     * @param $matchStatus
      * @return mixed
      */
     public function CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate)
