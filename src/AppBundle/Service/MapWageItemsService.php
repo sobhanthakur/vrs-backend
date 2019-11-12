@@ -128,7 +128,7 @@ class MapWageItemsService extends BaseService
             }
 
             if($integrationToCustomer->getIntegrationqbdhourwagetypeid()) {
-                $response[GeneralConstants::PAY_BY_RATE] = array(
+                $response[GeneralConstants::PAY_BY_HOUR] = array(
                     'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdhourwagetypeid()->getIntegrationqbdpayrollitemwageid(),
                     'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdhourwagetypeid()->getQbdpayrollitemwagename())
                 );
