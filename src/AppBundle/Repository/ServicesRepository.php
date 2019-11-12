@@ -11,9 +11,22 @@ namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class ServicesRepository
+ * @package AppBundle\Repository
+ */
 class ServicesRepository extends EntityRepository
 {
-    public function SyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus)
+    /**
+     * @param $customerID
+     * @param $department
+     * @param $billable
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @return mixed
+     */
+    public function SyncServices($customerID, $department, $billable, $createDate, $limit, $offset)
     {
         $result = null;
         $result = $this
@@ -23,15 +36,15 @@ class ServicesRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.active=1');
 
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('s.serviceid NOT IN (:ItemsToServices)')
-                    ->setParameter('ItemsToServices', $itemsToServices);
-                break;
-            case 1:
-                $result->andWhere('s.serviceid IN (:ItemsToServices)')
-                    ->setParameter('ItemsToServices', $itemsToServices);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.serviceid) from AppBundle:Integrationqbditemstoservices b1 inner join AppBundle:Integrationqbditems t2 with b1.integrationqbditemid=t2.integrationqbditemid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if ($subQuery) {
+            $result
+                ->andWhere('s.serviceid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery
+                );
         }
 
         if ($department) {
@@ -56,25 +69,32 @@ class ServicesRepository extends EntityRepository
             ->getResult();
     }
 
-    public function CountSyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus)
+    /**
+     * @param $customerID
+     * @param $department
+     * @param $billable
+     * @param $createDate
+     * @return mixed
+     */
+    public function CountSyncServices($customerID, $department, $billable, $createDate)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('s')
-            ->select('count(s.serviceid) AS Count')
+            ->select('count(s.serviceid)')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.active=1');
 
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('s.serviceid NOT IN (:ItemsToServices)')
-                    ->setParameter('ItemsToServices', $itemsToServices);
-                break;
-            case 1:
-                $result->andWhere('s.serviceid IN (:ItemsToServices)')
-                    ->setParameter('ItemsToServices', $itemsToServices);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.serviceid) from AppBundle:Integrationqbditemstoservices b1 inner join AppBundle:Integrationqbditems t2 with b1.integrationqbditemid=t2.integrationqbditemid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if ($subQuery) {
+            $result
+                ->andWhere('s.serviceid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery
+                );
         }
 
         if ($department) {
@@ -95,3 +115,4 @@ class ServicesRepository extends EntityRepository
             ->getResult();
     }
 }
+

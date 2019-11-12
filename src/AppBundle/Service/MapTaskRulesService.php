@@ -36,9 +36,9 @@ class MapTaskRulesService extends BaseService
             $limit = 10;
             $offset = 1;
             $itemsToServices = null;
-            $matchStatus = 2;
             $integrationID = null;
             $count = null;
+            $response = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -53,24 +53,7 @@ class MapTaskRulesService extends BaseService
 
             if (!empty($data)) {
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
-                    $itemsToServices = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID);
 
-                    // If status is only set to matched
-                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 1;
-                    }
-
-                    // If status is only set to not yet matched
-                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 0;
-                    }
-                }
                 if (array_key_exists('Department', $filters)) {
                     $department = $filters['Department'];
                 }
@@ -84,23 +67,75 @@ class MapTaskRulesService extends BaseService
                     $limit = $data['Pagination']['Limit'];
                     $offset = $data['Pagination']['Offset'];
                 }
-            }
 
-            // Send page count if offset is 1.
-            if($offset === 1) {
-                $count1 = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus);
-                if($count1) {
-                    $count = (int)$count1[0]['Count'];
+                if (array_key_exists('Status', $filters)) {
+                    $status = $filters['Status'];
+
+                    // If status is only set to matched
+                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        if($offset === 1) {
+                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->CountServicesJoinMatched($customerID,$department, $billable, $createDate);
+                            if($count) {
+                                $count = (int)$count[0][1];
+                            }
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
+                    }
+
+                    // If status is only set to not yet matched
+                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        if($offset === 1) {
+                            $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
+                            if($count) {
+                                $count = (int)$count[0][1];
+                            }
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
+                        for ($i=0;$i<count($response);$i++) {
+                            $response[$i]["IntegrationQBDItemID"] = null;
+                        }
+                    }
                 }
             }
 
-            $taskRules = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($itemsToServices, $department, $billable, $createDate, $limit, $offset, $customerID, $matchStatus);
+
+            // Default Condition i.e- If status is not set
+            if(!$response) {
+                if($offset === 1) {
+                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->CountServicesJoinMatched($customerID,$department, $billable, $createDate);
+                    if($count1) {
+                        $count1 = (int)$count1[0][1];
+                    }
+                    $count2 = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
+
+                    if($count2) {
+                        $count2 = (int)$count2[0][1];
+                    }
+                    $count = $count1 + $count2;
+                }
+                $response2 = null;
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
+                $countResponse = count($response);
+                if($countResponse < $limit) {
+                    $limit = $limit-$countResponse;
+                    $response2 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
+                    for($i=0;$i<count($response2);$i++) {
+                        $response2[$i]["IntegrationQBDItemID"] = null;
+                    }
+                }
+                $response = array_merge($response,$response2);
+            }
+
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
                     'Count' => $count,
-                    'Details' => $taskRules
+                    'Details' => $response
                 )
             );
         } catch (UnprocessableEntityHttpException $exception) {
