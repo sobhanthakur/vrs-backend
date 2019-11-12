@@ -45,7 +45,7 @@ class PropertiesRepository extends EntityRepository
      * @param $matchStatus
      * @return mixed
      */
-    public function SyncProperties($properties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus)
+    public function PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset)
     {
         $result = null;
         $result = $this
@@ -56,17 +56,17 @@ class PropertiesRepository extends EntityRepository
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('p.active=1');
-
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('p.propertyid NOT IN (:Properties)')
-                    ->setParameter('Properties', $properties);
-                break;
-            case 1:
-                $result->andWhere('p.propertyid IN (:Properties)')
-                    ->setParameter('Properties', $properties);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.propertyid) from AppBundle:Integrationqbdcustomerstoproperties b1 inner join AppBundle:Integrationqbdcustomers t2 with b1.integrationqbdcustomerid=t2.integrationqbdcustomerid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if ($subQuery) {
+            $result
+                ->andWhere('p.propertyid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery
+            );
         }
+
 
         if ($region) {
             $result->andWhere('p.regionid IN (:Regions)')
@@ -106,27 +106,26 @@ class PropertiesRepository extends EntityRepository
      * @param $matchStatus
      * @return mixed
      */
-    public function CountSyncProperties($properties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus)
+    public function CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('p')
-            ->select('count(p.propertyid) AS Count')
+            ->select('count(p.propertyid)')
             ->innerJoin('p.regionid', 'r')
             ->innerJoin('p.ownerid', 'o')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('p.active=1');
-
-        switch ($matchStatus) {
-            case 0:
-                $result->andWhere('p.propertyid NOT IN (:Properties)')
-                    ->setParameter('Properties', $properties);
-                break;
-            case 1:
-                $result->andWhere('p.propertyid IN (:Properties)')
-                    ->setParameter('Properties', $properties);
-                break;
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('select IDENTITY(b1.propertyid) from AppBundle:Integrationqbdcustomerstoproperties b1 inner join AppBundle:Integrationqbdcustomers t2 with b1.integrationqbdcustomerid=t2.integrationqbdcustomerid where t2.customerid='.$customerID)
+            ->getArrayResult();
+        if ($subQuery) {
+            $result
+                ->andWhere('p.propertyid NOT IN (:Subquery)')
+                ->setParameter('Subquery',$subQuery
+                );
         }
 
         if ($region) {

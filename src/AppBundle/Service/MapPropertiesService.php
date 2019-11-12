@@ -37,9 +37,9 @@ class MapPropertiesService extends BaseService
             $limit = 10;
             $offset = 1;
             $customersToProperties = null;
-            $matchStatus = 2;
             $integrationID = null;
             $count = null;
+            $response = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -54,24 +54,7 @@ class MapPropertiesService extends BaseService
 
             if (!empty($data)) {
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
-                    $customersToProperties = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID);
 
-                    // If status is only set to matched
-                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 1;
-                    }
-
-                    // If status is only set to not yet matched
-                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
-                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
-                    ) {
-                        $matchStatus = 0;
-                    }
-                }
                 if (array_key_exists('PropertyTag', $filters)) {
                     $propertyTags = $this->entityManager->getRepository('AppBundle:Propertiestopropertygroups')->PropertiestoPropertyGroupsJoinMatched($filters['PropertyTag']);
                 }
@@ -88,23 +71,74 @@ class MapPropertiesService extends BaseService
                     $limit = $data['Pagination']['Limit'];
                     $offset = $data['Pagination']['Offset'];
                 }
-            }
 
-            // Send page count if offset is 1.
-            if($offset === 1) {
-                $count1 = $this->entityManager->getRepository('AppBundle:Properties')->CountSyncProperties($customersToProperties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus);
-                if($count1) {
-                    $count = (int)$count1[0]['Count'];
+                if (array_key_exists('Status', $filters)) {
+                    $status = $filters['Status'];
+
+                    // If status is only set to matched
+                    if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        if($offset === 1) {
+                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
+                            if($count) {
+                                $count = (int)$count[0][1];
+                            }
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                    }
+
+                    // If status is only set to not yet matched
+                    if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
+                        in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
+                    ) {
+                        if($offset === 1) {
+                            $count = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate);
+                            if($count) {
+                                $count = (int)$count[0][1];
+                            }
+                        }
+                        $response = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                        for($i=0;$i<count($response);$i++) {
+                            $response[$i]["IntegrationQBDCustomerID"] = null;
+                        }
+                    }
                 }
             }
 
-            $properties = $this->entityManager->getRepository('AppBundle:Properties')->SyncProperties($customersToProperties, $propertyTags, $region, $owner, $createDate, $limit, $offset, $customerID, $matchStatus);
+            // Default Case
+            if(!$response) {
+                if($offset === 1) {
+                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
+                    if($count1) {
+                        $count1 = (int)$count1[0][1];
+                    }
+                    $count2 = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate);
+
+                    if($count2) {
+                        $count2 = (int)$count2[0][1];
+                    }
+                    $count = $count1 + $count2;
+                }
+                $response2 = null;
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                $countResponse = count($response);
+                if($countResponse < $limit) {
+                    $limit = $limit-$countResponse;
+                    $response2 = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                    for($i=0;$i<count($response2);$i++) {
+                        $response2[$i]["IntegrationQBDCustomerID"] = null;
+                    }
+                }
+                $response = array_merge($response,$response2);
+            }
+
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
                     'Count' => $count,
-                    'Details' => $properties
+                    'Details' => $response
                 )
             );
         } catch (UnprocessableEntityHttpException $exception) {
