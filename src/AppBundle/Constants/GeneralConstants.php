@@ -107,4 +107,8 @@ final class GeneralConstants
 
     const PAY_BY_HOUR = 'PayByHour';
     const PAY_BY_RATE = 'PayByRate';
+
+    const APPROVED = 'Approved';
+    const NEW = 'New';
+    const EXCLUDED = 'Excluded';
 }

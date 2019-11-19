@@ -69,3 +69,7 @@ services:
         class: AppBundle\Service\MapWageItemsService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.billing_approval:
+        class: AppBundle\Service\BillingApprovalService
+        parent: vrscheduler.base_service
+        public: true

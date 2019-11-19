@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Tasks
  *
  * @ORM\Table(name="Tasks", indexes={@ORM\Index(name="Active", columns={"Active"}), @ORM\Index(name="backtobakck", columns={"BackToBack"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="Closed", columns={"Closed"}), @ORM\Index(name="completeconfirmeddate", columns={"CompleteConfirmedDate"}), @ORM\Index(name="CompleteConfirmedDAte_Active", columns={"CompleteConfirmedDate", "Active"}), @ORM\Index(name="CompletedByServicerID", columns={"CompletedByServicerID"}), @ORM\Index(name="IssueID", columns={"IssueID"}), @ORM\Index(name="NextPropertyBOokingID", columns={"NextPropertyBookingID"}), @ORM\Index(name="ParentTaskID", columns={"ParentTaskID"}), @ORM\Index(name="propertyBOokingID", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="PropertyItemID", columns={"PropertyItemID"}), @ORM\Index(name="ServiceID", columns={"ServiceID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskDate", columns={"TaskDate"}), @ORM\Index(name="TaskTime", columns={"TaskTime"}), @ORM\Index(name="TaskTimeMinutes", columns={"TaskTimeMinutes"}), @ORM\Index(name="TaskType", columns={"TaskType"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TasksRepository")
  */
 class Tasks
 {
