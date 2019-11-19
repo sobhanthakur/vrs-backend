@@ -39,6 +39,7 @@ class MapTaskRulesService extends BaseService
             $integrationID = null;
             $count = null;
             $response = null;
+            $flag = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -82,6 +83,7 @@ class MapTaskRulesService extends BaseService
                             }
                         }
                         $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
+                        $flag = 1;
                     }
 
                     // If status is only set to not yet matched
@@ -98,13 +100,14 @@ class MapTaskRulesService extends BaseService
                         for ($i=0;$i<count($response);$i++) {
                             $response[$i]["IntegrationQBDItemID"] = null;
                         }
+                        $flag = 1;
                     }
                 }
             }
 
 
             // Default Condition i.e- If status is not set
-            if(!$response) {
+            if(!$flag) {
                 if($offset === 1) {
                     $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->CountServicesJoinMatched($customerID,$department, $billable, $createDate);
                     if($count1) {

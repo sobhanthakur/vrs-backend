@@ -56,6 +56,7 @@ class MapStaffsService extends BaseService
             $integrationID = null;
             $count = null;
             $response = null;
+            $flag = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -100,6 +101,7 @@ class MapStaffsService extends BaseService
                             }
                         }
                         $response = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                        $flag = 1;
                     }
 
                     // If status is only set to not yet matched
@@ -114,12 +116,13 @@ class MapStaffsService extends BaseService
                         for($i=0;$i<count($response);$i++) {
                             $response[$i]["IntegrationQBDEmployeeID"] = null;
                         }
+                        $flag = 1;
                     }
                 }
             }
 
             // Default Case
-            if(!$response) {
+            if(!$flag) {
                 if($offset === 1) {
                     $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->CountStaffsJoinMatched($customerID,$staffTags, $department, $createDate);
                     if($count1) {

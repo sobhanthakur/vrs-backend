@@ -40,6 +40,7 @@ class MapPropertiesService extends BaseService
             $integrationID = null;
             $count = null;
             $response = null;
+            $flag = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -86,6 +87,7 @@ class MapPropertiesService extends BaseService
                             }
                         }
                         $response = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                        $flag = 1;
                     }
 
                     // If status is only set to not yet matched
@@ -102,12 +104,13 @@ class MapPropertiesService extends BaseService
                         for($i=0;$i<count($response);$i++) {
                             $response[$i]["IntegrationQBDCustomerID"] = null;
                         }
+                        $flag = 1;
                     }
                 }
             }
 
             // Default Case
-            if(!$response) {
+            if(!$flag) {
                 if($offset === 1) {
                     $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
                     if($count1) {
