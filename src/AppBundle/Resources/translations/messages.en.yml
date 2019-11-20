@@ -38,6 +38,8 @@ api:
             empty_data: "Request Data cannot be empty"
             invalid_property_id: "Invalid Property ID"
             invalid_integration_qbd_customer_id: "Invalid IntegrationQBDCustomerID"
+            invalid_staff_id: "Invalid Staff ID"
+            invalid_integration_qbd_employee_id: "Invalid IntegrationQBDEmployeeID"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

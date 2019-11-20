@@ -114,4 +114,7 @@ final class GeneralConstants
 
     const PROPERTY_ID = 'PropertyID';
     const INTEGRATION_QBD_CUSTOMER_ID = 'IntegrationQBDCustomerID';
+
+    const STAFFID = 'StaffID';
+    const INTEGRATION_QBD_EMPLOYEE_ID = 'IntegrationQBDEmployeeID';
 }

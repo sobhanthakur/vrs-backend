@@ -231,7 +231,9 @@ class MapPropertiesService extends BaseService
                             'propertyid' => $data[$i][GeneralConstants::PROPERTY_ID]
                         )
                     );
-                    if(!$property) {
+                    if(!$property ||
+                        ($property !== null?($property->getCustomerid()->getCustomerid() !== $customerID):null)
+                    ) {
                         throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
                     }
 

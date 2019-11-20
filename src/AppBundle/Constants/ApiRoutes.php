@@ -33,6 +33,7 @@ final class ApiRoutes
         "vrs_put_wageitem",
         "vrs_get_wageitem",
         "vrs_tasks",
-        "vrs_qbdcustomers_map"
+        "vrs_qbdcustomers_map",
+        "vrs_qbdemployees_map"
     );
 }
