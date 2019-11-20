@@ -35,6 +35,9 @@ api:
             integration_not_present: "Integration Not Present"
             inactive: "Integration is not active"
             invalid_wage_item_id: "Invalid QBD Item Wage ID"
+            empty_data: "Request Data cannot be empty"
+            invalid_property_id: "Invalid Property ID"
+            invalid_integration_qbd_customer_id: "Invalid IntegrationQBDCustomerID"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

@@ -9,6 +9,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Billing;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -97,6 +98,77 @@ class MapPropertiesController extends FOSRestController
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapBillingService = $this->container->get('vrscheduler.map_properties');
             return $mapBillingService->FetchCustomers($customerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Map and Save VRS properties with QBD customers.
+     * @SWG\Tag(name="Billing")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="IntegrationID",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+     *               {
+     *                  {
+     *                      "PropertyID":32,
+     *                      "IntegrationQBDCustomerID":2
+     *                  },
+     *                  {
+     *                      "PropertyID":35,
+     *                      "IntegrationQBDCustomerID":12
+     *                  }
+     *              }
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Save Mapped info of VRS Properties and QBD Customers",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/qbdcustomers/map", name="vrs_qbdcustomers_map")
+     */
+    public function MapPropertiesToCustomers(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $mapBillingService = $this->container->get('vrscheduler.map_properties');
+            $content = json_decode($request->getContent(),true);
+            return $mapBillingService->MapPropertiesToCustomers($customerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

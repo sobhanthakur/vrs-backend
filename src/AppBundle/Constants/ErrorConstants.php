@@ -34,6 +34,9 @@ final class ErrorConstants
     const INTEGRATION_NOT_PRESENT = 'INTEGRATIONNOTPRESENT';
     const INACTIVE = 'INACTIVE';
     const INVALID_WAGE_ITEM_ID = 'INVALIDWAGEITEMID';
+    const EMPTY_DATA = 'EMPTYDATA';
+    const INVALID_PROPERTY_ID = 'INVALIDPROPERTYID';
+    const INVALID_INTEGRATIONQBDCUSTOMERID = 'INVALIDINTEGRATIONQBDCUSTOMERID';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -79,6 +82,9 @@ final class ErrorConstants
         self::CUSTOMER_NOT_FOUND => ['code' => 422, self::MESSAGE => 'api.response.error.customer_not_found'],
         self::INTEGRATION_NOT_PRESENT => ['code' => 422, self::MESSAGE => 'api.response.error.integration_not_present'],
         self::INACTIVE => ['code' => 1001, self::MESSAGE => 'api.response.error.inactive'],
-        self::INVALID_WAGE_ITEM_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_wage_item_id']
+        self::INVALID_WAGE_ITEM_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_wage_item_id'],
+        self::EMPTY_DATA => ['code' => 422, self::MESSAGE => 'api.response.error.empty_data'],
+        self::INVALID_PROPERTY_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_id'],
+        self::INVALID_INTEGRATIONQBDCUSTOMERID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration_qbd_customer_id']
     ];
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDCustomersToProperties", indexes={@ORM\Index(name="IDX_F2D44FF65224246", columns={"IntegrationQBDCustomerID"}), @ORM\Index(name="IDX_F2D44FF655345FC6", columns={"PropertyID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdcustomerstopropertiesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbdcustomerstoproperties
 {
@@ -26,7 +27,7 @@ class Integrationqbdcustomerstoproperties
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Integrationqbdcustomers
@@ -130,5 +131,16 @@ class Integrationqbdcustomerstoproperties
     public function getPropertyid()
     {
         return $this->propertyid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

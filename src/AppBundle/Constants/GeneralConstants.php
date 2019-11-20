@@ -111,4 +111,7 @@ final class GeneralConstants
     const APPROVED = 'Approved';
     const NEW = 'New';
     const EXCLUDED = 'Excluded';
+
+    const PROPERTY_ID = 'PropertyID';
+    const INTEGRATION_QBD_CUSTOMER_ID = 'IntegrationQBDCustomerID';
 }

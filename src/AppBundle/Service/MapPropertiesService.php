@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Integrationqbdcustomerstoproperties;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -172,6 +173,92 @@ class MapPropertiesService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed fetching customers due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
+    public function MapPropertiesToCustomers($customerID, $content)
+    {
+        try {
+            if(!array_key_exists('IntegrationID',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
+            }
+
+            $integrationID = $content['IntegrationID'];
+
+            //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
+            if(empty($integrationToCustomers)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
+            }
+
+            if(!array_key_exists('Data',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_DATA);
+            }
+
+            $data = $content['Data'];
+
+            // Traverse data to create/update mappings
+            for ($i = 0; $i < count($data); $i++) {
+                $customersToProperties = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->findOneBy(
+                    array(
+                        'propertyid' => $data[$i][GeneralConstants::PROPERTY_ID]
+                    )
+                );
+
+                $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array(
+                        'integrationqbdcustomerid' => $data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]
+                    )
+                );
+
+                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                if(!$integrationQBDCustomers ||
+                    ($integrationQBDCustomers !== null?($integrationQBDCustomers->getCustomerid()->getCustomerid() !== $customerID):null)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDCUSTOMERID);
+                }
+
+                // Integration QBD Customers To Properties exist, then simply update the record with the new IntegrationQBDCustomerID
+                if (!$customersToProperties) {
+                    // Create New Record
+                    $property = $this->entityManager->getRepository('AppBundle:Properties')->findOneBy(array(
+                            'propertyid' => $data[$i][GeneralConstants::PROPERTY_ID]
+                        )
+                    );
+                    if(!$property) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
+                    }
+
+                    $customersToProperties = new Integrationqbdcustomerstoproperties();
+
+                    $customersToProperties->setIntegrationqbdcustomerid($integrationQBDCustomers);
+                    $customersToProperties->setPropertyid($property);
+
+                    $this->entityManager->persist($customersToProperties);
+                } else {
+                    // Update the record
+                    $customersToProperties->setIntegrationqbdcustomerid($integrationQBDCustomers);
+                    $this->entityManager->persist($customersToProperties);
+                }
+            }
+            $this->entityManager->flush();
+
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message')
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed Saving mapped information due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
