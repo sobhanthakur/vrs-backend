@@ -117,4 +117,8 @@ final class GeneralConstants
 
     const STAFFID = 'StaffID';
     const INTEGRATION_QBD_EMPLOYEE_ID = 'IntegrationQBDEmployeeID';
+
+    const TASKRULEID = 'TaskRuleID';
+    const INTEGRATION_QBD_ITEM_ID = 'IntegrationQBDItemID';
+    const BILLTYPE = 'BillType';
 }

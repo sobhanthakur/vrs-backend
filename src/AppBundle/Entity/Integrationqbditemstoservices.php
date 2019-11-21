@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDItemsToServices", indexes={@ORM\Index(name="IDX_F80C598846C236CC", columns={"IntegrationQBDItemID"}), @ORM\Index(name="IDX_F80C598830F6DDC3", columns={"ServiceID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbditemstoservicesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbditemstoservices
 {
@@ -33,7 +34,7 @@ class Integrationqbditemstoservices
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Integrationqbditems
@@ -161,5 +162,16 @@ class Integrationqbditemstoservices
     public function getServiceid()
     {
         return $this->serviceid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

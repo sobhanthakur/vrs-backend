@@ -22,9 +22,12 @@ class Integrationqbditems
     private $integrationqbditemid;
 
     /**
-     * @var string|null
+     * @var \Customers
      *
-     * @ORM\Column(name="CustomerID", type="string", length=10, nullable=true, options={"fixed"=true})
+     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     * })
      */
     private $customerid;
 
@@ -71,11 +74,11 @@ class Integrationqbditems
     /**
      * Set customerid.
      *
-     * @param string|null $customerid
+     * @param \AppBundle\Entity\Customers|null $customerid
      *
-     * @return Integrationqbditems
+     * @return Integrationqbdcustomers
      */
-    public function setCustomerid($customerid = null)
+    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
     {
         $this->customerid = $customerid;
 
@@ -85,7 +88,7 @@ class Integrationqbditems
     /**
      * Get customerid.
      *
-     * @return string|null
+     * @return \AppBundle\Entity\Customers|null
      */
     public function getCustomerid()
     {

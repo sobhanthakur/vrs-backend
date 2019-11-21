@@ -112,8 +112,8 @@ class MapStaffsController extends FOSRestController
     }
 
     /**
-     * Map and Save VRS properties with QBD customers.
-     * @SWG\Tag(name="Billing")
+     * Map and Save VRS Staffs with QBD Employees.
+     * @SWG\Tag(name="Time Tracking")
      * @SWG\Parameter(
      *     name="body",
      *     in="body",
@@ -142,7 +142,7 @@ class MapStaffsController extends FOSRestController
      *  )
      * @SWG\Response(
      *     response=200,
-     *     description="Save Mapped info of VRS Properties and QBD Customers",
+     *     description="Save Mapped info of VRS Staffs and QBD Employees",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="ReasonCode",

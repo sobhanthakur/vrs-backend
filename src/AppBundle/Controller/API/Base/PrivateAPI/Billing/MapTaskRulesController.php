@@ -9,6 +9,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Billing;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -95,6 +96,80 @@ class MapTaskRulesController extends FOSRestController
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $mapTaskRuleService = $this->container->get('vrscheduler.map_task_rules');
             return $mapTaskRuleService->FetchItems($customerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Map and Save VRS TaskRules with QBD items.
+     * @SWG\Tag(name="Billing")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="For BillType, Labor=0,Materials=1",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="IntegrationID",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+     *               {
+     *                  {
+     *                      "TaskRuleID":32,
+     *                      "IntegrationQBDItemID":2,
+     *                      "BillType":0
+     *                  },
+     *                  {
+     *                      "TaskRuleID":35,
+     *                      "IntegrationQBDItemID":12,
+     *                      "BillType":1
+     *                  }
+     *              }
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Save Mapped info of VRS TaskRules and QBD Items",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/qbditems/map", name="vrs_qbditems_map")
+     */
+    public function MapTaskRulesToitems(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $mapTaskRuleService = $this->container->get('vrscheduler.map_task_rules');
+            $content = json_decode($request->getContent(),true);
+            return $mapTaskRuleService->MapTaskRulesToItems($customerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

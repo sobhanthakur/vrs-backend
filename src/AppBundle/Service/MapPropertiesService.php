@@ -260,7 +260,7 @@ class MapPropertiesService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed Saving mapped information due to : ' .
+            $this->logger->error('Failed Saving mapped information for Properties due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

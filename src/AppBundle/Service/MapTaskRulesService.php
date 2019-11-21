@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Integrationqbditemstoservices;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -169,6 +170,98 @@ class MapTaskRulesService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed fetching items due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
+    public function MapTaskRulesToItems($customerID, $content)
+    {
+        try {
+            if(!array_key_exists('IntegrationID',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
+            }
+
+            $integrationID = $content['IntegrationID'];
+
+            //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
+            if(empty($integrationToCustomers)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
+            }
+
+            if(!array_key_exists('Data',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_DATA);
+            }
+
+            $data = $content['Data'];
+
+            // Traverse data to create/update mappings
+            for ($i = 0; $i < count($data); $i++) {
+                $itemsToTaskrules = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
+                    array(
+                        'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
+                        'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE]
+                    )
+                );
+
+                $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
+                        'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
+                    )
+                );
+
+                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                if(!$integrationQBDItems ||
+                    ($integrationQBDItems !== null?($integrationQBDItems->getCustomerid()->getCustomerid() !== $customerID):null)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDITEMID);
+                }
+
+                // Integration QBD Items To TaskRules exist, then simply update the record with the new IntegrationQBDCustomerID
+                if (!$itemsToTaskrules) {
+                    // Create New Record
+                    $taskRule = $this->entityManager->getRepository('AppBundle:Services')->findOneBy(array(
+                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID]
+                        )
+                    );
+                    if(!$taskRule ||
+                        ($taskRule !== null?($taskRule->getCustomerid()->getCustomerid() !== $customerID):null)
+                    ) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKRULE_ID);
+                    }
+
+                    $itemsToTaskrules = new Integrationqbditemstoservices();
+
+                    $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
+                    $itemsToTaskrules->setServiceid($taskRule);
+                    $itemsToTaskrules->setLaborormaterials(
+                        $data[$i][GeneralConstants::BILLTYPE] === 0 ? false:true
+                    );
+
+                    $this->entityManager->persist($itemsToTaskrules);
+                } else {
+                    // Update the record
+                    $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
+                    $this->entityManager->persist($itemsToTaskrules);
+                }
+            }
+            $this->entityManager->flush();
+
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message')
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed Saving mapped information for TaskRules due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

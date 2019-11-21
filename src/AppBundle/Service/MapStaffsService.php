@@ -207,7 +207,7 @@ class MapStaffsService extends BaseService
                     )
                 );
 
-                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                // Check if the integration QBD Employee is present. Or if the employee ID is valid or not
                 if(!$integrationQBDEmployees ||
                     ($integrationQBDEmployees !== null?($integrationQBDEmployees->getCustomerid()->getCustomerid() !== $customerID):null)
                 ) {
@@ -250,7 +250,7 @@ class MapStaffsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed Saving mapped information due to : ' .
+            $this->logger->error('Failed Saving mapped information for Staffs due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
