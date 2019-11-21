@@ -121,4 +121,6 @@ final class GeneralConstants
     const TASKRULEID = 'TaskRuleID';
     const INTEGRATION_QBD_ITEM_ID = 'IntegrationQBDItemID';
     const BILLTYPE = 'BillType';
+
+    const TASK_ID = 'TaskID';
 }

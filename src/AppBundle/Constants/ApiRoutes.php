@@ -35,6 +35,7 @@ final class ApiRoutes
         "vrs_tasks",
         "vrs_qbdcustomers_map",
         "vrs_qbdemployees_map",
-        "vrs_qbditems_map"
+        "vrs_qbditems_map",
+        "vrs_qbdbilling_approve"
     );
 }

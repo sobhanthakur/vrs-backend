@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDBillingRecords", indexes={@ORM\Index(name="IDX_A4DF0BDCEF8DEFC9", columns={"TaskID"}), @ORM\Index(name="IDX_A4DF0BDCED4D199A", columns={"IntegrationQBBatchID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdbillingrecordsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbdbillingrecords
 {
@@ -47,7 +48,7 @@ class Integrationqbdbillingrecords
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var bool|null
@@ -285,5 +286,16 @@ class Integrationqbdbillingrecords
     public function getIntegrationqbbatchid()
     {
         return $this->integrationqbbatchid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

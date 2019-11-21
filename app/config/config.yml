@@ -148,6 +148,7 @@ nelmio_api_doc:
                 - /v1/vrs/qbdemployees/map
                 - /v1/vrs/qbdtaskrules/map
                 - /v1/vrs/qbditems/map
+                - /v1/vrs/qbdbilling/approve
 
 monolog:
     handlers:

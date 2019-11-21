@@ -41,6 +41,8 @@ final class ErrorConstants
     const INVALID_INTEGRATIONQBDEMPLOYEEID = 'INVALIDINTEGRATIONQBDEMPLOYEEID';
     const INVALID_TASKRULE_ID = 'INVALIDTASKRULEID';
     const INVALID_INTEGRATIONQBDITEMID = 'INVALIDINTEGRATIONQBDITEMID';
+    const INVALID_TASKID = 'INVALIDTASKID';
+    const INVALID_STATUS = 'INVALIDSTATUS';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -93,6 +95,8 @@ final class ErrorConstants
         self::INVALID_STAFF_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_staff_id'],
         self::INVALID_INTEGRATIONQBDEMPLOYEEID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration_qbd_employee_id'],
         self::INVALID_TASKRULE_ID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskrule_id'],
-        self::INVALID_INTEGRATIONQBDITEMID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration_qbd_item_id']
+        self::INVALID_INTEGRATIONQBDITEMID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_integration_qbd_item_id'],
+        self::INVALID_TASKID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_task_id'],
+        self::INVALID_STATUS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_status']
     ];
 }

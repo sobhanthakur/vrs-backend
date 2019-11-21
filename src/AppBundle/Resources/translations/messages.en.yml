@@ -42,6 +42,8 @@ api:
             invalid_integration_qbd_employee_id: "Invalid IntegrationQBDEmployeeID"
             invalid_taskrule_id: "Invalid TaskRule ID"
             invalid_integration_qbd_item_id: "Invalid IntegrationQBDItemID"
+            invalid_task_id: "Invalid TaskID"
+            invalid_status: "Invalid Status"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

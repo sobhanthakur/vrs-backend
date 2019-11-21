@@ -10,6 +10,7 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\Billing;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -67,6 +68,74 @@ class BillingApprovalController extends FOSRestController
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $billingApprovalService = $this->container->get('vrscheduler.billing_approval');
             return $billingApprovalService->MapTasks($customerID, $data);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Save Tasks and approve/exclude for billing.
+     * @SWG\Tag(name="Billing")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="Status Codes: 0=Exclude, 1=Approve",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="IntegrationID",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+     *               {
+     *                  {
+     *                      "TaskID":10,
+     *                      "Status":1
+     *                  }
+     *              }
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Save Tasks and approve/exclude for billing.",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/qbdbilling/approve", name="vrs_qbdbilling_approve")
+     */
+    public function SaveBillingApproval(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $billingApprovalService = $this->container->get('vrscheduler.billing_approval');
+            $content = json_decode($request->getContent(),true);
+            return $billingApprovalService->ApproveBilling($customerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
