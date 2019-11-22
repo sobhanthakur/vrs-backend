@@ -99,4 +99,18 @@ class FilterService extends BaseService
             'Data' => $properties
         );
     }
+
+    /**
+     * @param $customerID
+     * @return array
+     */
+    public function StaffFilter($customerID)
+    {
+        $staff = $this->entityManager->getRepository('AppBundle:Servicers')->StaffFilter($customerID);
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->translator->trans('api.response.success.message'),
+            'Data' => $staff
+        );
+    }
 }

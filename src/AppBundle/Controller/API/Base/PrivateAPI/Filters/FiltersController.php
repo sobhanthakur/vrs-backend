@@ -209,4 +209,36 @@ class FiltersController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Fetches Staffs from VRS
+     * @SWG\Tag(name="Filters")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Fetches Staffs from VRS"
+     * )
+     * @return array
+     * @param Request $request
+     * @Get("/staff", name="vrs_staff")
+     */
+    public function Staff(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $filterService = $this->container->get('vrscheduler.filter_service');
+            return $filterService->PropertyGroupsFilter($customerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

@@ -151,4 +151,19 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function StaffFilter($customerID)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid as StaffID, s.name as StaffName')
+            ->where('s.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
 }
