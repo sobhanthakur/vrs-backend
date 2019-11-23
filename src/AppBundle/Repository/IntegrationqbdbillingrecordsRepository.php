@@ -27,7 +27,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $offset
      * @return mixed
      */
-    public function MapTasksQBDFilters($status, $customerID, $createDate, $completedDate, $limit, $offset)
+    public function MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -42,6 +42,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);
+        }
+
+        if ($properties) {
+            $result->andWhere('p2.propertyid IN (:Properties)')
+                ->setParameter('Properties', $properties);
         }
 
         if ($createDate) {
@@ -73,7 +78,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $completedDate
      * @return mixed
      */
-    public function CountMapTasksQBDFilters($status, $customerID, $createDate, $completedDate)
+    public function CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -88,6 +93,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);
+        }
+
+        if ($properties) {
+            $result->andWhere('p2.propertyid IN (:Properties)')
+                ->setParameter('Properties', $properties);
         }
 
         if ($createDate) {

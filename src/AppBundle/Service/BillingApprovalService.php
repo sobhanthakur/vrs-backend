@@ -87,12 +87,12 @@ class BillingApprovalService extends BaseService
                     (!in_array(GeneralConstants::NEW, $status))
                 ) {
                     if ($offset === 1) {
-                        $count = $billingRecordsRepo->CountMapTasksQBDFilters($status, $customerID, $createDate, $completedDate);
+                        $count = $billingRecordsRepo->CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate);
                         if (!empty($count)) {
                             $count = (int)$count[0][1];
                         }
                     }
-                    $response = $billingRecordsRepo->MapTasksQBDFilters($status, $customerID, $createDate, $completedDate, $limit, $offset);
+                    $response = $billingRecordsRepo->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
                     $flag = 1;
                 } elseif (
                     (count($status) === 1) &&
@@ -121,7 +121,7 @@ class BillingApprovalService extends BaseService
              */
             if (!$flag) {
                 if ($offset === 1) {
-                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->CountMapTasksQBDFilters($status, $customerID, $createDate, $completedDate);
+                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->CountMapTasksQBDFilters($status, $properties,$customerID, $createDate, $completedDate);
                     if ($count1) {
                         $count1 = (int)$count1[0][1];
                     }
@@ -133,7 +133,7 @@ class BillingApprovalService extends BaseService
                     $count = $count1 + $count2;
                 }
                 $response2 = null;
-                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->MapTasksQBDFilters($status, $customerID, $createDate, $completedDate, $limit, $offset);
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
                 $countResponse = count($response);
                 if ($countResponse < $limit) {
                     $limit = $limit - $countResponse;
