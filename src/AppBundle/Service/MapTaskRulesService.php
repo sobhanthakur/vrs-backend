@@ -59,8 +59,8 @@ class MapTaskRulesService extends BaseService
                 if (array_key_exists('Department', $filters)) {
                     $department = $filters['Department'];
                 }
-                if (array_key_exists('Billable', $filters)) {
-                    $billable = $filters['Billable'];
+                if (array_key_exists(GeneralConstants::BILLABLE, $filters)) {
+                    $billable = $filters[GeneralConstants::BILLABLE];
                 }
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];

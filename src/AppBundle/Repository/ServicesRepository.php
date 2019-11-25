@@ -9,6 +9,7 @@
 namespace AppBundle\Repository;
 
 
+use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -52,8 +53,14 @@ class ServicesRepository extends EntityRepository
                 ->setParameter('Regions', $department);
         }
         if ($billable) {
-            $result->andWhere('s.billable= :Owners')
-                ->setParameter('Owners', $billable);
+            if(count($billable) === 1 &&
+                in_array(GeneralConstants::BILLABLE,$billable)
+            ) {
+                $result->andWhere('s.billable=1');
+            } elseif(count($billable) === 1 &&
+                in_array(GeneralConstants::NOT_BILLABLE,$billable)) {
+                $result->andWhere('s.billable=0');
+            }
         }
         if ($createDate) {
             $result->andWhere('s.createdate BETWEEN :From AND :To')
@@ -102,8 +109,14 @@ class ServicesRepository extends EntityRepository
                 ->setParameter('Regions', $department);
         }
         if ($billable) {
-            $result->andWhere('s.billable= :Owners')
-                ->setParameter('Owners', $billable);
+            if(count($billable) === 1 &&
+                in_array(GeneralConstants::BILLABLE,$billable)
+            ) {
+                $result->andWhere('s.billable=1');
+            } elseif(count($billable) === 1 &&
+                in_array(GeneralConstants::NOT_BILLABLE,$billable)) {
+                $result->andWhere('s.billable=0');
+            }
         }
         if ($createDate) {
             $result->andWhere('s.createdate BETWEEN :From AND :To')
