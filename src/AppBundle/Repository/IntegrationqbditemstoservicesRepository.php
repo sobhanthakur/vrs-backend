@@ -31,7 +31,7 @@ class IntegrationqbditemstoservicesRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('iis')
-            ->select('IDENTITY(iis.serviceid) AS TaskRuleID, s.servicename as TaskRuleName,IDENTITY(iis.integrationqbditemid) AS IntegrationQBDItemID')
+            ->select('iis.laborormaterials AS LaborOrMaterials, IDENTITY(iis.serviceid) AS TaskRuleID, s.servicename as TaskRuleName,IDENTITY(iis.integrationqbditemid) AS IntegrationQBDItemID')
             ->innerJoin('iis.integrationqbditemid', 'i')
             ->innerJoin('iis.serviceid', 's')
             ->where('i.customerid= :CustomerID')
