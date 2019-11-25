@@ -71,6 +71,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->select('s.servicerid AS StaffID, s.name AS StaffName, s.servicerabbreviation as ServicerAbbreviation')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
         $subQuery = $this
@@ -123,6 +124,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->select('count(s.servicerid)')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
         $subQuery = $this
@@ -162,6 +164,22 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->createQueryBuilder('s')
             ->select('s.servicerid as StaffID, s.name as StaffName')
             ->where('s.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('s.servicertype=0')
+            ->getQuery()
+            ->execute();
+    }
+
+    public function SearchStaffByID($customerID, $staff)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid')
+            ->where('s.customerid= :CustomerID')
+            ->andWhere('s.active=1')
+            ->andWhere('s.servicertype=0')
+            ->andWhere('s.servicerid IN (:Staffs)')
+            ->setParameter('Staffs',$staff)
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
