@@ -73,11 +73,6 @@ class MapWageTypeController extends FOSRestController
      *              property="PayByHour",
      *              type="integer",
      *              example=1
-     *         ),
-     *         @SWG\Property(
-     *              property="PayByRate",
-     *              type="integer",
-     *              example=2
      *         )
      *     )
      *  )

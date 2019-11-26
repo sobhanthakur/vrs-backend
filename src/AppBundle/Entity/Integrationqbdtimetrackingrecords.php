@@ -81,18 +81,6 @@ class Integrationqbdtimetrackingrecords
     private $integrationqbbatchid;
 
     /**
-     * @var \Integrationqbdpayrollitemwages
-     *
-     * @ORM\ManyToOne(targetEntity="Integrationqbdpayrollitemwages")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="IntegrationQBDPayrollItemWageID", referencedColumnName="IntegrationQBDPayrollItemWageID")
-     * })
-     */
-    private $integrationqbdpayrollitemwageid;
-
-
-
-    /**
      * Get integrationqbdtimetrackingrecords.
      *
      * @return int
@@ -292,29 +280,5 @@ class Integrationqbdtimetrackingrecords
     public function getIntegrationqbbatchid()
     {
         return $this->integrationqbbatchid;
-    }
-
-    /**
-     * Set integrationqbdpayrollitemwageid.
-     *
-     * @param \AppBundle\Entity\Integrationqbdpayrollitemwages|null $integrationqbdpayrollitemwageid
-     *
-     * @return Integrationqbdtimetrackingrecords
-     */
-    public function setIntegrationqbdpayrollitemwageid(\AppBundle\Entity\Integrationqbdpayrollitemwages $integrationqbdpayrollitemwageid = null)
-    {
-        $this->integrationqbdpayrollitemwageid = $integrationqbdpayrollitemwageid;
-
-        return $this;
-    }
-
-    /**
-     * Get integrationqbdpayrollitemwageid.
-     *
-     * @return \AppBundle\Entity\Integrationqbdpayrollitemwages|null
-     */
-    public function getIntegrationqbdpayrollitemwageid()
-    {
-        return $this->integrationqbdpayrollitemwageid;
     }
 }

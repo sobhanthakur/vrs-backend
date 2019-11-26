@@ -73,15 +73,6 @@ class MapWageItemsService extends BaseService
                 $integrationToCustomer->setIntegrationqbdhourwagetypeid($wageType);
             }
 
-            // Update Pay By Rate if present
-            if(array_key_exists(GeneralConstants::PAY_BY_RATE,$content)) {
-                $wageType = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(['integrationqbdpayrollitemwageid'=>$content[GeneralConstants::PAY_BY_RATE]]);
-                if(!$wageType) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_WAGE_ITEM_ID);
-                }
-                $integrationToCustomer->setIntegrationqbdratewagetypeid($wageType);
-            }
-
             // Persist the record in DB.
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
@@ -118,13 +109,6 @@ class MapWageItemsService extends BaseService
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID, 'qbdsyncpayroll'=>1,'active'=>1]);
             if(!$integrationToCustomer) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
-            }
-
-            if($integrationToCustomer->getIntegrationqbdratewagetypeid()) {
-                $response[GeneralConstants::PAY_BY_RATE] = array(
-                    'IntegrationQBDPayrollItemWageID' => $integrationToCustomer->getIntegrationqbdratewagetypeid()->getIntegrationqbdpayrollitemwageid(),
-                    'QBDPayrollItemWageName' => trim($integrationToCustomer->getIntegrationqbdratewagetypeid()->getQbdpayrollitemwagename())
-                );
             }
 
             if($integrationToCustomer->getIntegrationqbdhourwagetypeid()) {
