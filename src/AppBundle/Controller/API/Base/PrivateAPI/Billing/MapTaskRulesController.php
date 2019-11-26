@@ -32,7 +32,7 @@ class MapTaskRulesController extends FOSRestController
     ""Filters"": {
     ""Status"": [""Matched"",""Not Yet Matched""],
     ""Department"": [1,2,3,4,5],
-    ""Billable"": true,
+    ""Billable"": [""Billable"",""Not Billable""],
     ""CreateDate"":  {
     ""From"" : ""2018-09-09"",
     ""To"" : ""2018-09-09""

@@ -123,4 +123,7 @@ final class GeneralConstants
     const BILLTYPE = 'BillType';
 
     const TASK_ID = 'TaskID';
+
+    const BILLABLE = 'Billable';
+    const NOT_BILLABLE = 'Not Billable';
 }

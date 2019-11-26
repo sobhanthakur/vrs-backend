@@ -85,16 +85,7 @@ class MapTaskRulesService extends BaseService
                         }
                         $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
                         for($i=0;$i<count($response);$i++) {
-                            if($response[$i]['LaborOrMaterials'] === true) {
-                                $response[$i]['IntegrationQBDItemIDMaterial'] = $response[$i]['IntegrationQBDItemID'];
-                                $response[$i]['IntegrationQBDItemIDLabor'] = null;
-                            } else {
-                                $response[$i]['IntegrationQBDItemIDLabor'] = $response[$i]['IntegrationQBDItemID'];
-                                $response[$i]['IntegrationQBDItemIDMaterial'] = null;
-                            }
-                            unset($response[$i]['LaborOrMaterials']);
-                            unset($response[$i]['IntegrationQBDItemID']);
-
+                            $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
                         }
                         $flag = 1;
                     }
@@ -111,8 +102,8 @@ class MapTaskRulesService extends BaseService
                         }
                         $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
                         for ($i=0;$i<count($response);$i++) {
-                            $response[$i]["IntegrationQBDItemIDLabor"] = null;
-                            $response[$i]["IntegrationQBDItemIDMaterial"] = null;
+                            $response[$i]["IntegrationQBDItemID"] = null;
+                            $response[$i]["LaborOrMaterials"] = null;
                         }
                         $flag = 1;
                     }
@@ -137,24 +128,15 @@ class MapTaskRulesService extends BaseService
                 $response2 = null;
                 $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
                 for($i=0;$i<count($response);$i++) {
-                    if($response[$i]['LaborOrMaterials'] === true) {
-                        $response[$i]['IntegrationQBDItemIDMaterial'] = $response[$i]['IntegrationQBDItemID'];
-                        $response[$i]['IntegrationQBDItemIDLabor'] = null;
-                    } else {
-                        $response[$i]['IntegrationQBDItemIDLabor'] = $response[$i]['IntegrationQBDItemID'];
-                        $response[$i]['IntegrationQBDItemIDMaterial'] = null;
-                    }
-                    unset($response[$i]['LaborOrMaterials']);
-                    unset($response[$i]['IntegrationQBDItemID']);
-
+                    $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
                 }
                 $countResponse = count($response);
                 if($countResponse < $limit) {
                     $limit = $limit-$countResponse;
                     $response2 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
                     for($i=0;$i<count($response2);$i++) {
-                        $response2[$i]["IntegrationQBDItemIDLabor"] = null;
-                        $response2[$i]["IntegrationQBDItemIDMaterial"] = null;
+                        $response2[$i]["IntegrationQBDItemID"] = null;
+                        $response2[$i]["LaborOrMaterials"] = null;
                     }
                 }
                 $response = array_merge($response,$response2);
