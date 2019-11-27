@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrationqbdtimetrackingrecords
  *
  * @ORM\Table(name="IntegrationQBDTimeTrackingRecords", indexes={@ORM\Index(name="IDX_CC2BFEF4ED4D199A", columns={"IntegrationQBBatchID"}), @ORM\Index(name="IDX_CC2BFEF4E0EE8C07", columns={"IntegrationQBDPayrollItemWageID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdtimetrackingrecordsRepository")
  */
 class Integrationqbdtimetrackingrecords
 {
@@ -20,13 +20,6 @@ class Integrationqbdtimetrackingrecords
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $integrationqbdtimetrackingrecords;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ServicerID", type="integer", nullable=false)
-     */
-    private $servicerid;
 
     /**
      * @var \DateTime|null
@@ -81,6 +74,16 @@ class Integrationqbdtimetrackingrecords
     private $integrationqbbatchid;
 
     /**
+     * @var \Integrationqbbatches
+     *
+     * @ORM\ManyToOne(targetEntity="Timeclockdays")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="TimeClockDaysID", referencedColumnName="TimeClockDayID")
+     * })
+     */
+    private $timeclockdaysid;
+
+    /**
      * Get integrationqbdtimetrackingrecords.
      *
      * @return int
@@ -88,30 +91,6 @@ class Integrationqbdtimetrackingrecords
     public function getIntegrationqbdtimetrackingrecords()
     {
         return $this->integrationqbdtimetrackingrecords;
-    }
-
-    /**
-     * Set servicerid.
-     *
-     * @param int $servicerid
-     *
-     * @return Integrationqbdtimetrackingrecords
-     */
-    public function setServicerid($servicerid)
-    {
-        $this->servicerid = $servicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get servicerid.
-     *
-     * @return int
-     */
-    public function getServicerid()
-    {
-        return $this->servicerid;
     }
 
     /**
@@ -280,5 +259,29 @@ class Integrationqbdtimetrackingrecords
     public function getIntegrationqbbatchid()
     {
         return $this->integrationqbbatchid;
+    }
+
+    /**
+     * Set timeclockdaysid.
+     *
+     * @param \AppBundle\Entity\Integrationqbbatches|null $integrationqbbatchid
+     *
+     * @return Integrationqbdtimetrackingrecords
+     */
+    public function setTimeclockdaysid(\AppBundle\Entity\Timeclockdays $timeclockdaysid = null)
+    {
+        $this->timeclockdaysid = $timeclockdaysid;
+
+        return $this;
+    }
+
+    /**
+     * Get timeclockdaysid.
+     *
+     * @return \AppBundle\Entity\Timeclockdays|null
+     */
+    public function getTimeclockdaysid()
+    {
+        return $this->timeclockdaysid;
     }
 }

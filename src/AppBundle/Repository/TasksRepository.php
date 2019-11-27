@@ -32,7 +32,7 @@ class TasksRepository extends EntityRepository
 
         $subQuery = $this
             ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.taskid) from AppBundle:Integrationqbdbillingrecords b1 inner join AppBundle:Tasks t2 with  b1.taskid=t2.taskid inner join AppBundle:Properties p2 with t2.propertyid=p2.propertyid where p2.customerid=1')->getArrayResult();
+            ->createQuery('select IDENTITY(b1.taskid) from AppBundle:Integrationqbdbillingrecords b1 inner join AppBundle:Tasks t2 with  b1.taskid=t2.taskid inner join AppBundle:Properties p2 with t2.propertyid=p2.propertyid where p2.customerid='.$customerID)->getArrayResult();
 
         $result = $this
             ->createQueryBuilder('t2')

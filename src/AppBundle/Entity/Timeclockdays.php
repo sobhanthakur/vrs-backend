@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Timeclockdays
  *
  * @ORM\Table(name="TimeClockDays", indexes={@ORM\Index(name="ClockIn", columns={"ClockIn"}), @ORM\Index(name="ServicerID", columns={"ServicerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TimeclockdaysRepository")
  */
 class Timeclockdays
 {

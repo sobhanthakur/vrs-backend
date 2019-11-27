@@ -73,3 +73,7 @@ services:
         class: AppBundle\Service\BillingApprovalService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.timetracking_approval:
+        class: AppBundle\Service\TimeTrackingApprovalService
+        parent: vrscheduler.base_service
+        public: true
