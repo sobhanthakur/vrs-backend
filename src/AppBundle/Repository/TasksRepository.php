@@ -55,7 +55,7 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate) {
+        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);
@@ -109,7 +109,7 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate) {
+        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);

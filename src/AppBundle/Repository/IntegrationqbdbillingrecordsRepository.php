@@ -38,7 +38,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        if ($completedDate) {
+        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);
@@ -89,7 +89,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        if ($completedDate) {
+        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
             $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
                 ->setParameter('CompletedTo', $completedDate['To']);
