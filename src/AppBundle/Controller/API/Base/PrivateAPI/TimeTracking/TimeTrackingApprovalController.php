@@ -85,4 +85,72 @@ class TimeTrackingApprovalController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Save TimeClockDays and approve/exclude for TimeTracking.
+     * @SWG\Tag(name="Time Tracking")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="Status Codes: 0=Exclude, 1=Approve",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="IntegrationID",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+     *               {
+     *                  {
+     *                      "TimeClockDaysID":10,
+     *                      "Status":1
+     *                  }
+     *              }
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Save TimeClockDays and approve/exclude for TimeTracking.",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/qbdtimetracking/approve", name="vrs_qbdtimetracking_approve")
+     */
+    public function SaveTimeTrackingApproval(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $timetrackingApprovalService = $this->container->get('vrscheduler.timetracking_approval');
+            $content = json_decode($request->getContent(),true);
+            return $timetrackingApprovalService->ApproveTimeTracking($customerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

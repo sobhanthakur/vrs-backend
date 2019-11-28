@@ -126,4 +126,6 @@ final class GeneralConstants
 
     const BILLABLE = 'Billable';
     const NOT_BILLABLE = 'Not Billable';
+
+    const TIME_CLOCK_DAYS_ID = 'TimeClockDaysID';
 }

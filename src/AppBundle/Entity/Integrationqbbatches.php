@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBBatches", indexes={@ORM\Index(name="IDX_6CC1D73B854CF4BD", columns={"CustomerID"})})
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbbatches
 {
@@ -22,9 +23,9 @@ class Integrationqbbatches
     private $integrationqbbatchid;
 
     /**
-     * @var int
+     * @var bool
      *
-     * @ORM\Column(name="BatchType", type="integer", nullable=false, options={"comment"="0=Blling & 1=TimeTracking"})
+     * @ORM\Column(name="BatchType", type="boolean", nullable=false, options={"comment"="0=Blling & 1=TimeTracking"})
      */
     private $batchtype;
 
@@ -60,7 +61,7 @@ class Integrationqbbatches
     /**
      * Set batchtype.
      *
-     * @param int $batchtype
+     * @param bool $batchtype
      *
      * @return Integrationqbbatches
      */
@@ -74,7 +75,7 @@ class Integrationqbbatches
     /**
      * Get batchtype.
      *
-     * @return int
+     * @return bool
      */
     public function getBatchtype()
     {
@@ -127,5 +128,16 @@ class Integrationqbbatches
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

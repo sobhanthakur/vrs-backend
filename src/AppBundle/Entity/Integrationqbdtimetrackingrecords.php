@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDTimeTrackingRecords", indexes={@ORM\Index(name="IDX_CC2BFEF4ED4D199A", columns={"IntegrationQBBatchID"}), @ORM\Index(name="IDX_CC2BFEF4E0EE8C07", columns={"IntegrationQBDPayrollItemWageID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdtimetrackingrecordsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbdtimetrackingrecords
 {
@@ -47,7 +48,7 @@ class Integrationqbdtimetrackingrecords
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var bool|null
@@ -74,7 +75,7 @@ class Integrationqbdtimetrackingrecords
     private $integrationqbbatchid;
 
     /**
-     * @var \Integrationqbbatches
+     * @var \Timeclockdays
      *
      * @ORM\ManyToOne(targetEntity="Timeclockdays")
      * @ORM\JoinColumns({
@@ -275,13 +276,23 @@ class Integrationqbdtimetrackingrecords
         return $this;
     }
 
+
     /**
-     * Get timeclockdaysid.
-     *
-     * @return \AppBundle\Entity\Timeclockdays|null
+     * @return \Timeclockdays
      */
     public function getTimeclockdaysid()
     {
         return $this->timeclockdaysid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

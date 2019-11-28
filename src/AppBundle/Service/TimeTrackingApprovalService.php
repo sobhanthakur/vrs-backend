@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Integrationqbdtimetrackingrecords;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -73,7 +74,7 @@ class TimeTrackingApprovalService extends BaseService
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
 
-                // IntegrationQBDBilling Repository
+                // IntegrationQBDTime Tracking Repository
                 $timetrackingRecordsRepo = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords');
 
                 // If status is either Approved Or Excluded or both
@@ -216,5 +217,98 @@ class TimeTrackingApprovalService extends BaseService
             unset($response[$i]['TimeZoneID']);
         }
         return $response;
+    }
+
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
+    public function ApproveTimeTracking($customerID, $content)
+    {
+        try {
+            if(!array_key_exists('IntegrationID',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
+            }
+
+            $integrationID = $content['IntegrationID'];
+
+            //Check if the customer has enabled the integration or not and QBDSyncTimeTracking is enabled.
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncTimeTrackingEnabled($integrationID,$customerID);
+            if(empty($integrationToCustomers)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
+            }
+
+            if(!array_key_exists('Data',$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_DATA);
+            }
+
+            $data = $content['Data'];
+
+            // Traverse data to create/update mappings
+            for ($i = 0; $i < count($data); $i++) {
+
+                // Check If status is correct or not
+                if(
+                    ($data[$i]['Status'] !== 0) &&
+                    ($data[$i]['Status'] !== 1)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
+                }
+
+                $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
+                    array(
+                        'timeclockdaysid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
+                    )
+                );
+
+                // Throw Exception if the the record's txnID is not null
+                if(
+                ($timetrackingRecords !== null?($timetrackingRecords->getTxnid() !== null):null)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TIMECLOCKDAYSID);
+                }
+
+                $timeclockdays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->findOneBy(array(
+                        'timeclockdayid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
+                    )
+                );
+
+                if(!$timeclockdays ||
+                    ($timeclockdays !== null?($timeclockdays->getServicerid()->getCustomerid()->getCustomerid() !== $customerID):null)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TIMECLOCKDAYSID);
+                }
+
+                // If Integration QBD Time Tracking Record exist, then simply update the record with the new Status
+                if (!$timetrackingRecords) {
+                    // Create New Record
+                    $timetrackingRecords = new Integrationqbdtimetrackingrecords();
+
+                    $timetrackingRecords->setTimeclockdaysid($timeclockdays);
+                    $timetrackingRecords->setStatus($data[$i]['Status']);
+
+                    $this->entityManager->persist($timetrackingRecords);
+                } else {
+                    // Update the record
+                    $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $this->entityManager->persist($timetrackingRecords);
+                }
+            }
+            $this->entityManager->flush();
+
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message')
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed Saving Time Tracking Approval due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }
