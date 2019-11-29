@@ -57,7 +57,7 @@ class TimeTrackingApprovalService extends BaseService
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
                 if (array_key_exists('Staff', $filters)) {
-                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->SearchStaffByID($customerID, $filters['Staff']);
+                    $staff = $filters['Staff'];
                 }
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
