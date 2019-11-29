@@ -114,4 +114,18 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         }
         return $result->getQuery()->execute();
     }
+
+    /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function DistinctBatchCount($batchID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('count(b1.integrationqbdtimetrackingrecords)')
+            ->where('b1.integrationqbbatchid = :BatchID')
+            ->setParameter('BatchID',$batchID)
+            ->getQuery()->execute();
+    }
 }

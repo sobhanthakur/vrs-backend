@@ -37,14 +37,14 @@ class Integrationqbbatches
     private $createdate;
 
     /**
-     * @var \Customers
+     * @var \Integrationstocustomers
      *
-     * @ORM\ManyToOne(targetEntity="Customers")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Integrationstocustomers")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="CustomerID", referencedColumnName="CustomerID")
+     *   @ORM\JoinColumn(name="IntegrationToCustomerID", referencedColumnName="IntegrationToCustomerID")
      * })
      */
-    private $customerid;
+    private $integrationtocustomer;
 
 
 
@@ -107,30 +107,6 @@ class Integrationqbbatches
     }
 
     /**
-     * Set customerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $customerid
-     *
-     * @return Integrationqbbatches
-     */
-    public function setCustomerid(\AppBundle\Entity\Customers $customerid = null)
-    {
-        $this->customerid = $customerid;
-
-        return $this;
-    }
-
-    /**
-     * Get customerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getCustomerid()
-    {
-        return $this->customerid;
-    }
-
-    /**
      * @ORM\PrePersist
      */
     public function updatedTimestamps()
@@ -139,5 +115,29 @@ class Integrationqbbatches
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set integrationtocustomer.
+     *
+     * @param \AppBundle\Entity\Integrationstocustomers|null $integrationtocustomer
+     *
+     * @return Integrationqbbatches
+     */
+    public function setIntegrationtocustomer(\AppBundle\Entity\Integrationstocustomers $integrationtocustomer = null)
+    {
+        $this->integrationtocustomer = $integrationtocustomer;
+
+        return $this;
+    }
+
+    /**
+     * Get integrationtocustomer.
+     *
+     * @return \AppBundle\Entity\Integrationstocustomers|null
+     */
+    public function getIntegrationtocustomer()
+    {
+        return $this->integrationtocustomer;
     }
 }

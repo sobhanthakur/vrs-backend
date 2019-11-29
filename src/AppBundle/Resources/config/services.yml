@@ -77,3 +77,7 @@ services:
         class: AppBundle\Service\TimeTrackingApprovalService
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.sync_logs:
+        class: AppBundle\Service\SyncLogsService
+        parent: vrscheduler.base_service
+        public: true

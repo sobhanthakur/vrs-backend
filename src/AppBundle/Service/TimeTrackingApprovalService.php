@@ -114,7 +114,7 @@ class TimeTrackingApprovalService extends BaseService
             //Default Condition
             if (!$flag) {
                 if ($offset === 1) {
-                    $count1 = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate);
+                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate);
                     if ($count1) {
                         $count1 = (int)$count1[0][1];
                     }
@@ -126,7 +126,7 @@ class TimeTrackingApprovalService extends BaseService
                     $count = $count1 + $count2;
                 }
                 $response2 = null;
-                $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$limit, $offset);
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$limit, $offset);
                 $response = $this->processResponse($response);
                 $countResponse = count($response);
                 if ($countResponse < $limit) {
