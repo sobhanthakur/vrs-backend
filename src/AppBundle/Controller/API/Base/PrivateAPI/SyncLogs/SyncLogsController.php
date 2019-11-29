@@ -30,6 +30,7 @@ class SyncLogsController extends FOSRestController
     {
     ""IntegrationID"":1,
     ""Filters"": {
+    ""BatchType"":[""Billing"",""Time Tracking""],
     ""CompletedDate"":  {
     ""From"" : ""2018-09-09"",
     ""To"" : ""2018-09-09""

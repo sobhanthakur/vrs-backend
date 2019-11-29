@@ -128,4 +128,7 @@ final class GeneralConstants
     const NOT_BILLABLE = 'Not Billable';
 
     const TIME_CLOCK_DAYS_ID = 'TimeClockDaysID';
+
+    const BILLING = 'Billing';
+    const TIME_TRACKING = 'Time Tracking';
 }

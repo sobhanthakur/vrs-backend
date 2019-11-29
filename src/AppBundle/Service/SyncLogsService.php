@@ -15,17 +15,29 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 
+/**
+ * Class SyncLogsService
+ * @package AppBundle\Service
+ */
 class SyncLogsService extends BaseService
 {
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
     public function FetchAllSyncLogs($customerID, $content)
     {
         try {
             $limit = 10;
             $offset = 1;
             $response = [];
-            $count = 0;
+            $count = null;
             $billingBatch = [];
+            $batchType = [];
             $timeTrackingBatch = [];
+            $completedDate = null;
+
             if(!array_key_exists('IntegrationID',$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
@@ -36,7 +48,14 @@ class SyncLogsService extends BaseService
             }
 
             if (!empty($content)) {
-//                $filters = array_key_exists('Filters', $content) ? $content['Filters'] : [];
+                $filters = array_key_exists('Filters', $content) ? $content['Filters'] : [];
+                if (array_key_exists('CompletedDate', $filters)) {
+                    $completedDate = $filters['CompletedDate'];
+                }
+
+                if (array_key_exists('BatchType', $filters)) {
+                    $batchType = $filters['BatchType'];
+                }
 
                 if (array_key_exists('Pagination', $content)) {
                     $limit = $content['Pagination']['Limit'];
@@ -45,25 +64,27 @@ class SyncLogsService extends BaseService
             }
 
             // Count Batch Records
-            $count = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->findBy(array('integrationtocustomer'=>$integrationToCustomers));
-            if($count) {
-                $count = count($count);
+            if($offset === 1) {
+                $count = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->CountBatches($integrationToCustomers->getIntegrationtocustomerid(),$completedDate,$batchType);
+                if($count) {
+                    $count = (int)$count[0][1];
+                }
             }
 
             // Find BatchType in IntegrationQBBatches Table
-            $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->findBy(array('integrationtocustomer'=>$integrationToCustomers),array('createdate'=>'DESC'),$limit,(($offset - 1) * $limit));
+            $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
             if($integrationQBBatches) {
                 $batchSize = count($integrationQBBatches);
                 for($i=0;$i<$batchSize;$i++) {
-                    if($integrationQBBatches[$i]->getBatchtype() === false) {
+                    if(!$integrationQBBatches[$i]['BatchType']) {
                         $billingBatch[] = array(
-                            'BatchID' => $integrationQBBatches[$i]->getIntegrationqbbatchid(),
-                            'CreateDate' => $integrationQBBatches[$i]->getCreatedate()
+                            'BatchID' => $integrationQBBatches[$i]['IntegrationQBBatchID'],
+                            'CreateDate' => $integrationQBBatches[$i]['CreateDate']
                         );
                     } else {
                         $timeTrackingBatch[] = array(
-                            'BatchID' => $integrationQBBatches[$i]->getIntegrationqbbatchid(),
-                            'CreateDate' => $integrationQBBatches[$i]->getCreatedate()
+                            'BatchID' => $integrationQBBatches[$i]['IntegrationQBBatchID'],
+                            'CreateDate' => $integrationQBBatches[$i]['CreateDate']
                         );
                     }
                 }

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Integrationqbbatches
  *
  * @ORM\Table(name="IntegrationQBBatches", indexes={@ORM\Index(name="IDX_6CC1D73B854CF4BD", columns={"CustomerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbbatchesRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbbatches
