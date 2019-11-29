@@ -58,7 +58,7 @@ class BillingApprovalService extends BaseService
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
                 if (array_key_exists('Property', $filters)) {
-                    $properties = $this->entityManager->getRepository('AppBundle:Properties')->SearchPropertiesByID($customerID, $filters['Property']);
+                    $properties = $filters['Property'];
                 }
                 if (array_key_exists('CompletedDate', $filters)) {
                     $completedDate = $filters['CompletedDate'];
