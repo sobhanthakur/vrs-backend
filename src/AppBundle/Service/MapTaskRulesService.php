@@ -97,13 +97,18 @@ class MapTaskRulesService extends BaseService
                         if($offset === 1) {
                             $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
                             if($count) {
-                                $count = (int)$count[0][1];
+                                $count = ((int)$count[0][1])*2;
                             }
                         }
-                        $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
-                        for ($i=0;$i<count($response);$i++) {
-                            $response[$i]["IntegrationQBDItemID"] = null;
-                            $response[$i]["LaborOrMaterials"] = null;
+                        $limit = $limit/2;
+                        $response1 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
+                        for ($i=0;$i<count($response1);$i++) {
+                            $response1[$i]["IntegrationQBDItemID"] = null;
+                            $response1[$i]["LaborOrMaterials"] = 0;
+                            $response[] = $response1[$i];
+                            $tempResponse = $response1[$i];
+                            $tempResponse['LaborOrMaterials'] = 1;
+                            $response[] = $tempResponse;
                         }
                         $flag = 1;
                     }
@@ -121,11 +126,11 @@ class MapTaskRulesService extends BaseService
                     $count2 = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
 
                     if($count2) {
-                        $count2 = (int)$count2[0][1];
+                        $count2 = ((int)$count2[0][1])*2;
                     }
                     $count = $count1 + $count2;
                 }
-                $response2 = null;
+                $response3 = null;
                 $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
                 for($i=0;$i<count($response);$i++) {
                     $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
@@ -133,13 +138,18 @@ class MapTaskRulesService extends BaseService
                 $countResponse = count($response);
                 if($countResponse < $limit) {
                     $limit = $limit-$countResponse;
+                    $limit = floor($limit/2);
                     $response2 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
                     for($i=0;$i<count($response2);$i++) {
                         $response2[$i]["IntegrationQBDItemID"] = null;
-                        $response2[$i]["LaborOrMaterials"] = null;
+                        $response2[$i]["LaborOrMaterials"] = 0;
+                        $response3[] = $response2[$i];
+                        $tempResponse = $response2[$i];
+                        $tempResponse['LaborOrMaterials'] = 1;
+                        $response3[] = $tempResponse;
                     }
                 }
-                $response = array_merge($response,$response2);
+                $response = array_merge($response,$response3);
             }
 
             return array(
