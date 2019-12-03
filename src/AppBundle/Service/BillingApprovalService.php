@@ -60,8 +60,10 @@ class BillingApprovalService extends BaseService
                 if (array_key_exists('Property', $filters)) {
                     $properties = $filters['Property'];
                 }
-                if (array_key_exists('CompletedDate', $filters)) {
-                    $completedDate = $filters['CompletedDate'];
+                if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
+                    $completedDateRequest = $filters['CompletedDate'];
+                    $completedDate = $this->entityManager->getRepository('AppBundle:Tasks')->GetAllTimeZones($customerID, $properties);
+                    $completedDate = $this->CompletedDateRequestCalculation($completedDate,$completedDateRequest);
                 }
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
@@ -93,6 +95,7 @@ class BillingApprovalService extends BaseService
                         }
                     }
                     $response = $billingRecordsRepo->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
+                    $response = $this->processResponse($response);
                     $flag = 1;
                 } elseif (
                     (count($status) === 1) &&
@@ -106,9 +109,7 @@ class BillingApprovalService extends BaseService
                     }
 
                     $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset);
-                    for ($i = 0; $i < count($response); $i++) {
-                        $response[$i]["Status"] = 2;
-                    }
+                    $response = $this->processResponse($response);
                     $flag = 1;
                 }
             }
@@ -134,13 +135,12 @@ class BillingApprovalService extends BaseService
                 }
                 $response2 = null;
                 $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
+                $response = $this->processResponse($response);
                 $countResponse = count($response);
                 if ($countResponse < $limit) {
                     $limit = $limit - $countResponse;
                     $response2 = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset);
-                    for ($i = 0; $i < count($response2); $i++) {
-                        $response2[$i]["Status"] = 2;
-                    }
+                    $response2 = $this->processResponse($response2);
                 }
                 $response = array_merge($response, $response2);
             }
@@ -256,5 +256,63 @@ class BillingApprovalService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * Converts the Completed Date filter to UTC and query in the DB
+     * @param $completedDateFromQuery
+     * @param $completedDateRequest
+     * @return array|null
+     */
+    public function CompletedDateRequestCalculation($completedDateFromQuery, $completedDateRequest)
+    {
+        $response = null;
+        for($i=0;$i<count($completedDateFromQuery);$i++) {
+            $region = $completedDateFromQuery[$i]['Region'];
+            $clockOut = $completedDateFromQuery[$i]['CompleteConfirmedDate'];
+            $timeZoneLocal = new \DateTimeZone($region);
+            $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
+            $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
+
+            $timeZoneUTC = new \DateTimeZone('UTC');
+            $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
+            $toUTC = $toLocal->setTimezone($timeZoneUTC);
+
+            if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
+                $response[] = $completedDateFromQuery[$i]['TaskID'];
+            }
+
+        }
+        return $response;
+    }
+
+    /**
+     * @param $response
+     * @return mixed
+     */
+    public function processResponse($response)
+    {
+        for ($i = 0; $i < count($response); $i++) {
+            if (!array_key_exists('Status', $response[$i])) {
+                $response[$i]["Status"] = 2;
+            }
+            $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['CompleteConfirmedDate']);
+            $response[$i]["CompleteConfirmedDate"] = $time;
+            unset($response[$i]['TimeZoneRegion']);
+        }
+        return $response;
+    }
+
+    /**
+     * @param $timeZoneID
+     * @param $clockIn
+     * @return mixed
+     */
+    public function TimeZoneCalculation($region, $completeConfirmedDate)
+    {
+        $newTimeZone = new \DateTimeZone($region);
+        $completeConfirmedDate->setTimezone($newTimeZone);
+        return $completeConfirmedDate;
+
     }
 }

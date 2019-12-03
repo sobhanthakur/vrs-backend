@@ -36,9 +36,11 @@ class TasksRepository extends EntityRepository
 
         $result = $this
             ->createQueryBuilder('t2')
-            ->select('t2.taskid as TaskID, t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate')
+            ->select('t2.taskid as TaskID, t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion')
             ->andWhere('t2.active=1')
             ->innerJoin('t2.propertyid', 'p2')
+            ->innerJoin('p2.regionid','r')
+            ->innerJoin('r.timezoneid','t')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
@@ -55,10 +57,9 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+        if ($completedDate) {
+            $result->andWhere('t2.taskid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($createDate) {
@@ -109,16 +110,46 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+        if ($completedDate) {
+            $result->andWhere('t2.taskid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($createDate) {
             $result->andWhere('t2.createdate BETWEEN :From AND :To')
                 ->setParameter('From', $createDate['From'])
                 ->setParameter('To', $createDate['To']);
+        }
+
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $customerID
+     * @param $properties
+     * @return mixed
+     */
+    public function GetAllTimeZones($customerID, $properties)
+    {
+        $result = null;
+
+        $result = $this
+            ->createQueryBuilder('t2')
+            ->select('t2.taskid as TaskID,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region')
+            ->andWhere('t2.active=1')
+            ->innerJoin('t2.propertyid', 'p2')
+            ->innerJoin('p2.regionid','r')
+            ->innerJoin('r.timezoneid','t')
+            ->where('p2.customerid = :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('t2.billable=1')
+            ->andWhere('t2.completeconfirmeddate IS NOT NULL');
+
+        if ($properties) {
+            $result->andWhere('p2.propertyid IN (:Properties)')
+                ->setParameter('Properties', $properties);
         }
 
         return $result

@@ -301,6 +301,7 @@ class TimeTrackingApprovalService extends BaseService
     }
 
     /**
+     * Converts the Completed Date filter to UTC and query in the DB
      * @param $completedDateFromQuery
      * @param $completedDateRequest
      * @return array|null
