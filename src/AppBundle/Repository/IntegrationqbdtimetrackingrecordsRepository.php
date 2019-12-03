@@ -27,17 +27,17 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,IDENTITY(p2.timezoneid) AS TimeZoneID, t2.clockin AS ClockIn, t2.clockout AS ClockOut')
+            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,t3.region AS TimeZoneRegion, t2.clockin AS ClockIn, t2.clockout AS ClockOut')
             ->innerJoin('t1.timeclockdaysid', 't2')
             ->innerJoin('t2.servicerid', 'p2')
+            ->innerJoin('p2.timezoneid','t3')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
         if ($completedDate) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($staff) {
@@ -85,10 +85,9 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+        if ($completedDate) {
+            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($staff) {

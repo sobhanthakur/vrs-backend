@@ -62,8 +62,10 @@ class TimeTrackingApprovalService extends BaseService
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
                 }
-                if (array_key_exists('CompletedDate', $filters)) {
-                    $completedDate = $filters['CompletedDate'];
+                if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
+                    $completedDateRequest = $filters['CompletedDate'];
+                    $completedDate = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
+                    $completedDate = $this->CompletedDateRequestCalculation($completedDate,$completedDateRequest);
                 }
                 if (array_key_exists('Pagination', $data)) {
                     $limit = $data['Pagination']['Limit'];
@@ -162,26 +164,12 @@ class TimeTrackingApprovalService extends BaseService
      * @param $clockIn
      * @return mixed
      */
-    public function TimeZoneCalculation($timeZoneID, $clockIn)
+    public function TimeZoneCalculation($region, $clockIn)
     {
-        try {
-            $timeZoneRepo = $this->entityManager->getRepository('AppBundle:Timezones')->findOneBy(array('timezoneid'=>$timeZoneID));
-            if(!$timeZoneRepo) {
-                throw new UnprocessableEntityHttpException(null,ErrorConstants::INVALID_STATUS);
-            }
-            $timeZoneRegion = $timeZoneRepo->getRegion();
-            $newTimeZone = new \DateTimeZone($timeZoneRegion);
-            $clockIn->setTimezone($newTimeZone);
-            return $clockIn;
-        } catch (UnprocessableEntityHttpException $exception) {
-            throw $exception;
-        } catch (HttpException $exception) {
-            throw $exception;
-        } catch (\Exception $exception) {
-            $this->logger->error('Failed fetching Time Tracking due to : ' .
-                $exception->getMessage());
-            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
-        }
+        $newTimeZone = new \DateTimeZone($region);
+        $clockIn->setTimezone($newTimeZone);
+        return $clockIn;
+
     }
 
     /**
@@ -210,11 +198,11 @@ class TimeTrackingApprovalService extends BaseService
                 $response[$i]["Status"] = 2;
             }
             $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
-            $time = $this->TimeZoneCalculation($response[$i]['TimeZoneID'], $response[$i]['ClockIn']);
+            $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
             $response[$i]["Date"] = $time->format('Y-m-d');
             unset($response[$i]['ClockIn']);
             unset($response[$i]['ClockOut']);
-            unset($response[$i]['TimeZoneID']);
+            unset($response[$i]['TimeZoneRegion']);
         }
         return $response;
     }
@@ -310,5 +298,33 @@ class TimeTrackingApprovalService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $completedDateFromQuery
+     * @param $completedDateRequest
+     * @return array|null
+     */
+    public function CompletedDateRequestCalculation($completedDateFromQuery, $completedDateRequest)
+    {
+        $response = null;
+
+        for($i=0;$i<count($completedDateFromQuery);$i++) {
+            $region = $completedDateFromQuery[$i]['Region'];
+            $clockOut = $completedDateFromQuery[$i]['ClockOut'];
+            $timeZoneLocal = new \DateTimeZone($region);
+            $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
+            $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
+
+            $timeZoneUTC = new \DateTimeZone('UTC');
+            $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
+            $toUTC = $toLocal->setTimezone($timeZoneUTC);
+
+            if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
+                $response[] = $completedDateFromQuery[$i]['TimeClockDaysID'];
+            }
+
+        }
+        return $response;
     }
 }

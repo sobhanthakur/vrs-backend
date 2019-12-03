@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class TimeclockdaysRepository
+ * @package AppBundle\Repository
+ */
 class TimeclockdaysRepository extends EntityRepository
 {
     /**
@@ -26,8 +30,9 @@ class TimeclockdaysRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('t1.timeclockdayid as TimeClockDaysID, s2.name AS StaffName,IDENTITY(s2.timezoneid) AS TimeZoneID, t1.clockin AS ClockIn, t1.clockout AS ClockOut')
+            ->select('t1.timeclockdayid as TimeClockDaysID, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut')
             ->innerJoin('t1.servicerid', 's2')
+            ->innerJoin('s2.timezoneid','t2')
             ->where('s2.customerid = :CustomerID')
             ->andWhere('s2.servicertype=0')
             ->setParameter('CustomerID', $customerID);
@@ -41,9 +46,8 @@ class TimeclockdaysRepository extends EntityRepository
         }
 
         if ($completedDate) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+            $result->andWhere('t1.timeclockdayid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($staff) {
@@ -87,10 +91,9 @@ class TimeclockdaysRepository extends EntityRepository
                 ->setParameter('SubQuery',$subQuery);
         }
 
-        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
-            $result->andWhere('t2.completeconfirmeddate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
+        if ($completedDate) {
+            $result->andWhere('t1.timeclockdayid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($staff) {
@@ -102,6 +105,30 @@ class TimeclockdaysRepository extends EntityRepository
             $result->andWhere('t.createdate BETWEEN :From AND :To')
                 ->setParameter('From', $createDate['From'])
                 ->setParameter('To', $createDate['To']);
+        }
+
+        return $result->getQuery()->execute();
+    }
+
+    /**
+     * @param $customerID
+     * @param $staff
+     * @return mixed
+     */
+    public function GetAllTimeZones($customerID, $staff)
+    {
+        $result = $this
+            ->createQueryBuilder('t1')
+            ->select('t1.timeclockdayid as TimeClockDaysID,t2.region AS Region, t1.clockout AS ClockOut')
+            ->innerJoin('t1.servicerid', 's2')
+            ->innerJoin('s2.timezoneid','t2')
+            ->where('s2.customerid = :CustomerID')
+            ->andWhere('s2.servicertype=0')
+            ->setParameter('CustomerID', $customerID);
+
+        if ($staff) {
+            $result->andWhere('s2.servicerid IN (:Staffs)')
+                ->setParameter('Staffs', $staff);
         }
 
         return $result->getQuery()->execute();
