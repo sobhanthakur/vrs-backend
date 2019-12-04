@@ -25,7 +25,7 @@ class TimeTrackingApprovalController extends FOSRestController
 {
     /**
      * Fetch Completed and Billable Tasks from VRS
-     * @SWG\Tag(name="Billing")
+     * @SWG\Tag(name="Time Tracking")
      * @SWG\Parameter(
      *     name="data",
      *     in="query",
