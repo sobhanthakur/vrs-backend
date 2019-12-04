@@ -8,6 +8,7 @@
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\Filters;
 
+use AppBundle\Constants\ErrorConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
@@ -227,7 +228,7 @@ class FiltersController extends FOSRestController
         try {
             $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
             $filterService = $this->container->get('vrscheduler.filter_service');
-            return $filterService->PropertyGroupsFilter($customerID);
+            return $filterService->StaffFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
