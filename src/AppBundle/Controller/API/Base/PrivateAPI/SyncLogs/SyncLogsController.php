@@ -26,7 +26,7 @@ class SyncLogsController extends FOSRestController
      *     in="query",
      *     required=true,
      *     type="string",
-     *     description="Fetch All Sync Logs:
+     *     description="Base 64 the following Payload with appropriate changes:
     {
     ""IntegrationID"":1,
     ""Filters"": {
@@ -63,6 +63,62 @@ class SyncLogsController extends FOSRestController
             }
             $syncLogsService = $this->container->get('vrscheduler.sync_logs');
             $response = $syncLogsService->FetchAllSyncLogs($customerID,$data);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+        return $response;
+    }
+
+    /**
+     * Get Batch Wise Sync Logs
+     * @SWG\Tag(name="Sync Logs")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="0=Billing & 1=Time Tracking
+    Base 64 the following Payload with appropriate changes:
+    {
+    ""IntegrationID"":1,
+    ""BatchType"":0,
+    ""BatchID"":1,
+    ""Pagination"": {
+    ""Offset"": 1,
+    ""Limit"": 10
+    }
+    }"
+     *     )
+     *  )
+     * * @SWG\Response(
+     *     response=200,
+     *     description="Shows the Sync details with sync type and no. of records sent"
+     * )
+     * @return array
+     * @param Request $request
+     * @Get("/qbdsynclogs/batch", name="vrs_synclogs_batch")
+     */
+    public function BatchWiseSyncLogs(Request $request)
+    {
+        $logger = $this->container->get('monolog.logger.exception');
+        $response = null;
+        try {
+            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $data = json_decode(base64_decode($request->get('data')),true);
+            if(empty($data)) {
+                $data = [];
+            }
+            $syncLogsService = $this->container->get('vrscheduler.sync_logs');
+            $response = $syncLogsService->BatchWiseLogs($customerID,$data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

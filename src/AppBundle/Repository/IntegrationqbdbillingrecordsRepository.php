@@ -134,20 +134,29 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
     }
 
     /**
-     * @param $propertyID
-     * @param $taskID
+     * @param $batchID
      * @return array
      */
-    public function GetBatchDetails($batchID)
+    public function GetBatchDetails($batchID,$limit,$offset)
     {
-//        $subQuery = $this
-//            ->getEntityManager()
-//            ->createQuery('select IDENTITY(sp.serviceid) AS ServiceID,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial from AppBundle:Servicestoproperties sp inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid and sp.propertyid='.$propertyID)
-//            ->getArrayResult();
-
         $subQuery = $this
             ->getEntityManager()
-            ->createQuery('Select IDENTITY(sp.serviceid) AS ServiceID,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid,b.itemtxnid,p.propertyname,t.taskname from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner  join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
+            ->createQuery('Select b.sentstatus AS SentStatus,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid as TxnID,b.itemtxnid ItemTxnID,p.propertyname AS PropertyName,t.taskname AS TaskName from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getArrayResult();
+        return $subQuery;
+    }
+
+    /**
+     * @param $batchID
+     * @return array
+     */
+    public function CountGetBatchDetails($batchID)
+    {
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('Select count(IDENTITY(sp.serviceid)) from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
             ->getArrayResult();
         return $subQuery;
     }

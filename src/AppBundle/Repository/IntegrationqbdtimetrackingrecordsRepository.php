@@ -12,6 +12,10 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class IntegrationqbdtimetrackingrecordsRepository
+ * @package AppBundle\Repository
+ */
 class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 {
     /**
@@ -125,6 +129,20 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->select('count(b1.integrationqbdtimetrackingrecords)')
             ->where('b1.integrationqbbatchid = :BatchID')
             ->setParameter('BatchID',$batchID)
+            ->getQuery()->execute();
+    }
+
+    /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function CountBatches($batchID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('count(b1.integrationqbdtimetrackingrecords)')
+            ->where('b1.integrationqbbatchid = :BatchID')
+            ->setParameter('BatchID', $batchID)
             ->getQuery()->execute();
     }
 }

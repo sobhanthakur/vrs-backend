@@ -45,6 +45,7 @@ final class ErrorConstants
     const INVALID_STATUS = 'INVALIDSTATUS';
     const INVALID_TIMEZONE = 'INVALIDTIMEZONE';
     const INVALID_TIMECLOCKDAYSID = 'INVALIDTIMECLOCKDAYSID';
+    const INVALID_PAYLOAD='INVALIDPAYLOAD';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -101,6 +102,7 @@ final class ErrorConstants
         self::INVALID_TASKID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_task_id'],
         self::INVALID_STATUS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_status'],
         self::INVALID_TIMEZONE => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timezone'],
-        self::INVALID_TIMECLOCKDAYSID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timeclockdaysid']
+        self::INVALID_TIMECLOCKDAYSID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timeclockdaysid'],
+        self::INVALID_PAYLOAD => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_payload']
     ];
 }

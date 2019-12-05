@@ -40,6 +40,7 @@ final class ApiRoutes
         "vrs_staff",
         "vrs_timeclockdays",
         "vrs_qbdtimetracking_approve",
-        "vrs_synclogs"
+        "vrs_synclogs",
+        "vrs_synclogs_batch"
     );
 }

@@ -46,6 +46,7 @@ api:
             invalid_status: "Invalid Status"
             invalid_timezone: "Invalid TimeZone"
             invalid_timeclockdaysid: "Invalid TimeClockDaysID"
+            invalid_payload: "Invalid Request Payload"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

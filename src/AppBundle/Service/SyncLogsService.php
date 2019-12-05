@@ -136,4 +136,106 @@ class SyncLogsService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
+    public function BatchWiseLogs($customerID, $content)
+    {
+        try {
+            $response = [];
+            $count = null;
+            $completedDate = null;
+
+            if (!array_key_exists('IntegrationID', $content) ||
+                !array_key_exists('BatchID', $content) ||
+                !array_key_exists('BatchType', $content) ||
+                !array_key_exists('Pagination', $content)
+            ) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
+            }
+            $integrationID = $content['IntegrationID'];
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid' => $customerID, 'integrationid' => $integrationID, 'active' => 1));
+            if (!$integrationToCustomers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
+            }
+
+            $batchType = $content['BatchType'];
+            $limit = $content['Pagination']['Limit'];
+            $offset = $content['Pagination']['Offset'];
+            $batchID = $content['BatchID'];
+
+            // Batch Type = 0 Means Billing And Batch Type = 1 Means Time Tracking
+            if ($batchType === 0) {
+                if($offset === 1) {
+                    $count = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->CountGetBatchDetails($batchID);
+                    if($count) {
+                        $count = (int)$count[0][1];
+                    }
+                }
+                $services = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetBatchDetails($batchID,$limit,$offset);
+                for ($i = 0; $i < count($services); $i++) {
+                    $services[$i]['Status'] = 1;
+                    if($services[$i]['SentStatus'] && $services[$i]['TxnID'] === null) {
+                        $services[$i]['Status'] = 0;
+                    }
+                    if ($services[$i]['LaborOrMaterial']) {
+                        $services[$i]['Amount'] = $services[$i]['MaterialsAmount'];
+                    } else {
+                        $services[$i]['Amount'] = $services[$i]['LaborAmount'];
+                    }
+                    $services[$i]['LaborOrMaterial'] = $services[$i]['LaborOrMaterial']?1:0;
+                    $services[$i]['Staff'] = null;
+
+                    unset($services[$i]['SentStatus']);
+                    unset($services[$i]['LaborAmount']);
+                    unset($services[$i]['MaterialsAmount']);
+                }
+                $response = $services;
+
+            } elseif ($batchType === 1) {
+                if($offset === 1) {
+                    $count = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->CountBatches($batchID);
+                    if($count) {
+                        $count = (int)$count[0][1];
+                    }
+                }
+                $timetracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findBy(array('integrationqbbatchid'=>$batchID));
+                for($i=0;$i<count($timetracking);$i++) {
+                    $response[$i]['Staff'] = $timetracking[$i]->getTimeclockdaysid()->getServicerid()->getName();
+                    $response[$i]['TxnID'] = $timetracking[$i]->getTxnid();
+                    if($timetracking[$i]->getSentstatus() && $timetracking[$i]->getTxnid() === null) {
+                        $response[$i]['Status'] = 0;
+                    } else {
+                        $response[$i]['Status'] = 1;
+                    }
+                    $response[$i]['LaborOrMaterial'] = null;
+                    $response[$i]['ItemTxnID'] = null;
+                    $response[$i]['PropertyName'] = null;
+                    $response[$i]['TaskName'] = null;
+                    $response[$i]['Amount'] = null;
+                }
+            }
+
+
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                'Data' => array(
+                    'Count' => $count,
+                    'Details' => $response
+                )
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed fetching logs due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
