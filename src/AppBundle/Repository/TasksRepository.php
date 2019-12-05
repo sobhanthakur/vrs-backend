@@ -57,7 +57,7 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
@@ -110,7 +110,7 @@ class TasksRepository extends EntityRepository
                 ->setParameter('Properties', $properties);
         }
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }

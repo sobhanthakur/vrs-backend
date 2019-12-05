@@ -45,7 +45,7 @@ class TimeclockdaysRepository extends EntityRepository
                 ->setParameter('SubQuery',$subQuery);
         }
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t1.timeclockdayid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
@@ -91,7 +91,7 @@ class TimeclockdaysRepository extends EntityRepository
                 ->setParameter('SubQuery',$subQuery);
         }
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t1.timeclockdayid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }

@@ -40,7 +40,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
@@ -90,7 +90,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
@@ -131,5 +131,24 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->where('b1.integrationqbbatchid = :BatchID')
             ->setParameter('BatchID',$batchID)
             ->getQuery()->execute();
+    }
+
+    /**
+     * @param $propertyID
+     * @param $taskID
+     * @return array
+     */
+    public function GetBatchDetails($batchID)
+    {
+//        $subQuery = $this
+//            ->getEntityManager()
+//            ->createQuery('select IDENTITY(sp.serviceid) AS ServiceID,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial from AppBundle:Servicestoproperties sp inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid and sp.propertyid='.$propertyID)
+//            ->getArrayResult();
+
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('Select IDENTITY(sp.serviceid) AS ServiceID,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid,b.itemtxnid,p.propertyname,t.taskname from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner  join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
+            ->getArrayResult();
+        return $subQuery;
     }
 }

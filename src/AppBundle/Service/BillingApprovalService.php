@@ -266,7 +266,7 @@ class BillingApprovalService extends BaseService
      */
     public function CompletedDateRequestCalculation($completedDateFromQuery, $completedDateRequest)
     {
-        $response = null;
+        $response = [];
         for($i=0;$i<count($completedDateFromQuery);$i++) {
             $region = $completedDateFromQuery[$i]['Region'];
             $clockOut = $completedDateFromQuery[$i]['CompleteConfirmedDate'];
@@ -278,10 +278,10 @@ class BillingApprovalService extends BaseService
             $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
 
+
             if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
                 $response[] = $completedDateFromQuery[$i]['TaskID'];
             }
-
         }
         return $response;
     }

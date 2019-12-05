@@ -308,7 +308,7 @@ class TimeTrackingApprovalService extends BaseService
      */
     public function CompletedDateRequestCalculation($completedDateFromQuery, $completedDateRequest)
     {
-        $response = null;
+        $response = [];
 
         for($i=0;$i<count($completedDateFromQuery);$i++) {
             $region = $completedDateFromQuery[$i]['Region'];

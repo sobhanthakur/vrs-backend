@@ -35,7 +35,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
@@ -85,7 +85,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        if ($completedDate) {
+        if (is_array($completedDate)) {
             $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
         }
