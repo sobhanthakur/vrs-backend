@@ -11,6 +11,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Class IntegrationqbdtimetrackingrecordsRepository
@@ -39,32 +40,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
-        }
-
-        if ($staff) {
-            $result->andWhere('p2.servicerid IN (:Servicers)')
-                ->setParameter('Servicers', $staff);
-        }
-
-        if ($createDate) {
-            $result->andWhere('t.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
-        if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
-            $result->andWhere('t1.status=1');
-        } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
-            $result->andWhere('t1.status=0');
-        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
-            if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere('t1.status=1');
-            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere('t1.status=0');
-            }
-        }
+        $result = $this->TrimTimeTrackingFilter($result,$completedDate, $staff, $createDate, $status);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -72,8 +48,9 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     }
 
     /**
-     * @param $status
      * @param $customerID
+     * @param $status
+     * @param $staff
      * @param $createDate
      * @param $completedDate
      * @return mixed
@@ -89,32 +66,8 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
-        }
+        $result = $this->TrimTimeTrackingFilter($result,$completedDate, $staff, $createDate, $status);
 
-        if ($staff) {
-            $result->andWhere('p2.servicerid IN (:Servicers)')
-                ->setParameter('Servicers', $staff);
-        }
-
-        if ($createDate) {
-            $result->andWhere('t.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
-        if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
-            $result->andWhere('t1.status=1');
-        } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
-            $result->andWhere('t1.status=0');
-        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
-            if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere('t1.status=1');
-            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere('t1.status=0');
-            }
-        }
         return $result->getQuery()->execute();
     }
 
@@ -144,5 +97,45 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->where('b1.integrationqbbatchid = :BatchID')
             ->setParameter('BatchID', $batchID)
             ->getQuery()->execute();
+    }
+
+    /**
+     * @param QueryBuilder $result
+     * @param $completedDate
+     * @param $staff
+     * @param $createDate
+     * @param $status
+     * @return mixed
+     */
+    public function TrimTimeTrackingFilter($result, $completedDate, $staff, $createDate, $status)
+    {
+        if (is_array($completedDate)) {
+            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
+                ->setParameter('CompletedDate', $completedDate);
+        }
+
+        if ($staff) {
+            $result->andWhere('p2.servicerid IN (:Servicers)')
+                ->setParameter('Servicers', $staff);
+        }
+
+        if ($createDate) {
+            $result->andWhere('t.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
+        if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
+            $result->andWhere('t1.status=1');
+        } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
+            $result->andWhere('t1.status=0');
+        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
+            if (in_array(GeneralConstants::APPROVED, $status)) {
+                $result->andWhere('t1.status=1');
+            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
+                $result->andWhere('t1.status=0');
+            }
+        }
+
+        return $result;
     }
 }
