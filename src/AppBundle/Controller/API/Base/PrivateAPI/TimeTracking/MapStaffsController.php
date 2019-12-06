@@ -8,6 +8,8 @@
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\TimeTracking;
 
+use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -32,10 +34,10 @@ class MapStaffsController extends FOSRestController
      */
     public function FetchEmployees(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapBillingService = $this->container->get('vrscheduler.map_staffs');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapBillingService = $this->container->get(GeneralConstants::MAP_STAFF_SERVICE);
             return $mapBillingService->FetchEmployees($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -44,7 +46,7 @@ class MapStaffsController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -88,14 +90,14 @@ class MapStaffsController extends FOSRestController
      */
     public function MapStaffs(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapStaffs = $this->container->get('vrscheduler.map_staffs');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapStaffs = $this->container->get(GeneralConstants::MAP_STAFF_SERVICE);
             return $mapStaffs->MapStaffs($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -104,7 +106,7 @@ class MapStaffsController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -162,10 +164,10 @@ class MapStaffsController extends FOSRestController
      */
     public function MapStaffsToEmployees(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapStaffs = $this->container->get('vrscheduler.map_staffs');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapStaffs = $this->container->get(GeneralConstants::MAP_STAFF_SERVICE);
             $content = json_decode($request->getContent(),true);
             return $mapStaffs->MapStaffsToEmployees($customerID, $content);
         } catch (BadRequestHttpException $exception) {
@@ -175,7 +177,7 @@ class MapStaffsController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

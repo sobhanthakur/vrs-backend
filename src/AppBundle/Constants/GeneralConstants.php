@@ -131,4 +131,17 @@ final class GeneralConstants
 
     const BILLING = 'Billing';
     const TIME_TRACKING = 'Time Tracking';
+
+    const MONOLOG_EXCEPTION = 'monolog.logger.exception';
+    const FUNCTION_LOG = ' function failed due to Error : ';
+    const AUTHPAYLOAD = 'AuthPayload';
+    const AUTHORIZATION = 'Authorization';
+    const BILLING_STATUS_1 = 'b1.status=1';
+    const BILLING_STATUS_0 = 'b1.status=0';
+
+    const MAP_PROPERTIES_SERVICE = 'vrscheduler.map_properties';
+    const MAP_TASKTULES_SERVICE = 'vrscheduler.map_task_rules';
+    const FILTER_SERVICE = 'vrscheduler.filter_service';
+    const MAP_STAFF_SERVICE = 'vrscheduler.map_staffs';
+    const MAP_WAGE_ITEM = 'vrscheduler.map_wage_item';
 }

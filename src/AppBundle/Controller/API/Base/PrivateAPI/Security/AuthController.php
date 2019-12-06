@@ -8,6 +8,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Security;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Options;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -36,7 +37,7 @@ class AuthController extends FOSRestController
      */
     public function ValidateAuthToken(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $authService = $this->container->get('vrscheduler.authentication_service');
         $response = null;
         try {
@@ -60,7 +61,7 @@ class AuthController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__.' function failed due to Error : '.
+            $logger->error(__FUNCTION__.GeneralConstants::FUNCTION_LOG.
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -81,10 +82,10 @@ class AuthController extends FOSRestController
      */
     public function RefreshAuthToken(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $authService = $this->container->get('vrscheduler.authentication_service');
-            $authenticationResult = $request->attributes->get('AuthPayload');
+            $authenticationResult = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $newToken = $authService->CreateNewToken($authenticationResult);
             return array(
                 'ReasonCode' => 0,
@@ -98,7 +99,7 @@ class AuthController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__.' function failed due to Error : '.
+            $logger->error(__FUNCTION__.GeneralConstants::FUNCTION_LOG.
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

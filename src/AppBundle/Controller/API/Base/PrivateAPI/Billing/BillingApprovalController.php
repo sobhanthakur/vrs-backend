@@ -8,6 +8,8 @@
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\Billing;
 
+use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -59,13 +61,13 @@ class BillingApprovalController extends FOSRestController
      */
     public function MapTasks(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $billingApprovalService = $this->container->get('vrscheduler.billing_approval');
             return $billingApprovalService->MapTasks($customerID, $data);
         } catch (BadRequestHttpException $exception) {
@@ -75,7 +77,7 @@ class BillingApprovalController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -130,9 +132,9 @@ class BillingApprovalController extends FOSRestController
      */
     public function SaveBillingApproval(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $billingApprovalService = $this->container->get('vrscheduler.billing_approval');
             $content = json_decode($request->getContent(),true);
             return $billingApprovalService->ApproveBilling($customerID,$content);
@@ -143,7 +145,7 @@ class BillingApprovalController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

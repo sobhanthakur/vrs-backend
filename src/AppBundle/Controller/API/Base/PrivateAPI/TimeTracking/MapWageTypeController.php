@@ -10,6 +10,8 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\TimeTracking;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
+use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Put;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,10 +39,10 @@ class MapWageTypeController extends FOSRestController
      */
     public function MapProperties(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapWageItemService = $this->container->get('vrscheduler.map_wage_item');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapWageItemService = $this->container->get(GeneralConstants::MAP_WAGE_ITEM);
             return $mapWageItemService->FetchQBDWageItems($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -49,7 +51,7 @@ class MapWageTypeController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -87,10 +89,10 @@ class MapWageTypeController extends FOSRestController
      */
     public function MapPayrollItemWages(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapWageItemService = $this->container->get('vrscheduler.map_wage_item');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapWageItemService = $this->container->get(GeneralConstants::MAP_WAGE_ITEM);
             $content = json_decode($request->getContent(),true);
             if(empty($content)) {
                 $content = [];
@@ -103,7 +105,7 @@ class MapWageTypeController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -131,14 +133,14 @@ class MapWageTypeController extends FOSRestController
      */
     public function GetMappedPayrollItemWages(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $mapWageItemService = $this->container->get('vrscheduler.map_wage_item');
+            $mapWageItemService = $this->container->get(GeneralConstants::MAP_WAGE_ITEM);
             return $mapWageItemService->GetPayrollMapping($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -147,7 +149,7 @@ class MapWageTypeController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

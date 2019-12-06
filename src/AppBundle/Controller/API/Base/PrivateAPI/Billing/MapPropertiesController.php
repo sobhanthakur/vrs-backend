@@ -7,6 +7,8 @@
  */
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\Billing;
+use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -57,14 +59,14 @@ class MapPropertiesController extends FOSRestController
      */
     public function MapProperties(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapBillingService = $this->container->get('vrscheduler.map_properties');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapBillingService = $this->container->get(GeneralConstants::MAP_PROPERTIES_SERVICE);
             return $mapBillingService->MapProperties($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -73,7 +75,7 @@ class MapPropertiesController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -93,10 +95,10 @@ class MapPropertiesController extends FOSRestController
      */
     public function FetchCustomers(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapBillingService = $this->container->get('vrscheduler.map_properties');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapBillingService = $this->container->get(GeneralConstants::MAP_PROPERTIES_SERVICE);
             return $mapBillingService->FetchCustomers($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -105,7 +107,7 @@ class MapPropertiesController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -163,10 +165,10 @@ class MapPropertiesController extends FOSRestController
      */
     public function MapPropertiesToCustomers(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $mapBillingService = $this->container->get('vrscheduler.map_properties');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $mapBillingService = $this->container->get(GeneralConstants::MAP_PROPERTIES_SERVICE);
             $content = json_decode($request->getContent(),true);
             return $mapBillingService->MapPropertiesToCustomers($customerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -176,7 +178,7 @@ class MapPropertiesController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

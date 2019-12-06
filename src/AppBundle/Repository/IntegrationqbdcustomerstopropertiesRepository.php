@@ -11,38 +11,30 @@ namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class IntegrationqbdcustomerstopropertiesRepository
+ * @package AppBundle\Repository
+ */
 class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
 {
-    public function PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset)
+    /**
+     * @param $customerID
+     * @param $propertyTags
+     * @param $region
+     * @param $owner
+     * @param $createDate
+     * @param $limit
+     * @param $offset
+     * @return mixed
+     */
+    public function PropertiesJoinMatched($customerID, $propertyTags, $region, $owner, $createDate, $limit, $offset)
     {
         $result =  $this
             ->createQueryBuilder('icp')
-            ->select('IDENTITY(icp.propertyid) AS PropertyID, p.propertyname AS PropertyName, p.propertyabbreviation AS PropertyAbbreviation, r.region AS RegionName, o.ownername AS OwnerName, IDENTITY(icp.integrationqbdcustomerid) AS IntegrationQBDCustomerID')
-            ->where('ic.customerid= :CustomerID')
-            ->andWhere('ic.active=1')
-            ->innerJoin('icp.integrationqbdcustomerid','ic')
-            ->innerJoin('icp.propertyid','p')
-            ->innerJoin('p.regionid','r')
-            ->innerJoin('p.ownerid','o')
-            ->setParameter('CustomerID', $customerID);
+            ->select('IDENTITY(icp.propertyid) AS PropertyID, p.propertyname AS PropertyName, p.propertyabbreviation AS PropertyAbbreviation, r.region AS RegionName, o.ownername AS OwnerName, IDENTITY(icp.integrationqbdcustomerid) AS IntegrationQBDCustomerID');
 
-        if ($region) {
-            $result->andWhere('p.regionid IN (:Regions)')
-                ->setParameter('Regions', $region);
-        }
-        if ($owner) {
-            $result->andWhere('p.ownerid IN (:Owners)')
-                ->setParameter('Owners', $owner);
-        }
-        if ($propertyTags) {
-            $result->andWhere('p.propertyid IN (:PropertyTags)')
-                ->setParameter('PropertyTags', $propertyTags);
-        }
-        if ($createDate) {
-            $result->andWhere('p.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
+        $result = $this->TrimResult($result,$region,$owner,$propertyTags,$createDate,$customerID);
+
         $result
             ->orderBy('p.createdate','DESC')
             ->setFirstResult(($offset-1)*$limit)
@@ -52,19 +44,36 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
             ->getResult();
     }
 
-    public function CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate)
+    /**
+     * @param $customerID
+     * @param $propertyTags
+     * @param $region
+     * @param $owner
+     * @param $createDate
+     * @return mixed
+     */
+    public function CountPropertiesJoinMatched($customerID, $propertyTags, $region, $owner, $createDate)
     {
         $result =  $this
             ->createQueryBuilder('icp')
-            ->select('count(icp.propertyid)')
-            ->where('ic.customerid= :CustomerID')
+            ->select('count(icp.propertyid)');
+
+        $result = $this->TrimResult($result,$region,$owner,$propertyTags,$createDate,$customerID);
+
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function TrimResult($result,$region,$owner,$propertyTags,$createDate,$customerID)
+    {
+        $result->where('ic.customerid= :CustomerID')
             ->andWhere('ic.active=1')
             ->innerJoin('icp.integrationqbdcustomerid','ic')
             ->innerJoin('icp.propertyid','p')
             ->innerJoin('p.regionid','r')
             ->innerJoin('p.ownerid','o')
             ->setParameter('CustomerID', $customerID);
-
         if ($region) {
             $result->andWhere('p.regionid IN (:Regions)')
                 ->setParameter('Regions', $region);
@@ -82,8 +91,6 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
                 ->setParameter('From', $createDate['From'])
                 ->setParameter('To', $createDate['To']);
         }
-        return $result
-            ->getQuery()
-            ->getResult();
+        return $result;
     }
 }

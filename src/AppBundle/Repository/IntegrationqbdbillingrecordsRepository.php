@@ -34,38 +34,13 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->select('IDENTITY(b1.taskid) as TaskID, t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
             ->innerJoin('b1.taskid', 't2')
             ->innerJoin('t2.propertyid', 'p2')
-            ->innerJoin('p2.regionid','r')
-            ->innerJoin('r.timezoneid','t')
+            ->innerJoin('p2.regionid', 'r')
+            ->innerJoin('r.timezoneid', 't')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.taskid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
-        }
-
-        if ($properties) {
-            $result->andWhere('p2.propertyid IN (:Properties)')
-                ->setParameter('Properties', $properties);
-        }
-
-        if ($createDate) {
-            $result->andWhere('t.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
-        if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
-            $result->andWhere('b1.status=1');
-        } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
-            $result->andWhere('b1.status=0');
-        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
-            if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere('b1.status=1');
-            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere('b1.status=0');
-            }
-        }
+        $result = $this->TrimBillingRecords($result,$completedDate,$properties,$createDate,$status);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -83,13 +58,60 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('b1')
-            ->select('count(IDENTITY(b1.taskid))')
+            ->select('count(b1.integrationqbdbillingrecordid)')
             ->innerJoin('b1.taskid', 't2')
             ->innerJoin('t2.propertyid', 'p2')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
+        $result = $this->TrimBillingRecords($result,$completedDate,$properties,$createDate,$status);
+
+        return $result->getQuery()->execute();
+    }
+
+    /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function DistinctBatchCount($batchID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('count(b1.integrationqbdbillingrecordid)')
+            ->where('b1.integrationqbbatchid = :BatchID')
+            ->setParameter('BatchID', $batchID)
+            ->getQuery()->execute();
+    }
+
+    /**
+     * @param $batchID
+     * @return array
+     */
+    public function GetBatchDetails($batchID, $limit, $offset)
+    {
+        return $this
+            ->getEntityManager()
+            ->createQuery('Select b.sentstatus AS SentStatus,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid as TxnID,b.itemtxnid ItemTxnID,p.propertyname AS PropertyName,t.taskname AS TaskName from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getArrayResult();
+    }
+
+    /**
+     * @param $batchID
+     * @return array
+     */
+    public function CountGetBatchDetails($batchID)
+    {
+        return $this
+            ->getEntityManager()
+            ->createQuery('Select count(IDENTITY(sp.serviceid)) from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
+            ->getArrayResult();
+    }
+
+    public function TrimBillingRecords($result,$completedDate,$properties,$createDate, $status)
+    {
         if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')
                 ->setParameter('CompletedDate', $completedDate);
@@ -106,58 +128,17 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
                 ->setParameter('To', $createDate['To']);
         }
         if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
-            $result->andWhere('b1.status=1');
+            $result->andWhere(GeneralConstants::BILLING_STATUS_1);
         } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
-            $result->andWhere('b1.status=0');
+            $result->andWhere(GeneralConstants::BILLING_STATUS_0);
         } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
             if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere('b1.status=1');
+                $result->andWhere(GeneralConstants::BILLING_STATUS_1);
             } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere('b1.status=0');
+                $result->andWhere(GeneralConstants::BILLING_STATUS_0);
             }
         }
-        return $result->getQuery()->execute();
-    }
 
-    /**
-     * @param $batchID
-     * @return mixed
-     */
-    public function DistinctBatchCount($batchID)
-    {
-        return $this
-            ->createQueryBuilder('b1')
-            ->select('count(b1.integrationqbdbillingrecordid)')
-            ->where('b1.integrationqbbatchid = :BatchID')
-            ->setParameter('BatchID',$batchID)
-            ->getQuery()->execute();
-    }
-
-    /**
-     * @param $batchID
-     * @return array
-     */
-    public function GetBatchDetails($batchID,$limit,$offset)
-    {
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('Select b.sentstatus AS SentStatus,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid as TxnID,b.itemtxnid ItemTxnID,p.propertyname AS PropertyName,t.taskname AS TaskName from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
-            ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getArrayResult();
-        return $subQuery;
-    }
-
-    /**
-     * @param $batchID
-     * @return array
-     */
-    public function CountGetBatchDetails($batchID)
-    {
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('Select count(IDENTITY(sp.serviceid)) from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid='.$batchID)
-            ->getArrayResult();
-        return $subQuery;
+        return $result;
     }
 }

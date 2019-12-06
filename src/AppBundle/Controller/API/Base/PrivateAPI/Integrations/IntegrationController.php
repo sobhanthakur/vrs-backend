@@ -9,6 +9,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Integrations;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Put;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -35,11 +36,11 @@ class IntegrationController extends FOSRestController
      */
     public function ListIntegrations(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
             $integrationService = $this->container->get('vrscheduler.integration_service');
-            $response = $integrationService->GetAllIntegrations($request->attributes->get('AuthPayload'));
+            $response = $integrationService->GetAllIntegrations($request->attributes->get(GeneralConstants::AUTHPAYLOAD));
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -47,7 +48,7 @@ class IntegrationController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -113,13 +114,13 @@ class IntegrationController extends FOSRestController
      */
     public function QBDIntegration(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
             $integrationService = $this->container->get('vrscheduler.integration_service');
             $method = $request->getMethod();
             $content = json_decode($request->getContent(),true);
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             switch ($method) {
                 case 'POST' :
                     $response = $integrationService->InstallQuickbooksDesktop($content,$customerID);
@@ -136,7 +137,7 @@ class IntegrationController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

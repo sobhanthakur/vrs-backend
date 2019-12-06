@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use Swagger\Annotations as SWG;
 
 class FileExportController extends FOSRestController
@@ -40,11 +42,11 @@ class FileExportController extends FOSRestController
      */
     public function FileExport(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $data = json_decode(base64_decode($request->get('data')),true);
             $integrationID = $data['IntegrationID'];
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $integrationService = $this->container->get('vrscheduler.file_export');
             return $integrationService->DownloadQWC($integrationID,$customerID);
 
@@ -55,7 +57,7 @@ class FileExportController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

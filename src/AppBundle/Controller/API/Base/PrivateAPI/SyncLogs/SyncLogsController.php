@@ -8,6 +8,7 @@
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\SyncLogs;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,10 +54,10 @@ class SyncLogsController extends FOSRestController
      */
     public function ListSyncLogs(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
@@ -70,7 +71,7 @@ class SyncLogsController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -109,10 +110,10 @@ class SyncLogsController extends FOSRestController
      */
     public function BatchWiseSyncLogs(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
@@ -126,7 +127,7 @@ class SyncLogsController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

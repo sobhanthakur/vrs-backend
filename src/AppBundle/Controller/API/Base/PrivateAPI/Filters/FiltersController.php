@@ -9,6 +9,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\Filters;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,10 +33,10 @@ class FiltersController extends FOSRestController
      */
     public function PropertyTags(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->PropertyGroupsFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -44,7 +45,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -64,10 +65,10 @@ class FiltersController extends FOSRestController
      */
     public function RegionGroups(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->RegionGroupsFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -76,7 +77,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -96,10 +97,10 @@ class FiltersController extends FOSRestController
      */
     public function Owners(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->OwnersFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -108,7 +109,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -128,10 +129,10 @@ class FiltersController extends FOSRestController
      */
     public function StaffTags(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->StaffTagFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -140,7 +141,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -160,10 +161,10 @@ class FiltersController extends FOSRestController
      */
     public function Departments(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->DepartmentsFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -172,7 +173,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -192,10 +193,10 @@ class FiltersController extends FOSRestController
      */
     public function Property(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->PropertyFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -204,7 +205,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
@@ -224,10 +225,10 @@ class FiltersController extends FOSRestController
      */
     public function Staff(Request $request)
     {
-        $logger = $this->container->get('monolog.logger.exception');
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            $customerID = $request->attributes->get('AuthPayload')['message']['CustomerID'];
-            $filterService = $this->container->get('vrscheduler.filter_service');
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $filterService = $this->container->get(GeneralConstants::FILTER_SERVICE);
             return $filterService->StaffFilter($customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -236,7 +237,7 @@ class FiltersController extends FOSRestController
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $logger->error(__FUNCTION__ . ' function failed due to Error : ' .
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);

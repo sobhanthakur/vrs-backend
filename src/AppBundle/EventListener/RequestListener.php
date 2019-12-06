@@ -11,6 +11,7 @@
 namespace AppBundle\EventListener;
 
 use AppBundle\Constants\ApiRoutes;
+use AppBundle\Constants\GeneralConstants;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,10 +56,10 @@ class RequestListener extends BaseService
         $route = $request->attributes->get('_route');
 
         // Add authorization header
-        if (!$request->headers->has('Authorization') && function_exists('apache_request_headers')) {
+        if (!$request->headers->has(GeneralConstants::AUTHORIZATION) && function_exists('apache_request_headers')) {
             $all = apache_request_headers();
-            if (isset($all['Authorization'])) {
-                $request->headers->set('Authorization', $all['Authorization']);
+            if (isset($all[GeneralConstants::AUTHORIZATION])) {
+                $request->headers->set(GeneralConstants::AUTHORIZATION, $all[GeneralConstants::AUTHORIZATION]);
             }
         }
 

@@ -33,17 +33,7 @@ class IntegrationqbbatchesRepository extends EntityRepository
             ->where('c1.integrationtocustomerid = :IntegrationToCustomerID')
             ->setParameter('IntegrationToCustomerID',$integrationToCustomerID);
 
-        if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
-            $result->andWhere('b1.createdate BETWEEN :CompletedFrom AND :CompletedTo')
-                ->setParameter('CompletedFrom', $completedDate['From'])
-                ->setParameter('CompletedTo', $completedDate['To']);
-        }
-
-        if ((count($batchType) === 1) && in_array(GeneralConstants::BILLING, $batchType)) {
-            $result->andWhere('b1.batchtype=0');
-        } elseif ((count($batchType) === 1) && in_array(GeneralConstants::TIME_TRACKING, $batchType)) {
-            $result->andWhere('b1.batchtype=1');
-        }
+        $result = $this->FilterResult($result,$completedDate,$batchType);
 
         return $result->getQuery()->execute();
     }
@@ -65,6 +55,16 @@ class IntegrationqbbatchesRepository extends EntityRepository
             ->where('c1.integrationtocustomerid = :IntegrationToCustomerID')
             ->setParameter('IntegrationToCustomerID',$integrationToCustomerID);
 
+        $result = $this->FilterResult($result,$completedDate,$batchType);
+
+        $result->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return $result->getQuery()->execute();
+    }
+
+    public function FilterResult($result,$completedDate,$batchType)
+    {
         if ($completedDate && !empty($completedDate['From']) && !empty($completedDate['To'])) {
             $result->andWhere('b1.createdate BETWEEN :CompletedFrom AND :CompletedTo')
                 ->setParameter('CompletedFrom', $completedDate['From'])
@@ -77,10 +77,7 @@ class IntegrationqbbatchesRepository extends EntityRepository
             $result->andWhere('b1.batchtype=1');
         }
 
-        $result->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return $result->getQuery()->execute();
+        return $result;
     }
 
 }
