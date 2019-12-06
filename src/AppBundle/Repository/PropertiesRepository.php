@@ -11,6 +11,8 @@ namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Class PropertiesRepository
@@ -34,115 +36,63 @@ class PropertiesRepository extends EntityRepository
     }
 
     /**
-     * @param $properties
+     * @param $customerID
      * @param $propertyTags
      * @param $region
      * @param $owner
      * @param $createDate
      * @param $limit
      * @param $offset
-     * @param $customerID
+     * @param $unmatched
      * @return mixed
      */
-    public function PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset)
+    public function PropertiesMap($customerID, $propertyTags, $region, $owner, $createDate, $limit, $offset, $unmatched)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('p')
-            ->select('p.propertyid AS PropertyID, p.propertyname AS PropertyName, p.propertyabbreviation as PropertyAbbreviation, r.region AS RegionName, o.ownername AS OwnerName')
+            ->select('p.propertyid AS PropertyID, IDENTITY(m.integrationqbdcustomerid) AS IntegrationQBDCustomerID,p.propertyname AS PropertyName, p.propertyabbreviation as PropertyAbbreviation, r.region AS RegionName, o.ownername AS OwnerName')
+            ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties', 'm', Expr\Join::WITH, 'm.propertyid=p.propertyid')
             ->innerJoin('p.regionid', 'r')
             ->innerJoin('p.ownerid', 'o')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('p.active=1');
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.propertyid) from AppBundle:Integrationqbdcustomerstoproperties b1 inner join AppBundle:Integrationqbdcustomers t2 with b1.integrationqbdcustomerid=t2.integrationqbdcustomerid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if ($subQuery) {
-            $result
-                ->andWhere('p.propertyid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery
-            );
-        }
 
+        $result = $this->TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate);
 
-        if ($region) {
-            $result->andWhere('p.regionid IN (:Regions)')
-                ->setParameter('Regions', $region);
-        }
-        if ($owner) {
-            $result->andWhere('p.ownerid IN (:Owners)')
-                ->setParameter('Owners', $owner);
-        }
-        if ($propertyTags) {
-            $result->andWhere('p.propertyid IN (:PropertyTags)')
-                ->setParameter('PropertyTags', $propertyTags);
-        }
-        if ($createDate) {
-            $result->andWhere('p.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
         $result
-            ->orderBy('p.createdate','DESC')
             ->setFirstResult(($offset-1)*$limit)
             ->setMaxResults($limit);
+
         return $result
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * @param $properties
+     * @param $customerID
      * @param $propertyTags
      * @param $region
      * @param $owner
      * @param $createDate
-     * @param $limit
-     * @param $offset
-     * @param $customerID
+     * @param $unmatched
      * @return mixed
      */
-    public function CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate)
+    public function CountPropertiesMap($customerID, $propertyTags, $region, $owner, $createDate, $unmatched)
     {
-        $result = null;
         $result = $this
             ->createQueryBuilder('p')
             ->select('count(p.propertyid)')
+            ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties', 'm', Expr\Join::WITH, 'm.propertyid=p.propertyid')
             ->innerJoin('p.regionid', 'r')
             ->innerJoin('p.ownerid', 'o')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('p.active=1');
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.propertyid) from AppBundle:Integrationqbdcustomerstoproperties b1 inner join AppBundle:Integrationqbdcustomers t2 with b1.integrationqbdcustomerid=t2.integrationqbdcustomerid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if ($subQuery) {
-            $result
-                ->andWhere('p.propertyid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery
-                );
-        }
 
-        if ($region) {
-            $result->andWhere('p.regionid IN (:Regions)')
-                ->setParameter('Regions', $region);
-        }
-        if ($owner) {
-            $result->andWhere('p.ownerid IN (:Owners)')
-                ->setParameter('Owners', $owner);
-        }
-        if ($propertyTags) {
-            $result->andWhere('p.propertyid IN (:PropertyTags)')
-                ->setParameter('PropertyTags', $propertyTags);
-        }
-        if ($createDate) {
-            $result->andWhere('p.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
+        $result = $this->TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate);
+
         return $result
             ->getQuery()
             ->getResult();
@@ -184,8 +134,7 @@ class PropertiesRepository extends EntityRepository
     }
 
     /**
-     * @param $customerID
-     * @param $properties
+     * @param $managersToProperties
      * @return mixed
      */
     public function GetRegionByID($managersToProperties)
@@ -198,5 +147,41 @@ class PropertiesRepository extends EntityRepository
             ->setParameter('Properties',$managersToProperties)
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @param QueryBuilder $result
+     * @param $unmatched
+     * @param $region
+     * @param $owner
+     * @param $propertyTags
+     * @param $createDate
+     * @return mixed
+     */
+    public function TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate)
+    {
+        if($unmatched) {
+            $result->andWhere('m.integrationqbdcustomerid IS NULL');
+        }
+
+        if ($region) {
+            $result->andWhere('p.regionid IN (:Regions)')
+                ->setParameter('Regions', $region);
+        }
+        if ($owner) {
+            $result->andWhere('p.ownerid IN (:Owners)')
+                ->setParameter('Owners', $owner);
+        }
+        if ($propertyTags) {
+            $result->andWhere('p.propertyid IN (:PropertyTags)')
+                ->setParameter('PropertyTags', $propertyTags);
+        }
+        if ($createDate) {
+            $result->andWhere('p.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
+
+        return $result;
     }
 }

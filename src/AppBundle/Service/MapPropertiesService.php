@@ -42,6 +42,7 @@ class MapPropertiesService extends BaseService
             $count = null;
             $response = null;
             $flag = null;
+            $unmatched = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -95,17 +96,8 @@ class MapPropertiesService extends BaseService
                     if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
                         in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
-                        if($offset === 1) {
-                            $count = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate);
-                            if($count) {
-                                $count = (int)$count[0][1];
-                            }
-                        }
-                        $response = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
-                        for($i=0;$i<count($response);$i++) {
-                            $response[$i]["IntegrationQBDCustomerID"] = null;
-                        }
-                        $flag = 1;
+                        $unmatched = true;
+                        $flag = 0;
                     }
                 }
             }
@@ -113,28 +105,13 @@ class MapPropertiesService extends BaseService
             // Default Case
             if(!$flag) {
                 if($offset === 1) {
-                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
-                    if($count1) {
-                        $count1 = (int)$count1[0][1];
-                    }
-                    $count2 = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate);
+                    $count = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesMap($customerID,$propertyTags, $region, $owner, $createDate,$unmatched);
 
-                    if($count2) {
-                        $count2 = (int)$count2[0][1];
-                    }
-                    $count = $count1 + $count2;
-                }
-                $response2 = null;
-                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
-                $countResponse = count($response);
-                if($countResponse < $limit) {
-                    $limit = $limit-$countResponse;
-                    $response2 = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesJoinNotMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
-                    for($i=0;$i<count($response2);$i++) {
-                        $response2[$i]["IntegrationQBDCustomerID"] = null;
+                    if($count) {
+                        $count = (int)$count[0][1];
                     }
                 }
-                $response = array_merge($response,$response2);
+                $response = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesMap($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset,$unmatched);
             }
 
             return array(

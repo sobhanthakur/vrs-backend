@@ -10,6 +10,7 @@ namespace AppBundle\Repository;
 
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Class IntegrationqbdcustomerstopropertiesRepository
@@ -65,7 +66,16 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
             ->getResult();
     }
 
-    public function TrimResult($result,$region,$owner,$propertyTags,$createDate,$customerID)
+    /**
+     * @param QueryBuilder $result
+     * @param $region
+     * @param $owner
+     * @param $propertyTags
+     * @param $createDate
+     * @param $customerID
+     * @return mixed
+     */
+    public function TrimResult($result, $region, $owner, $propertyTags, $createDate, $customerID)
     {
         $result->where('ic.customerid= :CustomerID')
             ->andWhere('ic.active=1')
