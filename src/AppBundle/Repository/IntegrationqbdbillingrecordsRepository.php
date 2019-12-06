@@ -11,6 +11,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Class IntegrationqbdbillingrecordsRepository
@@ -20,6 +21,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
 {
     /**
      * @param $status
+     * @param $properties
      * @param $customerID
      * @param $createDate
      * @param $completedDate
@@ -110,7 +112,15 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->getArrayResult();
     }
 
-    public function TrimBillingRecords($result,$completedDate,$properties,$createDate, $status)
+    /**
+     * @param QueryBuilder $result
+     * @param $completedDate
+     * @param $properties
+     * @param $createDate
+     * @param $status
+     * @return mixed
+     */
+    public function TrimBillingRecords($result, $completedDate, $properties, $createDate, $status)
     {
         if (is_array($completedDate)) {
             $result->andWhere('t2.taskid IN (:CompletedDate)')

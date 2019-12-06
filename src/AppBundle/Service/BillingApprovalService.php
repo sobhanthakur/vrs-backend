@@ -42,6 +42,7 @@ class BillingApprovalService extends BaseService
             $flag = null;
             $response = [];
             $status = [];
+            $new = null;
 
             if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -101,16 +102,8 @@ class BillingApprovalService extends BaseService
                     (count($status) === 1) &&
                     in_array(GeneralConstants::NEW, $status)
                 ) {
-                    if ($offset === 1) {
-                        $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate);
-                        if (!empty($count)) {
-                            $count = (int)$count[0][1];
-                        }
-                    }
-
-                    $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset);
-                    $response = $this->processResponse($response);
-                    $flag = 1;
+                    $new = true;
+                    $flag = 0;
                 }
             }
 
@@ -122,27 +115,14 @@ class BillingApprovalService extends BaseService
              */
             if (!$flag) {
                 if ($offset === 1) {
-                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->CountMapTasksQBDFilters($status, $properties,$customerID, $createDate, $completedDate);
-                    if ($count1) {
-                        $count1 = (int)$count1[0][1];
+                    $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $new);
+                    if ($count) {
+                        $count = (int)$count[0][1];
                     }
-                    $count2 = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate);
+                }
 
-                    if ($count2) {
-                        $count2 = (int)$count2[0][1];
-                    }
-                    $count = $count1 + $count2;
-                }
-                $response2 = null;
-                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
+                $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset,$new);
                 $response = $this->processResponse($response);
-                $countResponse = count($response);
-                if ($countResponse < $limit) {
-                    $limit = $limit - $countResponse;
-                    $response2 = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset);
-                    $response2 = $this->processResponse($response2);
-                }
-                $response = array_merge($response, $response2);
             }
 
             return array(
@@ -293,7 +273,7 @@ class BillingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if (!array_key_exists('Status', $response[$i])) {
+            if ($response[$i]['Status'] === null) {
                 $response[$i]["Status"] = 2;
             }
             $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['CompleteConfirmedDate']);
@@ -303,9 +283,10 @@ class BillingApprovalService extends BaseService
         return $response;
     }
 
+
     /**
-     * @param $timeZoneID
-     * @param $clockIn
+     * @param $region
+     * @param \DateTime $completeConfirmedDate
      * @return mixed
      */
     public function TimeZoneCalculation($region, $completeConfirmedDate)
