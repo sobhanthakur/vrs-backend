@@ -130,7 +130,7 @@ class MapTaskRulesService extends BaseService
                     }
                     $count = $count1 + $count2;
                 }
-                $response3 = null;
+                $response3 = [];
                 $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
                 for($i=0;$i<count($response);$i++) {
                     $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
