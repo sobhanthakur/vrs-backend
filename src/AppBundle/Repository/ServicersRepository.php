@@ -7,10 +7,9 @@
 
 namespace AppBundle\Repository;
 
-/**
- * Class ServicersRepository
- * @package AppBundle\Repository
- */
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * Class ServicersRepository
  * @package AppBundle\Repository
@@ -52,52 +51,32 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->execute();
     }
 
+
     /**
-     * @param $employeeToServicers
+     * @param $customerID
      * @param $staffTags
      * @param $department
      * @param $createDate
      * @param $limit
      * @param $offset
-     * @param $customerID
-     * @param $matchStatus
+     * @param $unmatched
      * @return mixed
      */
-    public function SyncServicers($customerID,$staffTags, $department, $createDate, $limit, $offset)
+    public function SyncServicers($customerID, $staffTags, $department, $createDate, $limit, $offset, $unmatched)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('s')
-            ->select('s.servicerid AS StaffID, s.name AS StaffName, s.servicerabbreviation as ServicerAbbreviation')
+            ->select('s.servicerid AS StaffID, IDENTITY(m.integrationqbdemployeeid) AS IntegrationQBDEmployeeID, s.name AS StaffName, s.servicerabbreviation as ServicerAbbreviation')
+            ->leftJoin('AppBundle:Integrationqbdemployeestoservicers', 'm', Expr\Join::WITH, 'm.servicerid=s.servicerid')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.servicerid) from AppBundle:Integrationqbdemployeestoservicers b1 inner join AppBundle:Integrationqbdemployees t2 with b1.integrationqbdemployeeid=t2.integrationqbdemployeeid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if($subQuery) {
-            $result->andWhere('s.servicerid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery);
-        }
+        $result = $this->TrimMappingResult($result,$unmatched,$staffTags,$department,$createDate);
 
-        if ($staffTags) {
-            $result->andWhere('s.servicerid IN (:StaffTag)')
-                ->setParameter('StaffTag', $staffTags);
-        }
-        if ($department) {
-            $result->andWhere('s.servicerid IN (:Department)')
-                ->setParameter('Department', $department);
-        }
-        if ($createDate) {
-            $result->andWhere('s.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
         $result
-            ->orderBy('s.createdate','DESC')
             ->setFirstResult(($offset-1)*$limit)
             ->setMaxResults($limit);
         return $result
@@ -106,49 +85,27 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
-     * @param $employeeToServicers
+     * @param $customerID
      * @param $staffTags
      * @param $department
      * @param $createDate
-     * @param $limit
-     * @param $offset
-     * @param $customerID
-     * @param $matchStatus
+     * @param $unmatched
      * @return mixed
      */
-    public function CountSyncServicers($customerID,$staffTags, $department, $createDate)
+    public function CountSyncServicers($customerID, $staffTags, $department, $createDate,$unmatched)
     {
         $result = null;
         $result = $this
             ->createQueryBuilder('s')
             ->select('count(s.servicerid)')
+            ->leftJoin('AppBundle:Integrationqbdemployeestoservicers', 'm', Expr\Join::WITH, 'm.servicerid=s.servicerid')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.servicerid) from AppBundle:Integrationqbdemployeestoservicers b1 inner join AppBundle:Integrationqbdemployees t2 with b1.integrationqbdemployeeid=t2.integrationqbdemployeeid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if($subQuery) {
-            $result->andWhere('s.servicerid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery);
-        }
+        $result = $this->TrimMappingResult($result,$unmatched,$staffTags,$department,$createDate);
 
-        if ($staffTags) {
-            $result->andWhere('s.servicerid IN (:StaffTag)')
-                ->setParameter('StaffTag', $staffTags);
-        }
-        if ($department) {
-            $result->andWhere('s.servicerid IN (:Department)')
-                ->setParameter('Department', $department);
-        }
-        if ($createDate) {
-            $result->andWhere('s.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
         return $result
             ->getQuery()
             ->getResult();
@@ -170,6 +127,11 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $customerID
+     * @param $staff
+     * @return mixed
+     */
     public function SearchStaffByID($customerID, $staff)
     {
         return $this
@@ -183,5 +145,36 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @param QueryBuilder $result
+     * @param $unmatched
+     * @param $staffTags
+     * @param $department
+     * @param $createDate
+     * @return mixed
+     */
+    public function TrimMappingResult($result, $unmatched, $staffTags, $department, $createDate)
+    {
+        if($unmatched) {
+            $result->andWhere('m.integrationqbdemployeeid IS NULL');
+        }
+
+        if ($staffTags) {
+            $result->andWhere('s.servicerid IN (:StaffTag)')
+                ->setParameter('StaffTag', $staffTags);
+        }
+        if ($department) {
+            $result->andWhere('s.servicerid IN (:Department)')
+                ->setParameter('Department', $department);
+        }
+        if ($createDate) {
+            $result->andWhere('s.createdate BETWEEN :From AND :To')
+                ->setParameter('From', $createDate['From'])
+                ->setParameter('To', $createDate['To']);
+        }
+
+        return $result;
     }
 }

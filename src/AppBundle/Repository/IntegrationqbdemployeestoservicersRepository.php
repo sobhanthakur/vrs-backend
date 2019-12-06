@@ -10,6 +10,7 @@ namespace AppBundle\Repository;
 
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Class IntegrationqbdemployeestoservicersRepository
@@ -17,6 +18,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class IntegrationqbdemployeestoservicersRepository extends EntityRepository
 {
+
     /**
      * @param $customerID
      * @param $staffTags
@@ -37,19 +39,8 @@ class IntegrationqbdemployeestoservicersRepository extends EntityRepository
             ->innerJoin('ies.servicerid', 's')
             ->setParameter('CustomerID', $customerID);
 
-        if ($staffTags) {
-            $result->andWhere('s.servicerid IN (:StaffTag)')
-                ->setParameter('StaffTag', $staffTags);
-        }
-        if ($department) {
-            $result->andWhere('s.servicerid IN (:Department)')
-                ->setParameter('Department', $department);
-        }
-        if ($createDate) {
-            $result->andWhere('s.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
+        $result = $this->TrimMappingResults($result, $staffTags, $department, $createDate);
+
         $result
             ->orderBy('s.createdate', 'DESC')
             ->setFirstResult(($offset - 1) * $limit)
@@ -64,8 +55,6 @@ class IntegrationqbdemployeestoservicersRepository extends EntityRepository
      * @param $staffTags
      * @param $department
      * @param $createDate
-     * @param $limit
-     * @param $offset
      * @return mixed
      */
     public function CountStaffsJoinMatched($customerID, $staffTags, $department, $createDate)
@@ -79,6 +68,22 @@ class IntegrationqbdemployeestoservicersRepository extends EntityRepository
             ->innerJoin('ies.servicerid', 's')
             ->setParameter('CustomerID', $customerID);
 
+        $result = $this->TrimMappingResults($result, $staffTags, $department, $createDate);
+
+        return $result
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param QueryBuilder $result
+     * @param $staffTags
+     * @param $department
+     * @param $createDate
+     * @return mixed
+     */
+    public function TrimMappingResults($result, $staffTags, $department, $createDate)
+    {
         if ($staffTags) {
             $result->andWhere('s.servicerid IN (:StaffTag)')
                 ->setParameter('StaffTag', $staffTags);
@@ -92,8 +97,7 @@ class IntegrationqbdemployeestoservicersRepository extends EntityRepository
                 ->setParameter('From', $createDate['From'])
                 ->setParameter('To', $createDate['To']);
         }
-        return $result
-            ->getQuery()
-            ->getResult();
+
+        return $result;
     }
 }
