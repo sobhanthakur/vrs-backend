@@ -10,13 +10,15 @@ namespace AppBundle\Repository;
 
 class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function GetRegionGroupsRestrictions($customerID)
+    public function GetRegionGroupsRestrictions($customerID,$region)
     {
         return $this
             ->createQueryBuilder('r')
             ->select('r.regiongroupid as RegionGroupID, r.regiongroup as RegionGroup')
             ->where('r.customerid = (:CustomerID)')
+            ->andWhere('r.regiongroupid IN (:Regions)')
             ->setParameter('CustomerID',$customerID)
+            ->setParameter('Regions',$region)
             ->getQuery()
             ->execute();
     }

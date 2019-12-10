@@ -42,6 +42,7 @@ class TimeTrackingApprovalService extends BaseService
             $status = [];
             $completedDate = null;
             $new = null;
+            $dateFilter = [];
 
             if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -57,6 +58,9 @@ class TimeTrackingApprovalService extends BaseService
             if (!empty($data)) {
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
+                $dateFilter = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
+                $dateFilter = $this->StartDateCalculation($dateFilter,$integrationToCustomers[0]['startdate']);
+
                 if (array_key_exists('Staff', $filters)) {
                     $staff = $filters['Staff'];
                 }
@@ -65,14 +69,15 @@ class TimeTrackingApprovalService extends BaseService
                 }
                 if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
                     $completedDateRequest = $filters['CompletedDate'];
-                    $completedDate = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
-                    $completedDate = $this->CompletedDateRequestCalculation($completedDate,$completedDateRequest);
+                    $dateFilter = $this->CompletedDateRequestCalculation($dateFilter,$completedDateRequest);
                 }
                 if (array_key_exists('Pagination', $data)) {
                     $limit = $data['Pagination']['Limit'];
                     $offset = $data['Pagination']['Offset'];
                 }
             }
+
+            $dateFilter = $this->TrimDateFilter($dateFilter);
 
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
@@ -89,12 +94,12 @@ class TimeTrackingApprovalService extends BaseService
                     (!in_array(GeneralConstants::NEW, $status))
                 ) {
                     if ($offset === 1) {
-                        $count = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate);
+                        $count = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter);
                         if (!empty($count)) {
                             $count = (int)$count[0][1];
                         }
                     }
-                    $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$limit, $offset);
+                    $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter,$limit, $offset);
                     $response = $this->processResponse($response);
                     $flag = 1;
                 } elseif (
@@ -109,12 +114,12 @@ class TimeTrackingApprovalService extends BaseService
             //Default Condition
             if (!$flag) {
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$new);
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $dateFilter,$new);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate, $limit, $offset,$new);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $dateFilter, $limit, $offset,$new);
                 $response = $this->processResponse($response);
             }
 
@@ -301,9 +306,47 @@ class TimeTrackingApprovalService extends BaseService
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
 
             if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
-                $response[] = $completedDateFromQuery[$i]['TimeClockDaysID'];
+                $response[] = $completedDateFromQuery[$i];
             }
 
+        }
+        return $response;
+    }
+
+    /**
+     * Fetches Records Based on clockout>=StartDate
+     * @param $filterQuery
+     * @param \DateTime $startDate
+     * @return array|null
+     */
+    public function StartDateCalculation($filterQuery, $startDate)
+    {
+        $response = [];
+        for($i=0;$i<count($filterQuery);$i++) {
+            $region = $filterQuery[$i]['Region'];
+            $completeConfirmedDate = $filterQuery[$i]['ClockOut'];
+            $timeZoneLocal = new \DateTimeZone($region);
+            $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
+            $timeZoneUTC = new \DateTimeZone('UTC');
+            $startDate = $startDateLocal->setTimezone($timeZoneUTC);
+
+
+            if($completeConfirmedDate>=$startDate) {
+                $response[] = $filterQuery[$i];
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * @param $dateFilter
+     * @return array
+     */
+    public function TrimDateFilter($dateFilter)
+    {
+        $response = [];
+        for($i=0;$i<count($dateFilter);$i++) {
+            $response[] = $dateFilter[$i]['TimeClockDaysID'];
         }
         return $response;
     }

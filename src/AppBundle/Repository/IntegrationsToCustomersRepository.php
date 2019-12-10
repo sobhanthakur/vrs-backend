@@ -57,7 +57,7 @@ class IntegrationsToCustomersRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('i')
-            ->select('i.integrationtocustomerid')
+            ->select('i.startdate,i.integrationtocustomerid')
             ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere(GeneralConstants::INTEGRATION_CONDITION)
             ->andWhere('i.active=1')
@@ -73,7 +73,7 @@ class IntegrationsToCustomersRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('i')
-            ->select('i.integrationtocustomerid')
+            ->select('i.startdate,i.integrationtocustomerid')
             ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere(GeneralConstants::INTEGRATION_CONDITION)
             ->andWhere('i.active=1')

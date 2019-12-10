@@ -23,12 +23,12 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $status
      * @param $customerID
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    public function MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$limit, $offset)
+    public function MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter,$limit, $offset)
     {
         $result = $this
             ->createQueryBuilder('t1')
@@ -40,7 +40,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        $result = $this->TrimTimeTrackingFilter($result,$completedDate, $staff, $createDate, $status);
+        $result = $this->TrimTimeTrackingFilter($result,$dateFilter, $staff, $createDate, $status);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -52,10 +52,10 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $status
      * @param $staff
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @return mixed
      */
-    public function CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate)
+    public function CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter)
     {
         $result = $this
             ->createQueryBuilder('t1')
@@ -66,7 +66,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        $result = $this->TrimTimeTrackingFilter($result,$completedDate, $staff, $createDate, $status);
+        $result = $this->TrimTimeTrackingFilter($result,$dateFilter, $staff, $createDate, $status);
 
         return $result->getQuery()->execute();
     }
@@ -101,18 +101,16 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $result
-     * @param $completedDate
+     * @param $dateFilter
      * @param $staff
      * @param $createDate
      * @param $status
      * @return mixed
      */
-    public function TrimTimeTrackingFilter($result, $completedDate, $staff, $createDate, $status)
+    public function TrimTimeTrackingFilter($result, $dateFilter, $staff, $createDate, $status)
     {
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.timeclockdayid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
-        }
+        $result->andWhere('t2.timeclockdayid IN (:DateFilter)')
+            ->setParameter('DateFilter', $dateFilter);
 
         if ($staff) {
             $result->andWhere('p2.servicerid IN (:Servicers)')

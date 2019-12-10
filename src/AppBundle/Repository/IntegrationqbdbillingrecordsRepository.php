@@ -24,12 +24,12 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $properties
      * @param $customerID
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    public function MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset)
+    public function MapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter, $limit, $offset)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -42,7 +42,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        $result = $this->TrimBillingRecords($result,$completedDate,$properties,$createDate,$status);
+        $result = $this->TrimBillingRecords($result,$dateFilter,$properties,$createDate,$status);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -53,10 +53,10 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $status
      * @param $customerID
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @return mixed
      */
-    public function CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate)
+    public function CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -67,7 +67,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        $result = $this->TrimBillingRecords($result,$completedDate,$properties,$createDate,$status);
+        $result = $this->TrimBillingRecords($result,$dateFilter,$properties,$createDate,$status);
 
         return $result->getQuery()->execute();
     }
@@ -114,18 +114,16 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $result
-     * @param $completedDate
+     * @param $dateFilter
      * @param $properties
      * @param $createDate
      * @param $status
      * @return mixed
      */
-    public function TrimBillingRecords($result, $completedDate, $properties, $createDate, $status)
+    public function TrimBillingRecords($result, $dateFilter, $properties, $createDate, $status)
     {
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.taskid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
-        }
+        $result->andWhere('t2.taskid IN (:DateFilter)')
+            ->setParameter('DateFilter', $dateFilter);
 
         if ($properties) {
             $result->andWhere('p2.propertyid IN (:Properties)')

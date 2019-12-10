@@ -43,6 +43,7 @@ class BillingApprovalService extends BaseService
             $response = [];
             $status = [];
             $new = null;
+            $dateFilter = [];
 
             if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -56,6 +57,9 @@ class BillingApprovalService extends BaseService
             }
 
             if (!empty($data)) {
+                $dateFilter = $this->entityManager->getRepository('AppBundle:Tasks')->GetAllTimeZones($customerID, $properties);
+                $dateFilter = $this->StartDateCalculation($dateFilter,$integrationToCustomers[0]['startdate']);
+
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
                 if (array_key_exists('Property', $filters)) {
@@ -63,8 +67,7 @@ class BillingApprovalService extends BaseService
                 }
                 if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
                     $completedDateRequest = $filters['CompletedDate'];
-                    $completedDate = $this->entityManager->getRepository('AppBundle:Tasks')->GetAllTimeZones($customerID, $properties);
-                    $completedDate = $this->CompletedDateRequestCalculation($completedDate,$completedDateRequest);
+                    $dateFilter = $this->CompletedDateRequestCalculation($dateFilter,$completedDateRequest);
                 }
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
@@ -74,6 +77,7 @@ class BillingApprovalService extends BaseService
                     $offset = $data['Pagination']['Offset'];
                 }
             }
+            $dateFilter = $this->TrimDateFilter($dateFilter);
 
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
@@ -90,12 +94,12 @@ class BillingApprovalService extends BaseService
                     (!in_array(GeneralConstants::NEW, $status))
                 ) {
                     if ($offset === 1) {
-                        $count = $billingRecordsRepo->CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate);
+                        $count = $billingRecordsRepo->CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter);
                         if (!empty($count)) {
                             $count = (int)$count[0][1];
                         }
                     }
-                    $response = $billingRecordsRepo->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $limit, $offset);
+                    $response = $billingRecordsRepo->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter, $limit, $offset);
                     $response = $this->processResponse($response);
                     $flag = 1;
                 } elseif (
@@ -115,13 +119,13 @@ class BillingApprovalService extends BaseService
              */
             if (!$flag) {
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $new);
+                    $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $dateFilter, $new);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
 
-                $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset,$new);
+                $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $dateFilter, $limit, $offset,$new);
                 $response = $this->processResponse($response);
             }
 
@@ -249,7 +253,7 @@ class BillingApprovalService extends BaseService
         $response = [];
         for($i=0;$i<count($completedDateFromQuery);$i++) {
             $region = $completedDateFromQuery[$i]['Region'];
-            $clockOut = $completedDateFromQuery[$i]['CompleteConfirmedDate'];
+            $completeConfirmedDate = $completedDateFromQuery[$i]['CompleteConfirmedDate'];
             $timeZoneLocal = new \DateTimeZone($region);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
@@ -259,8 +263,33 @@ class BillingApprovalService extends BaseService
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
 
 
-            if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
-                $response[] = $completedDateFromQuery[$i]['TaskID'];
+            if(($completeConfirmedDate>=$fromUTC) &&($completeConfirmedDate<=$toUTC)) {
+                $response[] = $completedDateFromQuery[$i];
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * Fetches Records Based on completedDate>=StartDate
+     * @param $filterQuery
+     * @param \DateTime $startDate
+     * @return array|null
+     */
+    public function StartDateCalculation($filterQuery, $startDate)
+    {
+        $response = [];
+        for($i=0;$i<count($filterQuery);$i++) {
+            $region = $filterQuery[$i]['Region'];
+            $completeConfirmedDate = $filterQuery[$i]['CompleteConfirmedDate'];
+            $timeZoneLocal = new \DateTimeZone($region);
+            $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
+            $timeZoneUTC = new \DateTimeZone('UTC');
+            $startDate = $startDateLocal->setTimezone($timeZoneUTC);
+
+
+            if($completeConfirmedDate>=$startDate) {
+                $response[] = $filterQuery[$i];
             }
         }
         return $response;
@@ -295,5 +324,18 @@ class BillingApprovalService extends BaseService
         $completeConfirmedDate->setTimezone($newTimeZone);
         return $completeConfirmedDate;
 
+    }
+
+    /**
+     * @param $dateFilter
+     * @return array
+     */
+    public function TrimDateFilter($dateFilter)
+    {
+        $response = [];
+        for($i=0;$i<count($dateFilter);$i++) {
+            $response[] = $dateFilter[$i]['TaskID'];
+        }
+        return $response;
     }
 }

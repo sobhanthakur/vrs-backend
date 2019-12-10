@@ -31,11 +31,11 @@ class TasksRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('t2')
             ->select('t2.taskid as TaskID,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region')
-            ->andWhere('t2.active=1')
+            ->where('t2.active=1')
             ->innerJoin('t2.propertyid', 'p2')
             ->innerJoin('p2.regionid','r')
             ->innerJoin('r.timezoneid','t')
-            ->where('p2.customerid = :CustomerID')
+            ->andWhere('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
             ->andWhere('t2.completeconfirmeddate IS NOT NULL');
@@ -54,18 +54,18 @@ class TasksRepository extends EntityRepository
      * @param $customerID
      * @param $properties
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    public function MapTasks($customerID, $properties, $createDate, $completedDate, $limit, $offset,$new)
+    public function MapTasks($customerID, $properties, $createDate, $dateFilter, $limit, $offset,$new)
     {
         $result = $this
             ->createQueryBuilder('t2')
             ->select('t2.taskid as TaskID, b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion');
 
-        $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$createDate,$customerID);
+        $result = $this->TrimMapTasks($result,$new,$properties,$dateFilter,$createDate,$customerID);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -78,16 +78,16 @@ class TasksRepository extends EntityRepository
      * @param $customerID
      * @param $properties
      * @param $createDate
-     * @param $completedDate
+     * @param $dateFilter
      * @return mixed
      */
-    public function CountMapTasks($customerID, $properties, $createDate, $completedDate,$new)
+    public function CountMapTasks($customerID, $properties, $createDate, $dateFilter,$new)
     {
         $result = $this
             ->createQueryBuilder('t2')
             ->select('count(t2.taskid)');
 
-        $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$createDate,$customerID);
+        $result = $this->TrimMapTasks($result,$new,$properties,$dateFilter,$createDate,$customerID);
 
         return $result
             ->getQuery()
@@ -98,23 +98,26 @@ class TasksRepository extends EntityRepository
      * @param QueryBuilder $result
      * @param $new
      * @param $properties
-     * @param $completedDate
+     * @param $dateFilter
      * @param $createDate
      * @param $customerID
      * @return mixed
      */
-    public function TrimMapTasks($result, $new, $properties, $completedDate, $createDate, $customerID)
+    public function TrimMapTasks($result, $new, $properties, $dateFilter, $createDate, $customerID)
     {
         $result
             ->leftJoin('AppBundle:Integrationqbdbillingrecords', 'b1', Expr\Join::WITH, 'b1.taskid=t2.taskid')
-            ->andWhere('t2.active=1')
+            ->where('t2.active=1')
+            ->andWhere('b1.txnid IS NULL')
             ->innerJoin('t2.propertyid', 'p2')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
-            ->where('p2.customerid = :CustomerID')
+            ->andWhere('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
-            ->andWhere('t2.completeconfirmeddate IS NOT NULL');
+            ->andWhere('t2.completeconfirmeddate IS NOT NULL')
+            ->andWhere('t2.taskid IN (:DateFilter)')
+            ->setParameter('DateFilter', $dateFilter);
 
         if($new) {
             $result->andWhere('b1.status IS NULL');
@@ -123,11 +126,6 @@ class TasksRepository extends EntityRepository
         if ($properties) {
             $result->andWhere('p2.propertyid IN (:Properties)')
                 ->setParameter('Properties', $properties);
-        }
-
-        if (is_array($completedDate)) {
-            $result->andWhere('t2.taskid IN (:CompletedDate)')
-                ->setParameter('CompletedDate', $completedDate);
         }
 
         if ($createDate) {

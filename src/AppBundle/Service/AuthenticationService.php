@@ -229,11 +229,11 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                 }
             }
-        } catch (HttpException $exception) {
-            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
-        } catch (\Exception $exception) {
+        } catch (HttpException $exception) {
+            throw $exception;
+        }  catch (\Exception $exception) {
             $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
