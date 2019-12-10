@@ -100,7 +100,8 @@ class SyncLogsService extends BaseService
                 $response[] = array(
                     'BatchType' => 0,
                     'Sent' => $billingBatch[$i]['CreateDate'],
-                    'Records' => $record
+                    'Records' => $record,
+                    'BatchID' => $billingBatch[$i]['BatchID']
                 );
             }
 
