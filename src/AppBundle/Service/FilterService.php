@@ -36,7 +36,7 @@ class FilterService extends BaseService
      */
     public function RegionGroupsFilter($customerID)
     {
-        $regionGroup = $this->entityManager->getRepository('AppBundle:Regiongroups')->GetRegionGroupsRestrictions($customerID);
+        $regionGroup = $this->entityManager->getRepository('AppBundle:Regiongroups')->GetRegionGroupsFilter($customerID);
         return array(
             'ReasonCode' => 0,
             'ReasonText' => $this->translator->trans('api.response.success.message'),

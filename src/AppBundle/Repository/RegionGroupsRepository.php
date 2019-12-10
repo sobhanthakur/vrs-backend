@@ -22,4 +22,15 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    public function GetRegionGroupsFilter($customerID)
+    {
+        return $this
+            ->createQueryBuilder('r')
+            ->select('r.regiongroupid as RegionGroupID, r.regiongroup as RegionGroup')
+            ->where('r.customerid = (:CustomerID)')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->execute();
+    }
 }

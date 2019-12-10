@@ -59,7 +59,7 @@ class MapPropertiesService extends BaseService
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
                 if (array_key_exists('PropertyTag', $filters)) {
-                    $propertyTags = $this->entityManager->getRepository('AppBundle:Propertiestopropertygroups')->PropertiestoPropertyGroupsJoinMatched($filters['PropertyTag']);
+                    $propertyTags = $filters['PropertyTag'];
                 }
                 if (array_key_exists('Region', $filters)) {
                     $region = $filters['Region'];
