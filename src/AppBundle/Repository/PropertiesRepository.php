@@ -165,7 +165,7 @@ class PropertiesRepository extends EntityRepository
         }
 
         if ($region) {
-            $result->andWhere('p.regionid IN (:Regions)')
+            $result->andWhere('r.regiongroupid IN (:Regions)')
                 ->setParameter('Regions', $region);
         }
         if ($owner) {
