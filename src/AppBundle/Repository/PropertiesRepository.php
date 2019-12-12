@@ -30,6 +30,7 @@ class PropertiesRepository extends EntityRepository
             ->createQueryBuilder('p')
             ->select('p.propertyid as PropertyID, p.propertyname as PropertyName')
             ->where('p.customerid= :CustomerID')
+            ->andWhere('p.active=1')
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
