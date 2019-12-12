@@ -77,7 +77,7 @@ class AuthenticationService extends BaseService
 
             //Set authenticated status to true
             $authenticateResult[GeneralConstants::STATUS] = true;
-        } catch (InvalidArgumentException $ex) {
+        } catch (\InvalidArgumentException $ex) {
             throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

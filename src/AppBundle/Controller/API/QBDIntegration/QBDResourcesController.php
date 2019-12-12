@@ -13,10 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class AddCustomersController
+ * Class QBDResourcesController
  * @package AppBundle\Controller\API\QBDIntegration
  */
-class AddCustomersController extends Controller
+class QBDResourcesController extends Controller
 {
     /**
      * @Route("qbdresources/sync")
@@ -24,5 +24,6 @@ class AddCustomersController extends Controller
      */
     public function AddCustomersRequest(Request $request)
     {
+
     }
 }
