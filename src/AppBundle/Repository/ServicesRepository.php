@@ -50,7 +50,7 @@ class ServicesRepository extends EntityRepository
 
         if ($department) {
             $result->andWhere('s.servicegroupid IN (:Departments)')
-                ->setParameter('Regions', $department);
+                ->setParameter('Departments', $department);
         }
         if ($billable) {
             if(count($billable) === 1 &&
@@ -106,7 +106,7 @@ class ServicesRepository extends EntityRepository
 
         if ($department) {
             $result->andWhere('s.servicegroupid IN (:Departments)')
-                ->setParameter('Regions', $department);
+                ->setParameter('Departments', $department);
         }
         if ($billable) {
             if(count($billable) === 1 &&

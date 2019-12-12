@@ -85,7 +85,7 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
             ->innerJoin('p.ownerid','o')
             ->setParameter('CustomerID', $customerID);
         if ($region) {
-            $result->andWhere('p.regionid IN (:Regions)')
+            $result->andWhere('r.regiongroupid IN (:Regions)')
                 ->setParameter('Regions', $region);
         }
         if ($owner) {

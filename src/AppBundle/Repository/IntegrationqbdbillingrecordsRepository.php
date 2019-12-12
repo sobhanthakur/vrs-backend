@@ -44,6 +44,8 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
 
         $result = $this->TrimBillingRecords($result,$dateFilter,$properties,$createDate,$status);
 
+        $result->orderBy('t2.completeconfirmeddate','ASC');
+
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
         return $result->getQuery()->execute();

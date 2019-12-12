@@ -121,6 +121,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->createQueryBuilder('s')
             ->select('s.servicerid as StaffID, s.name as StaffName')
             ->where('s.customerid= :CustomerID')
+            ->andWhere('s.active=1')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.servicertype=0')
             ->getQuery()
