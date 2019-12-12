@@ -58,12 +58,14 @@ class TimeTrackingApprovalService extends BaseService
             if (!empty($data)) {
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
 
-                $dateFilter = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
-                $dateFilter = $this->StartDateCalculation($dateFilter,$integrationToCustomers[0]['startdate']);
 
                 if (array_key_exists('Staff', $filters)) {
                     $staff = $filters['Staff'];
                 }
+
+                $dateFilter = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
+                $dateFilter = $this->StartDateCalculation($dateFilter,$integrationToCustomers[0]['startdate']);
+
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
                 }

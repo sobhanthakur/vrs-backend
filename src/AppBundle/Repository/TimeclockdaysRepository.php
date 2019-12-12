@@ -87,7 +87,8 @@ class TimeclockdaysRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID);
 
         if ($staff) {
-            $result->andWhere('s2.servicerid IN (:Staffs)')
+            $result
+                ->andWhere('s2.servicerid IN (:Staffs)')
                 ->setParameter('Staffs', $staff);
         }
 
