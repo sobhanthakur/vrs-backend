@@ -64,7 +64,8 @@ final class GeneralConstants
     const OWNERID = 'OwnerID';
     const FILEID = 'FileID';
     const ISREADONLY = 'IsReadOnly';
-    const QWC_QBTYPE = 'QBFS';
+    const QWC_QBFS = 'QBFS';
+    const QWC_QBTYPE = 'QBType';
 
     const QWC_SYNC_NAME = 'VRS-SyncInfo.qwc';
 
