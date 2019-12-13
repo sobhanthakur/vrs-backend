@@ -149,7 +149,7 @@ class FileExportService extends BaseService
         $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::OWNERID]);
         $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_SYNC_INFO[GeneralConstants::FILEID]);
         $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBFS);
-        $xml->addChild(GeneralConstants::ISREADONLY, false);
+        $xml->addChild(GeneralConstants::ISREADONLY, GeneralConstants::QWC_FALSE);
 
         $fileName = $filePath . $syncFileName;
         return file_put_contents($fileName, $xml->asXML());
@@ -174,7 +174,7 @@ class FileExportService extends BaseService
             $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_BILLING[$i][GeneralConstants::OWNERID]);
             $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_BILLING[$i][GeneralConstants::FILEID]);
             $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBFS);
-            $xml->addChild(GeneralConstants::ISREADONLY, false);
+            $xml->addChild(GeneralConstants::ISREADONLY, GeneralConstants::QWC_FALSE);
 
             switch ($i) {
                 case 0:
@@ -209,7 +209,7 @@ class FileExportService extends BaseService
             $xml->addChild(GeneralConstants::OWNERID, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::OWNERID]);
             $xml->addChild(GeneralConstants::FILEID, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::FILEID]);
             $xml->addChild(GeneralConstants::QWC_QBTYPE, GeneralConstants::QWC_QBFS);
-            $xml->addChild(GeneralConstants::ISREADONLY, false);
+            $xml->addChild(GeneralConstants::ISREADONLY, GeneralConstants::QWC_FALSE);
 
             switch ($i) {
                 case 0:

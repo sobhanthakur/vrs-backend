@@ -66,6 +66,7 @@ final class GeneralConstants
     const ISREADONLY = 'IsReadOnly';
     const QWC_QBFS = 'QBFS';
     const QWC_QBTYPE = 'QBType';
+    const QWC_FALSE = "false";
 
     const QWC_SYNC_NAME = 'VRS-SyncInfo.qwc';
 
