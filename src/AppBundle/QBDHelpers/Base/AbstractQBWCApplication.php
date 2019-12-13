@@ -7,6 +7,7 @@
  */
 
 namespace AppBundle\QBDHelpers\Base;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\QBDHelpers\Response\Authenticate;
 use AppBundle\QBDHelpers\Response\ClientVersion;
 use AppBundle\QBDHelpers\Response\CloseConnection;
@@ -16,6 +17,9 @@ use AppBundle\QBDHelpers\Response\GetInteractiveURL;
 use AppBundle\QBDHelpers\Response\GetLastError;
 use AppBundle\QBDHelpers\Response\InteractiveDone;
 use AppBundle\QBDHelpers\Response\ServerVersion;
+use AppBundle\Service\BaseService;
+use Doctrine\ORM\EntityManager;
+use Symfony\Component\DependencyInjection\Container;
 
 
 /**
@@ -24,16 +28,43 @@ use AppBundle\QBDHelpers\Response\ServerVersion;
  */
 abstract class AbstractQBWCApplication implements QBWCApplicationInterface
 {
+    /**
+     * @var array
+     */
     public $_config = [];
 
+    /**
+     * @var EntityManager $entityManager
+     */
+    public $entityManager;
+
+    /**
+     * @var Container $serviceContainer
+     */
+    public $serviceContainer;
+
+    /**
+     * @var array
+     */
     public $_session = [
         'iteratorId' => '',
     ];
+    /**
+     * @var
+     */
     public $childTest;
 
 
+    /**
+     * @param $object
+     * @return mixed
+     */
     abstract public function sendRequestXML($object);
 
+    /**
+     * @param $object
+     * @return mixed
+     */
     abstract public function receiveResponseXML($object);
 
     /**
@@ -44,12 +75,12 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
         $this->_config = [
             'serverVersion' => 'QBWCServer v1.0',
             'qbxmlVersion' => '13.0',
-            'login' => 'login',
-            'password' => 'password',
-            'wsdlPath' => __DIR__ . '/../WSDL/qbwebconnectorsvc.wsdl',
+            'login' => '',
+            'password' => '',
+
             'soapOptions' => [
                 'cache_wsdl' => WSDL_CACHE_NONE,
-            ],
+            ],'wsdlPath' => '',
             'iterator' => [
                 'maxReturned' => 100,
             ]
@@ -58,52 +89,90 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
         $this->_config = array_merge($this->_config, $config);
     }
 
-    public function __construct($config = [])
+    /**
+     * AbstractQBWCApplication constructor.
+     * @param array $config
+     * @param $entityManager
+     */
+    public function __construct($config = [], $entityManager,$serviceContainer)
     {
         $this->initConfig($config);
+        $this->entityManager = $entityManager;
+        $this->serviceContainer = $serviceContainer;
     }
 
+    /**
+     * @param $object
+     * @return Authenticate
+     * @throws \Exception
+     */
     public function authenticate($object)
     {
+        $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username'=>$object->strUserName));
         $wait_before_next_update = null;
         $min_run_every_n_seconds = null;
-        if ($object->strUserName == $this->_config['login'] && $object->strPassword == $this->_config['password']) {
-            $ticket = $this->generateGUID();
-            $status = "";
-        } else {
-            $ticket = "";
-            $status = "nvu";
+        $ticket = "";
+        $status = "nvu";
+        if($integrationToCustomer) {
+            $encoder = $this->serviceContainer->get('security.password_encoder');
+            $match = $encoder->isPasswordValid($integrationToCustomer,$object->strPassword);
+            if($match) {
+                $ticket = $this->generateGUID();
+                $status = "";
+            }
         }
-
         return new Authenticate($ticket, $status, $wait_before_next_update, $min_run_every_n_seconds);
-
     }
 
+    /**
+     * @param $object
+     * @return ClientVersion
+     */
     public function clientVersion($object)
     {
         return new ClientVersion('');
     }
 
+    /**
+     * @param $object
+     * @return CloseConnection
+     */
     public function closeConnection($object)
     {
         return new CloseConnection('Complete!');
     }
 
+    /**
+     * @param $object
+     * @return ConnectionError
+     */
     public function connectionError($object)
     {
         return new ConnectionError('Connection Error');
     }
 
+    /**
+     * @param $object
+     * @return GetLastError
+     */
     public function getLastError($object)
     {
         return new GetLastError('Get Last Error');
     }
 
+    /**
+     * @param $object
+     * @return ServerVersion
+     */
     public function serverVersion($object)
     {
         return new ServerVersion($this->_config['serverVersion']);
     }
 
+    /**
+     * @param null $iteratorId
+     * @return string
+     */
     protected function _buildIterator($iteratorId = null)
     {
         $xml = "";
@@ -129,16 +198,26 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
         return $xml;
     }
 
+    /**
+     * @return mixed
+     */
     protected function getCurrentIteratorId()
     {
         return $_SESSION['iteratorId'];
     }
 
+    /**
+     * @param $value
+     */
     protected function setCurrentIteratorId($value)
     {
         $_SESSION['iteratorId'] = $value;
     }
 
+    /**
+     * @param string $value
+     * @return string
+     */
     public function manageIteratorId($value = '')
     {
         if (trim($value) !== '') {
@@ -150,17 +229,22 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
         return $this->childTest;
     }
 
+    /**
+     * @param $data
+     */
     public function log_this($data)
     {
-//        $file_name = './log/vardump.log';
-        $file_name = __DIR__ . '/../log/main.log';
+        $file_name = __DIR__ . '/main.log';
         $f = fopen($file_name, "a");
-//        $f = fopen($file_name, "r + ");
         fwrite($f, "\n ==============================================\n");
         fwrite($f, "[" . date("m / d / Y H:i:s") . "]\n");
         fwrite($f, $this->var_dump_to_string($data) . "\n");
     }
 
+    /**
+     * @param $var
+     * @return false|string
+     */
     public function var_dump_to_string($var)
     {
         ob_start();
@@ -168,6 +252,10 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
         return ob_get_clean();
     }
 
+    /**
+     * @param bool $surround
+     * @return string
+     */
     public function generateGUID($surround = true)
     {
         $ticketId = sprintf('%04x%04x-%04x-%03x4-%04x-%04x%04x%04x',

@@ -58,7 +58,8 @@ class ResponseListener extends BaseService
                     'uri' => $request->getRequestUri(),
                     'method' => $request->getMethod(),
                     'request_content' => $request->getContent(),
-                    'response_content' => $responseContent
+                    'response_content' => $responseContent,
+                    'response_status_code' => $response->getStatusCode()
                 ]
             )
         );

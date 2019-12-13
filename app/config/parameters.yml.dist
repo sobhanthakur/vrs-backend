@@ -13,6 +13,7 @@ parameters:
     api_host: ~
     filepath: '%kernel.project_dir%/app/Resources/'
     SSL: http://
+    wsdlpath: '%kernel.project_dir%\src\AppBundle\QBDHelpers\WSDL\qbwebconnectorsvc.wsdl'
 
     mailer_transport: smtp
     mailer_host: 127.0.0.1
