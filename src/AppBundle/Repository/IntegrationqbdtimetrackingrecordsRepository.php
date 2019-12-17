@@ -23,12 +23,13 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $status
      * @param $customerID
      * @param $createDate
-     * @param $dateFilter
+     * @param $completedDate
+     * @param $timezones
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    public function MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter,$limit, $offset)
+    public function MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones,$limit, $offset)
     {
         $result = $this
             ->createQueryBuilder('t1')
@@ -40,7 +41,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        $result = $this->TrimTimeTrackingFilter($result,$dateFilter, $staff, $createDate, $status);
+        $result = $this->TrimTimeTrackingFilter($result,$completedDate,$timezones, $staff, $createDate, $status);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -52,10 +53,11 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $status
      * @param $staff
      * @param $createDate
-     * @param $dateFilter
+     * @param $completedDate
+     * @param $timezones
      * @return mixed
      */
-    public function CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter)
+    public function CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones)
     {
         $result = $this
             ->createQueryBuilder('t1')
@@ -66,7 +68,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
 
-        $result = $this->TrimTimeTrackingFilter($result,$dateFilter, $staff, $createDate, $status);
+        $result = $this->TrimTimeTrackingFilter($result,$completedDate,$timezones, $staff, $createDate, $status);
 
         return $result->getQuery()->execute();
     }
@@ -101,37 +103,48 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $result
-     * @param $dateFilter
+     * @param $completedDate,$timezones
      * @param $staff
      * @param $createDate
      * @param $status
      * @return mixed
      */
-    public function TrimTimeTrackingFilter($result, $dateFilter, $staff, $createDate, $status)
+    public function TrimTimeTrackingFilter($result, $completedDate,$timezones, $staff, $createDate, $status)
     {
-        $result->andWhere('t2.timeclockdayid IN (:DateFilter)')
-            ->setParameter('DateFilter', $dateFilter);
+        if(!empty($timezones)) {
+            $size = count($timezones);
+
+            $query = 't2.clockout >= :TimeZone0';
+            $result->setParameter('TimeZone0',$timezones[0]);
+            for ($i=1;$i<$size;$i++) {
+                $query .= ' OR t2.clockout >= :TimeZone'.$i;
+                $result->setParameter('TimeZone'.$i,$timezones[$i]);
+            }
+            $result->andWhere($query);
+        }
+
+        if(!empty($completedDate)) {
+            $size = count($completedDate);
+            $query = 't2.clockout BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
+            $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
+            $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
+            for ($i=1;$i<$size;$i++) {
+                $query .= ' OR t2.clockout BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
+                $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
+                $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
+            }
+            $result->andWhere($query);
+        }
 
         if ($staff) {
             $result->andWhere('p2.servicerid IN (:Servicers)')
                 ->setParameter('Servicers', $staff);
         }
 
-        if ($createDate) {
-            $result->andWhere('t.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
         if ((count($status) === 1) && in_array(GeneralConstants::APPROVED, $status)) {
             $result->andWhere('t1.status=1');
         } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
             $result->andWhere('t1.status=0');
-        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
-            if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere('t1.status=1');
-            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere('t1.status=0');
-            }
         }
 
         return $result;

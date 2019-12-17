@@ -40,9 +40,9 @@ class TimeTrackingApprovalService extends BaseService
             $flag = null;
             $response = [];
             $status = [];
-            $completedDate = null;
+            $completedDate = [];
+            $timezones = [];
             $new = null;
-            $dateFilter = [];
 
             if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -63,15 +63,15 @@ class TimeTrackingApprovalService extends BaseService
                     $staff = $filters['Staff'];
                 }
 
-                $dateFilter = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
-                $dateFilter = $this->StartDateCalculation($dateFilter,$integrationToCustomers[0]['startdate']);
+                $regions = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
+                $timezones = $this->StartDateCalculation($regions,$integrationToCustomers[0]['startdate']);
 
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
                 }
                 if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
-                    $completedDateRequest = $filters['CompletedDate'];
-                    $dateFilter = $this->CompletedDateRequestCalculation($dateFilter,$completedDateRequest);
+                    $completedDate = $filters['CompletedDate'];
+                    $completedDate = $this->CompletedDateRequestCalculation($regions,$completedDate);
                 }
                 if (array_key_exists('Pagination', $data)) {
                     $limit = $data['Pagination']['Limit'];
@@ -79,7 +79,6 @@ class TimeTrackingApprovalService extends BaseService
                 }
             }
 
-            $dateFilter = $this->TrimDateFilter($dateFilter);
 
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
@@ -96,12 +95,12 @@ class TimeTrackingApprovalService extends BaseService
                     (!in_array(GeneralConstants::NEW, $status))
                 ) {
                     if ($offset === 1) {
-                        $count = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter);
+                        $count = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones);
                         if (!empty($count)) {
                             $count = (int)$count[0][1];
                         }
                     }
-                    $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $dateFilter,$limit, $offset);
+                    $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones,$limit, $offset);
                     $response = $this->processResponse($response);
                     $flag = 1;
                 } elseif (
@@ -116,12 +115,12 @@ class TimeTrackingApprovalService extends BaseService
             //Default Condition
             if (!$flag) {
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $dateFilter,$new);
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones,$new);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $dateFilter, $limit, $offset,$new);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones, $limit, $offset,$new);
                 $response = $this->processResponse($response);
             }
 
@@ -225,7 +224,8 @@ class TimeTrackingApprovalService extends BaseService
                 // Check If status is correct or not
                 if(
                     ($data[$i]['Status'] !== 0) &&
-                    ($data[$i]['Status'] !== 1)
+                    ($data[$i]['Status'] !== 1) &&
+                    ($data[$i]['Status'] !== 2)
                 ) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
@@ -288,28 +288,23 @@ class TimeTrackingApprovalService extends BaseService
 
     /**
      * Converts the Completed Date filter to UTC and query in the DB
-     * @param $completedDateFromQuery
+     * @param $regions
      * @param $completedDateRequest
      * @return array|null
      */
-    public function CompletedDateRequestCalculation($completedDateFromQuery, $completedDateRequest)
+    public function CompletedDateRequestCalculation($regions, $completedDateRequest)
     {
         $response = [];
-
-        for($i=0;$i<count($completedDateFromQuery);$i++) {
-            $region = $completedDateFromQuery[$i]['Region'];
-            $clockOut = $completedDateFromQuery[$i]['ClockOut'];
-            $timeZoneLocal = new \DateTimeZone($region);
+        for($i=0;$i<count($regions);$i++) {
+            $timeZoneLocal = new \DateTimeZone($regions[$i]['Region']);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
 
             $timeZoneUTC = new \DateTimeZone('UTC');
             $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
-
-            if(($clockOut>=$fromUTC) &&($clockOut<=$toUTC)) {
-                $response[] = $completedDateFromQuery[$i];
-            }
+            $response[$i]['From'] = $fromUTC;
+            $response[$i]['To'] = $toUTC;
 
         }
         return $response;
@@ -317,25 +312,20 @@ class TimeTrackingApprovalService extends BaseService
 
     /**
      * Fetches Records Based on clockout>=StartDate
-     * @param $filterQuery
+     * @param $regions
      * @param \DateTime $startDate
      * @return array|null
      */
-    public function StartDateCalculation($filterQuery, $startDate)
+    public function StartDateCalculation($regions, $startDate)
     {
         $response = [];
-        for($i=0;$i<count($filterQuery);$i++) {
-            $region = $filterQuery[$i]['Region'];
-            $completeConfirmedDate = $filterQuery[$i]['ClockOut'];
+        for($i=0;$i<count($regions);$i++) {
+            $region = $regions[$i]['Region'];
             $timeZoneLocal = new \DateTimeZone($region);
             $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
             $timeZoneUTC = new \DateTimeZone('UTC');
-            $startDate = $startDateLocal->setTimezone($timeZoneUTC);
+            $response[] = $startDateLocal->setTimezone($timeZoneUTC);
 
-
-            if($completeConfirmedDate>=$startDate) {
-                $response[] = $filterQuery[$i];
-            }
         }
         return $response;
     }

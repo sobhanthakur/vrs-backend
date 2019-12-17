@@ -169,12 +169,6 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             $result->andWhere(GeneralConstants::BILLING_STATUS_1);
         } elseif ((count($status) === 1) && in_array(GeneralConstants::EXCLUDED, $status)) {
             $result->andWhere(GeneralConstants::BILLING_STATUS_0);
-        } elseif ((count($status) === 2) && in_array(GeneralConstants::NEW, $status)) {
-            if (in_array(GeneralConstants::APPROVED, $status)) {
-                $result->andWhere(GeneralConstants::BILLING_STATUS_1);
-            } elseif (in_array(GeneralConstants::EXCLUDED, $status)) {
-                $result->andWhere(GeneralConstants::BILLING_STATUS_0);
-            }
         }
 
         return $result;
