@@ -24,12 +24,13 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $properties
      * @param $customerID
      * @param $createDate
-     * @param $dateFilter
+     * @param $completedDate
+     * @param $timezones
      * @param $limit
      * @param $offset
      * @return mixed
      */
-    public function MapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter, $limit, $offset)
+    public function MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $timezones, $limit, $offset)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -42,7 +43,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        $result = $this->TrimBillingRecords($result,$dateFilter,$properties,$createDate,$status);
+        $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
         $result->orderBy('t2.completeconfirmeddate','ASC');
 
@@ -51,14 +52,17 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         return $result->getQuery()->execute();
     }
 
+
     /**
      * @param $status
+     * @param $properties
      * @param $customerID
      * @param $createDate
-     * @param $dateFilter
+     * @param $completedDate
+     * @param $timezones
      * @return mixed
      */
-    public function CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $dateFilter)
+    public function CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate, $timezones)
     {
         $result = $this
             ->createQueryBuilder('b1')
@@ -69,7 +73,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');
 
-        $result = $this->TrimBillingRecords($result,$dateFilter,$properties,$createDate,$status);
+        $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
         return $result->getQuery()->execute();
     }
@@ -116,16 +120,40 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $result
-     * @param $dateFilter
+     * @param $completedDate
+     * @param $timezones
      * @param $properties
      * @param $createDate
      * @param $status
      * @return mixed
      */
-    public function TrimBillingRecords($result, $dateFilter, $properties, $createDate, $status)
+    public function TrimBillingRecords($result, $completedDate, $timezones, $properties, $createDate, $status)
     {
-        $result->andWhere('t2.taskid IN (:DateFilter)')
-            ->setParameter('DateFilter', $dateFilter);
+        if(!empty($timezones)) {
+            $size = count($timezones);
+
+            $query = 't2.completeconfirmeddate >= :TimeZone0';
+            $result->setParameter('TimeZone0',$timezones[0]);
+            for ($i=1;$i<$size;$i++) {
+                $query .= ' OR t2.completeconfirmeddate >= :TimeZone'.$i;
+                $result->setParameter('TimeZone'.$i,$timezones[$i]);
+            }
+            $result->andWhere($query);
+
+        }
+
+        if(!empty($completedDate)) {
+            $size = count($completedDate);
+            $query = 't2.completeconfirmeddate BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
+            $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
+            $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
+            for ($i=1;$i<$size;$i++) {
+                $query .= ' OR t2.completeconfirmeddate BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
+                $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
+                $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
+            }
+            $result->andWhere($query);
+        }
 
         if ($properties) {
             $result->andWhere('p2.propertyid IN (:Properties)')
