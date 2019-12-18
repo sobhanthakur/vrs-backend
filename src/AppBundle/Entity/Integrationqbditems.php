@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDItems")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbditemsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbditems
 {
@@ -189,5 +190,16 @@ class Integrationqbditems
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

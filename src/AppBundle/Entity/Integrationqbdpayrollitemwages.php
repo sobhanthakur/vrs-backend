@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IntegrationQBDPayrollItemWages", indexes={@ORM\Index(name="IDX_F203B0DA854CF4BD", columns={"CustomerID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdpayrollitemwagesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Integrationqbdpayrollitemwages
 {
@@ -189,5 +190,16 @@ class Integrationqbdpayrollitemwages
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

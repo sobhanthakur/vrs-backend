@@ -28,4 +28,19 @@ class IntegrationqbdpayrollitemwagesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetAllPayrollItemWages($customerID)
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->select('c.qbdpayrollitemwagelistid AS QBDPayrollItemListID')
+            ->where('c.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
 }

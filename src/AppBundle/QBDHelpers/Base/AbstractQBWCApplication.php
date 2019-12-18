@@ -20,6 +20,7 @@ use AppBundle\QBDHelpers\Response\ServerVersion;
 use AppBundle\Service\BaseService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 
 /**
@@ -108,6 +109,8 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      */
     public function authenticate($object)
     {
+        $session = new Session();
+        $session->start();
         $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username'=>$object->strUserName));
         $wait_before_next_update = null;
         $min_run_every_n_seconds = null;
@@ -119,6 +122,9 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
             if($match) {
                 $ticket = $this->generateGUID();
                 $status = "";
+                $session->set(GeneralConstants::QWC_TICKET_SESSION,$ticket);
+                $session->set(GeneralConstants::QWC_USERNAME_SESSION,$object->strUserName);
+                $session->set(GeneralConstants::CUSTOMER_ID,$integrationToCustomer->getCustomerid()->getCustomerid());
             }
         }
         return new Authenticate($ticket, $status, $wait_before_next_update, $min_run_every_n_seconds);

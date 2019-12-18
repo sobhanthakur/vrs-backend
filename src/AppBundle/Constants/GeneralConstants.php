@@ -64,6 +64,7 @@ final class GeneralConstants
     const OWNERID = 'OwnerID';
     const FILEID = 'FileID';
     const ISREADONLY = 'IsReadOnly';
+    const CERTURL = 'CertURL';
     const QWC_QBFS = 'QBFS';
     const QWC_QBTYPE = 'QBType';
     const QWC_FALSE = "false";
@@ -146,4 +147,7 @@ final class GeneralConstants
     const FILTER_SERVICE = 'vrscheduler.filter_service';
     const MAP_STAFF_SERVICE = 'vrscheduler.map_staffs';
     const MAP_WAGE_ITEM = 'vrscheduler.map_wage_item';
+
+    const QWC_TICKET_SESSION = 'QWC_TicketID';
+    const QWC_USERNAME_SESSION = 'QWC_Username';
 }

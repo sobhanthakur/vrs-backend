@@ -28,4 +28,19 @@ class IntegrationqbditemsRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetAllItems($customerID)
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->select('c.qbditemlistid AS QBDItemListID')
+            ->where('c.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
 }

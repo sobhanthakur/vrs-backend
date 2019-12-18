@@ -28,4 +28,19 @@ class IntegrationqbdemployeesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetAllEmployees($customerID)
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->select('c.qbdemployeelistid AS QBDEmployeeListID')
+            ->where('c.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->execute();
+    }
 }
