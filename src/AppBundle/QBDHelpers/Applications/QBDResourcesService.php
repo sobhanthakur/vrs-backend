@@ -82,7 +82,6 @@ class QBDResourcesService extends AbstractQBWCApplication
     {
         $session = new Session();
         $response = simplexml_load_string($object->response);
-        $this->log_this($response->QBXMLMsgsRs);
         // Parse the XML and Store the records accordingly
         $response = $response->QBXMLMsgsRs;
         $customerID = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid' => $session->get(GeneralConstants::CUSTOMER_ID)));

@@ -145,6 +145,10 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      */
     public function closeConnection($object)
     {
+        $session = new Session();
+        $session->remove(GeneralConstants::QWC_TICKET_SESSION);
+        $session->remove(GeneralConstants::QWC_USERNAME_SESSION);
+        $session->remove(GeneralConstants::CUSTOMER_ID);
         return new CloseConnection('Complete!');
     }
 
