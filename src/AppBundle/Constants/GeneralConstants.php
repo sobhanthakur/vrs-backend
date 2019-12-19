@@ -97,6 +97,7 @@ final class GeneralConstants
 
     const QBWCXML = '<QBWCXML />';
     const API_HOST = 'api_host';
+    const QWC_CERT_RESOURCE = '/v1/vrs';
 
     const AUTH_ERROR_TEXT = 'Authentication could not be complete due to Error : ';
 

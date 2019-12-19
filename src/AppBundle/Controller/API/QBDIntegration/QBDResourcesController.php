@@ -38,7 +38,6 @@ class QBDResourcesController extends Controller
 
         try {
             $content = simplexml_load_string($request->getContent())->xpath('soap:Body');
-            $logger->error(json_encode($content,true));
             if(array_key_exists('authenticate',$content[0])) {
                 $login = $content[0]->authenticate->strUserName;
                 $password = $content[0]->authenticate->strPassword;
