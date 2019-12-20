@@ -31,7 +31,6 @@ class QBDResourcesService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
-            $ticket = $session->get(GeneralConstants::QWC_TICKET_SESSION);
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username));
             if ($integrationToCustomer) {

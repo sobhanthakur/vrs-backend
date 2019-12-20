@@ -12,6 +12,7 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * Class IntegrationqbdbillingrecordsRepository
@@ -172,5 +173,45 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetTasksForSalesOrder($customerID)
+    {
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemfullname AS QBDItemFullName,ic.qbdcustomerlistid as QBDCustomerListID')
+            ->innerJoin('b1.taskid', 't2')
+            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->innerJoin('icp.integrationqbdcustomerid','ic')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->where('p2.customerid = :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('b1.refnumber IS NULL OR b1.refnumber=0')
+            ->andWhere('b1.status=1');
+        return $result->getQuery()->getResult();
+    }
+
+    /**
+     * @param $integrationQBDBillingRecordID
+     * @param $refNumber
+     * @param $batchID
+     * @return mixed
+     */
+    public function UpdateBillingBatchWithRefNumber($integrationQBDBillingRecordID, $refNumber, $batchID)
+    {
+        $subQuery = $this
+            ->getEntityManager()
+            ->createQuery('UPDATE AppBundle:Integrationqbdbillingrecords b1 SET b1.refnumber='.$refNumber.',b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdbillingrecordid IN (:BatchRecords)')
+            ->setParameter('BatchRecords',$integrationQBDBillingRecordID)
+            ->getArrayResult();
+        return $subQuery;
     }
 }
