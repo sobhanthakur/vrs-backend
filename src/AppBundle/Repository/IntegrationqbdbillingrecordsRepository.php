@@ -199,6 +199,12 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         return $result->getQuery()->getResult();
     }
 
+    /**
+     * @param $billingRecords
+     * @param $referenceNumbers
+     * @param $batchID
+     * @return bool
+     */
     public function UpdateBillingBatchWithRefNumber($billingRecords, $referenceNumbers, $batchID)
     {
         foreach ($billingRecords as $key=>$value) {
@@ -209,5 +215,23 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
                 ->getArrayResult();
         }
         return true;
+    }
+
+    public function GetFailedBillingRecords($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.refnumber AS RefNumber')
+            ->innerJoin('b1.taskid', 't2')
+            ->innerJoin('t2.propertyid','p2')
+            ->where('p2.customerid = :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->getQuery()
+            ->getResult();
+
     }
 }

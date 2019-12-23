@@ -15,11 +15,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 class QBDBillingBatchService extends AbstractQBWCApplication
 {
-    /* This function sends the desired XML that is to be processed by Quickbooks
-     * @param $object
-     * @return SendRequestXML|mixed
-     */
     /**
+     * This function sends the desired XML that is to be processed by Quickbooks
      * @param $object
      * @return SendRequestXML|mixed
      * @throws \Doctrine\ORM\ORMException
@@ -100,10 +97,10 @@ class QBDBillingBatchService extends AbstractQBWCApplication
     }
 
     /**
-     * This function parses the XML that is processed by Quickbooks.
      * @param $object
      * @return ReceiveResponseXML|mixed
      * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function receiveResponseXML($object)
     {
@@ -125,7 +122,6 @@ class QBDBillingBatchService extends AbstractQBWCApplication
             }
             $this->entityManager->flush();
         }
-        $this->log_this($object->response);
         return new ReceiveResponseXML(100);
     }
 
