@@ -199,19 +199,15 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         return $result->getQuery()->getResult();
     }
 
-    /**
-     * @param $integrationQBDBillingRecordID
-     * @param $refNumber
-     * @param $batchID
-     * @return mixed
-     */
-    public function UpdateBillingBatchWithRefNumber($integrationQBDBillingRecordID, $refNumber, $batchID)
+    public function UpdateBillingBatchWithRefNumber($billingRecords, $referenceNumbers, $batchID)
     {
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('UPDATE AppBundle:Integrationqbdbillingrecords b1 SET b1.refnumber='.$refNumber.',b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdbillingrecordid IN (:BatchRecords)')
-            ->setParameter('BatchRecords',$integrationQBDBillingRecordID)
-            ->getArrayResult();
-        return $subQuery;
+        foreach ($billingRecords as $key=>$value) {
+            $this
+                ->getEntityManager()
+                ->createQuery('UPDATE AppBundle:Integrationqbdbillingrecords b1 SET b1.refnumber='.$referenceNumbers[$key].',b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdbillingrecordid= :BatchRecordID')
+                ->setParameter('BatchRecordID',$value)
+                ->getArrayResult();
+        }
+        return true;
     }
 }

@@ -30,7 +30,9 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $session = new Session();
         $response = [];
         $billingRecordID = [];
+        $referenceID = [];
         $xml = '';
+        $updateBillingBatch = false;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
@@ -41,10 +43,10 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID);
                 if (!empty($tasks)) {
-                    $refNUmber = $this->ReferenceNumber();
                     foreach ($tasks as $task) {
                         $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
-                        $billingRecordID[] = $task['IntegrationQBDBillingRecordID'];
+                        $referenceID[$task['QBDCustomerListID']] = $task['IntegrationQBDBillingRecordID'].$this->ReferenceNumber();
+                        $billingRecordID[$task['QBDCustomerListID']] = $task['IntegrationQBDBillingRecordID'];
                     }
 
                     // Create Sales Order
@@ -61,7 +63,9 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                     <CustomerRef>
                                         <ListID>'.$key.'</ListID>
                                     </CustomerRef>
-                                    <RefNumber >'.$refNUmber.'</RefNumber>';
+                                    <RefNumber >'.$referenceID[$key].'</RefNumber>
+                                    ';
+
                         foreach ($value as $item) {
                             $xml .= '
                                 <SalesOrderLineAdd>
@@ -85,11 +89,14 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                     $this->entityManager->flush();
 
                     // Update Billing Records rows and set reference number, batch id and sentstatus(to 1)
-                    $updateBillingBatch = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->UpdateBillingBatchWithRefNumber(array_unique($billingRecordID), $refNUmber, $batchID->getIntegrationqbbatchid());
+                    $updateBillingBatch = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->UpdateBillingBatchWithRefNumber($billingRecordID, $referenceID, $batchID->getIntegrationqbbatchid());
                 }
             }
         }
-        return new SendRequestXML($xml);
+        if($updateBillingBatch) {
+            return new SendRequestXML($xml);
+        }
+        return null;
     }
 
     /**
@@ -100,7 +107,25 @@ class QBDBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $session = new Session();
+
         // Send Response as 100% Success
+        $response = simplexml_load_string($object->response);
+        if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
+            $customerID = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid' => $session->get(GeneralConstants::CUSTOMER_ID)));
+            $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
+            for ($i=0;$i<count($salesOrders);$i++) {
+                $refNumber = $salesOrders[$i]->SalesOrderRet->RefNumber;
+                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findOneBy(array('refnumber' => (string)$refNumber));
+                if($billingRecord) {
+                    $txnID = $salesOrders[$i]->SalesOrderRet->TxnID;
+                    $billingRecord->setTxnid($txnID);
+                }
+                $this->entityManager->persist($billingRecord);
+            }
+            $this->entityManager->flush();
+        }
+        $this->log_this($object->response);
         return new ReceiveResponseXML(100);
     }
 
