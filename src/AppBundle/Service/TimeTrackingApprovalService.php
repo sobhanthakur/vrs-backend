@@ -179,15 +179,22 @@ class TimeTrackingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if ($response[$i]['Status'] === null) {
+            if (!$response[$i]['Status']) {
                 $response[$i]["Status"] = 2;
             }
-            $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
-            $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
-            $response[$i]["Date"] = $time->format('Y-m-d');
+
+            if($response[$i]['TimeTracked']) {
+                $response[$i]["TimeTracked"] = gmdate('H:i:s',$response[$i]["TimeTracked"]);
+                $response[$i]["Date"] = $response[$i]["Date"]->format('Y-m-d');
+            } else {
+                $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
+                $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
+                $response[$i]["Date"] = $time->format('Y-m-d');
+            }
             unset($response[$i]['ClockIn']);
             unset($response[$i]['ClockOut']);
             unset($response[$i]['TimeZoneRegion']);
+
         }
         return $response;
     }
@@ -261,6 +268,8 @@ class TimeTrackingApprovalService extends BaseService
 
                     $timetrackingRecords->setTimeclockdaysid($timeclockdays);
                     $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $timetrackingRecords->setDay(new \DateTime($data[$i]['Date']));
+                    $timetrackingRecords->setTimetrackedseconds($this->DateDiffCalculation($timeclockdays->getClockout()->diff($timeclockdays->getClockin())));
 
                     $this->entityManager->persist($timetrackingRecords);
                 } else {

@@ -33,10 +33,9 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,t3.region AS TimeZoneRegion, t2.clockin AS ClockIn, t2.clockout AS ClockOut')
+            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,t1.day AS Date, t1.timetrackedseconds AS TimeTracked')
             ->innerJoin('t1.timeclockdaysid', 't2')
             ->innerJoin('t2.servicerid', 'p2')
-            ->innerJoin('p2.timezoneid','t3')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
@@ -114,10 +113,10 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         if(!empty($timezones)) {
             $size = count($timezones);
 
-            $query = 't2.clockout >= :TimeZone0';
+            $query = 't2.clockin >= :TimeZone0';
             $result->setParameter('TimeZone0',$timezones[0]);
             for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.clockout >= :TimeZone'.$i;
+                $query .= ' OR t2.clockin >= :TimeZone'.$i;
                 $result->setParameter('TimeZone'.$i,$timezones[$i]);
             }
             $result->andWhere($query);
@@ -125,11 +124,11 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 
         if(!empty($completedDate)) {
             $size = count($completedDate);
-            $query = 't2.clockout BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
+            $query = 't2.clockin BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
             $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
             $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
             for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.clockout BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
+                $query .= ' OR t2.clockin BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
                 $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
                 $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
             }
