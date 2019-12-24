@@ -12,6 +12,7 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * Class IntegrationqbdtimetrackingrecordsRepository
@@ -147,5 +148,24 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    public function GetTimeTrackingRecordsToSync($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS QBDEmployeeName')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeefullname')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
     }
 }

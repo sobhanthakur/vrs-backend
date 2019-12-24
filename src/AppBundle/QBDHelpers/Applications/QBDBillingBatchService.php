@@ -109,7 +109,6 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
         if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
-            $customerID = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid' => $session->get(GeneralConstants::CUSTOMER_ID)));
             $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
             for ($i=0;$i<count($salesOrders);$i++) {
                 $refNumber = $salesOrders[$i]->SalesOrderRet->RefNumber;
