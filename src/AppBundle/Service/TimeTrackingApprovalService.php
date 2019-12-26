@@ -179,7 +179,7 @@ class TimeTrackingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if (!$response[$i]['Status']) {
+            if ($response[$i]['Status'] === null) {
                 $response[$i]["Status"] = 2;
             }
 
@@ -191,10 +191,15 @@ class TimeTrackingApprovalService extends BaseService
                 $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
                 $response[$i]["Date"] = $time->format('Y-m-d');
             }
-            unset($response[$i]['ClockIn']);
-            unset($response[$i]['ClockOut']);
-            unset($response[$i]['TimeZoneRegion']);
-
+            if(array_key_exists('ClockIn',$response[$i])) {
+                unset($response[$i]['ClockIn']);
+            }
+            if(array_key_exists('ClockOut',$response[$i])) {
+                unset($response[$i]['ClockOut']);
+            }
+            if(array_key_exists('TimeZoneRegion',$response[$i])) {
+                unset($response[$i]['TimeZoneRegion']);
+            }
         }
         return $response;
     }
