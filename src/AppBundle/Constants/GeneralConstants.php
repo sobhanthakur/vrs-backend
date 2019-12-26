@@ -151,4 +151,5 @@ final class GeneralConstants
 
     const QWC_TICKET_SESSION = 'QWC_TicketID';
     const QWC_USERNAME_SESSION = 'QWC_Username';
+    const QWC_BATCHID_SESSION = 'BatchID';
 }

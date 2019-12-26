@@ -150,6 +150,10 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $customerID
+     * @return mixed
+     */
     public function GetTimeTrackingRecordsToSync($customerID)
     {
         return $this
@@ -167,5 +171,77 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->setParameter('CustomerID',$customerID)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetUnsycedTimeTrackingBatch($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $batchID
+     * @param $integrationQBDTimetrackingID
+     * @return bool
+     */
+    public function UpdateTimeTrackingBatches($batchID, $integrationQBDTimetrackingID)
+    {
+        foreach ($integrationQBDTimetrackingID as $item) {
+            $this
+                ->getEntityManager()
+                ->createQuery('UPDATE AppBundle:Integrationqbdtimetrackingrecords b1 SET b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdtimetrackingrecords= :BatchRecordID')
+                ->setParameter('BatchRecordID',$item['integrationqbdtimetrackingrecords'])
+                ->getArrayResult();
+        }
+        return true;
+    }
+
+    /**
+     * @param $batchID
+     * @param $txnDate
+     * @param $listID
+     * @param $txnID
+     * @return mixed
+     */
+    public function UpdateSuccessTxnID($batchID, $txnDate, $listID, $txnID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->update('AppBundle:Integrationqbdtimetrackingrecords', 'b1')
+            ->set('b1.txnid', $txnID)
+            ->where('b1.integrationqbdtimetrackingrecords IN (:SubQuery)')
+            ->setParameter('SubQuery', $this
+                ->createQueryBuilder('b2')
+                ->select('b2.integrationqbdtimetrackingrecords')
+                ->innerJoin('b2.timeclockdaysid', 't2')
+                ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+                ->innerJoin('ies.integrationqbdemployeeid', 'ie')
+                ->where('b2.integrationqbbatchid= :BatchID')
+                ->andWhere('b2.day= :TxnDate')
+                ->andWhere('b2.sentstatus=1')
+                ->andWhere('ie.qbdemployeelistid= :ListID')
+                ->setParameter('BatchID', $batchID)
+                ->setParameter('TxnDate', $txnDate)
+                ->setParameter('ListID', $listID)
+                ->getQuery()
+                ->getResult()
+            )
+            ->getQuery()
+            ->execute();
     }
 }
