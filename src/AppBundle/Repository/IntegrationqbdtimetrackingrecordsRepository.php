@@ -221,27 +221,19 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     public function UpdateSuccessTxnID($batchID, $txnDate, $listID, $txnID)
     {
         return $this
-            ->createQueryBuilder('b1')
-            ->update('AppBundle:Integrationqbdtimetrackingrecords', 'b1')
-            ->set('b1.txnid', $txnID)
-            ->where('b1.integrationqbdtimetrackingrecords IN (:SubQuery)')
-            ->setParameter('SubQuery', $this
-                ->createQueryBuilder('b2')
-                ->select('b2.integrationqbdtimetrackingrecords')
-                ->innerJoin('b2.timeclockdaysid', 't2')
-                ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
-                ->innerJoin('ies.integrationqbdemployeeid', 'ie')
-                ->where('b2.integrationqbbatchid= :BatchID')
-                ->andWhere('b2.day= :TxnDate')
-                ->andWhere('b2.sentstatus=1')
-                ->andWhere('ie.qbdemployeelistid= :ListID')
-                ->setParameter('BatchID', $batchID)
-                ->setParameter('TxnDate', $txnDate)
-                ->setParameter('ListID', $listID)
-                ->getQuery()
-                ->getResult()
-            )
+            ->createQueryBuilder('b2')
+            ->select('b2.integrationqbdtimetrackingrecords')
+            ->innerJoin('b2.timeclockdaysid','t2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->where('b2.integrationqbbatchid= :BatchID')
+            ->andWhere('b2.day= :TxnDate')
+            ->andWhere('b2.sentstatus=1')
+            ->andWhere('ie.qbdemployeelistid= :ListID')
+            ->setParameter('BatchID',$batchID)
+            ->setParameter('TxnDate',$txnDate)
+            ->setParameter('ListID',$listID)
             ->getQuery()
-            ->execute();
+            ->getResult();
     }
 }

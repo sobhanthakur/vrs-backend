@@ -26,6 +26,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
     {
         $session = new Session();
         $xml = '';
+        $updateTimeTrackingBatch = null;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
@@ -83,6 +84,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
     /**
      * @param $object
      * @return ReceiveResponseXML|mixed
+     * @throws \Doctrine\ORM\ORMException
      */
     public function receiveResponseXML($object)
     {
@@ -94,10 +96,16 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
             $timeTracking = $response->QBXMLMsgsRs->TimeTrackingAddRs;
             for ($i=0;$i<count($timeTracking);$i++) {
                 $timeTrackingRet = $timeTracking[$i]->TimeTrackingRet;
-                $txnID = (string)$timeTrackingRet->TxnID;
-                $txnDate = $timeTrackingRet->TxnDate;
-                $listID = $timeTrackingRet->EntityRef->ListID;
-                $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batchID,$txnDate,$listID,$txnID);
+                $txnID = $timeTrackingRet->TxnID;
+                $txnDate = (string)$timeTrackingRet->TxnDate;
+                $listID = (string)$timeTrackingRet->EntityRef->ListID;
+                $timeTrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batchID,$txnDate,$listID,$txnID);
+                foreach ($timeTrackingIDs as $items) {
+                    $txnTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords' => $items['integrationqbdtimetrackingrecords']));
+                    $txnTimeTracking->setTxnid($txnID);
+                    $this->entityManager->persist($txnTimeTracking);
+                }
+                $this->entityManager->flush();
             }
         }
         return new ReceiveResponseXML(100);

@@ -104,8 +104,6 @@ class QBDBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
-        $session = new Session();
-
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
         if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {

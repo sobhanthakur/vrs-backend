@@ -217,6 +217,10 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         return true;
     }
 
+    /**
+     * @param $customerID
+     * @return mixed
+     */
     public function GetFailedBillingRecords($customerID)
     {
         return $this

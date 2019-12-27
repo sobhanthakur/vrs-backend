@@ -32,7 +32,7 @@ class Integrationqbdtimetrackingrecords
     /**
      * @var string|null
      *
-     * @ORM\Column(name="TxnID", type="string", length=50, nullable=true)
+     * @ORM\Column(name="TxnID", type="string", length=36, nullable=true)
      */
     private $txnid;
 
