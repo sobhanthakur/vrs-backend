@@ -146,9 +146,7 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
     public function closeConnection($object)
     {
         $session = new Session();
-        $session->remove(GeneralConstants::QWC_TICKET_SESSION);
-        $session->remove(GeneralConstants::QWC_USERNAME_SESSION);
-        $session->remove(GeneralConstants::CUSTOMER_ID);
+        $session->clear();
         return new CloseConnection('Complete!');
     }
 
@@ -167,7 +165,7 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      */
     public function getLastError($object)
     {
-        return new GetLastError('Get Last Error');
+        return new GetLastError('Unable to Complete the Process');
     }
 
     /**

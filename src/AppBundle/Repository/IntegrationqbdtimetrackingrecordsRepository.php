@@ -236,4 +236,47 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetFailedTimeTrackingRecord($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.day,ie.qbdemployeelistid')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeelistid')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function UpdateFailedRecords($customerID,$day,$listID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->where('ie.qbdemployeelistid= :ListID')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->andWhere('b1.day= :Day')
+            ->setParameter('CustomerID',$customerID)
+            ->setParameter('Day',$day)
+            ->setParameter('ListID',$listID)
+            ->getQuery()
+            ->execute();
+
+    }
 }

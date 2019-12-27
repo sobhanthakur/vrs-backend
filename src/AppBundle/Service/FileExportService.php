@@ -205,7 +205,7 @@ class FileExportService extends BaseService
             $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::APP_NAME]);
             $xml->addChild(GeneralConstants::APP_ID, GeneralConstants::QWC_APP_ID);
             $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST) . GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::APP_URL]);
-            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_DESCRIPTION]);
+            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_TIMETRACKING[$i][GeneralConstants::APP_DESCRIPTION]);
             $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST).GeneralConstants::QWC_CERT_RESOURCE);
             $xml->addChild(GeneralConstants::CERTURL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST).GeneralConstants::QWC_CERT_RESOURCE);
             $xml->addChild(GeneralConstants::USERNAME, $username);

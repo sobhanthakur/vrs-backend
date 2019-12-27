@@ -91,7 +91,6 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
         $session = new Session();
         $batchID = $session->get(GeneralConstants::QWC_BATCHID_SESSION);
         $response = simplexml_load_string($object->response);
-        $this->log_this($response);
         if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->TimeTrackingAddRs)) {
             $timeTracking = $response->QBXMLMsgsRs->TimeTrackingAddRs;
             for ($i=0;$i<count($timeTracking);$i++) {
