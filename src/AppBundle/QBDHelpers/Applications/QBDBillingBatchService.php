@@ -35,7 +35,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true));
             if ($integrationToCustomer) {
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID);

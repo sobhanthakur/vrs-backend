@@ -32,7 +32,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncpayroll'=>true));
             if ($integrationToCustomer) {
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $timeClockDays = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetTimeTrackingRecordsToSync($customerID);
