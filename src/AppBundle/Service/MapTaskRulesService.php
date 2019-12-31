@@ -41,7 +41,7 @@ class MapTaskRulesService extends BaseService
             $count = null;
             $response = null;
             $flag = null;
-            $unmatched = null;
+            $matched = 3;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -78,36 +78,27 @@ class MapTaskRulesService extends BaseService
                     if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
                         !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
-                        if($offset === 1) {
-                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->CountServicesJoinMatched($customerID,$department, $billable, $createDate);
-                            if($count) {
-                                $count = (int)$count[0][1];
-                            }
-                        }
-                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
-                        for($i=0;$i<count($response);$i++) {
-                            $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
-                        }
-                        $flag = 1;
+                        $matched = 1;
+                        $flag = 0;
                     }
 
                     // If status is only set to not yet matched
                     if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
                         in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
-                        $unmatched = true;
+                        $matched = 2;
                         $flag = 0;
                     }
                 }
             }
 
 
-            // Default Condition i.e- If status is not set
+            // Default Condition
             if(!$flag) {
                 if($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $unmatched);
+                    $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $matched);
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset,$unmatched);
+                $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $limit, $offset,$matched);
                 $temp = [];
                 foreach ($response as $res) {
                     $temp[] = array(

@@ -33,7 +33,7 @@ class ServicesRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function SyncServices($customerID, $department, $billable, $createDate, $limit, $offset, $unmatched)
+    public function SyncServices($customerID, $department, $billable, $limit, $offset, $matched)
     {
         $select1 = 's.serviceid AS TaskRuleID, s.servicename as TaskRuleName, ';
         $select2 = ' AS LaborOrMaterials, IDENTITY(i.integrationqbditemid) AS IntegrationQBDItemID';
@@ -45,17 +45,26 @@ class ServicesRepository extends EntityRepository
             ->createQueryBuilder('s')
             ->select($select1.'(CASE WHEN i.laborormaterials=0 OR i.laborormaterials IS NULL THEN 0 ELSE 1 END)'.$select2);
 
-        if ($unmatched) {
-            $condition = 'i.integrationqbditemid IS NULL';
-            $result->where($condition);
-            $result2->where($condition);
-        } else {
-            $condition = ' OR i.laborormaterials IS NULL';
-            $result
-                ->andWhere('i.laborormaterials=1'.$condition);
-            $result2
-                ->andWhere('i.laborormaterials=0'.$condition);
+        switch ($matched) {
+            case 1:
+                $result
+                    ->andWhere('i.laborormaterials=1');
+                $result2
+                    ->andWhere('i.laborormaterials=0');
+                break;
+            case 2:
+                $condition = 'i.integrationqbditemid IS NULL';
+                $result->where($condition);
+                $result2->where($condition);
+                break;
+            default:
+                $condition = ' OR i.laborormaterials IS NULL';
+                $result
+                    ->andWhere('i.laborormaterials=1'.$condition);
+                $result2
+                    ->andWhere('i.laborormaterials=0'.$condition);
         }
+
 
         $result = $this->TrimResult($result, $customerID, $department, $billable);
         $result2 = $this->TrimResult($result2, $customerID, $department, $billable);
@@ -72,7 +81,7 @@ class ServicesRepository extends EntityRepository
      * @param $unmatched
      * @return int|null
      */
-    public function CountSyncServices($customerID, $department, $billable, $unmatched)
+    public function CountSyncServices($customerID, $department, $billable, $matched)
     {
         $select1 = 'count(s.serviceid)';
         $result = $this
@@ -83,16 +92,24 @@ class ServicesRepository extends EntityRepository
             ->createQueryBuilder('s')
             ->select($select1);
 
-        if ($unmatched) {
-            $condition = 'i.integrationqbditemid IS NULL';
-            $result->where($condition);
-            $result2->where($condition);
-        } else {
-            $condition = ' OR i.laborormaterials IS NULL';
-            $result
-                ->andWhere('i.laborormaterials=1'.$condition);
-            $result2
-                ->andWhere('i.laborormaterials=0'.$condition);
+        switch ($matched) {
+            case 1:
+                $result
+                    ->andWhere('i.laborormaterials=1');
+                $result2
+                    ->andWhere('i.laborormaterials=0');
+                break;
+            case 2:
+                $condition = 'i.integrationqbditemid IS NULL';
+                $result->where($condition);
+                $result2->where($condition);
+                break;
+            default:
+                $condition = ' OR i.laborormaterials IS NULL';
+                $result
+                    ->andWhere('i.laborormaterials=1'.$condition);
+                $result2
+                    ->andWhere('i.laborormaterials=0'.$condition);
         }
 
         $result = $this->TrimResult($result, $customerID, $department, $billable)->getQuery()->execute();
