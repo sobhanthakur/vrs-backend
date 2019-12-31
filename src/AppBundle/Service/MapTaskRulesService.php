@@ -95,10 +95,15 @@ class MapTaskRulesService extends BaseService
 
             // Default Condition
             if(!$flag) {
+                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable,$matched);
                 if($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $matched);
+                    $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']);
+                    $sql->execute();
+                    $count = count($sql->fetchAll());
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $limit, $offset,$matched);
+                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']. ' ORDER BY s0_.ServiceID OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response->execute();
+                $response = $response->fetchAll();
                 $temp = [];
                 foreach ($response as $res) {
                     $temp[] = array(

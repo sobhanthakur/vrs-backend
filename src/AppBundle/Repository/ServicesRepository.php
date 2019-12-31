@@ -26,14 +26,10 @@ class ServicesRepository extends EntityRepository
      * @param $customerID
      * @param $department
      * @param $billable
-     * @param $createDate
-     * @param $limit
-     * @param $offset
-     * @param $unmatched
-     * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @param $matched
+     * @return array
      */
-    public function SyncServices($customerID, $department, $billable, $limit, $offset, $matched)
+    public function SyncServices($customerID, $department, $billable, $matched)
     {
         $select1 = 's.serviceid AS TaskRuleID, s.servicename as TaskRuleName, ';
         $select2 = ' AS LaborOrMaterials, IDENTITY(i.integrationqbditemid) AS IntegrationQBDItemID';
@@ -46,13 +42,16 @@ class ServicesRepository extends EntityRepository
             ->select($select1.'(CASE WHEN i.laborormaterials=0 OR i.laborormaterials IS NULL THEN 0 ELSE 1 END)'.$select2);
 
         switch ($matched) {
+            // If status is only matched
             case 1:
+                $condition = ' AND i.integrationqbditemid IS NOT NULL';
                 $result
-                    ->andWhere('i.laborormaterials=1');
+                    ->where('i.laborormaterials=1'.$condition);
                 $result2
-                    ->andWhere('i.laborormaterials=0');
+                    ->where('i.laborormaterials=0'.$condition);
                 break;
             case 2:
+                // If status is only Not yet matched matched
                 $condition = 'i.integrationqbditemid IS NULL';
                 $result->where($condition);
                 $result2->where($condition);
@@ -60,70 +59,19 @@ class ServicesRepository extends EntityRepository
             default:
                 $condition = ' OR i.laborormaterials IS NULL';
                 $result
-                    ->andWhere('i.laborormaterials=1'.$condition);
+                    ->where('i.laborormaterials=1'.$condition);
                 $result2
-                    ->andWhere('i.laborormaterials=0'.$condition);
+                    ->where('i.laborormaterials=0'.$condition);
         }
 
 
         $result = $this->TrimResult($result, $customerID, $department, $billable);
         $result2 = $this->TrimResult($result2, $customerID, $department, $billable);
 
-        $sql = $this->getEntityManager()->getConnection()->prepare($result->getQuery()->getSQL() . ' UNION ALL ' . $result2->getQuery()->getSQL() . ' ORDER BY s0_.ServiceID OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
-        $sql->execute();
-        return $sql->fetchAll();
-    }
-
-    /**
-     * @param $customerID
-     * @param $department
-     * @param $billable
-     * @param $unmatched
-     * @return int|null
-     */
-    public function CountSyncServices($customerID, $department, $billable, $matched)
-    {
-        $select1 = 'count(s.serviceid)';
-        $result = $this
-            ->createQueryBuilder('s')
-            ->select($select1);
-
-        $result2 = $this
-            ->createQueryBuilder('s')
-            ->select($select1);
-
-        switch ($matched) {
-            case 1:
-                $result
-                    ->andWhere('i.laborormaterials=1');
-                $result2
-                    ->andWhere('i.laborormaterials=0');
-                break;
-            case 2:
-                $condition = 'i.integrationqbditemid IS NULL';
-                $result->where($condition);
-                $result2->where($condition);
-                break;
-            default:
-                $condition = ' OR i.laborormaterials IS NULL';
-                $result
-                    ->andWhere('i.laborormaterials=1'.$condition);
-                $result2
-                    ->andWhere('i.laborormaterials=0'.$condition);
-        }
-
-        $result = $this->TrimResult($result, $customerID, $department, $billable)->getQuery()->execute();
-        $result2 = $this->TrimResult($result2, $customerID, $department, $billable)->getQuery()->execute();
-
-        $count = null;
-        if($result) {
-            $count = (int)$result[0][1];
-        }
-        if($result2) {
-            $count += (int)$result2[0][1];
-        }
-        return $count;
-
+        return array(
+            'Result1' => $result->getQuery()->getSQL(),
+            'Result2' => $result2->getQuery()->getSQL()
+        );
     }
 
     /**
