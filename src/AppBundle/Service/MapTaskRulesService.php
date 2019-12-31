@@ -41,6 +41,7 @@ class MapTaskRulesService extends BaseService
             $count = null;
             $response = null;
             $flag = null;
+            $unmatched = null;
 
             if(!array_key_exists('IntegrationID',$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -94,23 +95,8 @@ class MapTaskRulesService extends BaseService
                     if (!in_array(GeneralConstants::FILTER_MATCHED, $status) &&
                         in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
-                        if($offset === 1) {
-                            $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
-                            if($count) {
-                                $count = ((int)$count[0][1])*2;
-                            }
-                        }
-                        $limit = $limit/2;
-                        $response1 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
-                        for ($i=0;$i<count($response1);$i++) {
-                            $response1[$i]["IntegrationQBDItemID"] = null;
-                            $response1[$i]["LaborOrMaterials"] = 0;
-                            $response[] = $response1[$i];
-                            $tempResponse = $response1[$i];
-                            $tempResponse['LaborOrMaterials'] = 1;
-                            $response[] = $tempResponse;
-                        }
-                        $flag = 1;
+                        $unmatched = true;
+                        $flag = 0;
                     }
                 }
             }
@@ -119,37 +105,19 @@ class MapTaskRulesService extends BaseService
             // Default Condition i.e- If status is not set
             if(!$flag) {
                 if($offset === 1) {
-                    $count1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->CountServicesJoinMatched($customerID,$department, $billable, $createDate);
-                    if($count1) {
-                        $count1 = (int)$count1[0][1];
-                    }
-                    $count2 = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $createDate);
-
-                    if($count2) {
-                        $count2 = ((int)$count2[0][1])*2;
-                    }
-                    $count = $count1 + $count2;
+                    $count = $this->entityManager->getRepository('AppBundle:Services')->CountSyncServices($customerID,$department, $billable, $unmatched);
                 }
-                $response3 = [];
-                $response = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->ServicesJoinMatched($customerID,$department, $billable, $createDate, $limit, $offset);
-                for($i=0;$i<count($response);$i++) {
-                    $response[$i]['LaborOrMaterials'] = $response[$i]['LaborOrMaterials'] === true ? 1: 0;
+                $response = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset,$unmatched);
+                $temp = [];
+                foreach ($response as $res) {
+                    $temp[] = array(
+                        'TaskRuleID' => $res['ServiceID_0'],
+                        'TaskRuleName' => $res['ServiceName_1'],
+                        'LaborOrMaterials' => $res['sclr_2'],
+                        'IntegrationQBDItemID' => $res['sclr_3']
+                    );
                 }
-                $countResponse = count($response);
-                if($countResponse < $limit) {
-                    $limit = $limit-$countResponse;
-                    $limit = floor($limit/2);
-                    $response2 = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable, $createDate, $limit, $offset);
-                    for($i=0;$i<count($response2);$i++) {
-                        $response2[$i]["IntegrationQBDItemID"] = null;
-                        $response2[$i]["LaborOrMaterials"] = 0;
-                        $response3[] = $response2[$i];
-                        $tempResponse = $response2[$i];
-                        $tempResponse['LaborOrMaterials'] = 1;
-                        $response3[] = $tempResponse;
-                    }
-                }
-                $response = array_merge($response,$response3);
+                $response = $temp;
             }
 
             return array(
