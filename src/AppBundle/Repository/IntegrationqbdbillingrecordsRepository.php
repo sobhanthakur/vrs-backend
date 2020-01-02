@@ -35,11 +35,12 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('b1')
-            ->select('IDENTITY(b1.taskid) as TaskID, t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
+            ->select('IDENTITY(b1.taskid) as TaskID, s2.servicename AS ServiceName,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
             ->innerJoin('b1.taskid', 't2')
             ->innerJoin('t2.propertyid', 'p2')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL');

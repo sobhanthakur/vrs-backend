@@ -58,7 +58,8 @@ class TasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t2')
-            ->select('t2.taskid as TaskID, b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion');
+            ->select('DISTINCT(t2.taskid) as TaskID, s2.servicename AS ServiceName,b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid');
 
         $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
 
@@ -82,7 +83,7 @@ class TasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t2')
-            ->select('count(t2.taskid)');
+            ->select('count(DISTINCT(t2.taskid))');
 
         $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
 
@@ -104,6 +105,8 @@ class TasksRepository extends EntityRepository
     {
         $result
             ->leftJoin('AppBundle:Integrationqbdbillingrecords', 'b1', Expr\Join::WITH, 'b1.taskid=t2.taskid')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','e1',Expr\Join::WITH, 'e1.propertyid=t2.propertyid')
+            ->innerJoin('AppBundle:Integrationqbditemstoservices','e2',Expr\Join::WITH, 'e2.serviceid=t2.serviceid')
             ->where('t2.active=1')
             ->andWhere('b1.txnid IS NULL')
             ->innerJoin('t2.propertyid', 'p2')

@@ -111,6 +111,10 @@ class TimeclockdaysRepository extends EntityRepository
      */
     public function TrimMapTimeClockDays($result, $completedDate, $timezones, $new, $staff, $createDate)
     {
+        $result
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
+            ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
+            ->andWhere('e2.integrationqbdhourwagetypeid IS NOT NULL');
         if($new) {
             $result->andWhere('b1.status IS NULL OR b1.status=2');
         }
