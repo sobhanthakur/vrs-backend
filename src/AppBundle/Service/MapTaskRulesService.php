@@ -192,16 +192,18 @@ class MapTaskRulesService extends BaseService
                     )
                 );
 
-                $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
-                        'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
-                    )
-                );
+                if($data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
+                    $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
+                            'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
+                        )
+                    );
 
-                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
-                if(!$integrationQBDItems ||
-                    ($integrationQBDItems !== null?($integrationQBDItems->getCustomerid()->getCustomerid() !== $customerID):null)
-                ) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDITEMID);
+                    // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                    if(!$integrationQBDItems ||
+                        ($integrationQBDItems !== null?($integrationQBDItems->getCustomerid()->getCustomerid() !== $customerID):null)
+                    ) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDITEMID);
+                    }
                 }
 
                 // Integration QBD Items To TaskRules exist, then simply update the record with the new IntegrationQBDCustomerID
@@ -228,8 +230,12 @@ class MapTaskRulesService extends BaseService
                     $this->entityManager->persist($itemsToTaskrules);
                 } else {
                     // Update the record
-                    $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
-                    $this->entityManager->persist($itemsToTaskrules);
+                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
+                        $this->entityManager->remove($itemsToTaskrules);
+                    } else {
+                        $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
+                        $this->entityManager->persist($itemsToTaskrules);
+                    }
                 }
             }
             $this->entityManager->flush();

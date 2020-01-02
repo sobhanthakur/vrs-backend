@@ -181,16 +181,18 @@ class MapStaffsService extends BaseService
                     )
                 );
 
-                $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array(
-                        'integrationqbdemployeeid' => $data[$i][GeneralConstants::INTEGRATION_QBD_EMPLOYEE_ID]
-                    )
-                );
+                if($data[$i][GeneralConstants::INTEGRATION_QBD_EMPLOYEE_ID]) {
+                    $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array(
+                            'integrationqbdemployeeid' => $data[$i][GeneralConstants::INTEGRATION_QBD_EMPLOYEE_ID]
+                        )
+                    );
 
-                // Check if the integration QBD Employee is present. Or if the employee ID is valid or not
-                if(!$integrationQBDEmployees ||
-                    ($integrationQBDEmployees !== null?($integrationQBDEmployees->getCustomerid()->getCustomerid() !== $customerID):null)
-                ) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDEMPLOYEEID);
+                    // Check if the integration QBD Employee is present. Or if the employee ID is valid or not
+                    if(!$integrationQBDEmployees ||
+                        ($integrationQBDEmployees !== null?($integrationQBDEmployees->getCustomerid()->getCustomerid() !== $customerID):null)
+                    ) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDEMPLOYEEID);
+                    }
                 }
 
                 // Integration QBD Customers To Properties exist, then simply update the record with the new IntegrationQBDEmployeeID
@@ -214,8 +216,13 @@ class MapStaffsService extends BaseService
                     $this->entityManager->persist($employeesTostaffs);
                 } else {
                     // Update the record
-                    $employeesTostaffs->setIntegrationqbdemployeeid($integrationQBDEmployees);
-                    $this->entityManager->persist($employeesTostaffs);
+
+                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_EMPLOYEE_ID]) {
+                        $this->entityManager->remove($employeesTostaffs);
+                    } else {
+                        $employeesTostaffs->setIntegrationqbdemployeeid($integrationQBDEmployees);
+                        $this->entityManager->persist($employeesTostaffs);
+                    }
                 }
             }
             $this->entityManager->flush();
