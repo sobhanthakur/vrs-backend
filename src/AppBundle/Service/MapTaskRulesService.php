@@ -188,10 +188,9 @@ class MapTaskRulesService extends BaseService
                 $itemsToTaskrules = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
                     array(
                         'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
-                        'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE]
+                        'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE] === 0 ? false:true
                     )
                 );
-
 
                 if($data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
                     $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
@@ -228,26 +227,28 @@ class MapTaskRulesService extends BaseService
                         $data[$i][GeneralConstants::BILLTYPE] === 0 ? false:true
                     );
 
-                    // Check if !BillType is present. If not present then allow to create a null entry
-                    $itemsToTaskrules1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
-                        array(
-                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
-                            'laborormaterials' => !$data[$i][GeneralConstants::BILLTYPE]
-                        )
-                    );
-
-                    if(!$itemsToTaskrules1) {
-                        $itemsToTaskrules1 = new Integrationqbditemstoservices();
-
-                        $itemsToTaskrules1->setIntegrationqbditemid(null);
-                        $itemsToTaskrules1->setServiceid($taskRule);
-                        $itemsToTaskrules1->setLaborormaterials(
-                            $data[$i][GeneralConstants::BILLTYPE] === 0 ? true:false
-                        );
-                        $this->entityManager->persist($itemsToTaskrules1);
-                    }
-
                     $this->entityManager->persist($itemsToTaskrules);
+
+                    // Check if !BillType is present. If not present then allow to create a null entry
+//                    $itemsToTaskrules1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
+//                        array(
+//                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
+//                            'laborormaterials' => !$data[$i][GeneralConstants::BILLTYPE]
+//                        )
+//                    );
+//
+//                    if(!$itemsToTaskrules1) {
+//                        $itemsToTaskrules1 = new Integrationqbditemstoservices();
+//
+//                        $itemsToTaskrules1->setIntegrationqbditemid(null);
+//                        $itemsToTaskrules1->setServiceid($taskRule);
+//                        $itemsToTaskrules1->setLaborormaterials(
+//                            $data[$i][GeneralConstants::BILLTYPE] === 0 ? true:false
+//                        );
+//                        $this->entityManager->persist($itemsToTaskrules1);
+//                    }
+//                    $this->entityManager->flush();
+
                 } else {
                     // Update the record
                     if(!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
