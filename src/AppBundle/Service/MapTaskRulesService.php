@@ -43,14 +43,14 @@ class MapTaskRulesService extends BaseService
             $flag = null;
             $matched = 3;
 
-            if(!array_key_exists('IntegrationID',$data)) {
+            if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
             $integrationID = $data['IntegrationID'];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
-            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
-            if(empty($integrationToCustomers)) {
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
+            if (empty($integrationToCustomers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
@@ -94,14 +94,14 @@ class MapTaskRulesService extends BaseService
 
 
             // Default Condition
-            if(!$flag) {
-                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID,$department, $billable,$matched);
-                if($offset === 1) {
+            if (!$flag) {
+                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
+                if ($offset === 1) {
                     $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']);
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']. ' ORDER BY s0_.ServiceID OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2'] . ' ORDER BY s0_.ServiceID OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
                 $response->execute();
                 $response = $response->fetchAll();
                 $temp = [];
@@ -165,19 +165,19 @@ class MapTaskRulesService extends BaseService
     public function MapTaskRulesToItems($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if (!array_key_exists('IntegrationID', $content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
             $integrationID = $content['IntegrationID'];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
-            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
-            if(empty($integrationToCustomers)) {
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
+            if (empty($integrationToCustomers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
-            if(!array_key_exists('Data',$content)) {
+            if (!array_key_exists('Data', $content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_DATA);
             }
 
@@ -188,22 +188,20 @@ class MapTaskRulesService extends BaseService
                 $itemsToTaskrules = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
                     array(
                         'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
-                        'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE] === 0 ? false:true
+                        'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE]
                     )
                 );
 
-                if($data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
-                    $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
-                            'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
-                        )
-                    );
+                $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
+                        'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
+                    )
+                );
 
-                    // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
-                    if(!$integrationQBDItems ||
-                        ($integrationQBDItems !== null?($integrationQBDItems->getCustomerid()->getCustomerid() !== $customerID):null)
-                    ) {
-                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDITEMID);
-                    }
+                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                if (!$integrationQBDItems ||
+                    ($integrationQBDItems !== null ? ($integrationQBDItems->getCustomerid()->getCustomerid() !== $customerID) : null)
+                ) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDITEMID);
                 }
 
                 // Integration QBD Items To TaskRules exist, then simply update the record with the new IntegrationQBDCustomerID
@@ -213,8 +211,8 @@ class MapTaskRulesService extends BaseService
                             'serviceid' => $data[$i][GeneralConstants::TASKRULEID]
                         )
                     );
-                    if(!$taskRule ||
-                        ($taskRule !== null?($taskRule->getCustomerid()->getCustomerid() !== $customerID):null)
+                    if (!$taskRule ||
+                        ($taskRule !== null ? ($taskRule->getCustomerid()->getCustomerid() !== $customerID) : null)
                     ) {
                         throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKRULE_ID);
                     }
@@ -224,38 +222,14 @@ class MapTaskRulesService extends BaseService
                     $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
                     $itemsToTaskrules->setServiceid($taskRule);
                     $itemsToTaskrules->setLaborormaterials(
-                        $data[$i][GeneralConstants::BILLTYPE] === 0 ? false:true
+                        $data[$i][GeneralConstants::BILLTYPE]
                     );
 
                     $this->entityManager->persist($itemsToTaskrules);
 
-                    // Check if !BillType is present. If not present then allow to create a null entry
-//                    $itemsToTaskrules1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
-//                        array(
-//                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
-//                            'laborormaterials' => !$data[$i][GeneralConstants::BILLTYPE]
-//                        )
-//                    );
-//
-//                    if(!$itemsToTaskrules1) {
-//                        $itemsToTaskrules1 = new Integrationqbditemstoservices();
-//
-//                        $itemsToTaskrules1->setIntegrationqbditemid(null);
-//                        $itemsToTaskrules1->setServiceid($taskRule);
-//                        $itemsToTaskrules1->setLaborormaterials(
-//                            $data[$i][GeneralConstants::BILLTYPE] === 0 ? true:false
-//                        );
-//                        $this->entityManager->persist($itemsToTaskrules1);
-//                    }
-//                    $this->entityManager->flush();
-
                 } else {
                     // Update the record
-                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
-                        $itemsToTaskrules->setIntegrationqbditemid(null);
-                    } else {
-                        $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
-                    }
+                    $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
                     $this->entityManager->persist($itemsToTaskrules);
                 }
             }
