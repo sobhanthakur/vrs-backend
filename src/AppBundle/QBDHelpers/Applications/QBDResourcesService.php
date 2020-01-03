@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 class QBDResourcesService extends AbstractQBWCApplication
 {
+    public $incomingItemListIDs = [];
     /**
      * This function sends the desired XML that is to be processed by Quickbooks
      * @param $object
@@ -117,28 +118,64 @@ class QBDResourcesService extends AbstractQBWCApplication
             $this->entityManager->flush();
         }
 
-        if (isset($response->ItemQueryRs) && isset($response->ItemQueryRs->ItemNonInventoryRet)) {
-            $incomingListIDs = [];
-            $qbdListIDs = [];
-            $items = $response->ItemQueryRs->ItemNonInventoryRet;
-
-            for ($i = 0; $i < count($items); $i++) {
-                $incomingListIDs[] = (string)$items[$i]->ListID;
-                $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $items[$i]->ListID));
-                if (!$qbdItems) {
-                    $qbdItems = new Integrationqbditems();
-                }
-                $qbdItems->setActive($items[$i]->IsActive == "false" ? false : true);
-                $qbdItems->setCustomerid($customerID);
-                $qbdItems->setQbditemlistid($items[$i]->ListID);
-                $qbdItems->setQbditemfullname($items[$i]->FullName);
-                $this->entityManager->persist($qbdItems);
+        if (isset($response->ItemQueryRs)) {
+            $tempResp = $response->ItemQueryRs;
+            if(isset($tempResp->ItemNonInventoryRet)) {
+                $items = $tempResp->ItemNonInventoryRet;
+                $this->StoreItems($items,$customerID);
             }
+            if(isset($tempResp->ItemServiceRet)) {
+                $items = $tempResp->ItemServiceRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemOtherChargeRet)) {
+                $items = $tempResp->ItemOtherChargeRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemInventoryRet)) {
+                $items = $tempResp->ItemInventoryRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemInventoryAssemblyRet)) {
+                $items = $tempResp->ItemInventoryAssemblyRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemFixedAssetRet)) {
+                $items = $tempResp->ItemFixedAssetRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemSubtotalRet)) {
+                $items = $tempResp->ItemSubtotalRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemDiscountRet)) {
+                $items = $tempResp->ItemDiscountRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemPaymentRet)) {
+                $items = $tempResp->ItemPaymentRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemSalesTaxRet)) {
+                $items = $tempResp->ItemSalesTaxRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemSalesTaxGroupRet)) {
+                $items = $tempResp->ItemSalesTaxGroupRet;
+                $this->StoreItems($items,$customerID);
+            }
+            if(isset($tempResp->ItemGroupRet)) {
+                $items = $tempResp->ItemGroupRet;
+                $this->StoreItems($items,$customerID);
+            }
+
+            // Find the list of items present and set those items inactive which are deleted in QB.
+            $qbdListIDs = [];
             $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->GetAllItems($session->get(GeneralConstants::CUSTOMER_ID));
             foreach ($qbdItems as $val) {
                 $qbdListIDs[] = $val['QBDItemListID'];
             }
-            $diffArray = array_diff($qbdListIDs, $incomingListIDs);
+            $diffArray = array_diff($qbdListIDs, $this->incomingItemListIDs);
             foreach ($diffArray as $key => $value) {
                 $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value));
                 $qbdItems->setActive(false);
@@ -207,5 +244,35 @@ class QBDResourcesService extends AbstractQBWCApplication
         }
         // Send Response as 100% Success
         return new ReceiveResponseXML(100);
+    }
+
+    /**
+     * @param $items
+     * @param $customerID
+     * @param Session $session
+     * @return bool
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function StoreItems($items, $customerID)
+    {
+        for ($i = 0; $i < count($items); $i++) {
+            $this->incomingItemListIDs[] = (string)$items[$i]->ListID;
+            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $items[$i]->ListID));
+            if (!$qbdItems) {
+                $qbdItems = new Integrationqbditems();
+            }
+            $qbdItems->setActive($items[$i]->IsActive == "false" ? false : true);
+            $qbdItems->setCustomerid($customerID);
+            $qbdItems->setQbditemlistid($items[$i]->ListID);
+            if(isset($items[$i]->FullName)) {
+                $qbdItems->setQbditemfullname($items[$i]->FullName);
+            } else {
+                $qbdItems->setQbditemfullname($items[$i]->Name);
+            }
+
+            $this->entityManager->persist($qbdItems);
+        }
+        return true;
     }
 }
