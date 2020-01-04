@@ -262,7 +262,11 @@ class MapTaskRulesService extends BaseService
 
                 } else {
                     // Update the record
-                    $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
+                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
+                        $itemsToTaskrules->setIntegrationqbditemid(null);
+                    } else {
+                        $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
+                    }
                     $this->entityManager->persist($itemsToTaskrules);
                 }
             }
