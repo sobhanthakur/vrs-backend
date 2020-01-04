@@ -237,8 +237,6 @@ class IntegrationsService extends BaseService
                 }
             }
 
-
-
             // Persist the record in DB.
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
@@ -247,6 +245,35 @@ class IntegrationsService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to update integration due To : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $customerID
+     * @param $integrationID
+     * @return array
+     */
+    public function DisconnectQBD($customerID, $content)
+    {
+        try {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
+            }
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+            if(!$integrationToCustomer) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
+            }
+            $integrationToCustomer->setActive(false);
+            $this->entityManager->persist($integrationToCustomer);
+            $this->entityManager->flush();
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to disconnect integration due To : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
