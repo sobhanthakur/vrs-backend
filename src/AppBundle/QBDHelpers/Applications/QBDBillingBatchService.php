@@ -114,8 +114,8 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                 if($billingRecord) {
                     $txnID = $salesOrders[$i]->SalesOrderRet->TxnID;
                     $billingRecord->setTxnid($txnID);
+                    $this->entityManager->persist($billingRecord);
                 }
-                $this->entityManager->persist($billingRecord);
             }
             $this->entityManager->flush();
         }
