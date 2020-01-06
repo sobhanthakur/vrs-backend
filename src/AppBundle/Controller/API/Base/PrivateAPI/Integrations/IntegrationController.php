@@ -148,7 +148,7 @@ class IntegrationController extends FOSRestController
     /**
      * Disconnect Quickbooks Integration.
      * @SWG\Tag(name="IntegrationDetails")
-     * @Post("/qbddisconnect", name="vrs_qwd_disconnect")
+     * @Put("/qbddisconnect", name="vrs_qwd_disconnect")
      * @SWG\Parameter(
      *     name="body",
      *     in="body",
