@@ -235,6 +235,7 @@ class IntegrationsService extends BaseService
                 if(array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
                     $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
                 }
+                $integrationToCustomer->setActive(true);
             }
 
             // Persist the record in DB.
