@@ -86,12 +86,20 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function DistinctBatchCount($batchID)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('b1')
-            ->select('count(b1.integrationqbdbillingrecordid)')
-            ->where('b1.integrationqbbatchid = :BatchID')
-            ->setParameter('BatchID', $batchID)
-            ->getQuery()->execute();
+            ->select('COUNT(b1.integrationqbdbillingrecordid)')
+            ->innerJoin('b1.taskid', 't2')
+            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->innerJoin('icp.integrationqbdcustomerid','ic')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID);
+        return $result->getQuery()->getResult();
     }
 
     /**
@@ -100,12 +108,21 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function GetBatchDetails($batchID, $limit, $offset)
     {
-        return $this
-            ->getEntityManager()
-            ->createQuery('Select b.sentstatus AS SentStatus,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid as TxnID,b.itemtxnid ItemTxnID,p.propertyname AS PropertyName,t.taskname AS TaskName from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('b1.txnid AS TxnID,(CASE WHEN iis.laborormaterials=1 THEN 1 ELSE 0 END) AS LaborOrMaterial,(CASE WHEN b1.txnid IS NULL AND b1.sentstatus=1 THEN 0 ELSE 1 END) AS Status,p2.propertyname AS PropertyName,t2.taskname AS TaskName,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
+            ->innerJoin('b1.taskid', 't2')
+            ->innerJoin('t2.propertyid','p2')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID)
             ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getArrayResult();
+            ->setMaxResults($limit);
+        return $result->getQuery()->getResult();
+
     }
 
     /**
@@ -114,10 +131,18 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function CountGetBatchDetails($batchID)
     {
-        return $this
-            ->getEntityManager()
-            ->createQuery('Select count(IDENTITY(sp.serviceid)) from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
-            ->getArrayResult();
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('count(b1.taskid)')
+            ->innerJoin('b1.taskid', 't2')
+            ->innerJoin('t2.propertyid','p2')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID);
+        return $result->getQuery()->getResult();
     }
 
     /**

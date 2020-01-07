@@ -92,7 +92,6 @@ class SyncLogsService extends BaseService
 
             // Search Logs in BillingRecords Table
             for($i=0;$i<count($billingBatch);$i++) {
-                $record = 0;
                 $record = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCount($billingBatch[$i]['BatchID']);
                 if($record) {
                     $record = (int)$record[0][1];
@@ -107,7 +106,6 @@ class SyncLogsService extends BaseService
 
             // Search Logs in TimeTracking Table
             for($i=0;$i<count($timeTrackingBatch);$i++) {
-                $record = 0;
                 $record = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCount($timeTrackingBatch[$i]['BatchID']);
                 if($record) {
                     $record = (int)$record[0][1];
@@ -115,7 +113,8 @@ class SyncLogsService extends BaseService
                 $response[] = array(
                     'BatchType' => 1,
                     'Sent' => $timeTrackingBatch[$i]['CreateDate'],
-                    'Records' => $record
+                    'Records' => $record,
+                    'BatchID' => $timeTrackingBatch[$i]['BatchID']
                 );
             }
 
@@ -176,25 +175,8 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $services = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetBatchDetails($batchID,$limit,$offset);
-                for ($i = 0; $i < count($services); $i++) {
-                    $services[$i]['Status'] = 1;
-                    if($services[$i]['SentStatus'] && $services[$i]['TxnID'] === null) {
-                        $services[$i]['Status'] = 0;
-                    }
-                    if ($services[$i]['LaborOrMaterial']) {
-                        $services[$i]['Amount'] = $services[$i]['MaterialsAmount'];
-                    } else {
-                        $services[$i]['Amount'] = $services[$i]['LaborAmount'];
-                    }
-                    $services[$i]['LaborOrMaterial'] = $services[$i]['LaborOrMaterial']?1:0;
-                    $services[$i]['Staff'] = null;
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetBatchDetails($batchID,$limit,$offset);
 
-                    unset($services[$i]['SentStatus']);
-                    unset($services[$i]['LaborAmount']);
-                    unset($services[$i]['MaterialsAmount']);
-                }
-                $response = $services;
 
             } elseif ($batchType === 1) {
                 if($offset === 1) {
@@ -203,21 +185,7 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $timetracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findBy(array('integrationqbbatchid'=>$batchID));
-                for($i=0;$i<count($timetracking);$i++) {
-                    $response[$i]['Staff'] = $timetracking[$i]->getTimeclockdaysid()->getServicerid()->getName();
-                    $response[$i]['TxnID'] = $timetracking[$i]->getTxnid();
-                    if($timetracking[$i]->getSentstatus() && $timetracking[$i]->getTxnid() === null) {
-                        $response[$i]['Status'] = 0;
-                    } else {
-                        $response[$i]['Status'] = 1;
-                    }
-                    $response[$i]['LaborOrMaterial'] = null;
-                    $response[$i]['ItemTxnID'] = null;
-                    $response[$i]['PropertyName'] = null;
-                    $response[$i]['TaskName'] = null;
-                    $response[$i]['Amount'] = null;
-                }
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID);
             }
 
 

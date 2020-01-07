@@ -102,6 +102,22 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     }
 
     /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function BatchWiseLog($batchID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->where('b1.integrationqbbatchid = :BatchID')
+            ->setParameter('BatchID', $batchID)
+            ->getQuery()->execute();
+    }
+
+    /**
      * @param QueryBuilder $result
      * @param $completedDate,$timezones
      * @param $staff
