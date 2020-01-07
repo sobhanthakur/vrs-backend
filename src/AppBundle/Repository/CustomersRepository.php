@@ -12,6 +12,10 @@ namespace AppBundle\Repository;
  * Class CustomersRepository
  * @package AppBundle\Repository
  */
+/**
+ * Class CustomersRepository
+ * @package AppBundle\Repository
+ */
 class CustomersRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
@@ -42,6 +46,22 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->where('c.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetTimeZone($customerID)
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->select('t.region AS Region')
+            ->innerJoin('c.timezoneid','t')
+            ->where('c.customerid= :CustomerID')
+            ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
     }

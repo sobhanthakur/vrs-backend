@@ -105,7 +105,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $batchID
      * @return mixed
      */
-    public function BatchWiseLog($batchID)
+    public function BatchWiseLog($batchID,$limit,$offset)
     {
         return $this
             ->createQueryBuilder('b1')
@@ -114,6 +114,8 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->innerJoin('t2.servicerid','s2')
             ->where('b1.integrationqbbatchid = :BatchID')
             ->setParameter('BatchID', $batchID)
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
             ->getQuery()->execute();
     }
 
