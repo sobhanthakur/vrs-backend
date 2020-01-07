@@ -29,7 +29,6 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $billingRecordID = [];
         $referenceID = [];
         $xml = '';
-        $updateBillingBatch = false;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
@@ -39,11 +38,13 @@ class QBDBillingBatchService extends AbstractQBWCApplication
             if ($integrationToCustomer) {
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID);
+
                 if (!empty($tasks)) {
                     foreach ($tasks as $task) {
+                        $ref = $task['IntegrationQBDBillingRecordID'].$this->ReferenceNumber(8-strlen($task['IntegrationQBDBillingRecordID']));
                         $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
-                        $referenceID[$task['QBDCustomerListID']] = $task['IntegrationQBDBillingRecordID'].$this->ReferenceNumber();
-                        $billingRecordID[$task['QBDCustomerListID']] = $task['IntegrationQBDBillingRecordID'];
+                        $referenceID[$task['QBDCustomerListID']] = $ref;
+                        $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
                     }
 
                     // Create Sales Order
@@ -78,6 +79,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                             ';
                     }
                     $xml .= '</QBXMLMsgsRq></QBXML>';
+
                     // Create new Batch
                     $batchID = new Integrationqbbatches();
                     $batchID->setBatchtype(false);
@@ -86,14 +88,23 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                     $this->entityManager->flush();
 
                     // Update Billing Records rows and set reference number, batch id and sentstatus(to 1)
-                    $updateBillingBatch = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->UpdateBillingBatchWithRefNumber($billingRecordID, $referenceID, $batchID->getIntegrationqbbatchid());
+                    foreach ($referenceID as $key=>$value) {
+                        $billingIDs = array_unique($billingRecordID[$key]);
+                        foreach ($billingIDs as $item) {
+                            $billingID = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findOneBy(array('integrationqbdbillingrecordid'=>$item));
+                            if($billingID) {
+                                $billingID->setSentstatus(true);
+                                $billingID->setIntegrationqbbatchid($batchID);
+                                $billingID->setRefnumber($referenceID[$key]);
+                                $this->entityManager->persist($billingID);
+                            }
+                        }
+                    }
+                    $this->entityManager->flush();
                 }
             }
         }
-        if($updateBillingBatch) {
-            return new SendRequestXML($xml);
-        }
-        return null;
+        return new SendRequestXML($xml);
     }
 
     /**
@@ -110,11 +121,11 @@ class QBDBillingBatchService extends AbstractQBWCApplication
             $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
             for ($i=0;$i<count($salesOrders);$i++) {
                 $refNumber = $salesOrders[$i]->SalesOrderRet->RefNumber;
-                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findOneBy(array('refnumber' => (string)$refNumber));
-                if($billingRecord) {
+                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                foreach ($billingRecord as $billing) {
                     $txnID = $salesOrders[$i]->SalesOrderRet->TxnID;
-                    $billingRecord->setTxnid($txnID);
-                    $this->entityManager->persist($billingRecord);
+                    $billing->setTxnid($txnID);
+                    $this->entityManager->persist($billing);
                 }
             }
             $this->entityManager->flush();
@@ -127,14 +138,16 @@ class QBDBillingBatchService extends AbstractQBWCApplication
      * @param null $utimestamp
      * @return false|string
      */
-    public function ReferenceNumber($format = 'u', $utimestamp = null)
+    public function ReferenceNumber($digits)
     {
+        $format = 'u';
+        $utimestamp = null;
         if (!$utimestamp) {
             $utimestamp = microtime(true);
         }
 
         $timestamp = floor($utimestamp);
-        $milliseconds = round(($utimestamp - $timestamp) * 1000000);
+        $milliseconds = round(($utimestamp - $timestamp) * pow(10,$digits));
 
         return date(preg_replace('`(?<!\\\\)u`', $milliseconds, $format), $timestamp);
     }
