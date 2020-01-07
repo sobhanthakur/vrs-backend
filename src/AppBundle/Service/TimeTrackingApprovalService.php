@@ -82,45 +82,17 @@ class TimeTrackingApprovalService extends BaseService
 
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
-
-                // IntegrationQBDTime Tracking Repository
-                $timetrackingRecordsRepo = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords');
-
-                // If status is either Approved Or Excluded or both
-                if (
-                    ((count($status) === 1) || (count($status) === 2)) &&
-                    ((in_array(GeneralConstants::APPROVED, $status)) ||
-                        in_array(GeneralConstants::EXCLUDED, $status)
-                    ) &&
-                    (!in_array(GeneralConstants::NEW, $status))
-                ) {
-                    if ($offset === 1) {
-                        $count = $timetrackingRecordsRepo->CountMapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones);
-                        if (!empty($count)) {
-                            $count = (int)$count[0][1];
-                        }
-                    }
-                    $response = $timetrackingRecordsRepo->MapTimeTrackingQBDFilters($customerID, $status, $staff, $createDate, $completedDate,$timezones,$limit, $offset);
-                    $response = $this->processResponse($response);
-                    $flag = 1;
-                } elseif (
-                    (count($status) === 1) &&
-                    in_array(GeneralConstants::NEW, $status)
-                ) {
-                    $new = true;
-                    $flag = 0;
-                }
             }
 
             //Default Condition
             if (!$flag) {
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones,$new);
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones,$status);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones, $limit, $offset,$new);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones, $limit, $offset,$status);
                 $response = $this->processResponse($response);
             }
 

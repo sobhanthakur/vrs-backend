@@ -8,6 +8,7 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -115,8 +116,25 @@ class TimeclockdaysRepository extends EntityRepository
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
             ->andWhere('e2.integrationqbdhourwagetypeid IS NOT NULL');
+
         if($new) {
-            $result->andWhere('b1.status IS NULL OR b1.status=2');
+            $condition1 = null;
+            $condition2 = null;
+            $condition3 = null;
+            $condition = null;
+            if(in_array(GeneralConstants::APPROVED,$new)) {
+                $condition1 = 'b1.status=1';
+                $condition = $condition1;
+            }
+            if(in_array(GeneralConstants::EXCLUDED,$new)) {
+                $condition2 = $condition1 ? ' OR b1.status=0' : 'b1.status=0';
+                $condition .= $condition2;
+            }
+            if(in_array(GeneralConstants::NEW,$new)) {
+                $condition3 = $condition1 || $condition2 ? ' OR b1.status IS NULL OR b1.status=2' : 'b1.status IS NULL OR b1.status=2';
+                $condition .= $condition3;
+            }
+            $result->andWhere($condition);
         }
 
 

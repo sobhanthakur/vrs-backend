@@ -81,53 +81,17 @@ class BillingApprovalService extends BaseService
 
             if (array_key_exists('Status', $filters)) {
                 $status = $filters['Status'];
+            }
 
-                // IntegrationQBDBilling Repository
-                $billingRecordsRepo = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords');
-
-                // If status is either Approved Or Excluded or both
-                if (
-                    ((count($status) === 1) || (count($status) === 2)) &&
-                    ((in_array(GeneralConstants::APPROVED, $status)) ||
-                        in_array(GeneralConstants::EXCLUDED, $status)
-                    ) &&
-                    (!in_array(GeneralConstants::NEW, $status))
-                ) {
-                    if ($offset === 1) {
-                        $count = $billingRecordsRepo->CountMapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate,$timezones);
-                        if (!empty($count)) {
-                            $count = (int)$count[0][1];
-                        }
-                    }
-                    $response = $billingRecordsRepo->MapTasksQBDFilters($status, $properties, $customerID, $createDate, $completedDate,$timezones, $limit, $offset);
-                    $response = $this->processResponse($response);
-                    $flag = 1;
-                } elseif (
-                    (count($status) === 1) &&
-                    in_array(GeneralConstants::NEW, $status)
-                ) {
-                    $new = true;
-                    $flag = 0;
+            if ($offset === 1) {
+                $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
+                if ($count) {
+                    $count = (int)$count[0][1];
                 }
             }
 
-            /*
-             * Default Condition
-             * If status is not set
-             * Or else status is set to all
-             * or else status if New AND (Approved OR Excluded)
-             */
-            if (!$flag) {
-                if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate,$timezones, $new);
-                    if ($count) {
-                        $count = (int)$count[0][1];
-                    }
-                }
-
-                $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate,$timezones, $limit, $offset,$new);
-                $response = $this->processResponse($response);
-            }
+            $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
+            $response = $this->processResponse($response);
 
             return array(
                 'ReasonCode' => 0,
