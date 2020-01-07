@@ -65,12 +65,12 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
             $response = $response->QBXMLMsgsRs->SalesOrderQueryRs;
             for($i=0;$i<count($response);$i++) {
                 $refNumber = $response[$i]->SalesOrderRet->RefNumber;
-                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findOneBy(array('refnumber' => (string)$refNumber));
-                if($billingRecord) {
+                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                foreach ($billingRecord as $billing) {
                     $txnID = $response[$i]->SalesOrderRet->TxnID;
-                    $billingRecord->setTxnid($txnID);
+                    $billing->setTxnid($txnID);
+                    $this->entityManager->persist($billing);
                 }
-                $this->entityManager->persist($billingRecord);
             }
             $this->entityManager->flush();
         }
