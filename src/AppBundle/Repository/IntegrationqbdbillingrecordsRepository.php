@@ -209,13 +209,16 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('b1')
-            ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemfullname AS QBDItemFullName,ic.qbdcustomerlistid as QBDCustomerListID')
+            ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemfullname AS QBDItemFullName,ic.qbdcustomerlistid as QBDCustomerListID,(CASE WHEN iis.laborormaterials=1 THEN 1 ELSE 0 END) AS LaborOrMaterial,t2.taskname AS TaskName,p2.propertyname AS PropertyName,s2.servicename AS ServiceName,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region')
             ->innerJoin('b1.taskid', 't2')
             ->innerJoin('t2.propertyid','p2')
             ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->innerJoin('icp.integrationqbdcustomerid','ic')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
+            ->innerJoin('p2.regionid','r')
+            ->innerJoin('r.timezoneid','t')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('b1.txnid IS NULL')

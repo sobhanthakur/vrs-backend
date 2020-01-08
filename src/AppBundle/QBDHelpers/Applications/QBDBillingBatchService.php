@@ -28,6 +28,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $response = [];
         $billingRecordID = [];
         $referenceID = [];
+        $description = [];
         $xml = '';
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
@@ -45,6 +46,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                         $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
                         $referenceID[$task['QBDCustomerListID']] = $ref;
                         $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
+                        $description[$task['QBDCustomerListID']][] = $task['PropertyName'].' - '.$task['TaskName'].' - '.$task['ServiceName'].' - '.$this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'),$task['Region']).' - '.($task['LaborOrMaterial'] === 1 ? "Materials":"Labor");
                     }
 
                     // Create Sales Order
@@ -150,5 +152,18 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $milliseconds = round(($utimestamp - $timestamp) * pow(10,$digits));
 
         return date(preg_replace('`(?<!\\\\)u`', $milliseconds, $format), $timestamp);
+    }
+
+    /**
+     * @param $date
+     * @param $region
+     * @return string
+     */
+    public function TimeZoneConversion($date, $region)
+    {
+        $localTimeZone = new \DateTimeZone($region);
+        $date = new \DateTime($date,$localTimeZone);
+
+        return $date->format('Y-m-d');
     }
 }
