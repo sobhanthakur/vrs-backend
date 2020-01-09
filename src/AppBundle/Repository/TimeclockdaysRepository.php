@@ -34,16 +34,8 @@ class TimeclockdaysRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('t1.timeclockdayid as TimeClockDaysID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut')
-            ->leftJoin('AppBundle:Integrationqbdtimetrackingrecords', 'b1', Expr\Join::WITH, 'b1.timeclockdaysid=t1.timeclockdayid')
-            ->innerJoin('t1.servicerid', 's2')
-            ->innerJoin('s2.timezoneid','t2')
-            ->where('s2.customerid = :CustomerID')
-            ->andWhere('b1.txnid IS NULL')
-            ->andWhere('s2.servicertype=0')
-            ->setParameter('CustomerID', $customerID);
-
-        $result = $this->TrimMapTimeClockDays($result, $completedDate,$timezones, $new, $staff, $createDate);
+            ->select('t1.timeclockdayid as TimeClockDaysID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
+        $result = $this->TrimMapTimeClockDays($result, $completedDate,$timezones, $new, $staff, $createDate,$customerID);
 
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -64,14 +56,9 @@ class TimeclockdaysRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('count(t1.timeclockdayid)')
-            ->leftJoin('AppBundle:Integrationqbdtimetrackingrecords', 'b1', Expr\Join::WITH, 'b1.timeclockdaysid=t1.timeclockdayid')
-            ->innerJoin('t1.servicerid', 's2')
-            ->where('s2.customerid = :CustomerID')
-            ->andWhere('s2.servicertype=0')
-            ->setParameter('CustomerID', $customerID);
+            ->select('count(t1.timeclockdayid)');
 
-        $result = $this->TrimMapTimeClockDays($result, $completedDate,$timezones, $new, $staff, $createDate);
+        $result = $this->TrimMapTimeClockDays($result, $completedDate,$timezones, $new, $staff, $createDate,$customerID);
 
         return $result->getQuery()->execute();
     }
@@ -110,8 +97,15 @@ class TimeclockdaysRepository extends EntityRepository
      * @param $createDate
      * @return mixed
      */
-    public function TrimMapTimeClockDays($result, $completedDate, $timezones, $new, $staff, $createDate)
+    public function TrimMapTimeClockDays($result, $completedDate, $timezones, $new, $staff, $createDate,$customerID)
     {
+        $result->leftJoin('AppBundle:Integrationqbdtimetrackingrecords', 'b1', Expr\Join::WITH, 'b1.timeclockdaysid=t1.timeclockdayid')
+        ->innerJoin('t1.servicerid', 's2')
+        ->innerJoin('s2.timezoneid','t2')
+        ->where('s2.customerid = :CustomerID')
+        ->andWhere('b1.txnid IS NULL')
+        ->andWhere('s2.servicertype=0')
+        ->setParameter('CustomerID', $customerID);
         $result
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
