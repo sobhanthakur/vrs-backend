@@ -29,6 +29,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $billingRecordID = [];
         $referenceID = [];
         $description = [];
+        $amount = [];
         $xml = '';
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
@@ -46,7 +47,8 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                         $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
                         $referenceID[$task['QBDCustomerListID']] = $ref;
                         $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
-                        $description[$task['QBDCustomerListID']][] = $task['PropertyName'].' - '.$task['TaskName'].' - '.$task['ServiceName'].' - '.$this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'),$task['Region']).' - '.($task['LaborOrMaterial'] === 1 ? "Materials":"Labor");
+                        $description[$task['QBDCustomerListID']][] = $task['PropertyName'].' - '.$task['TaskName'].' - '.$task['ServiceName'].' - '.$this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'),$task['Region']).' - '.($task['LaborOrMaterial'] === true ? "Materials":"Labor");
+                        $amount[$task['QBDCustomerListID']][] = $task['Amount'];
                     }
 
                     // Create Sales Order
@@ -66,12 +68,13 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                     <RefNumber >'.$referenceID[$key].'</RefNumber>
                                     ';
 
-                        foreach ($value as $item) {
+                        foreach ($value as $key1=>$value1) {
                             $xml .= '
                                 <SalesOrderLineAdd>
                                 <ItemRef>
-                                <FullName >'.$item.'</FullName>
+                                <FullName >'.$value1.'</FullName>
                                 </ItemRef>
+                                <Desc>'.(string)$description[$key][$key1].'</Desc>
                                 </SalesOrderLineAdd>
                             ';
                         }
