@@ -115,7 +115,9 @@ class TimeclockdaysRepository extends EntityRepository
         $result
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
-            ->andWhere('e2.integrationqbdhourwagetypeid IS NOT NULL');
+            ->andWhere('e2.integrationqbdhourwagetypeid IS NOT NULL')
+            ->andWhere('t1.clockin IS NOT NULL')
+            ->andWhere('t1.clockout IS NOT NULL');
 
         if($new) {
             $condition1 = null;
