@@ -101,7 +101,7 @@ class MapWageItemsService extends BaseService
     public function GetPayrollMapping($customerID, $content)
     {
         try {
-            $response = null;
+            $response[GeneralConstants::PAY_BY_HOUR] = null;
             /*
              * Read Request object. Extract attributes and parameters.
              */
