@@ -39,7 +39,7 @@ class IntegrationController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $integrationService = $this->container->get('vrscheduler.integration_service');
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $response = $integrationService->GetAllIntegrations($request->attributes->get(GeneralConstants::AUTHPAYLOAD));
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -117,7 +117,7 @@ class IntegrationController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $integrationService = $this->container->get('vrscheduler.integration_service');
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $method = $request->getMethod();
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
@@ -185,7 +185,7 @@ class IntegrationController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $integrationService = $this->container->get('vrscheduler.integration_service');
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $response = $integrationService->DisconnectQBD($customerID,$content);
@@ -202,6 +202,5 @@ class IntegrationController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 }

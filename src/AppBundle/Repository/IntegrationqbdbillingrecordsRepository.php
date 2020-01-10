@@ -20,6 +20,11 @@ use Doctrine\ORM\Query\Expr;
  */
 class IntegrationqbdbillingrecordsRepository extends EntityRepository
 {
+    private $taskid = 'b1.taskid';
+    private $propertyid = 't2.propertyid';
+    private $customerCondition = 'p2.customerid = :CustomerID';
+    private $txnid = 'b1.txnid IS NULL';
+
     /**
      * @param $status
      * @param $properties
@@ -36,14 +41,14 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('IDENTITY(b1.taskid) as TaskID, s2.servicename AS ServiceName,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid', 'p2')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid, 'p2')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
             ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL');
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid);
 
         $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
@@ -69,11 +74,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('count(b1.integrationqbdbillingrecordid)')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid', 'p2')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL');
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid, 'p2')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid);
 
         $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
@@ -89,8 +94,8 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('COUNT(b1.integrationqbdbillingrecordid)')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
             ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->innerJoin('icp.integrationqbdcustomerid','ic')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
@@ -111,8 +116,8 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('b1.txnid AS TxnID,(CASE WHEN iis.laborormaterials=1 THEN 1 ELSE 0 END) AS LaborOrMaterial,(CASE WHEN b1.txnid IS NULL AND b1.sentstatus=1 THEN 0 ELSE 1 END) AS Status,p2.propertyname AS PropertyName,t2.taskname AS TaskName,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
@@ -134,8 +139,8 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('count(b1.taskid)')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
@@ -210,8 +215,8 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemfullname AS QBDItemFullName,ic.qbdcustomerlistid as QBDCustomerListID,iis.laborormaterials AS LaborOrMaterial,t2.taskname AS TaskName,p2.propertyname AS PropertyName,s2.servicename AS ServiceName,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
             ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->innerJoin('icp.integrationqbdcustomerid','ic')
             ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
@@ -219,31 +224,13 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->innerJoin('iis.integrationqbditemid','ii')
             ->innerJoin('p2.regionid','r')
             ->innerJoin('r.timezoneid','t')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid)
             ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
             ->andWhere('b1.refnumber IS NULL OR b1.refnumber=0')
             ->andWhere('b1.status=1');
         return $result->getQuery()->getResult();
-    }
-
-    /**
-     * @param $billingRecords
-     * @param $referenceNumbers
-     * @param $batchID
-     * @return bool
-     */
-    public function UpdateBillingBatchWithRefNumber($billingRecords, $referenceNumbers, $batchID)
-    {
-        foreach ($billingRecords as $key=>$value) {
-            $this
-                ->getEntityManager()
-                ->createQuery('UPDATE AppBundle:Integrationqbdbillingrecords b1 SET b1.refnumber='.$referenceNumbers[$key].',b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdbillingrecordid= :BatchRecordID')
-                ->setParameter('BatchRecordID',$value)
-                ->getArrayResult();
-        }
-        return true;
     }
 
     /**
@@ -255,11 +242,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         return $this
             ->createQueryBuilder('b1')
             ->select('b1.refnumber AS RefNumber')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid','p2')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid)
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.refnumber IS NOT NULL')
             ->andWhere('b1.status=1')

@@ -148,8 +148,13 @@ final class GeneralConstants
     const FILTER_SERVICE = 'vrscheduler.filter_service';
     const MAP_STAFF_SERVICE = 'vrscheduler.map_staffs';
     const MAP_WAGE_ITEM = 'vrscheduler.map_wage_item';
+    const INTEGRATION_SERVICE = 'vrscheduler.integration_service';
 
     const QWC_TICKET_SESSION = 'QWC_TicketID';
     const QWC_USERNAME_SESSION = 'QWC_Username';
     const QWC_BATCHID_SESSION = 'BatchID';
+    const PAGINATION = 'Pagination';
+
+    const CUSTOMER_ID_CONDITION = 'c.customerid= :CustomerID';
+    const SUCCESS_TRANSLATION = 'api.response.success.message';
 }

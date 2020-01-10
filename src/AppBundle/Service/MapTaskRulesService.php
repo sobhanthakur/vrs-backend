@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 class MapTaskRulesService extends BaseService
 {
+    private $serviceid = 'serviceid';
     /**
      * @param $customerID
      * @param $data
@@ -33,20 +34,18 @@ class MapTaskRulesService extends BaseService
             $status = null;
             $department = null;
             $billable = null;
-            $createDate = null;
             $limit = 10;
             $offset = 1;
-            $itemsToServices = null;
             $integrationID = null;
             $count = null;
             $response = null;
             $flag = null;
             $matched = 3;
 
-            if (!array_key_exists('IntegrationID', $data)) {
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
@@ -63,12 +62,9 @@ class MapTaskRulesService extends BaseService
                 if (array_key_exists(GeneralConstants::BILLABLE, $filters)) {
                     $billable = $filters[GeneralConstants::BILLABLE];
                 }
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
-                }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
                 if (array_key_exists('Status', $filters)) {
@@ -107,7 +103,7 @@ class MapTaskRulesService extends BaseService
                 $temp = [];
                 foreach ($response as $res) {
                     $temp[] = array(
-                        'TaskRuleID' => $res['ServiceID_0'],
+                        GeneralConstants::TASKRULEID => $res['ServiceID_0'],
                         'TaskRuleName' => $res['ServiceName_1'],
                         'LaborOrMaterials' => $res['sclr_2'],
                         'IntegrationQBDItemID' => $res['sclr_3']
@@ -117,8 +113,8 @@ class MapTaskRulesService extends BaseService
             }
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 'Data' => array(
                     'Count' => $count,
                     'Details' => $response
@@ -144,8 +140,8 @@ class MapTaskRulesService extends BaseService
         try {
             $items = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->QBDItems($customerID);
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 'Data' => $items
             );
         } catch (HttpException $exception) {
@@ -165,11 +161,11 @@ class MapTaskRulesService extends BaseService
     public function MapTaskRulesToItems($customerID, $content)
     {
         try {
-            if (!array_key_exists('IntegrationID', $content)) {
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
@@ -187,7 +183,7 @@ class MapTaskRulesService extends BaseService
             for ($i = 0; $i < count($data); $i++) {
                 $itemsToTaskrules = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
                     array(
-                        'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
+                        $this->serviceid => $data[$i][GeneralConstants::TASKRULEID],
                         'laborormaterials' => $data[$i][GeneralConstants::BILLTYPE]
                     )
                 );
@@ -210,7 +206,7 @@ class MapTaskRulesService extends BaseService
                 if (!$itemsToTaskrules) {
                     // Create New Record
                     $taskRule = $this->entityManager->getRepository('AppBundle:Services')->findOneBy(array(
-                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID]
+                            $this->serviceid => $data[$i][GeneralConstants::TASKRULEID]
                         )
                     );
                     if (!$taskRule ||
@@ -230,7 +226,7 @@ class MapTaskRulesService extends BaseService
 
                     $itemsToTaskrules1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
                         array(
-                            'serviceid' => $data[$i][GeneralConstants::TASKRULEID],
+                            $this->serviceid => $data[$i][GeneralConstants::TASKRULEID],
                             'laborormaterials' => !$data[$i][GeneralConstants::BILLTYPE]
                         )
                     );
@@ -241,7 +237,7 @@ class MapTaskRulesService extends BaseService
                         for ($j=0;$j<count($data);$j++) {
                             if(
                                 ($i!==$j) &&
-                                $data[$j]['TaskRuleID'] == $data[$i]['TaskRuleID'] &&
+                                $data[$j][GeneralConstants::TASKRULEID] == $data[$i][GeneralConstants::TASKRULEID] &&
                                 $data[$j]['BillType'] == !($data[$i]['BillType'])
                             ) {
                                 $key = null;
@@ -273,8 +269,8 @@ class MapTaskRulesService extends BaseService
             $this->entityManager->flush();
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message')
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION)
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
