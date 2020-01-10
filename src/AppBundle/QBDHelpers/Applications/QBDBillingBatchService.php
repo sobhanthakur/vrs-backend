@@ -75,6 +75,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                 <FullName >'.$value1.'</FullName>
                                 </ItemRef>
                                 <Desc>'.(string)$description[$key][$key1].'</Desc>
+                                <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>
                                 </SalesOrderLineAdd>
                             ';
                         }
@@ -122,6 +123,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
     {
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
+        $this->log_this($response);
         if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
             $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
             for ($i=0;$i<count($salesOrders);$i++) {
