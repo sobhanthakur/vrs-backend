@@ -90,8 +90,13 @@ class ServicesRepository extends EntityRepository
 
 
         if ($department) {
-            $result->andWhere('s.servicegroupid IN (:Departments)')
-                ->setParameter('Departments', $department);
+            $condition = 's.servicegroupid IN (';
+            $i=0;
+            for (;$i<count($department)-1;$i++) {
+                $condition .= $department[$i].',';
+            }
+            $condition .= $department[$i].')';
+            $result->andWhere($condition);
         }
 
         if ($billable) {
