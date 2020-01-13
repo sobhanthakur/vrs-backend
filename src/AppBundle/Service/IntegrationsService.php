@@ -195,24 +195,47 @@ class IntegrationsService extends BaseService
             // Check if the record is present or not
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
             if(!$integrationToCustomer) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INTEGRATION_NOT_PRESENT);
-            }
+                $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+                if(!$customer) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
+                }
 
-            if(array_key_exists(GeneralConstants::START_DATE,$content)) {
+                $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
+                if(empty($integration)) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
+                }
+
+                $integrationToCustomer = new Integrationstocustomers();
+                $integrationToCustomer->setActive(true);
+                $integrationToCustomer->setUsername('VRS'.uniqid());
+                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+                $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
                 $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
-            }
+                $integrationToCustomer->setCustomerid($customer);
+                $integrationToCustomer->setIntegrationid($integration);
 
-            if(array_key_exists(GeneralConstants::PASS,$content)) {
+                // Encode the password to SHA1
                 $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
                 $integrationToCustomer->setPassword($encoder);
-            }
 
-            if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
-                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
-            }
+            } else {
+                if(array_key_exists(GeneralConstants::START_DATE,$content)) {
+                    $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
+                }
 
-            if(array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
-                $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
+                if(array_key_exists(GeneralConstants::PASS,$content)) {
+                    $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
+                    $integrationToCustomer->setPassword($encoder);
+                }
+
+                if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
+                    $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+                }
+
+                if(array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
+                    $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
+                }
+                $integrationToCustomer->setActive(true);
             }
 
             // Persist the record in DB.
@@ -223,6 +246,35 @@ class IntegrationsService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to update integration due To : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $customerID
+     * @param $integrationID
+     * @return array
+     */
+    public function DisconnectQBD($customerID, $content)
+    {
+        try {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
+            }
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+            if(!$integrationToCustomer) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
+            }
+            $integrationToCustomer->setActive(false);
+            $this->entityManager->persist($integrationToCustomer);
+            $this->entityManager->flush();
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to disconnect integration due To : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

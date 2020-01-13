@@ -39,7 +39,7 @@ class IntegrationController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $integrationService = $this->container->get('vrscheduler.integration_service');
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $response = $integrationService->GetAllIntegrations($request->attributes->get(GeneralConstants::AUTHPAYLOAD));
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -117,7 +117,7 @@ class IntegrationController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $integrationService = $this->container->get('vrscheduler.integration_service');
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $method = $request->getMethod();
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
@@ -143,5 +143,64 @@ class IntegrationController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
         return $response;
+    }
+
+    /**
+     * Disconnect Quickbooks Integration.
+     * @SWG\Tag(name="IntegrationDetails")
+     * @Put("/qbddisconnect", name="vrs_qwd_disconnect")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="IntegrationID",
+     *              type="integer",
+     *              example=1
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Disconnects QBD Integration",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function DisconnectQBDIntegration(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
+            $content = json_decode($request->getContent(),true);
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $response = $integrationService->DisconnectQBD($customerID,$content);
+            return $response;
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

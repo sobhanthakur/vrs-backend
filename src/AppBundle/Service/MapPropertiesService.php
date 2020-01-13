@@ -189,17 +189,21 @@ class MapPropertiesService extends BaseService
                     )
                 );
 
-                $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array(
-                        'integrationqbdcustomerid' => $data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]
-                    )
-                );
 
-                // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
-                if(!$integrationQBDCustomers ||
-                    ($integrationQBDCustomers !== null?($integrationQBDCustomers->getCustomerid()->getCustomerid() !== $customerID):null)
-                ) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDCUSTOMERID);
+                if($data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]) {
+                    $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array(
+                            'integrationqbdcustomerid' => $data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]
+                        )
+                    );
+
+                    // Check if the integration QBD Customer is present. Or if the customer ID is valid or not
+                    if(!$integrationQBDCustomers ||
+                        ($integrationQBDCustomers !== null?($integrationQBDCustomers->getCustomerid()->getCustomerid() !== $customerID):null)
+                    ) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATIONQBDCUSTOMERID);
+                    }
                 }
+
 
                 // Integration QBD Customers To Properties exist, then simply update the record with the new IntegrationQBDCustomerID
                 if (!$customersToProperties) {
@@ -222,8 +226,12 @@ class MapPropertiesService extends BaseService
                     $this->entityManager->persist($customersToProperties);
                 } else {
                     // Update the record
-                    $customersToProperties->setIntegrationqbdcustomerid($integrationQBDCustomers);
-                    $this->entityManager->persist($customersToProperties);
+                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]) {
+                        $this->entityManager->remove($customersToProperties);
+                    } else {
+                        $customersToProperties->setIntegrationqbdcustomerid($integrationQBDCustomers);
+                        $this->entityManager->persist($customersToProperties);
+                    }
                 }
             }
             $this->entityManager->flush();

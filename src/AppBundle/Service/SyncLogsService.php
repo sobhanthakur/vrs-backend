@@ -37,6 +37,13 @@ class SyncLogsService extends BaseService
             $batchType = [];
             $timeTrackingBatch = [];
             $completedDate = null;
+            $region = "UTC";
+
+            // Get Time zone of that customer
+            $timeZone = $this->entityManager->getRepository('AppBundle:Customers')->GetTimeZone($customerID);
+            if($timeZone) {
+                $region = $timeZone[0]['Region'];
+            }
 
             if(!array_key_exists('IntegrationID',$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -49,8 +56,9 @@ class SyncLogsService extends BaseService
 
             if (!empty($content)) {
                 $filters = array_key_exists('Filters', $content) ? $content['Filters'] : [];
-                if (array_key_exists('CompletedDate', $filters)) {
+                if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
                     $completedDate = $filters['CompletedDate'];
+                    $completedDate = $this->TimeZoneConversion($completedDate,$region);
                 }
 
                 if (array_key_exists('BatchType', $filters)) {
@@ -92,11 +100,12 @@ class SyncLogsService extends BaseService
 
             // Search Logs in BillingRecords Table
             for($i=0;$i<count($billingBatch);$i++) {
-                $record = 0;
                 $record = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCount($billingBatch[$i]['BatchID']);
                 if($record) {
                     $record = (int)$record[0][1];
                 }
+                $timeZoneRegion = new \DateTimeZone($region);
+                $billingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 0,
                     'Sent' => $billingBatch[$i]['CreateDate'],
@@ -107,15 +116,17 @@ class SyncLogsService extends BaseService
 
             // Search Logs in TimeTracking Table
             for($i=0;$i<count($timeTrackingBatch);$i++) {
-                $record = 0;
                 $record = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCount($timeTrackingBatch[$i]['BatchID']);
                 if($record) {
                     $record = (int)$record[0][1];
                 }
+                $timeZoneRegion = new \DateTimeZone($region);
+                $timeTrackingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 1,
                     'Sent' => $timeTrackingBatch[$i]['CreateDate'],
-                    'Records' => $record
+                    'Records' => $record,
+                    'BatchID' => $timeTrackingBatch[$i]['BatchID']
                 );
             }
 
@@ -176,25 +187,8 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $services = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetBatchDetails($batchID,$limit,$offset);
-                for ($i = 0; $i < count($services); $i++) {
-                    $services[$i]['Status'] = 1;
-                    if($services[$i]['SentStatus'] && $services[$i]['TxnID'] === null) {
-                        $services[$i]['Status'] = 0;
-                    }
-                    if ($services[$i]['LaborOrMaterial']) {
-                        $services[$i]['Amount'] = $services[$i]['MaterialsAmount'];
-                    } else {
-                        $services[$i]['Amount'] = $services[$i]['LaborAmount'];
-                    }
-                    $services[$i]['LaborOrMaterial'] = $services[$i]['LaborOrMaterial']?1:0;
-                    $services[$i]['Staff'] = null;
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetBatchDetails($batchID,$limit,$offset);
 
-                    unset($services[$i]['SentStatus']);
-                    unset($services[$i]['LaborAmount']);
-                    unset($services[$i]['MaterialsAmount']);
-                }
-                $response = $services;
 
             } elseif ($batchType === 1) {
                 if($offset === 1) {
@@ -203,21 +197,7 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $timetracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findBy(array('integrationqbbatchid'=>$batchID));
-                for($i=0;$i<count($timetracking);$i++) {
-                    $response[$i]['Staff'] = $timetracking[$i]->getTimeclockdaysid()->getServicerid()->getName();
-                    $response[$i]['TxnID'] = $timetracking[$i]->getTxnid();
-                    if($timetracking[$i]->getSentstatus() && $timetracking[$i]->getTxnid() === null) {
-                        $response[$i]['Status'] = 0;
-                    } else {
-                        $response[$i]['Status'] = 1;
-                    }
-                    $response[$i]['LaborOrMaterial'] = null;
-                    $response[$i]['ItemTxnID'] = null;
-                    $response[$i]['PropertyName'] = null;
-                    $response[$i]['TaskName'] = null;
-                    $response[$i]['Amount'] = null;
-                }
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset);
             }
 
 
@@ -238,5 +218,26 @@ class SyncLogsService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $date
+     * @param $region
+     * @return array
+     */
+    public function TimeZoneConversion($date, $region)
+    {
+        $localTimeZone = new \DateTimeZone($region);
+        $fromLocal = new \DateTime($date['From'],$localTimeZone);
+        $toLocal = new \DateTime($date['To'],$localTimeZone);
+
+        $utcTimeZone = new \DateTimeZone("UTC");
+        $fromLocal->setTimezone($utcTimeZone);
+        $toLocal->setTimezone($utcTimeZone);
+
+        return array(
+            'From' => $fromLocal->format('Y-m-d'),
+            'To' => $toLocal->format('Y-m-d')
+        );
     }
 }

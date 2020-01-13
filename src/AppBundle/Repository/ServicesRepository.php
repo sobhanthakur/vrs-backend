@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * Class ServicesRepository
@@ -22,110 +26,91 @@ class ServicesRepository extends EntityRepository
      * @param $customerID
      * @param $department
      * @param $billable
-     * @param $createDate
-     * @param $limit
-     * @param $offset
-     * @return mixed
+     * @param $matched
+     * @return array
      */
-    public function SyncServices($customerID, $department, $billable, $createDate, $limit, $offset)
+    public function SyncServices($customerID, $department, $billable, $matched)
     {
-        $result = null;
+        $select1 = 's.serviceid AS TaskRuleID, s.servicename as TaskRuleName, ';
+        $select2 = ' AS LaborOrMaterials, IDENTITY(i.integrationqbditemid) AS IntegrationQBDItemID';
         $result = $this
             ->createQueryBuilder('s')
-            ->select('s.serviceid AS TaskRuleID, s.servicename as TaskRuleName')
-            ->where('s.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('s.active=1');
+            ->select($select1.'(CASE WHEN i.laborormaterials=1 OR i.laborormaterials IS NULL THEN 1 ELSE 0 END)'.$select2);
 
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.serviceid) from AppBundle:Integrationqbditemstoservices b1 inner join AppBundle:Integrationqbditems t2 with b1.integrationqbditemid=t2.integrationqbditemid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if ($subQuery) {
-            $result
-                ->andWhere('s.serviceid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery
-                );
+        $result2 = $this
+            ->createQueryBuilder('s')
+            ->select($select1.'(CASE WHEN i.laborormaterials=0 OR i.laborormaterials IS NULL THEN 0 ELSE 1 END)'.$select2);
+
+        switch ($matched) {
+            // If status is only matched
+            case 1:
+                $condition = ' AND i.integrationqbditemid IS NOT NULL';
+                $result
+                    ->where('i.laborormaterials=1'.$condition);
+                $result2
+                    ->where('i.laborormaterials=0'.$condition);
+                break;
+            case 2:
+                // If status is only Not yet matched matched
+                $condition = 'i.integrationqbditemid IS NULL';
+                $result->where($condition);
+                $result2->where($condition);
+                break;
+            default:
+                $condition = ' OR i.laborormaterials IS NULL';
+                $result
+                    ->where('i.laborormaterials=1'.$condition);
+                $result2
+                    ->where('i.laborormaterials=0'.$condition);
         }
 
-        if ($department) {
-            $result->andWhere('s.servicegroupid IN (:Departments)')
-                ->setParameter('Departments', $department);
-        }
-        if ($billable) {
-            if(count($billable) === 1 &&
-                in_array(GeneralConstants::BILLABLE,$billable)
-            ) {
-                $result->andWhere('s.billable=1');
-            } elseif(count($billable) === 1 &&
-                in_array(GeneralConstants::NOT_BILLABLE,$billable)) {
-                $result->andWhere('s.billable=0');
-            }
-        }
-        if ($createDate) {
-            $result->andWhere('s.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
-        $result
-            ->orderBy('s.createdate','DESC')
-            ->setFirstResult(($offset-1)*$limit)
-            ->setMaxResults($limit);
-        return $result
-            ->getQuery()
-            ->getResult();
+
+        $result = $this->TrimResult($result, $customerID, $department, $billable);
+        $result2 = $this->TrimResult($result2, $customerID, $department, $billable);
+
+        return array(
+            'Result1' => $result->getQuery()->getSQL(),
+            'Result2' => $result2->getQuery()->getSQL()
+        );
     }
 
     /**
+     * @param QueryBuilder $result
      * @param $customerID
      * @param $department
      * @param $billable
-     * @param $createDate
      * @return mixed
      */
-    public function CountSyncServices($customerID, $department, $billable, $createDate)
+    public function TrimResult($result, $customerID, $department, $billable)
     {
-        $result = null;
-        $result = $this
-            ->createQueryBuilder('s')
-            ->select('count(s.serviceid)')
-            ->where('s.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
+        $result
+            ->leftJoin('AppBundle:Integrationqbditemstoservices', 'i', Expr\Join::WITH, 'i.serviceid=s.serviceid')
+            ->andWhere('s.customerid=' . $customerID)
             ->andWhere('s.active=1');
 
-        $subQuery = $this
-            ->getEntityManager()
-            ->createQuery('select IDENTITY(b1.serviceid) from AppBundle:Integrationqbditemstoservices b1 inner join AppBundle:Integrationqbditems t2 with b1.integrationqbditemid=t2.integrationqbditemid where t2.customerid='.$customerID)
-            ->getArrayResult();
-        if ($subQuery) {
-            $result
-                ->andWhere('s.serviceid NOT IN (:Subquery)')
-                ->setParameter('Subquery',$subQuery
-                );
-        }
 
         if ($department) {
-            $result->andWhere('s.servicegroupid IN (:Departments)')
-                ->setParameter('Departments', $department);
+            $condition = 's.servicegroupid IN (';
+            $i=0;
+            for (;$i<count($department)-1;$i++) {
+                $condition .= $department[$i].',';
+            }
+            $condition .= $department[$i].')';
+            $result->andWhere($condition);
         }
+
         if ($billable) {
-            if(count($billable) === 1 &&
-                in_array(GeneralConstants::BILLABLE,$billable)
+            if (count($billable) === 1 &&
+                in_array(GeneralConstants::BILLABLE, $billable)
             ) {
                 $result->andWhere('s.billable=1');
-            } elseif(count($billable) === 1 &&
-                in_array(GeneralConstants::NOT_BILLABLE,$billable)) {
+            } elseif (count($billable) === 1 &&
+                in_array(GeneralConstants::NOT_BILLABLE, $billable)) {
                 $result->andWhere('s.billable=0');
             }
         }
-        if ($createDate) {
-            $result->andWhere('s.createdate BETWEEN :From AND :To')
-                ->setParameter('From', $createDate['From'])
-                ->setParameter('To', $createDate['To']);
-        }
-        return $result
-            ->getQuery()
-            ->getResult();
+
+        return $result;
     }
 }
 

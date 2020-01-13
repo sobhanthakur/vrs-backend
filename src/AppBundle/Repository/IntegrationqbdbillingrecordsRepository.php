@@ -12,6 +12,7 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * Class IntegrationqbdbillingrecordsRepository
@@ -19,6 +20,11 @@ use Doctrine\ORM\QueryBuilder;
  */
 class IntegrationqbdbillingrecordsRepository extends EntityRepository
 {
+    private $taskid = 'b1.taskid';
+    private $propertyid = 't2.propertyid';
+    private $customerCondition = 'p2.customerid = :CustomerID';
+    private $txnid = 'b1.txnid IS NULL';
+
     /**
      * @param $status
      * @param $properties
@@ -34,14 +40,15 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('b1')
-            ->select('IDENTITY(b1.taskid) as TaskID, t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid', 'p2')
+            ->select('IDENTITY(b1.taskid) as TaskID, s2.servicename AS ServiceName,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,b1.status AS Status,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS TimeZoneRegion')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid, 'p2')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL');
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid);
 
         $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
@@ -67,11 +74,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('count(b1.integrationqbdbillingrecordid)')
-            ->innerJoin('b1.taskid', 't2')
-            ->innerJoin('t2.propertyid', 'p2')
-            ->where('p2.customerid = :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->andWhere('b1.txnid IS NULL');
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid, 'p2')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid);
 
         $result = $this->TrimBillingRecords($result,$completedDate,$timezones,$properties,$createDate,$status);
 
@@ -84,12 +91,20 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function DistinctBatchCount($batchID)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('b1')
-            ->select('count(b1.integrationqbdbillingrecordid)')
-            ->where('b1.integrationqbbatchid = :BatchID')
-            ->setParameter('BatchID', $batchID)
-            ->getQuery()->execute();
+            ->select('COUNT(b1.integrationqbdbillingrecordid)')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->innerJoin('icp.integrationqbdcustomerid','ic')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID);
+        return $result->getQuery()->getResult();
     }
 
     /**
@@ -98,12 +113,21 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function GetBatchDetails($batchID, $limit, $offset)
     {
-        return $this
-            ->getEntityManager()
-            ->createQuery('Select b.sentstatus AS SentStatus,sp.laboramount AS LaborAmount,sp.materialsamount AS MaterialsAmount,S.laborormaterials AS LaborOrMaterial,b.txnid as TxnID,b.itemtxnid ItemTxnID,p.propertyname AS PropertyName,t.taskname AS TaskName from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('b1.txnid AS TxnID,(CASE WHEN iis.laborormaterials=1 THEN 1 ELSE 0 END) AS LaborOrMaterial,(CASE WHEN b1.txnid IS NULL AND b1.sentstatus=1 THEN 0 ELSE 1 END) AS Status,p2.propertyname AS PropertyName,t2.taskname AS TaskName,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID)
             ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getArrayResult();
+            ->setMaxResults($limit);
+        return $result->getQuery()->getResult();
+
     }
 
     /**
@@ -112,10 +136,18 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      */
     public function CountGetBatchDetails($batchID)
     {
-        return $this
-            ->getEntityManager()
-            ->createQuery('Select count(IDENTITY(sp.serviceid)) from AppBundle:Integrationqbdbillingrecords b inner join AppBundle:Tasks t WITH b.taskid=t.taskid inner join AppBundle:Properties p WITH t.propertyid=p.propertyid inner join AppBundle:Servicestoproperties sp WITH sp.propertyid=p.propertyid inner join AppBundle:Integrationqbditemstoservices S with S.serviceid=sp.serviceid where b.integrationqbbatchid=' . $batchID)
-            ->getArrayResult();
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('count(b1.taskid)')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->andWhere('b1.integrationqbbatchid='.$batchID);
+        return $result->getQuery()->getResult();
     }
 
     /**
@@ -172,5 +204,54 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetTasksForSalesOrder($customerID)
+    {
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemfullname AS QBDItemFullName,ic.qbdcustomerlistid as QBDCustomerListID,iis.laborormaterials AS LaborOrMaterial,t2.taskname AS TaskName,p2.propertyname AS PropertyName,s2.servicename AS ServiceName,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->innerJoin('icp.integrationqbdcustomerid','ic')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid','ii')
+            ->innerJoin('p2.regionid','r')
+            ->innerJoin('r.timezoneid','t')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid)
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('b1.refnumber IS NULL OR b1.refnumber=0')
+            ->andWhere('b1.status=1');
+        return $result->getQuery()->getResult();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetFailedBillingRecords($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.refnumber AS RefNumber')
+            ->innerJoin($this->taskid, 't2')
+            ->innerJoin($this->propertyid,'p2')
+            ->where($this->customerCondition)
+            ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->andWhere($this->txnid)
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('b1.refnumber IS NOT NULL')
+            ->andWhere('b1.status=1')
+            ->getQuery()
+            ->getResult();
+
     }
 }

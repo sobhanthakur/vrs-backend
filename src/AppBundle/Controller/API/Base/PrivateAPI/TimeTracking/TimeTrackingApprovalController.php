@@ -108,7 +108,8 @@ class TimeTrackingApprovalController extends FOSRestController
      *               {
      *                  {
      *                      "TimeClockDaysID":10,
-     *                      "Status":1
+     *                      "Status":1,
+     *                      "Date":"2019-10-12"
      *                  }
      *              }
      *         )

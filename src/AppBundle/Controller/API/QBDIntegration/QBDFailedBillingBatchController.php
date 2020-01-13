@@ -2,33 +2,29 @@
 /**
  * Created by PhpStorm.
  * User: Sobhan
- * Date: 9/12/19
- * Time: 4:19 PM
+ * Date: 23/12/19
+ * Time: 1:07 PM
  */
 
 namespace AppBundle\Controller\API\QBDIntegration;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
-use AppBundle\QBDHelpers\Applications\QBDResourcesService;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use AppBundle\QBDHelpers\Applications\QBDFailedBillingBatchService;
 
-/**
- * Class QBDResourcesController
- * @package AppBundle\Controller\API\QBDIntegration
- */
-class QBDResourcesController extends Controller
+class QBDFailedBillingBatchController extends Controller
 {
     /**
-     * @Route("qbdresources/sync")
+     * @Route("qbdfailedsalesorders")
      * @param Request $request
      * @return Response
      */
-    public function QBDResourcesRequest(Request $request)
+    public function FailedQBDBillingBatchRequest(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $login = null;
@@ -38,18 +34,18 @@ class QBDResourcesController extends Controller
 
         try {
             $content = simplexml_load_string($request->getContent())->xpath('soap:Body');
-            if(array_key_exists('authenticate',$content[0])) {
+            if (array_key_exists('authenticate', $content[0])) {
                 $login = $content[0]->authenticate->strUserName;
                 $password = $content[0]->authenticate->strPassword;
                 $serviceContainer = $this->get('service_container');
             }
 
-            $qbdResource = new QBDResourcesService([
+            $qbdResource = new QBDFailedBillingBatchService([
                 'login' => $login,
                 'password' => $password,
                 'iterator' => null,
                 'wsdlPath' => $this->container->getParameter('wsdlpath')
-            ], $entityManager,$serviceContainer);
+            ], $entityManager, $serviceContainer);
 
             $server = new \SoapServer($this->container->getParameter('wsdlpath'), array('cache_wsdl' => WSDL_CACHE_NONE));
             $server->setObject($qbdResource);

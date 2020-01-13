@@ -12,6 +12,7 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * Class IntegrationqbdtimetrackingrecordsRepository
@@ -33,10 +34,9 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,t3.region AS TimeZoneRegion, t2.clockin AS ClockIn, t2.clockout AS ClockOut')
+            ->select('IDENTITY(t1.timeclockdaysid) as TimeClockDaysID, t1.status AS Status, p2.name AS StaffName,t1.day AS Date, t1.timetrackedseconds AS TimeTracked')
             ->innerJoin('t1.timeclockdaysid', 't2')
             ->innerJoin('t2.servicerid', 'p2')
-            ->innerJoin('p2.timezoneid','t3')
             ->where('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t1.txnid IS NULL');
@@ -102,6 +102,24 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     }
 
     /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function BatchWiseLog($batchID,$limit,$offset)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->where('b1.integrationqbbatchid = :BatchID')
+            ->setParameter('BatchID', $batchID)
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()->execute();
+    }
+
+    /**
      * @param QueryBuilder $result
      * @param $completedDate,$timezones
      * @param $staff
@@ -114,10 +132,10 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         if(!empty($timezones)) {
             $size = count($timezones);
 
-            $query = 't2.clockout >= :TimeZone0';
+            $query = 't2.clockin >= :TimeZone0';
             $result->setParameter('TimeZone0',$timezones[0]);
             for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.clockout >= :TimeZone'.$i;
+                $query .= ' OR t2.clockin >= :TimeZone'.$i;
                 $result->setParameter('TimeZone'.$i,$timezones[$i]);
             }
             $result->andWhere($query);
@@ -125,11 +143,11 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 
         if(!empty($completedDate)) {
             $size = count($completedDate);
-            $query = 't2.clockout BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
+            $query = 't2.clockin BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
             $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
             $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
             for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.clockout BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
+                $query .= ' OR t2.clockin BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
                 $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
                 $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
             }
@@ -148,5 +166,135 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetTimeTrackingRecordsToSync($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS QBDEmployeeName')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeefullname')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetUnsycedTimeTrackingBatch($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $batchID
+     * @param $integrationQBDTimetrackingID
+     * @return bool
+     */
+    public function UpdateTimeTrackingBatches($batchID, $integrationQBDTimetrackingID)
+    {
+        foreach ($integrationQBDTimetrackingID as $item) {
+            $this
+                ->getEntityManager()
+                ->createQuery('UPDATE AppBundle:Integrationqbdtimetrackingrecords b1 SET b1.integrationqbbatchid='.$batchID.',b1.sentstatus=1 WHERE b1.integrationqbdtimetrackingrecords= :BatchRecordID')
+                ->setParameter('BatchRecordID',$item['integrationqbdtimetrackingrecords'])
+                ->getArrayResult();
+        }
+        return true;
+    }
+
+    /**
+     * @param $batchID
+     * @param $txnDate
+     * @param $listID
+     * @param $txnID
+     * @return mixed
+     */
+    public function UpdateSuccessTxnID($batchID, $txnDate, $listID, $txnID)
+    {
+        return $this
+            ->createQueryBuilder('b2')
+            ->select('b2.integrationqbdtimetrackingrecords')
+            ->innerJoin('b2.timeclockdaysid','t2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->where('b2.integrationqbbatchid= :BatchID')
+            ->andWhere('b2.day= :TxnDate')
+            ->andWhere('b2.sentstatus=1')
+            ->andWhere('ie.qbdemployeelistid= :ListID')
+            ->setParameter('BatchID',$batchID)
+            ->setParameter('TxnDate',$txnDate)
+            ->setParameter('ListID',$listID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function GetFailedTimeTrackingRecord($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.day,ie.qbdemployeelistid')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeelistid')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=1')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID',$customerID)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function UpdateFailedRecords($customerID,$day,$listID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords')
+            ->innerJoin('b1.timeclockdaysid','t2')
+            ->innerJoin('t2.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('ies.integrationqbdemployeeid','ie')
+            ->where('ie.qbdemployeelistid= :ListID')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->andWhere('b1.day= :Day')
+            ->setParameter('CustomerID',$customerID)
+            ->setParameter('Day',$day)
+            ->setParameter('ListID',$listID)
+            ->getQuery()
+            ->execute();
+
     }
 }

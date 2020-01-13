@@ -41,7 +41,7 @@ class Integrationqbditemstoservices
      *
      * @ORM\ManyToOne(targetEntity="Integrationqbditems")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="IntegrationQBDItemID", referencedColumnName="IntegrationQBDItemID")
+     *   @ORM\JoinColumn(name="IntegrationQBDItemID", referencedColumnName="IntegrationQBDItemID",nullable=true)
      * })
      */
     private $integrationqbditemid;

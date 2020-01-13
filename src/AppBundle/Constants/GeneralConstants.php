@@ -2,8 +2,8 @@
 /**
  *  General Constants file for Storing General Message codes and Message Text for Application.
  *
- * @category Constants
- * @author Sobhan Thakur
+ *  @category Constants
+ *  @author Sobhan Thakur
  */
 
 namespace AppBundle\Constants;
@@ -11,7 +11,7 @@ namespace AppBundle\Constants;
 
 final class GeneralConstants
 {
-    const TOKEN_EXPIRY_TIME = '3600';
+    const TOKEN_EXPIRY_TIME = '43200';
     const QWC_APP_ID = '{11A45FC0-11D6-2315-AB85-AC87A7D71230}';
     const QWC_SYNC_INFO = [
         self::OWNERID => '{90A44FB7-33D6-4815-AC85-AC86A7E71230}',
@@ -97,6 +97,7 @@ final class GeneralConstants
 
     const QBWCXML = '<QBWCXML />';
     const API_HOST = 'api_host';
+    const QWC_CERT_RESOURCE = '/v1/vrs';
 
     const AUTH_ERROR_TEXT = 'Authentication could not be complete due to Error : ';
     const PROPERTY_API = 'Properties API error ';
@@ -148,9 +149,15 @@ final class GeneralConstants
     const FILTER_SERVICE = 'vrscheduler.filter_service';
     const MAP_STAFF_SERVICE = 'vrscheduler.map_staffs';
     const MAP_WAGE_ITEM = 'vrscheduler.map_wage_item';
+    const INTEGRATION_SERVICE = 'vrscheduler.integration_service';
 
     const QWC_TICKET_SESSION = 'QWC_TicketID';
     const QWC_USERNAME_SESSION = 'QWC_Username';
+    const QWC_BATCHID_SESSION = 'BatchID';
+    const PAGINATION = 'Pagination';
+
+    const CUSTOMER_ID_CONDITION = 'c.customerid= :CustomerID';
+    const SUCCESS_TRANSLATION = 'api.response.success.message';
 
     /*constants used in login api*/
     const ACCESS_TOKEN = "Access_Token";

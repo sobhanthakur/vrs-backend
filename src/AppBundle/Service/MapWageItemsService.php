@@ -66,11 +66,16 @@ class MapWageItemsService extends BaseService
 
             // Update Pay By Hour if present
             if(array_key_exists(GeneralConstants::PAY_BY_HOUR,$content)) {
-                $wageType = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(['integrationqbdpayrollitemwageid'=>$content[GeneralConstants::PAY_BY_HOUR]]);
-                if(!$wageType) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_WAGE_ITEM_ID);
+                if(!$content[GeneralConstants::PAY_BY_HOUR]) {
+                    $wageType = null;
+                } else {
+                    $wageType = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(['integrationqbdpayrollitemwageid'=>$content[GeneralConstants::PAY_BY_HOUR]]);
+                    if(!$wageType) {
+                        throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_WAGE_ITEM_ID);
+                    }
                 }
                 $integrationToCustomer->setIntegrationqbdhourwagetypeid($wageType);
+
             }
 
             // Persist the record in DB.
@@ -96,7 +101,7 @@ class MapWageItemsService extends BaseService
     public function GetPayrollMapping($customerID, $content)
     {
         try {
-            $response = null;
+            $response[GeneralConstants::PAY_BY_HOUR] = null;
             /*
              * Read Request object. Extract attributes and parameters.
              */

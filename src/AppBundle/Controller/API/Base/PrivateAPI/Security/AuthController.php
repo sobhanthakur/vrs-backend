@@ -9,6 +9,7 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\Security;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Options;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -104,5 +105,18 @@ class AuthController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @return null
+     * @param Request $request
+     * @Rest\Get("/", name="qwc_cert")
+     */
+    public function QWCSupportURL(Request $request)
+    {
+        return array(
+            'ReasonCode' => 0,
+            'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message')
+        );
     }
 }

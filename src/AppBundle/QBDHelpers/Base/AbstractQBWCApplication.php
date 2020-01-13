@@ -145,6 +145,8 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      */
     public function closeConnection($object)
     {
+        $session = new Session();
+        $session->clear();
         return new CloseConnection('Complete!');
     }
 
@@ -163,7 +165,7 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      */
     public function getLastError($object)
     {
-        return new GetLastError('Get Last Error');
+        return new GetLastError('Unable to Complete the Process');
     }
 
     /**

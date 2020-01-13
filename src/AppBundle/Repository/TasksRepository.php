@@ -9,6 +9,7 @@
 namespace AppBundle\Repository;
 
 
+use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -58,7 +59,8 @@ class TasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t2')
-            ->select('t2.taskid as TaskID, b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion');
+            ->select('DISTINCT(t2.taskid) as TaskID, s2.servicename AS ServiceName,b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid');
 
         $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
 
@@ -82,7 +84,8 @@ class TasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t2')
-            ->select('count(t2.taskid)');
+            ->select('count(DISTINCT(t2.taskid))')
+            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid');
 
         $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
 
@@ -103,10 +106,12 @@ class TasksRepository extends EntityRepository
     public function TrimMapTasks($result, $new, $properties, $completedDate,$timezones, $createDate, $customerID)
     {
         $result
+            ->innerJoin('t2.propertyid', 'p2')
             ->leftJoin('AppBundle:Integrationqbdbillingrecords', 'b1', Expr\Join::WITH, 'b1.taskid=t2.taskid')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','e1',Expr\Join::WITH, 'e1.propertyid=p2.propertyid')
+            ->innerJoin('AppBundle:Integrationqbditemstoservices','e2',Expr\Join::WITH, 'e2.serviceid=s2.serviceid')
             ->where('t2.active=1')
             ->andWhere('b1.txnid IS NULL')
-            ->innerJoin('t2.propertyid', 'p2')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
             ->andWhere('p2.customerid = :CustomerID')
@@ -123,7 +128,6 @@ class TasksRepository extends EntityRepository
                 $result->setParameter('TimeZone'.$i,$timezones[$i]);
             }
             $result->andWhere($query);
-
         }
 
         if(!empty($completedDate)) {
@@ -140,7 +144,23 @@ class TasksRepository extends EntityRepository
         }
 
         if($new) {
-            $result->andWhere('b1.status IS NULL OR b1.status=2');
+            $condition1 = null;
+            $condition2 = null;
+            $condition3 = null;
+            $condition = null;
+            if(in_array(GeneralConstants::APPROVED,$new)) {
+                $condition1 = 'b1.status=1';
+                $condition = $condition1;
+            }
+            if(in_array(GeneralConstants::EXCLUDED,$new)) {
+                $condition2 = $condition1 ? ' OR b1.status=0' : 'b1.status=0';
+                $condition .= $condition2;
+            }
+            if(in_array(GeneralConstants::NEW,$new)) {
+                $condition3 = $condition1 || $condition2 ? ' OR b1.status IS NULL OR b1.status=2' : 'b1.status IS NULL OR b1.status=2';
+                $condition .= $condition3;
+            }
+            $result->andWhere($condition);
         }
 
         if ($properties) {
