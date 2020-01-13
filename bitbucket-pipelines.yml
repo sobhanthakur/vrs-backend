@@ -1,0 +1,12 @@
+#bitbucket-pipelines.yml
+pipelines:
+  branches:
+    master:
+    - step:
+        name: Deploy to Web
+        image: alpine
+        deployment: production
+        script:
+          - apk update && apk add openssh rsync
+          - ssh -o StrictHostKeyChecking=no ubuntu@54.149.131.30
+          - RUN cd vrs-backend
