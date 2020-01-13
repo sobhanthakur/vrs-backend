@@ -7,6 +7,7 @@ pipelines:
         image: alpine
         deployment: production
         script:
+          - ssh ubuntu@54.149.131.30
           - cd vrs-backend
           - git pull https://sobhanthakur@bitbucket.org/vrscheduler/vrs-backend.git master
           - php bin/console cache:clear --env=prod

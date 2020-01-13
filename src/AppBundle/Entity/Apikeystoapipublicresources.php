@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Apikeystoapipublicresources
  *
  * @ORM\Table(name="APIKeysToAPIPublicResources", indexes={@ORM\Index(name="IDX_CA5905CCA366E37A", columns={"APIKeyID"}), @ORM\Index(name="IDX_CA5905CC8BC57D53", columns={"APIPublicResourceID"})})
- * @ORM\Entity
+ *  @ORM\Entity(repositoryClass="AppBundle\Repository\ApikeystoapipublicresourcesRepository")
  */
 class Apikeystoapipublicresources
 {
