@@ -1,0 +1,13 @@
+#bitbucket-pipelines.yml
+pipelines:
+  branches:
+    master:
+    - step:
+        name: Deploy to Web
+        deployment: production
+        script:
+          - pipe: atlassian/ssh-run:0.2.2
+            variables:
+              SSH_USER: 'ubuntu'
+              SERVER: '54.149.131.30'
+              COMMAND: '/home/ubuntu/sobhan.sh'
