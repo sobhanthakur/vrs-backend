@@ -8,8 +8,13 @@ qbd:
     type: annotation
     prefix:   /v1/vrs
     defaults: {_format:xml}
+public:
+    resource: '@AppBundle/Controller/API/V10/PublicAPI'
+    type: annotation
+    prefix:   /api/v1
+    defaults: {_format:json}
 
 app.swagger_ui:
     path: /api/doc/{area}
     methods: GET
-    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, areas: integrationportal}
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, areas: [integrationportal,public_api]}

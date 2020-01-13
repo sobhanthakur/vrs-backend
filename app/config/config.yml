@@ -154,6 +154,12 @@ nelmio_api_doc:
                 - /v1/vrs/qbdtimetracking/approve
                 - /v1/vrs/qbdsynclogs
                 - /v1/vrs/qbdsynclogs/batch
+        public_api:
+            path_patterns:
+                -  /api/v1/oauth/login
+                -  /api/v1/oauth/refresh
+                -  /api/v1/properties
+                -  /api/v1/properties/{id}
 
 monolog:
     handlers:

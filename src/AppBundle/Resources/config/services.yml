@@ -81,3 +81,13 @@ services:
         class: AppBundle\Service\SyncLogsService
         parent: vrscheduler.base_service
         public: true
+
+    vrscheduler.public_authentication_service:
+        class: AppBundle\Service\AuthenticationPublicService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_properties_service:
+      class: AppBundle\Service\propertyDetailsServices
+      parent: vrscheduler.base_service
+      public: true

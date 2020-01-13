@@ -58,6 +58,10 @@ api:
             invalid_auth_token: "Invalid Access Token provided in request auth header."
             auth_token_expired: "Access Token provided in request has been expired."
             username_exists: "Username provided in request is taken by someone else, please try with another username."
+
+            invalid_json: "Given input is not json."
+            invalid_credential: "Invalid credentials"
+            invalid_request: "Invalid request"
         success:
             message: success
             password_reset: The password was reset successfully.

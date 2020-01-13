@@ -2,8 +2,8 @@
 /**
  *  General Constants file for Storing General Message codes and Message Text for Application.
  *
- *  @category Constants
- *  @author Sobhan Thakur
+ * @category Constants
+ * @author Sobhan Thakur
  */
 
 namespace AppBundle\Constants;
@@ -99,6 +99,7 @@ final class GeneralConstants
     const API_HOST = 'api_host';
 
     const AUTH_ERROR_TEXT = 'Authentication could not be complete due to Error : ';
+    const PROPERTY_API = 'Properties API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -150,4 +151,59 @@ final class GeneralConstants
 
     const QWC_TICKET_SESSION = 'QWC_TicketID';
     const QWC_USERNAME_SESSION = 'QWC_Username';
+
+    /*constants used in login api*/
+    const ACCESS_TOKEN = "Access_Token";
+    const REFRESH_TOKEN = "Refresh_Token";
+    const PUBLIC_AUTH_TOKEN = [
+        'TOKEN_EXPIRY_TIME' => '3600',
+        'REFRESH_TOKEN_EXPIRY_TIME' => '86400',
+    ];
+    const RETURN_DATA = [
+        'TOKEN' => 'token',
+        'CREATED' => 'Created',
+        'EXPIRY' => 'Expiry',
+        'RESOURCE_RESTRICTION' => 'Resource_Restrictions'
+    ];
+    const USER_AGENT = "user_agent";
+    const PROPERTIES = "properties";
+    const PAYLOAD = [
+        'CUSTOMER_ID' => 'customerID',
+        'CUSTOMER_NAME' => 'customerName',
+        'PROPERTIES' => 'properties'
+    ];
+    const PROPERTIES_MAPPING = [
+        'propertyid' => 'p.propertyid as PropertyID',
+        'active' => 'p.active as Active',
+        'propertyname' => 'p.propertyname as PropertyName',
+        'propertyabbreviation' => 'p.propertyabbreviation as PropertyAbbreviation',
+        'propertynotes' => 'p.propertynotes as PropertyNotes',
+        'internalnotes' => 'p.internalnotes as InternalNotes',
+        'address' => 'p.address as Address',
+        'lat' => 'p.lat as Lat',
+        'lon' => 'p.lon as Lon',
+        'doorcode' => 'p.doorcode as DoorCode',
+        'defaultcheckintime' => 'p.defaultcheckintime as DefaultCheckInTime',
+        'defaultcheckintimeminutes' => 'p.defaultcheckintimeminutes as DefaultCheckInTimeMinutes',
+        'defaultcheckouttime' => 'p.defaultcheckouttime as DefaultCheckOutTime',
+        'defaultcheckouttimeminutes' => 'p.defaultcheckouttimeminutes as DefaultCheckOutTimeMinutes',
+        'ownerid' => 'o.ownerid as OwnerID',
+        'regionid' => 'r.regionid as RegionID',
+        'createdate' => 'p.createdate as CreateDate'
+    ];
+
+    const CHECK_API_RESTRICTION = [
+        'PROPERTIES' => 'properties'
+    ];
+
+    const PROPERTIES_PARAMS = [
+        'ACTIVE' => 'active',
+        'OWNERID' => 'ownerid',
+        'REGIONID' => 'regionid',
+        'FIELDS' => 'fields',
+        'SORT' => 'sort',
+        'LIMIT' => 'limit',
+        'STARTINGAFTER' => 'startingafter'
+    ];
+
 }

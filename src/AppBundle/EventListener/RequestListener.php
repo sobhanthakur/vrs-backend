@@ -71,6 +71,15 @@ class RequestListener extends BaseService
                 $request->attributes->set('AuthPayload',$authenticateResult);
             }
         }
+
+        // Check if the incoming public route is present in the array
+        if(in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
+            $authService = $this->serviceContainer->get('vrscheduler.public_authentication_service');
+            $authenticateResult = $authService->VerifyAuthToken($request);
+            if($authenticateResult['status']) {
+                $request->attributes->set('AuthPayload',$authenticateResult);
+            }
+        }
         $this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),

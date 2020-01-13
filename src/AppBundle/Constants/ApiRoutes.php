@@ -43,4 +43,9 @@ final class ApiRoutes
         "vrs_synclogs",
         "vrs_synclogs_batch"
     );
+
+    const PUBLIC_ROUTES = array(
+        "properties_get",
+        "properties_get_id"
+    );
 }

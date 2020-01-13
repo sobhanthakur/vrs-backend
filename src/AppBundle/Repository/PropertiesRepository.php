@@ -10,6 +10,7 @@ namespace AppBundle\Repository;
 
 
 use AppBundle\Constants\GeneralConstants;
+use function Couchbase\defaultDecoder;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -63,7 +64,7 @@ class PropertiesRepository extends EntityRepository
         $result = $this->TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate);
 
         $result
-            ->setFirstResult(($offset-1)*$limit)
+            ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
 
         return $result
@@ -128,7 +129,7 @@ class PropertiesRepository extends EntityRepository
             ->where('p.customerid= :CustomerID')
             ->andWhere('p.active=1')
             ->andWhere('p.propertyid IN (:Properties)')
-            ->setParameter('Properties',$properties)
+            ->setParameter('Properties', $properties)
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
@@ -145,7 +146,7 @@ class PropertiesRepository extends EntityRepository
             ->select('IDENTITY(p.regionid)')
             ->where('p.active=1')
             ->andWhere('p.propertyid IN (:Properties)')
-            ->setParameter('Properties',$managersToProperties)
+            ->setParameter('Properties', $managersToProperties)
             ->getQuery()
             ->execute();
     }
@@ -161,7 +162,7 @@ class PropertiesRepository extends EntityRepository
      */
     public function TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate)
     {
-        if($unmatched) {
+        if ($unmatched) {
             $result->andWhere('m.integrationqbdcustomerid IS NULL');
         }
 
@@ -184,5 +185,89 @@ class PropertiesRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * Function to parse and fetch property details according to query parameter
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function fetchProperties($customerDetails, $queryParameter, $propertyID, $offset)
+    {
+        $query = "";
+        $fields = array();
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('p');
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for limit option in query paramter
+        (isset($queryParameter['limit']) ? $limit = $queryParameter['limit'] : $limit = 20);
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . GeneralConstants::PROPERTIES_MAPPING[$field];
+            }
+        } else {
+            $query .= implode(',', GeneralConstants::PROPERTIES_MAPPING);
+        }
+        $query = trim($query, ',');
+        $result->select($query);
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('p.' . $field);
+            }
+        }
+
+        //condition to get active fields
+        (isset($queryParameter['active']) && ($queryParameter['active'] == true) ? $result->andWhere('p.active=1') : null);
+
+        //condition to filter by property id
+        if (isset($propertyID)) {
+            $result->andWhere('p.propertyid IN (:PropertyID)')
+                ->setParameter('PropertyID', $propertyID);
+        }
+
+        //condition to filter by owner id
+        if (isset($queryParameter['ownerid'])) {
+            $result->andWhere('p.ownerid IN (:Owners)')
+                ->setParameter('Owners', $queryParameter['ownerid']);
+        }
+
+        //condition to filter by region id
+        if (isset($queryParameter['regionid'])) {
+            $result->andWhere('p.regionid IN (:Region)')
+                ->setParameter('Region', $queryParameter['regionid']);
+        }
+
+        //condition to filter by customer details
+        if ($customerDetails) {
+            $result->andWhere('p.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //return property details
+        return $result
+            ->innerJoin('p.ownerid', 'o')
+            ->innerJoin('p.regionid', 'r')
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->execute();
+
     }
 }

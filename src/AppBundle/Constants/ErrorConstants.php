@@ -63,6 +63,12 @@ final class ErrorConstants
     const TOKEN_EXPIRED = 'TOKENEXPIRED';
     const INTEGRATION_NOT_ACTIVE = 'INTEGRATIONNOTACTIVE';
     const INVALID_INTEGRATION = 'INVALIDINTEGRATION';
+    const INVALID_JSON = 'INVALID_JSON';
+    const INVALID_REQUEST = 'INVALID_REQUEST';
+
+    const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
+
+
 
     public static $errorCodeMap = [
         self::INVALID_AUTH_CONTENT => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_content'],
@@ -103,6 +109,9 @@ final class ErrorConstants
         self::INVALID_STATUS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_status'],
         self::INVALID_TIMEZONE => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timezone'],
         self::INVALID_TIMECLOCKDAYSID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timeclockdaysid'],
-        self::INVALID_PAYLOAD => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_payload']
+        self::INVALID_PAYLOAD => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_payload'],
+        self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
+        self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
+        self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential']
     ];
 }
