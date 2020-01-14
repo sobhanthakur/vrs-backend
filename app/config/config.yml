@@ -161,6 +161,7 @@ nelmio_api_doc:
                 -  /api/v1/oauth/refresh
                 -  /api/v1/properties
                 -  /api/v1/properties/{id}
+                -  /api/v1/owners
 
 monolog:
     handlers:
