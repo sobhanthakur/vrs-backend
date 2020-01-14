@@ -2,12 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 7/1/20
- * Time: 2:24 PM
+ * Date: 13/1/20
+ * Time: 5:21 PM
  */
 
 namespace AppBundle\Service;
-
 
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\ErrorConstants;
@@ -16,27 +15,28 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Class propertyDetailsServices
+ * Class OwnerDetailsServices
  * @package AppBundle\Service
  */
-class propertyDetailsServices extends BaseService
+class OwnerDetailsServices extends BaseService
 {
+
     /**
-     * Function to validate and get properties details of the consumer
+     * Function to validate and get owner details
      *
      * @param $authDetails
      * @param $queryParameter
      * @param $pathInfo
-     * @param $propertyID
+     * @param $ownerID
      *
      * @return mixed
      */
-    public function getProperties($authDetails, $queryParameter, $pathInfo, $propertyID = null)
+    public function getOwners($authDetails, $queryParameter, $pathInfo, $ownerID = null)
     {
         $returnData = array();
         try {
-            //Get properties Repo
-            $propertiesRepo = $this->entityManager->getRepository('AppBundle:Properties');
+            //Get owners Repo
+            $ownersRepo = $this->entityManager->getRepository('AppBundle:Owners');
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
@@ -44,33 +44,34 @@ class propertyDetailsServices extends BaseService
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
+
             //cheking valid data of query parameter
             $validation = $this->serviceContainer->get('vrscheduler.public_general_service');
-            $validationCheck =$validation->validationCheck($queryParameter);
-            if(!$validationCheck){
+            $validationCheck = $validation->validationCheck($queryParameter);
+            if (!$validationCheck) {
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
             //Setting offset
             (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
 
-            //Getting properties Detail
-            $propertyData = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $offset);
+            //Getting owners Detail
+            $ownerData = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $offset);
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($restrictions = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $offset + 1));
+            $hasMoreDate = count($restrictions = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $offset + 1));
 
             //Formating Date to utc ymd format
-            for ($i = 0; $i < count($propertyData); $i++) {
-                if(isset($propertyData[$i]['CreateDate'])){
-                    $propertyData[$i]['CreateDate'] = $propertyData[$i]['CreateDate']->format('Ymd');
+            for ($i = 0; $i < count($ownerData); $i++) {
+                if (isset($ownerData[$i]['CreateDate'])) {
+                    $ownerData[$i]['CreateDate'] = $ownerData[$i]['CreateDate']->format('Ymd');
                 }
             }
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
             $hasMoreDate != 0 ? $returnData['has_more'] = true : $returnData['has_more'] = false;
-            $returnData['data'] = $propertyData;
+            $returnData['data'] = $ownerData;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -79,12 +80,12 @@ class propertyDetailsServices extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error(GeneralConstants::PROPERTY_API .
+            $this->logger->error(GeneralConstants::OWNER_API .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
 
         return $returnData;
-
     }
+
 }

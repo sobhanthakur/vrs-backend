@@ -101,6 +101,7 @@ final class GeneralConstants
 
     const AUTH_ERROR_TEXT = 'Authentication could not be complete due to Error : ';
     const PROPERTY_API = 'Properties API error ';
+    const OWNER_API = 'Owner API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -199,11 +200,21 @@ final class GeneralConstants
         'createdate' => 'p.createdate as CreateDate'
     ];
 
-    const CHECK_API_RESTRICTION = [
-        'PROPERTIES' => 'properties'
+    const OWNERS_MAPPING = [
+        'ownerid' => 'o.ownerid as OwnerID',
+        'ownername' => 'o.ownername as OwnerName',
+        'owneremail' => 'o.owneremail as OwnerEmail',
+        'ownerphone' => 'o.ownerphone as OwnerPhone',
+        'countryid' => 'c.countryid as CountryID',
+        'createdate' => 'o.createdate as CreateDate'
     ];
 
-    const PROPERTIES_PARAMS = [
+    const CHECK_API_RESTRICTION = [
+        'PROPERTIES' => 'properties',
+        'OWNERS' => 'owners'
+    ];
+
+    const PARAMS = [
         'ACTIVE' => 'active',
         'OWNERID' => 'ownerid',
         'REGIONID' => 'regionid',
