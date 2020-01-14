@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use FOS\RestBundle\Controller\Annotations\View;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Swagger\Annotations as SWG;
 
 /**
@@ -103,7 +101,7 @@ class PropertiesController extends FOSRestController
         $queryParameter = array();
         $params = $request->query->all();
         foreach ($params as $key => $param) {
-            (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : "";
+            (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : null;
         }
 
         try {

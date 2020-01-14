@@ -174,10 +174,8 @@ class AuthenticationPublicService extends BaseService
             $authenticationResult['customerName'] = $token->getClaim(GeneralConstants::CUSTOMER_NAME);
             $authenticationResult['properties'] = $token->getClaim(GeneralConstants::PROPERTIES);
 
+            //create JWT token
             $authToken = $this->createJWTToken($authenticationResult, GeneralConstants::PUBLIC_AUTH_TOKEN['TOKEN_EXPIRY_TIME']);
-
-            $returnData[GeneralConstants::REASON_CODE] = 0;
-            $returnData[GeneralConstants::REASON_TEXT] = 'Success';
 
             //Setting return data for Access Token
             $returnData[GeneralConstants::ACCESS_TOKEN][GeneralConstants::RETURN_DATA['TOKEN']] = $authToken;

@@ -88,6 +88,17 @@ services:
         public: true
 
     vrscheduler.public_properties_service:
-      class: AppBundle\Service\propertyDetailsServices
-      parent: vrscheduler.base_service
-      public: true
+       class: AppBundle\Service\propertyDetailsServices
+       parent: vrscheduler.base_service
+       public: true
+
+    vrscheduler.public_owners_service:
+        class: AppBundle\Service\OwnerDetailsServices
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_general_service:
+        class: AppBundle\Service\GeneralServices
+        parent: vrscheduler.base_service
+        public: true
+
