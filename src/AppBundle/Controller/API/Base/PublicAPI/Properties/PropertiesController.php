@@ -40,7 +40,7 @@ class PropertiesController extends FOSRestController
      *          @SWG\Property(
      *              property="has_more",
      *              type="boolean",
-     *              example="Success"
+     *              example="true"
      *          ),
      *       @SWG\Property(
      *              property="data",
@@ -153,7 +153,7 @@ class PropertiesController extends FOSRestController
      *          @SWG\Property(
      *              property="has_more",
      *              type="boolean",
-     *              example="Success"
+     *              example="true"
      *          ),
      *       @SWG\Property(
      *              property="data",

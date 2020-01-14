@@ -26,8 +26,39 @@ use Swagger\Annotations as SWG;
 class OwnersController extends FOSRestController
 {
     /**
-     * Owners
+     * Properties
      * @SWG\Tag(name="Owners")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns all properties",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="url",
+     *              type="string",
+     *              example="/api/v1/properties"
+     *          ),
+     *          @SWG\Property(
+     *              property="has_more",
+     *              type="boolean",
+     *              example="true"
+     *          ),
+     *       @SWG\Property(
+     *              property="data",
+     *              example=
+     *               {
+     *                  {
+     *                      "OwnerID": 1,
+     *                      "OwnerName": "McCrummen",
+     *                       "OwnerEmail": "prabhat@centerforsi.org",
+     *                       "OwnerPhone": "94385712",
+     *                       "CountryID": 224,
+     *                       "CreateDate": "20170503"
+     *                  }
+     *
+     *              }
+     *         )
+     *     )
+     * )
      * @return array
      * @param Request $request
      * @Get("/owners", name="owners_get")
