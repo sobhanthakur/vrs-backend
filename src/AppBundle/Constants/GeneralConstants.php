@@ -2,8 +2,8 @@
 /**
  *  General Constants file for Storing General Message codes and Message Text for Application.
  *
- *  @category Constants
- *  @author Sobhan Thakur
+ * @category Constants
+ * @author Sobhan Thakur
  */
 
 namespace AppBundle\Constants;
@@ -216,10 +216,20 @@ final class GeneralConstants
         'createdate' => 'rg.createdate as CreateDate'
     ];
 
+    const REGIONS_MAPPING = [
+        'regionid' => 'r.regionid as RegionID',
+        'regiongroupid' => 'rg.regiongroupid as RegionGroupID',
+        'region' => 'r.region as Region',
+        'color' => 'r.color as Color',
+        'timezoneid' => 't.timezoneid as TimeZoneID',
+        'createdate' => 'r.createdate as CreateDate'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
-        'REGION_GROUPS' => 'regiongroups'
+        'REGION_GROUPS' => 'regiongroups',
+        'REGIONS' => 'regions'
     ];
 
     const PARAMS = [
