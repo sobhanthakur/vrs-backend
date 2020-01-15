@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 13/1/20
- * Time: 4:56 PM
+ * Date: 14/1/20
+ * Time: 7:37 PM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Owners;
+namespace AppBundle\Controller\API\Base\PublicAPI\RegionGroup;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -20,22 +20,22 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
 
 /**
- * Class OwnersController
- * @package AppBundle\Controller\API\Base\PublicAPI\Owners
+ * Class RegionGroupController
+ * @package AppBundle\Controller\API\Base\PublicAPI\RegionGroup
  */
-class OwnersController extends FOSRestController
+class RegionGroupController extends FOSRestController
 {
     /**
-     * Properties
-     * @SWG\Tag(name="Owners")
+     * Region Group
+     * @SWG\Tag(name="Region Group")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all properties",
+     *     description="Returns all region groups of the customer",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/properties"
+     *              example="/api/v1/regiongroups"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -47,42 +47,43 @@ class OwnersController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "OwnerID": 1,
-     *                      "OwnerName": "McCrummen",
-     *                       "OwnerEmail": "prabhat@centerforsi.org",
-     *                       "OwnerPhone": "94385712",
-     *                       "CountryID": 224,
-     *                       "CreateDate": "20170503"
+     *                      "RegionGroupID": 1,
+     *                      "RegionGroup": true,
+     *                       "CreateDate": "Lake Jolanda",
+     *                  },
+     *                  {
+     *                      "RegionGroupID": 2,
+     *                      "RegionGroup": true,
+     *                       "CreateDate": "DL Bear Ridge",
      *                  }
-     *
      *              }
      *         )
      *     )
      * )
      * @return array
      * @param Request $request
-     * @Get("/owners", name="owners_get")
+     * @Get("/regiongroups", name="region_groups_get")
      */
-    public function GetOwners(Request $request)
+    public function GetRegionGroup(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
-        try {
-            //Get all query parameter and set it in an array
-            $queryParameter = array();
-            $params = $request->query->all();
-            foreach ($params as $key => $param) {
-                (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : null;
-            }
+        //Get all query parameter and set it in an array
+        $queryParameter = array();
+        $params = $request->query->all();
+        foreach ($params as $key => $param) {
+            (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : null;
+        }
 
-            //Get auth Details
+        try {
+            //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
-            //get api path info and basename
+            //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['OWNERS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['REGION_GROUPS'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
@@ -92,10 +93,10 @@ class OwnersController extends FOSRestController
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get owners details
-            $ownersService = $this->container->get('vrscheduler.public_owners_service');
-            $ownerDetails = $ownersService->getOwners($authDetails, $queryParameter, $pathInfo);
-            return $ownerDetails;
+            //Get region group details
+            $regionGroupService = $this->container->get('vrscheduler.public_region_groups_service');
+            $regionGroupDetails = $regionGroupService->getRegionGroup($authDetails, $queryParameter, $pathInfo);
+            return $regionGroupDetails;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -110,6 +111,6 @@ class OwnersController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
 
-    }
 
+    }
 }

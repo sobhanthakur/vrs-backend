@@ -106,7 +106,7 @@ class PropertiesController extends FOSRestController
 
         try {
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
-            $restriction = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::PROPERTIES];
+            $restriction = $authDetails[GeneralConstants::PROPERTIES];
             $pathInfo = $request->getPathInfo();
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
 

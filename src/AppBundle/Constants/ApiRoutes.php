@@ -48,6 +48,7 @@ final class ApiRoutes
     const PUBLIC_ROUTES = array(
         "properties_get",
         "properties_get_id",
-        "owners_get"
+        "owners_get",
+        "region_groups_get"
     );
 }
