@@ -225,6 +225,27 @@ final class GeneralConstants
         'createdate' => 'r.createdate as CreateDate'
     ];
 
+    const PROPERTY_BOOKINGS_MAPPING = [
+        'propertybookingid' => 'pb.propertybookingid as PropertyBookingID',
+        'propertyid' => 'p.propertyid as PropertyID',
+        'checkin' => 'pb.checkin as CheckIn',
+        'checkintime' => 'pb.checkintime as CheckInTime',
+        'checkintimeminutes' => 'pb.checkintimeminutes as CheckInTimeMinutes',
+        'checkout' => 'pb.checkout as CheckOut',
+        'checkouttime' => 'pb.checkouttime as CheckOutTime',
+        'checkouttimeminutes' => 'pb.checkouttimeminutes as CheckOutTimeMinutes',
+        'guest' => 'pb.guest as Guest',
+        'guestemail' => 'pb.guestemail as GuestEmail',
+        'guestphone' => 'pb.guestphone as GuestPhone',
+        'numberofguests' => 'pb.numberofguests as NumberOfGuest',
+        'numberofpets' => 'pb.numberofpets as NumberOfPets',
+        'numberofchildren' => 'pb.numberofchildren as NumberOfChildren',
+        'isowner' => 'pb.isowner as IsOwner',
+        'bookingtags' => 'pb.bookingtags as BookingTags',
+        'manualbookingtags' => 'pb.manualbookingtags as ManualBookingTags',
+        'createdate' => 'pb.createdate as CreateDate'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',

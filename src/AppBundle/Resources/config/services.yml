@@ -112,3 +112,7 @@ services:
         parent: vrscheduler.base_service
         public: true
 
+    vrscheduler.public_property_bookings_service:
+        class: AppBundle\Service\PropertyBookingsService
+        parent: vrscheduler.base_service
+        public: true

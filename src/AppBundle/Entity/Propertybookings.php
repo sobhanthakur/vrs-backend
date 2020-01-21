@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Propertybookings
  *
  * @ORM\Table(name="PropertyBookings", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="checkin", columns={"CheckIn"}), @ORM\Index(name="checkintime", columns={"CheckInTime"}), @ORM\Index(name="checkout", columns={"CheckOut"}), @ORM\Index(name="checkouttime", columns={"CheckOutTime"}), @ORM\Index(name="propertyid", columns={"PropertyID"}), @ORM\Index(name="PropertyIDCheckOutDeleteCount", columns={"PropertyID", "CheckOut", "DeleteCount"})})
- * @ORM\Entity
+ *  @ORM\Entity(repositoryClass="AppBundle\Repository\PropertybookingsRepository")
  */
 class Propertybookings
 {

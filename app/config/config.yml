@@ -164,6 +164,8 @@ nelmio_api_doc:
                 -  /api/v1/owners
                 -  /api/v1/regiongroups
                 -  /api/v1/regions
+                -  /api/v1/propertybookings
+                -  /api/v1/propertybookings/{id}
 
 monolog:
     handlers:

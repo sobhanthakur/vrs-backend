@@ -279,7 +279,7 @@ class AuthenticationPublicService extends BaseService
         } catch (\Exception $exception) {
             $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
                 $exception->getMessage());
-            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+            throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
         }
         return $authenticationResult;
     }

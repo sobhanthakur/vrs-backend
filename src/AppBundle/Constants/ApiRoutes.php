@@ -50,6 +50,8 @@ final class ApiRoutes
         "properties_get_id",
         "owners_get",
         "region_groups_get",
-        "regions_get"
+        "regions_get",
+        "property_bookings_get",
+        "property_bookings_get_id"
     );
 }

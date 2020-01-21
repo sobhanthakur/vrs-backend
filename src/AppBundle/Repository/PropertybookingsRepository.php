@@ -1,49 +1,36 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Sobhan
- * Date: 14/10/19
- * Time: 4:30 PM
+ * User: prabhat
+ * Date: 15/1/20
+ * Time: 9:10 PM
  */
 
 namespace AppBundle\Repository;
 
-
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
-class OwnersRepository extends EntityRepository
+class PropertybookingsRepository extends EntityRepository
 {
-
-    public function GetOwners($customerID)
-    {
-        return $this
-            ->createQueryBuilder('p')
-            ->select('p.ownerid as OwnerID, p.ownername as OwnerName')
-            ->where('p.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->getQuery()
-            ->execute();
-    }
-
     /**
-     * Function to fetch owner details
+     * Function to fetch property bookings details
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $ownerID
+     * @param $propertyBookingID
      * @param $offset
      *
      * @return array
      */
-        public function fetchOwners($customerDetails, $queryParameter, $ownerID, $offset)
+    public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset)
     {
         $query = "";
         $fields = array();
         $sortOrder = array();
 
         $result = $this
-            ->createQueryBuilder('o');
+            ->createQueryBuilder('pb');
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -57,10 +44,10 @@ class OwnersRepository extends EntityRepository
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::OWNERS_MAPPING[$field];
+                $query .= ',' . GeneralConstants::PROPERTY_BOOKINGS_MAPPING[$field];
             }
         } else {
-            $query .= implode(',', GeneralConstants::OWNERS_MAPPING);
+            $query .= implode(',', GeneralConstants::PROPERTY_BOOKINGS_MAPPING);
         }
 
         $query = trim($query, ',');
@@ -69,21 +56,25 @@ class OwnersRepository extends EntityRepository
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
             foreach ($sortOrder as $field) {
-                $result->orderBy('o.' . $field);
+                $result->orderBy('pb.' . $field);
             }
+        }
+
+        //condition to filter by property id
+        if (isset($propertyBookingID)) {
+            $result->andWhere('pb.propertybookingid IN (:PropertyBookingID)')
+                ->setParameter('PropertyBookingID', $propertyBookingID);
         }
 
         //condition to filter by customer details
         if ($customerDetails) {
-            $result->andWhere('o.customerid IN (:CustomerID)')
+            $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
 
         //return owner details
         return $result
-            ->innerJoin('o.countryid', 'c')
-            ->where('o.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerDetails)
+            ->innerJoin('pb.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
