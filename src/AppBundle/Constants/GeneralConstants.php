@@ -103,6 +103,7 @@ final class GeneralConstants
     const PROPERTY_API = 'Properties API error ';
     const OWNER_API = 'Owner API error ';
     const REGION_GROUPS_API = 'Region groups API error ';
+    const ISSUES_API = 'Issues API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -174,6 +175,7 @@ final class GeneralConstants
         'EXPIRY' => 'Expiry',
         'RESOURCE_RESTRICTION' => 'Resource_Restrictions'
     ];
+    const IMAGE_URL = "https://images.vrscheduler.com/70/";
     const USER_AGENT = "user_agent";
     const PROPERTIES = "properties";
     const PAYLOAD = [
@@ -246,11 +248,30 @@ final class GeneralConstants
         'createdate' => 'pb.createdate as CreateDate'
     ];
 
+    const ISSUE_MAPPING = [
+        'issueid' => 'i.issueid as IssueID',
+        'statusid' => 'i.statusid as StatusID',
+        'issuetype' => 'i.issuetype as IssueType',
+        'urgent' => 'i.urgent as Urgent',
+        'issue' => 'i.issue as Issue',
+        'notes' => 'i.notes as Notes',
+        'servicernotes' => 'i.servicernotes as StaffNotes',
+        'internalnotes' => 'i.internalnotes as InternalNotes',
+        'image1' => "CASE WHEN (i.image1 = '') THEN i.image1 ELSE CONCAT(:image_url, i.image1) END as Image1",
+        'image2' => "CASE WHEN (i.image2 = '') THEN i.image2 ELSE CONCAT(:image_url, i.image2) END as Image2",
+        'image3' => "CASE WHEN (i.image3 = '') THEN i.image3 ELSE CONCAT(:image_url, i.image3) END as Image3",
+        'billable' => 'i.billable as Billable',
+        'propertyid' => 'p.propertyid as PropertyID',
+        'closeddate' => 'i.closeddate as ClosedDate',
+        'createdate' => 'i.createdate as CreateDate'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
         'REGION_GROUPS' => 'regiongroups',
-        'REGIONS' => 'regions'
+        'REGIONS' => 'regions',
+        'ISSUES' => 'issues'
     ];
 
     const PARAMS = [

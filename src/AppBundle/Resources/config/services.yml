@@ -116,3 +116,10 @@ services:
         class: AppBundle\Service\PropertyBookingsService
         parent: vrscheduler.base_service
         public: true
+
+    vrscheduler.public_issues_service:
+        class: AppBundle\Service\IssueService
+        parent: vrscheduler.base_service
+        public: true
+
+

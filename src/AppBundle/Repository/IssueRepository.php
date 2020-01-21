@@ -1,52 +1,40 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Sobhan
- * Date: 14/10/19
- * Time: 4:30 PM
+ * User: prabhat
+ * Date: 21/1/20
+ * Time: 2:22 PM
  */
 
 namespace AppBundle\Repository;
 
-
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
-class OwnersRepository extends EntityRepository
+class IssueRepository extends EntityRepository
 {
 
-    public function GetOwners($customerID)
-    {
-        return $this
-            ->createQueryBuilder('p')
-            ->select('p.ownerid as OwnerID, p.ownername as OwnerName')
-            ->where('p.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->getQuery()
-            ->execute();
-    }
-
     /**
-     * Function to fetch owner details
+     * Function to fetch issues details
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $ownerID
+     * @param $issueID
      * @param $offset
      *
      * @return array
      */
-    public function fetchOwners($customerDetails, $queryParameter, $ownerID, $offset)
+    public function fetchIssues($customerDetails, $queryParameter, $issueID, $offset)
     {
         $query = "";
         $fields = array();
         $sortOrder = array();
 
         $result = $this
-            ->createQueryBuilder('o');
+            ->createQueryBuilder('i');
 
         //check for fields option in query paramter
-        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
 
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
@@ -57,34 +45,48 @@ class OwnersRepository extends EntityRepository
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::OWNERS_MAPPING[$field];
+                $query .= ',' . GeneralConstants::ISSUE_MAPPING[$field];
             }
         } else {
-            $query .= implode(',', GeneralConstants::OWNERS_MAPPING);
+            $query .= implode(',', GeneralConstants::ISSUE_MAPPING);
         }
-
         $query = trim($query, ',');
         $result->select($query);
 
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
             foreach ($sortOrder as $field) {
-                $result->orderBy('o.' . $field);
+                $result->orderBy('i.' . $field);
             }
         }
 
         //condition to filter by customer details
         if ($customerDetails) {
-            $result->andWhere('o.customerid IN (:CustomerID)')
+            $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
 
-        //return owner details
+        //check for image url
+        if (empty($fields) || in_array('image1', $fields)) {
+            $result
+                ->setParameter('image_url', GeneralConstants::IMAGE_URL);
+        }
+        if (empty($fields) || in_array('image2', $fields)) {
+            $result
+                ->setParameter('image_url', GeneralConstants::IMAGE_URL);
+        }
+        if (empty($fields) || in_array('image3', $fields)) {
+            $result
+                ->setParameter('image_url', GeneralConstants::IMAGE_URL);
+        }
+
+        //return issue details
         return $result
-            ->innerJoin('o.countryid', 'c')
+            ->innerJoin('i.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->execute();
     }
+
 }
