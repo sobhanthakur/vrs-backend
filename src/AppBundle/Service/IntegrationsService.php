@@ -49,7 +49,8 @@ class IntegrationsService extends BaseService
                         GeneralConstants::QBDSYNCBILLING => $installedObject['qbdsyncbilling'],
                         GeneralConstants::QBDSYNCTT => $installedObject['qbdsyncpayroll'],
                         'CreateDate' => $installedObject['createdate'],
-                        'StartDate' => $installedObject['startdate']
+                        'StartDate' => $installedObject['startdate'],
+                        'Version' => $installedObject['version']
                     );
                 }
                 $integrationResponse[$i] = array(
