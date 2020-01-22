@@ -226,7 +226,7 @@ class IntegrationsService extends BaseService
                     $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
                 }
 
-                if(array_key_exists(GeneralConstants::PASS,$content)) {
+                if(array_key_exists(GeneralConstants::PASS,$content) && $content[GeneralConstants::PASS]) {
                     $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
                     $integrationToCustomer->setPassword($encoder);
                 }
