@@ -59,12 +59,12 @@ class IntegrationController extends FOSRestController
     /**
      * Install/Updates Quickbooks Integration.
      * @SWG\Tag(name="IntegrationDetails")
-     * @Post("/qwc/register", name="vrs_qwc_register_post")
      * @Put("/qwc/register", name="vrs_qwc_register_put")
      * @SWG\Parameter(
      *     name="body",
      *     in="body",
      *     required=true,
+     *     description="0=Quickbooks-Enterprise,1=Quickbooks-Pro,2=Quickbooks-Online",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="StartDate",
@@ -90,6 +90,11 @@ class IntegrationController extends FOSRestController
      *              property="QBDSyncTimeTracking",
      *              type="boolean",
      *              example=false
+     *         ),
+     *         @SWG\Property(
+     *              property="Version",
+     *              type="integer",
+     *              example=1
      *         )
      *     )
      *  )
@@ -118,18 +123,9 @@ class IntegrationController extends FOSRestController
         $response = null;
         try {
             $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
-            $method = $request->getMethod();
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            switch ($method) {
-                case 'POST' :
-                    $response = $integrationService->InstallQuickbooksDesktop($content,$customerID);
-                    break;
-                case 'PUT':
-                    $response = $integrationService->UpdateQuickbooksDesktop($content,$customerID);
-                    break;
-            }
-            return $response;
+            return $integrationService->UpdateQuickbooksDesktop($content,$customerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -142,7 +138,6 @@ class IntegrationController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 
     /**

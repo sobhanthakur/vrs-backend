@@ -194,6 +194,8 @@ class IntegrationsService extends BaseService
 
             // Check if the record is present or not
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+
+            // Create new entry
             if(!$integrationToCustomer) {
                 $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
                 if(!$customer) {
@@ -209,6 +211,7 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setActive(true);
                 $integrationToCustomer->setUsername('VRS'.uniqid());
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+                $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
                 $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
                 $integrationToCustomer->setCustomerid($customer);
@@ -226,6 +229,10 @@ class IntegrationsService extends BaseService
                 if(array_key_exists(GeneralConstants::PASS,$content)) {
                     $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
                     $integrationToCustomer->setPassword($encoder);
+                }
+
+                if(array_key_exists(GeneralConstants::QBDVERSION,$content)) {
+                    $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
                 }
 
                 if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {

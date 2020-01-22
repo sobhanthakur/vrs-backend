@@ -108,6 +108,7 @@ final class GeneralConstants
     const QBDSYNCBILLING = 'QBDSyncBilling';
     const QBDSYNCTT = 'QBDSyncTimeTracking';
     const PASS = 'Password';
+    const QBDVERSION = 'Version';
 
     const FILTER_MATCHED = 'Matched';
     const FILTER_NOT_MATCHED = 'Not Yet Matched';
