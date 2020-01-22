@@ -31,6 +31,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $description = [];
         $amount = [];
         $xml = '';
+        $version = 0;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
@@ -38,6 +39,11 @@ class QBDBillingBatchService extends AbstractQBWCApplication
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true));
             if ($integrationToCustomer) {
+                $version = $integrationToCustomer->getVersion();
+
+                // Set QB Version in a session
+                $session->set('Version',$version);
+
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID);
 
@@ -59,30 +65,54 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                     <QBXML>
                     <QBXMLMsgsRq onError="stopOnError">';
                     foreach ($response as $key => $value) {
-                        $xml .= '
-                                <SalesOrderAddRq requestID="' . $requestId . '">
-                                <SalesOrderAdd>
-                                    <CustomerRef>
+                        if($version == 1) {
+                            $xml .= '
+                                    <EstimateAddRq requestID="' . $requestId . '">
+                                    <EstimateAdd>';    
+                        } else {
+                            $xml .= '
+                                    <SalesOrderAddRq requestID="' . $requestId . '">
+                                    <SalesOrderAdd>';    
+                        }
+                        
+                        $xml .= '<CustomerRef>
                                         <ListID>'.$key.'</ListID>
                                     </CustomerRef>
                                     <RefNumber >'.$referenceID[$key].'</RefNumber>
                                     ';
 
                         foreach ($value as $key1=>$value1) {
-                            $xml .= '
-                                <SalesOrderLineAdd>
-                                <ItemRef>
+                            if($version == 1) {
+                                $xml .= '
+                                    <EstimateLineAdd>';    
+                            } else {
+                                $xml .= '
+                                    <SalesOrderLineAdd>';    
+                            }
+                            $xml .= '<ItemRef>
                                 <FullName >'.$value1.'</FullName>
                                 </ItemRef>
                                 <Desc>'.(string)$description[$key][$key1].'</Desc>
-                                <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>
-                                </SalesOrderLineAdd>
-                            ';
+                                <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>';
+                            if($version == 1) {
+                                $xml .= '</EstimateLineAdd>';    
+                            } else {
+                                $xml .= '</SalesOrderLineAdd>';    
+                            }
+                            
                         }
-                        $xml .= '
-                                </SalesOrderAdd>
-                                </SalesOrderAddRq>
+                        if($version == 1) {
+                            $xml .= '
+                                </EstimateAdd>
+                                </EstimateAddRq>
                             ';
+                        } else {
+                            $xml .= '
+                                    </SalesOrderAdd>
+                                    </SalesOrderAddRq>
+                                ';    
+                        }
+                        
                     }
                     $xml .= '</QBXMLMsgsRq></QBXML>';
 
@@ -123,17 +153,31 @@ class QBDBillingBatchService extends AbstractQBWCApplication
     {
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
-        if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
-            $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
-            for ($i=0;$i<count($salesOrders);$i++) {
-                $refNumber = $salesOrders[$i]->SalesOrderRet->RefNumber;
-                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
-                foreach ($billingRecord as $billing) {
-                    $txnID = $salesOrders[$i]->SalesOrderRet->TxnID;
-                    $billing->setTxnid($txnID);
-                    $this->entityManager->persist($billing);
+        if(isset($response->QBXMLMsgsRs)) {
+            if (isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
+                $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
+                for ($i=0;$i<count($salesOrders);$i++) {
+                    $refNumber = $salesOrders[$i]->SalesOrderRet->RefNumber;
+                    $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                    foreach ($billingRecord as $billing) {
+                        $txnID = $salesOrders[$i]->SalesOrderRet->TxnID;
+                        $billing->setTxnid($txnID);
+                        $this->entityManager->persist($billing);
+                    }
+                }
+            } elseif (isset($response->QBXMLMsgsRs->EstimateAddRs)) {
+                $salesOrders = $response->QBXMLMsgsRs->EstimateAddRs;
+                for ($i=0;$i<count($salesOrders);$i++) {
+                    $refNumber = $salesOrders[$i]->EstimateRet->RefNumber;
+                    $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                    foreach ($billingRecord as $billing) {
+                        $txnID = $salesOrders[$i]->EstimateRet->TxnID;
+                        $billing->setTxnid($txnID);
+                        $this->entityManager->persist($billing);
+                    }
                 }
             }
+            
             $this->entityManager->flush();
         }
         return new ReceiveResponseXML(100);
