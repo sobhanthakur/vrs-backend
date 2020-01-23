@@ -84,8 +84,8 @@ class QBDResourcesService extends AbstractQBWCApplication
         $response = simplexml_load_string($object->response);
         // Parse the XML and Store the records accordingly
         $response = $response->QBXMLMsgsRs;
+        $customerID = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid' => $session->get(GeneralConstants::CUSTOMER_ID)));
         if (isset($response->CustomerQueryRs) && isset($response->CustomerQueryRs->CustomerRet)) {
-            $customerID = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid' => $session->get(GeneralConstants::CUSTOMER_ID)));
             $incomingListIDs = [];
             $qbdListIDs = [];
             $customers = $response->CustomerQueryRs->CustomerRet;

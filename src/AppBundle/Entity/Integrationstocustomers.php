@@ -113,6 +113,13 @@ class Integrationstocustomers implements UserInterface
      */
     private $integrationid;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="Version", type="integer", nullable=true, options={"default"="0","comment"="0=QB-Enterprise,1=QB-Pro,2=QB-Online"})
+     */
+    private $version = 0;
+
 
 
     /**
@@ -421,5 +428,29 @@ class Integrationstocustomers implements UserInterface
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set version.
+     *
+     * @param int|null $version
+     *
+     * @return Integrationstocustomers
+     */
+    public function setVersion($version = null)
+    {
+        $this->version = $version;
+
+        return $this;
+    }
+
+    /**
+     * Get version.
+     *
+     * @return int|null
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 }

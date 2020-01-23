@@ -23,6 +23,7 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
     {
         $session = new Session();
         $xml = '';
+        $version = 0;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
@@ -30,6 +31,11 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true));
             if ($integrationToCustomer) {
+                $version = $integrationToCustomer->getVersion();
+                // Set QB Version in a session
+                $session->set('Version',$version);
+
+
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetFailedBillingRecords($customerID);
                 if ($tasks) {
@@ -41,10 +47,20 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
                     <QBXMLMsgsRq onError="stopOnError">';
                     $requestId = $this->generateGUID();
                     foreach ($tasks as $task) {
-                        $xml .= '<SalesOrderQueryRq  requestID="' . $requestId . '" metaData="NoMetaData">
-                            <RefNumber>'.$task['RefNumber'].'</RefNumber>
-                            </SalesOrderQueryRq >
-                            ';
+                        if($version == 1) {
+                            $xml .= '<EstimateQueryRq  requestID="' . $requestId . '" metaData="NoMetaData">';
+                        } else {
+                            $xml .= '<SalesOrderQueryRq  requestID="' . $requestId . '" metaData="NoMetaData">';    
+                        }
+                        
+                        $xml .= '<RefNumber>'.$task['RefNumber'].'</RefNumber>';
+
+                        if($version == 1) {
+                            $xml .= '</EstimateQueryRq >';
+                        } else {
+                            $xml .= '</SalesOrderQueryRq >';    
+                        }
+                        
                     }
                     $xml .= '</QBXMLMsgsRq></QBXML>';
                 }
@@ -60,18 +76,35 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $session = new Session();
+        $version = $session->get('Version');
+
         $response = simplexml_load_string($object->response);
         if (isset($response->QBXMLMsgsRs)) {
-            $response = $response->QBXMLMsgsRs->SalesOrderQueryRs;
-            for($i=0;$i<count($response);$i++) {
-                $refNumber = $response[$i]->SalesOrderRet->RefNumber;
-                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
-                foreach ($billingRecord as $billing) {
-                    $txnID = $response[$i]->SalesOrderRet->TxnID;
-                    $billing->setTxnid($txnID);
-                    $this->entityManager->persist($billing);
+            if($version == 1) {
+                $response = $response->QBXMLMsgsRs->EstimateQueryRs;
+                for($i=0;$i<count($response);$i++) {
+                    $refNumber = $response[$i]->EstimateRet->RefNumber;
+                    $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                    foreach ($billingRecord as $billing) {
+                        $txnID = $response[$i]->EstimateRet->TxnID;
+                        $billing->setTxnid($txnID);
+                        $this->entityManager->persist($billing);
+                    }
+                }
+            } else {
+                $response = $response->QBXMLMsgsRs->SalesOrderQueryRs;
+                for($i=0;$i<count($response);$i++) {
+                    $refNumber = $response[$i]->SalesOrderRet->RefNumber;
+                    $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findBy(array('refnumber' => (string)$refNumber));
+                    foreach ($billingRecord as $billing) {
+                        $txnID = $response[$i]->SalesOrderRet->TxnID;
+                        $billing->setTxnid($txnID);
+                        $this->entityManager->persist($billing);
+                    }
                 }
             }
+            
             $this->entityManager->flush();
         }
 
