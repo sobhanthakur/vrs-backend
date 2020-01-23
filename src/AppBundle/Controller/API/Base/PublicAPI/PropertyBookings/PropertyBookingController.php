@@ -116,14 +116,14 @@ class PropertyBookingController extends FOSRestController
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
             //check resteiction for the user
-            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //Get property booking details
             $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
-            $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo);
+            $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;

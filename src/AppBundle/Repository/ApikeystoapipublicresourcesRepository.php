@@ -26,6 +26,7 @@ class ApikeystoapipublicresourcesRepository extends \Doctrine\ORM\EntityReposito
             ->createQueryBuilder('akpr')
             ->select('apr.resourcename as resourseName')
             ->addSelect('akpr.accesslevel as accessLevel')
+            ->addSelect('akpr.restrictPersonalData as restrictPersonalData')
             ->join('akpr.apikeyid', 'ak')
             ->join('akpr.apipublicresourceid', 'apr')
             ->where('akpr.apikeyid = :ApiKey')

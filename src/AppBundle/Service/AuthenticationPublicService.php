@@ -16,6 +16,7 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use  Lcobucci\JWT\Parsing\Decoder;
 
 /**
  * Class AuthenticationPublicService
@@ -76,7 +77,6 @@ class AuthenticationPublicService extends BaseService
             //Fetching resources and its restriction for customer
             $apiKeyToPubResourseRepo = $this->entityManager->getRepository('AppBundle:Apikeystoapipublicresources');
             $restriction = $apiKeyToPubResourseRepo->fetchResource($apiKeys);
-
             //Setting payload for JWT token
             $authenticationResult[GeneralConstants::PAYLOAD['CUSTOMER_ID']] = $customerid;
             $authenticationResult[GeneralConstants::PAYLOAD['CUSTOMER_NAME']] = $customerName;
@@ -270,7 +270,7 @@ class AuthenticationPublicService extends BaseService
             //Set authenticated status to true
             $authenticationResult[GeneralConstants::STATUS] = true;
 
-        } catch (\InvalidArgumentException $ex) {
+        }  catch (\InvalidArgumentException $ex) {
             throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -288,7 +288,7 @@ class AuthenticationPublicService extends BaseService
      * Checking the access of the user
      *
      * @param $restrictions
-     * @param $baseUrl
+     * @param $baseName
      *
      * @return boolean
      */
@@ -296,7 +296,7 @@ class AuthenticationPublicService extends BaseService
     {
         foreach ($restrictions as $restriction) {
             if (strtolower($restriction->resourseName) == $baseName) {
-                return $restriction->accessLevel;
+                return $restriction;
             };
         }
     }

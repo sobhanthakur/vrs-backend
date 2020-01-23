@@ -197,14 +197,23 @@ class PropertiesRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchProperties($customerDetails, $queryParameter, $propertyID, $offset)
+    public function fetchProperties($customerDetails, $queryParameter, $propertyID, $restriction, $offset)
     {
         $query = "";
         $fields = array();
         $sortOrder = array();
 
+        //Get all properties field
+        $propertiesField = GeneralConstants::PROPERTIES_MAPPING;
+
+        //Get properties restrict field
+        $propertiesRestrictField = GeneralConstants::PROPERTIES_RESTRICTION;
+
         $result = $this
             ->createQueryBuilder('p');
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -218,10 +227,13 @@ class PropertiesRepository extends EntityRepository
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::PROPERTIES_MAPPING[$field];
+                $query .= ',' . $propertiesField[$field];
             }
         } else {
-            $query .= implode(',', GeneralConstants::PROPERTIES_MAPPING);
+            if ($restrictionPersonalData) {
+                $propertiesField = array_diff_key($propertiesField, array_flip($propertiesRestrictField));
+            }
+            $query .= implode(',', $propertiesField);
         }
         $query = trim($query, ',');
         $result->select($query);

@@ -162,6 +162,13 @@ class Owners
     private $password2;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
+     */
+    private $active = 1;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
@@ -781,5 +788,29 @@ class Owners
     public function getCountryid()
     {
         return $this->countryid;
+    }
+
+    /**
+     * Set active.
+     *
+     * @param bool $active
+     *
+     * @return Owners
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active.
+     *
+     * @return bool
+     */
+    public function getActive()
+    {
+        return $this->active;
     }
 }

@@ -86,16 +86,16 @@ class OwnersController extends FOSRestController
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
+
             //check resteiction for the user
-            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //Get owners details
             $ownersService = $this->container->get('vrscheduler.public_owners_service');
-            $ownerDetails = $ownersService->getOwners($authDetails, $queryParameter, $pathInfo);
-            return $ownerDetails;
+            $ownerDetails = $ownersService->getOwners($authDetails, $queryParameter, $pathInfo, $restriction);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -109,7 +109,7 @@ class OwnersController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-
+        return $ownerDetails;
     }
 
 }

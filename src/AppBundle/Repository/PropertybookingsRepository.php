@@ -23,14 +23,23 @@ class PropertybookingsRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset)
+    public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $restriction, $offset)
     {
         $query = "";
         $fields = array();
         $sortOrder = array();
 
+        //Get all owners field
+        $propertyBookingField = GeneralConstants::PROPERTY_BOOKINGS_MAPPING;
+
+        //Get owners restrict field
+        $propertyBookingRestrictField = GeneralConstants::PROPERTY_BOOKINGS_RESTRICTION;
+
         $result = $this
             ->createQueryBuilder('pb');
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -44,10 +53,13 @@ class PropertybookingsRepository extends EntityRepository
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::PROPERTY_BOOKINGS_MAPPING[$field];
+                $query .= ',' . $propertyBookingField[$field];
             }
         } else {
-            $query .= implode(',', GeneralConstants::PROPERTY_BOOKINGS_MAPPING);
+            if ($restrictionPersonalData) {
+                $propertyBookingField = array_diff_key($propertyBookingField, array_flip($propertyBookingRestrictField));
+            }
+            $query .= implode(',', $propertyBookingField);
         }
 
         $query = trim($query, ',');

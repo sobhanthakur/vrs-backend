@@ -29,6 +29,13 @@ class Apikeystoapipublicresources
     private $accesslevel;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="RestrictPersonalData", type="boolean", nullable=false, options={"default"="0"})
+     */
+    private $restrictPersonalData = 0;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
@@ -161,5 +168,29 @@ class Apikeystoapipublicresources
     public function getApipublicresourceid()
     {
         return $this->apipublicresourceid;
+    }
+
+    /**
+     * Set restrictPersonalData.
+     *
+     * @param bool $restrictPersonalData
+     *
+     * @return Apikeystoapipublicresources
+     */
+    public function setRestrictPersonalData($restrictPersonalData)
+    {
+        $this->restrictPersonalData = $restrictPersonalData;
+
+        return $this;
+    }
+
+    /**
+     * Get restrictPersonalData.
+     *
+     * @return bool
+     */
+    public function getRestrictPersonalData()
+    {
+        return $this->restrictPersonalData;
     }
 }

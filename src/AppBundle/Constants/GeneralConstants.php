@@ -203,6 +203,8 @@ final class GeneralConstants
         'createdate' => 'p.createdate as CreateDate'
     ];
 
+    const PROPERTIES_RESTRICTION = ['address'];
+
     const OWNERS_MAPPING = [
         'ownerid' => 'o.ownerid as OwnerID',
         'ownername' => 'o.ownername as OwnerName',
@@ -211,6 +213,8 @@ final class GeneralConstants
         'countryid' => 'c.countryid as CountryID',
         'createdate' => 'o.createdate as CreateDate'
     ];
+
+    const OWNERS_RESTRICTION = ['ownername', 'owneremail', 'ownerphone'];
 
     const REGION_GROUPS_MAPPING = [
         'regiongroupid' => 'rg.regiongroupid as RegionGroupID',
@@ -247,6 +251,8 @@ final class GeneralConstants
         'manualbookingtags' => 'pb.manualbookingtags as ManualBookingTags',
         'createdate' => 'pb.createdate as CreateDate'
     ];
+
+    const PROPERTY_BOOKINGS_RESTRICTION = ['guest', 'guestemail', 'guestphone'];
 
     const ISSUE_MAPPING = [
         'issueid' => 'i.issueid as IssueID',

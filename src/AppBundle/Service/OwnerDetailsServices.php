@@ -31,7 +31,7 @@ class OwnerDetailsServices extends BaseService
      *
      * @return mixed
      */
-    public function getOwners($authDetails, $queryParameter, $pathInfo, $ownerID = null)
+    public function getOwners($authDetails, $queryParameter, $pathInfo, $restriction, $ownerID = null)
     {
         $returnData = array();
         try {
@@ -56,10 +56,10 @@ class OwnerDetailsServices extends BaseService
             (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
 
             //Getting owners Detail
-            $ownerData = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $offset);
+            $ownerData = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $restriction, $offset);
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($restrictions = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $offset + 1));
+            $hasMoreDate = count($restrictions = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $restriction, $offset + 1));
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($ownerData); $i++) {

@@ -27,7 +27,7 @@ class PropertyBookingsService extends BaseService
      *
      * @return mixed
      */
-    public function getPropertyBookings($authDetails, $queryParameter, $pathInfo, $regionGroupsID = null)
+    public function getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction, $regionGroupsID = null)
     {
         $returnData = array();
         try {
@@ -51,10 +51,10 @@ class PropertyBookingsService extends BaseService
             (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
 
             //Getting property booking Detail
-            $propertyBookingData = $propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset);
+            $propertyBookingData = $propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $restriction, $offset);
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset + 1));
+            $hasMoreDate = count($propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $restriction, $offset + 1));
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {

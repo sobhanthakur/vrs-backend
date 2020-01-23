@@ -31,7 +31,7 @@ class propertyDetailsServices extends BaseService
      *
      * @return mixed
      */
-    public function getProperties($authDetails, $queryParameter, $pathInfo, $propertyID = null)
+    public function getProperties($authDetails, $queryParameter, $pathInfo, $restriction, $propertyID = null)
     {
         $returnData = array();
         try {
@@ -55,10 +55,10 @@ class propertyDetailsServices extends BaseService
             (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
 
             //Getting properties Detail
-            $propertyData = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $offset);
+            $propertyData = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset);
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($restrictions = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $offset + 1));
+            $hasMoreDate = count($restrictions = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset + 1));
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyData); $i++) {

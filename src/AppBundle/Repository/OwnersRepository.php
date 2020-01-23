@@ -36,14 +36,23 @@ class OwnersRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchOwners($customerDetails, $queryParameter, $ownerID, $offset)
+    public function fetchOwners($customerDetails, $queryParameter, $ownerID, $restriction, $offset)
     {
         $query = "";
         $fields = array();
         $sortOrder = array();
 
+        //Get all owners field
+        $ownersField = GeneralConstants::OWNERS_MAPPING;
+
+        //Get owners restrict field
+        $ownersRestrictField = GeneralConstants::OWNERS_RESTRICTION;
+
         $result = $this
             ->createQueryBuilder('o');
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -57,12 +66,16 @@ class OwnersRepository extends EntityRepository
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::OWNERS_MAPPING[$field];
+                $query .= ',' . $ownersField[$field];
             }
         } else {
-            $query .= implode(',', GeneralConstants::OWNERS_MAPPING);
+            if ($restrictionPersonalData) {
+                $ownersField = array_diff_key($ownersField, array_flip($ownersRestrictField));
+            }
+            $query .= implode(',', $ownersField);
         }
 
+        //Setting select query
         $query = trim($query, ',');
         $result->select($query);
 
