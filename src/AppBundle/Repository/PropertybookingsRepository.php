@@ -87,6 +87,7 @@ class PropertybookingsRepository extends EntityRepository
         //return owner details
         return $result
             ->innerJoin('pb.propertyid', 'p')
+            ->andWhere('pb.active=1')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)

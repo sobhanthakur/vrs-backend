@@ -245,9 +245,6 @@ class PropertiesRepository extends EntityRepository
             }
         }
 
-        //condition to get active fields
-        (isset($queryParameter['active']) && ($queryParameter['active'] == true) ? $result->andWhere('p.active=1') : null);
-
         //condition to filter by property id
         if (isset($propertyID)) {
             $result->andWhere('p.propertyid IN (:PropertyID)')
@@ -276,6 +273,7 @@ class PropertiesRepository extends EntityRepository
         return $result
             ->innerJoin('p.ownerid', 'o')
             ->innerJoin('p.regionid', 'r')
+            ->andWhere('p.active=1')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()

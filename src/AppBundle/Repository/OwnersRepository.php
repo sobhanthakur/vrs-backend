@@ -95,6 +95,7 @@ class OwnersRepository extends EntityRepository
         //return owner details
         return $result
             ->innerJoin('o.countryid', 'c')
+            ->andWhere('o.active=1')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
