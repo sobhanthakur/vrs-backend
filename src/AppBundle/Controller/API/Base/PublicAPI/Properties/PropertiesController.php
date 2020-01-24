@@ -213,14 +213,15 @@ class PropertiesController extends FOSRestController
             //check accessbility of the consumer to the resource
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            //check resteiction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //get property details
             $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $property = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $propertyID);
+            $property = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction, $propertyID);
             return $property;
 
         } catch (BadRequestHttpException $exception) {

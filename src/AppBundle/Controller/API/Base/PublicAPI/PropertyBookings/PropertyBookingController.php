@@ -10,7 +10,6 @@ namespace AppBundle\Controller\API\Base\PublicAPI\PropertyBookings;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
@@ -216,14 +215,15 @@ class PropertyBookingController extends FOSRestController
             //check accessbility of the consumer to the resource
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            //check resteiction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //Get property booking details
             $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
-            $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo, $propertyBookingID);
+            $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction, $propertyBookingID);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;

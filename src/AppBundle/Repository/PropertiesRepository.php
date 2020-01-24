@@ -14,6 +14,7 @@ use function Couchbase\defaultDecoder;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class PropertiesRepository
@@ -222,7 +223,7 @@ class PropertiesRepository extends EntityRepository
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
         //check for limit option in query paramter
-        (isset($queryParameter['limit']) ? $limit = $queryParameter['limit'] : $limit = 20);
+        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
 
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
@@ -268,7 +269,6 @@ class PropertiesRepository extends EntityRepository
             $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
-
         //return property details
         return $result
             ->innerJoin('p.ownerid', 'o')
@@ -278,6 +278,5 @@ class PropertiesRepository extends EntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
-
     }
 }

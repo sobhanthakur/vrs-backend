@@ -23,11 +23,11 @@ class PropertyBookingsService extends BaseService
      * @param $authDetails
      * @param $queryParameter
      * @param $pathInfo
-     * @param $regionGroupsID
+     * @param $propertyGroupID
      *
      * @return mixed
      */
-    public function getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction, $regionGroupsID = null)
+    public function getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction, $propertyGroupID = null)
     {
         $returnData = array();
         try {
@@ -48,13 +48,19 @@ class PropertyBookingsService extends BaseService
             }
 
             //Setting offset
-            (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
+            (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting property booking Detail
-            $propertyBookingData = $propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $restriction, $offset);
+            $propertyBookingData = $propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $propertyGroupID, $restriction, $offset);
+
+            //return 404 if resource not found
+            if(empty($propertyBookingData)){
+                throw new HttpException(404);
+            }
+
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $regionGroupsID, $restriction, $offset + 1));
+            $hasMoreDate = count($propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $propertyGroupID, $restriction, $offset + 1));
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {
@@ -77,7 +83,7 @@ class PropertyBookingsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error(GeneralConstants::REGION_GROUPS_API .
+            $this->logger->error(GeneralConstants::PROPERTY_BOOKING_API .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

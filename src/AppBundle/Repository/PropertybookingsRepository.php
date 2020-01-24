@@ -48,7 +48,7 @@ class PropertybookingsRepository extends EntityRepository
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
         //check for limit option in query paramter
-        (isset($queryParameter['limit']) ? $limit = $queryParameter['limit'] : $limit = 20);
+        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
 
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {

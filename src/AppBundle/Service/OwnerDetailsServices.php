@@ -53,10 +53,15 @@ class OwnerDetailsServices extends BaseService
             }
 
             //Setting offset
-            (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
+            (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting owners Detail
             $ownerData = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $restriction, $offset);
+
+            //return 404 if resource not found
+            if(empty($ownerData)){
+                throw new HttpException(404);
+            }
 
             //checking if more records are there to fetch from db
             $hasMoreDate = count($restrictions = $ownersRepo->fetchOwners($authDetails['customerID'], $queryParameter, $ownerID, $restriction, $offset + 1));

@@ -46,23 +46,28 @@ class propertyDetailsServices extends BaseService
 
             //cheking valid data of query parameter
             $validation = $this->serviceContainer->get('vrscheduler.public_general_service');
-            $validationCheck =$validation->validationCheck($queryParameter);
-            if(!$validationCheck){
+            $validationCheck = $validation->validationCheck($queryParameter);
+            if (!$validationCheck) {
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
             //Setting offset
-            (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
+            (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting properties Detail
             $propertyData = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset);
+
+            //return 404 if resource not found
+            if(empty($propertyData)){
+                throw new HttpException(404);
+            }
 
             //checking if more records are there to fetch from db
             $hasMoreDate = count($restrictions = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset + 1));
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyData); $i++) {
-                if(isset($propertyData[$i]['CreateDate'])){
+                if (isset($propertyData[$i]['CreateDate'])) {
                     $propertyData[$i]['CreateDate'] = $propertyData[$i]['CreateDate']->format('Ymd');
                 }
             }

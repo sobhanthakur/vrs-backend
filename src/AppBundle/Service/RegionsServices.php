@@ -51,10 +51,15 @@ class RegionsServices extends BaseService
             }
 
             //Setting offset
-            (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
+            (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting regions Detail
             $regionsData = $regionsRepo->fetchRegions($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset);
+
+            //return 404 if resource not found
+            if(empty($regionsData)){
+                throw new HttpException(404);
+            }
 
             //checking if more records are there to fetch from db
             $hasMoreDate = count($regionsRepo->fetchRegions($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset + 1));
@@ -78,7 +83,7 @@ class RegionsServices extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error(GeneralConstants::REGION_GROUPS_API .
+            $this->logger->error(GeneralConstants::REGION_API .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

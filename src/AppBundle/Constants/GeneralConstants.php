@@ -102,7 +102,9 @@ final class GeneralConstants
     const AUTH_ERROR_TEXT = 'Authentication could not be complete due to Error : ';
     const PROPERTY_API = 'Properties API error ';
     const OWNER_API = 'Owner API error ';
+    const REGION_API = 'Region API error ';
     const REGION_GROUPS_API = 'Region groups API error ';
+    const PROPERTY_BOOKING_API = 'property booking API error ';
     const ISSUES_API = 'Issues API error ';
 
     const START_DATE = 'StartDate';
@@ -286,8 +288,8 @@ final class GeneralConstants
         'REGIONID' => 'regionid',
         'FIELDS' => 'fields',
         'SORT' => 'sort',
-        'LIMIT' => 'limit',
-        'STARTINGAFTER' => 'startingafter'
+        'PER_PAGE' => 'per_page',
+        'PAGE' => 'page'
     ];
 
 }
