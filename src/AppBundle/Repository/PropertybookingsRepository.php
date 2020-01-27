@@ -43,12 +43,14 @@ class PropertybookingsRepository extends EntityRepository
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
-        
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
         //check for limit option in query paramter
         (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+
+        //check for limit option in query paramter
+        (isset($queryParameter[GeneralConstants::PARAMS['ACTIVE']]) ? $active = $queryParameter[GeneralConstants::PARAMS['ACTIVE']] : null);
 
         //condition to set query for all or some required fields
         if (sizeof($fields) > 0) {
@@ -84,7 +86,13 @@ class PropertybookingsRepository extends EntityRepository
                 ->setParameter('CustomerID', $customerDetails);
         }
 
-        //return owner details
+        //condition to filter by customer details
+        if (isset($active)) {
+            $result->andWhere('pb.active IN (:Active)')
+                ->setParameter('Active', $active);
+        }
+
+        //return property booking details
         return $result
             ->innerJoin('pb.propertyid', 'p')
             ->getQuery()

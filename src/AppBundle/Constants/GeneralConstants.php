@@ -286,6 +286,7 @@ final class GeneralConstants
 
     const PARAMS = [
         'OWNERID' => 'ownerid',
+        'ACTIVE' => 'active',
         'REGIONID' => 'regionid',
         'FIELDS' => 'fields',
         'SORT' => 'sort',
