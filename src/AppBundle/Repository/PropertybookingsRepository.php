@@ -43,7 +43,7 @@ class PropertybookingsRepository extends EntityRepository
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
-
+        
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
@@ -87,7 +87,6 @@ class PropertybookingsRepository extends EntityRepository
         //return owner details
         return $result
             ->innerJoin('pb.propertyid', 'p')
-            ->andWhere('pb.active=1')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)

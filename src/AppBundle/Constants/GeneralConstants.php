@@ -252,9 +252,9 @@ final class GeneralConstants
         'isowner' => 'pb.isowner as IsOwner',
         'bookingtags' => 'pb.bookingtags as BookingTags',
         'manualbookingtags' => 'pb.manualbookingtags as ManualBookingTags',
-        'createdate' => 'pb.createdate as CreateDate'
+        'createdate' => 'pb.createdate as CreateDate',
+        'active' => 'CASE WHEN pb.active = 1 THEN 1 ELSE 0 END as Active'
     ];
-
     const PROPERTY_BOOKINGS_RESTRICTION = ['guest', 'guestemail', 'guestphone'];
 
     const ISSUE_MAPPING = [
