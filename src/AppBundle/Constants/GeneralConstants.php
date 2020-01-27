@@ -280,7 +280,8 @@ final class GeneralConstants
         'OWNERS' => 'owners',
         'REGION_GROUPS' => 'regiongroups',
         'REGIONS' => 'regions',
-        'ISSUES' => 'issues'
+        'ISSUES' => 'issues',
+        'PROPERTY_BOOKINGS' => 'propertybookings'
     ];
 
     const PARAMS = [

@@ -32,7 +32,7 @@ class PropertyBookingController extends FOSRestController
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/regiongroups"
+     *              example="/api/v1/propertybookings"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -110,13 +110,16 @@ class PropertyBookingController extends FOSRestController
 
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['REGIONS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
+
+            //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            //check access level for read and write
+            $accessLevel = ($restriction->accessLevel == 0)? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
@@ -149,7 +152,7 @@ class PropertyBookingController extends FOSRestController
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/regiongroups/5"
+     *              example="/api/v1/propertybookings/14"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -208,16 +211,16 @@ class PropertyBookingController extends FOSRestController
             //Getting date from jwt token
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
-
             //get base path
             $pathInfo = $request->getPathInfo();
 
             //check accessbility of the consumer to the resource
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
             $authService = $this->container->get('vrscheduler.public_authentication_service');
             //check resteiction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            $accessLevel = ($restriction->accessLevel == 0)? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 

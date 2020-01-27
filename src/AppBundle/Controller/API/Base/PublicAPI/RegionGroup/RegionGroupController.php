@@ -89,7 +89,7 @@ class RegionGroupController extends FOSRestController
             $authService = $this->container->get('vrscheduler.public_authentication_service');
             //check resteiction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
