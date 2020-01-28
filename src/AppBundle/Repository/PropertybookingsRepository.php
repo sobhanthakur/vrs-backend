@@ -23,23 +23,12 @@ class PropertybookingsRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $restriction, $offset)
+    public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query, $limit = null)
     {
-        $query = "";
-        $fields = array();
         $sortOrder = array();
-
-        //Get all owners field
-        $propertyBookingField = GeneralConstants::PROPERTY_BOOKINGS_MAPPING;
-
-        //Get owners restrict field
-        $propertyBookingRestrictField = GeneralConstants::PROPERTY_BOOKINGS_RESTRICTION;
 
         $result = $this
             ->createQueryBuilder('pb');
-
-        //Checking restrict personal data
-        $restrictionPersonalData = $restriction->restrictPersonalData;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -47,24 +36,8 @@ class PropertybookingsRepository extends EntityRepository
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
         //check for limit option in query paramter
-        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
-
-        //check for limit option in query paramter
         (isset($queryParameter[GeneralConstants::PARAMS['ACTIVE']]) ? $active = $queryParameter[GeneralConstants::PARAMS['ACTIVE']] : null);
 
-        //condition to set query for all or some required fields
-        if (sizeof($fields) > 0) {
-            foreach ($fields as $field) {
-                $query .= ',' . $propertyBookingField[$field];
-            }
-        } else {
-            if ($restrictionPersonalData) {
-                $propertyBookingField = array_diff_key($propertyBookingField, array_flip($propertyBookingRestrictField));
-            }
-            $query .= implode(',', $propertyBookingField);
-        }
-
-        $query = trim($query, ',');
         $result->select($query);
 
         //condition to set sortorder
@@ -99,5 +72,64 @@ class PropertybookingsRepository extends EntityRepository
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->execute();
+    }
+
+    /**
+     * Function to fetch property booking details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $$propertyBookingID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $propertyBookingID, $restriction, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all properties field
+        $propertyBookingField = GeneralConstants::PROPERTY_BOOKINGS_MAPPING;
+
+        //Get properties restrict field
+        $propertiesRestrictField = GeneralConstants::PROPERTY_BOOKINGS_RESTRICTION;
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $propertyBookingField[$field];
+            }
+        } else {
+            if ($restrictionPersonalData) {
+                $propertyBookingField = array_diff_key($propertyBookingField, array_flip($propertiesRestrictField));
+            }
+            $query .= implode(',', $propertyBookingField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of property booking of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyBookingID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $propertyBookingID, $offset)
+    {
+        $query = "pb.propertybookingid ";
+        return $this->fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query);
+
     }
 }

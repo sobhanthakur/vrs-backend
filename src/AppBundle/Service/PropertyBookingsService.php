@@ -47,20 +47,26 @@ class PropertyBookingsService extends BaseService
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
+            //check for limit option in query paramter
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+
             //Setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting property booking Detail
-            $propertyBookingData = $propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $propertyGroupID, $restriction, $offset);
+            $propertyBookingData = $propertyBookingRepo->getItems($authDetails['customerID'], $queryParameter, $propertyGroupID, $restriction, $offset, $limit);
 
             //return 404 if resource not found
             if(empty($propertyBookingData)){
                 throw new HttpException(404);
             }
 
-
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($propertyBookingRepo->fetchPropertyBooking($authDetails['customerID'], $queryParameter, $propertyGroupID, $restriction, $offset + 1));
+            $totalItems = count($propertyBookingRepo->getItemsCount($authDetails['customerID'], $queryParameter, $propertyGroupID, $offset));
+
+            //setting page count
+            $totalPage = (int) ceil($totalItems/$limit);
+
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {
@@ -73,8 +79,12 @@ class PropertyBookingsService extends BaseService
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
-            $hasMoreDate != 0 ? $returnData['has_more'] = true : $returnData['has_more'] = false;
+            ($totalItems <= $offset * $limit)  ? $returnData['has_more'] = false : $returnData['has_more'] = true;
             $returnData['data'] = $propertyBookingData;
+            $returnData['page_count'] = $totalPage;
+            $returnData['page_size'] = $limit;
+            $returnData['page'] = $offset;
+            $returnData['total_items'] = $totalItems;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
