@@ -21,7 +21,7 @@ class QBDTimeTrackingRecords extends Controller
      * @param Request $request
      * @return Response
      */
-    public function QBDBillingBatchRequest(Request $request)
+    public function QBDTimeTrackingBatchRequest(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $login = null;

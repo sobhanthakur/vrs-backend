@@ -105,6 +105,7 @@ class TimeclockdaysRepository extends EntityRepository
         ->where('s2.customerid = :CustomerID')
         ->andWhere('b1.txnid IS NULL')
         ->andWhere('s2.servicertype=0')
+        ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0')
         ->setParameter('CustomerID', $customerID);
         $result
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')

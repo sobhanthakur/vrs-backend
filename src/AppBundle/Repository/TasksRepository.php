@@ -112,6 +112,7 @@ class TasksRepository extends EntityRepository
             ->innerJoin('AppBundle:Integrationqbditemstoservices','e2',Expr\Join::WITH, 'e2.serviceid=s2.serviceid')
             ->where('t2.active=1')
             ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0')
             ->innerJoin('p2.regionid', 'r')
             ->innerJoin('r.timezoneid', 't')
             ->andWhere('p2.customerid = :CustomerID')
