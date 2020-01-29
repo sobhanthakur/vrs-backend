@@ -12,10 +12,13 @@ use AppBundle\QBDHelpers\Response\Authenticate;
 use AppBundle\QBDHelpers\Response\ClientVersion;
 use AppBundle\QBDHelpers\Response\CloseConnection;
 use AppBundle\QBDHelpers\Response\ConnectionError;
+use AppBundle\QBDHelpers\Response\Debug;
+use AppBundle\QBDHelpers\Response\GetInteractiveURL;
 use AppBundle\QBDHelpers\Response\GetLastError;
+use AppBundle\QBDHelpers\Response\InteractiveDone;
 use AppBundle\QBDHelpers\Response\ServerVersion;
+use AppBundle\Service\BaseService;
 use Doctrine\ORM\EntityManager;
-use Monolog\Logger;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -40,11 +43,6 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      * @var Container $serviceContainer
      */
     public $serviceContainer;
-
-    /**
-     * @var Logger
-     */
-    public $apiLogger;
 
     /**
      * @var array
@@ -97,12 +95,11 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
      * @param array $config
      * @param $entityManager
      */
-    public function __construct($config = [], $entityManager,$serviceContainer,$apiLogger)
+    public function __construct($config = [], $entityManager,$serviceContainer)
     {
         $this->initConfig($config);
         $this->entityManager = $entityManager;
         $this->serviceContainer = $serviceContainer;
-        $this->apiLogger = $apiLogger;
     }
 
     /**

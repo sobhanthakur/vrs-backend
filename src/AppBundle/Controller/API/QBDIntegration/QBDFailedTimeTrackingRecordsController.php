@@ -25,7 +25,6 @@ class QBDFailedTimeTrackingRecordsController extends Controller
     public function QBDFailedTimeTrackingBatchRequest(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $apiLogger = $this->container->get(GeneralConstants::MONOLOG_API);
         $login = null;
         $password = null;
         $entityManager = $this->get('doctrine.orm.default_entity_manager');
@@ -44,7 +43,7 @@ class QBDFailedTimeTrackingRecordsController extends Controller
                 'password' => $password,
                 'iterator' => null,
                 'wsdlPath' => $this->container->getParameter('wsdlpath')
-            ], $entityManager, $serviceContainer,$apiLogger);
+            ], $entityManager, $serviceContainer);
 
             $server = new \SoapServer($this->container->getParameter('wsdlpath'), array('cache_wsdl' => WSDL_CACHE_NONE));
             $server->setObject($qbdResource);

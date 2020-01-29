@@ -110,9 +110,6 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                 }
             }
         }
-        // Log API Request
-        $this->apiLogger->debug('QBXML Request ',simplexml_load_string($xml));
-
         return new SendRequestXML($xml);
     }
 
