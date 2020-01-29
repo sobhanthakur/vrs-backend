@@ -102,7 +102,6 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.refnumber IS NOT NULL')
-            ->andWhere('b1.status=1')
             ->andWhere('b1.integrationqbbatchid='.$batchID);
         return $result->getQuery()->getResult();
     }
