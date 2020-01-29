@@ -32,7 +32,7 @@ class RegionController extends FOSRestController
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/regiongroups"
+     *              example="/api/v1/region"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
