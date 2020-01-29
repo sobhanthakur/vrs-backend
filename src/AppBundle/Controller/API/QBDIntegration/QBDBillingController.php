@@ -31,6 +31,7 @@ class QBDBillingController extends Controller
     public function QBDBillingBatchRequest(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $apiLogger = $this->container->get(GeneralConstants::MONOLOG_API);
         $login = null;
         $password = null;
         $entityManager = $this->get('doctrine.orm.default_entity_manager');
@@ -49,7 +50,7 @@ class QBDBillingController extends Controller
                 'password' => $password,
                 'iterator' => null,
                 'wsdlPath' => $this->container->getParameter('wsdlpath')
-            ], $entityManager, $serviceContainer);
+            ], $entityManager, $serviceContainer,$apiLogger);
 
             $server = new \SoapServer($this->container->getParameter('wsdlpath'), array('cache_wsdl' => WSDL_CACHE_NONE));
             $server->setObject($qbdResource);

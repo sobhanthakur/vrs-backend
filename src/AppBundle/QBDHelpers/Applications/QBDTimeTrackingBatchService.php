@@ -75,6 +75,9 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                 }
             }
         }
+        // Log API Request
+        $this->apiLogger->debug('QBXML Request ',simplexml_load_string($xml));
+
         if($updateTimeTrackingBatch) {
             return new SendRequestXML($xml);
         }
