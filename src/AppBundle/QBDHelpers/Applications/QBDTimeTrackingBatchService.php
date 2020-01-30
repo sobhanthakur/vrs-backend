@@ -88,6 +88,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $batchID = $session->get(GeneralConstants::QWC_BATCHID_SESSION);
         $response = simplexml_load_string($object->response);
