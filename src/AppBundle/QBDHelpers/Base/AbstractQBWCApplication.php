@@ -256,7 +256,7 @@ abstract class AbstractQBWCApplication implements QBWCApplicationInterface
     public function var_dump_to_string($var)
     {
         ob_start();
-        var_dump($var);
+        print_r($var);
         return ob_get_clean();
     }
 

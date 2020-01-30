@@ -123,6 +123,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
     {
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
+        $this->log_this($response);
         if(isset($response->QBXMLMsgsRs) && isset($response->QBXMLMsgsRs->SalesOrderAddRs)) {
             $salesOrders = $response->QBXMLMsgsRs->SalesOrderAddRs;
             for ($i=0;$i<count($salesOrders);$i++) {
