@@ -62,6 +62,7 @@ api:
             invalid_json: "Given input is not json."
             invalid_credential: "Invalid credentials"
             invalid_request: "Invalid request"
+            limit_exhaust: "You exceeded the rate limit"
         success:
             message: success
             password_reset: The password was reset successfully.

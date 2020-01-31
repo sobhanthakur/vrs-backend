@@ -34,6 +34,11 @@ class ExceptionListener extends BaseService
             : 500;
 
         $exceptionMessage = $event->getException()->getMessage();
+
+        if($event->getException()->getCode() == 429){
+            $status = 429;
+        }
+
         // Log the Exception Not thrown from controllers because other have been logged Already in controllers.
         $this->logger->error("Error",
             [
@@ -70,6 +75,9 @@ class ExceptionListener extends BaseService
                 break;
             case 504:
                 $messageKey = ErrorConstants::GATEWAY_TIMEOUT;
+                break;
+            case 429:
+                $messageKey = ErrorConstants::LIMIT_EXHAUST;
                 break;
             default :
                 $messageKey = ErrorConstants::INTERNAL_ERR;

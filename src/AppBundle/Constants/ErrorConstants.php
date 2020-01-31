@@ -65,6 +65,7 @@ final class ErrorConstants
     const INVALID_INTEGRATION = 'INVALIDINTEGRATION';
     const INVALID_JSON = 'INVALID_JSON';
     const INVALID_REQUEST = 'INVALID_REQUEST';
+    const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
 
@@ -112,6 +113,7 @@ final class ErrorConstants
         self::INVALID_PAYLOAD => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_payload'],
         self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
         self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
-        self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential']
+        self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential'],
+        self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust']
     ];
 }

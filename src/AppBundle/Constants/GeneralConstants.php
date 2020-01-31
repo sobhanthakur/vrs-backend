@@ -165,6 +165,10 @@ final class GeneralConstants
     const CUSTOMER_ID_CONDITION = 'c.customerid= :CustomerID';
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
+    /*constants used in API request limiting*/
+    const LIMIT = 1000;
+    const PERIOD = 3600;
+
     /*constants used in login api*/
     const ACCESS_TOKEN = "Access_Token";
     const REFRESH_TOKEN = "Refresh_Token";
