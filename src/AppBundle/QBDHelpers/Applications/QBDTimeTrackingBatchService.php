@@ -52,7 +52,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                                 <TimeTrackingAdd>
                                     <TxnDate >'.$timeClockDay['Date']->format('Y-m-d').'</TxnDate>
                                     <EntityRef>
-                                        <FullName>'.$timeClockDay['QBDEmployeeName'].'</FullName>
+                                        <ListID>'.$timeClockDay['QBDEmployeeName'].'</ListID>
                                     </EntityRef>
                                     <Duration>PT'.$date.'</Duration>
                                     <PayrollItemWageRef>
