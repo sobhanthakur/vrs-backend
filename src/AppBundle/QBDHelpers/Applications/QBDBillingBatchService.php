@@ -44,7 +44,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                 if (!empty($tasks)) {
                     foreach ($tasks as $task) {
                         $ref = $task['IntegrationQBDBillingRecordID'].$this->ReferenceNumber(8-strlen($task['IntegrationQBDBillingRecordID']));
-                        $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
+                        $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                         $referenceID[$task['QBDCustomerListID']] = $ref;
                         $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
                         $description[$task['QBDCustomerListID']][] = $task['PropertyName'].' - '.$task['TaskName'].' - '.$task['ServiceName'].' - '.$this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'),$task['Region']).' - '.($task['LaborOrMaterial'] === true ? "Materials":"Labor");
@@ -72,7 +72,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                             $xml .= '
                                 <SalesOrderLineAdd>
                                 <ItemRef>
-                                <FullName >'.$value1.'</FullName>
+                                <ListID >'.$value1.'</ListID>
                                 </ItemRef>
                                 <Desc>'.(string)$description[$key][$key1].'</Desc>
                                 <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>
