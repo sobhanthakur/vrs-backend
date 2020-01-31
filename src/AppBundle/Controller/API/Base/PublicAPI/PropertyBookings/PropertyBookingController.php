@@ -25,7 +25,7 @@ class PropertyBookingController extends FOSRestController
 {
     /**
      * Fetch all property booking details of the consumer
-     * @RateLimit(limit= GeneralConstants::LIMIT, period= GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Property Booking")
      * @SWG\Response(
      *     response=200,
@@ -146,7 +146,7 @@ class PropertyBookingController extends FOSRestController
 
     /**
      * Fetch all property booking details of the consumer by id
-     * @RateLimit(limit= GeneralConstants::LIMIT, period= GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Property Booking")
      * @SWG\Response(
      *     response=200,

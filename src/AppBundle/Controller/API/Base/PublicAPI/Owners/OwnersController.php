@@ -29,7 +29,7 @@ class OwnersController extends FOSRestController
     /**
      * Properties
      *
-     * @RateLimit(limit= GeneralConstants::LIMIT, period= GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Owners")
      * @SWG\Response(
      *     response=200,

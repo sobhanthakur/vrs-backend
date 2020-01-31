@@ -28,7 +28,6 @@ class PropertiesController extends FOSRestController
 {
     /**
      * Properties
-     * @RateLimit(limit= GeneralConstants::LIMIT, period= GeneralConstants::PERIOD)
      * @SWG\Tag(name="Properties")
      * @SWG\Response(
      *     response=200,
@@ -142,7 +141,7 @@ class PropertiesController extends FOSRestController
 
     /**
      * Properties
-     * @RateLimit(limit= GeneralConstants::LIMIT, period= GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Properties")
      * @SWG\Response(
      *     response=200,
