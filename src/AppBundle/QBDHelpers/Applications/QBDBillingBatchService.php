@@ -89,7 +89,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                     <SalesOrderLineAdd>';    
                             }
                             $xml .= '<ItemRef>
-                                <FullName >'.$value1.'</FullName>
+                                <ListID >'.$value1.'</ListID>
                                 </ItemRef>
                                 <Desc>'.(string)$description[$key][$key1].'</Desc>
                                 <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>';
