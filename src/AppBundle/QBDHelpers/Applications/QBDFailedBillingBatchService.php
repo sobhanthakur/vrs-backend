@@ -29,7 +29,7 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true,'active'=>true));
             if ($integrationToCustomer) {
                 $version = $integrationToCustomer->getVersion();
                 // Set QB Version in a session
