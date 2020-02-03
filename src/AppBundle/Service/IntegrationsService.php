@@ -260,6 +260,7 @@ class IntegrationsService extends BaseService
     }
 
     /**
+     * On disconnection, all the mappings are removed from the tables
      * @param $customerID
      * @param $integrationID
      * @return array
@@ -271,13 +272,77 @@ class IntegrationsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
             }
             $integrationID = $content[GeneralConstants::INTEGRATION_ID];
+
+            // Remove the CustomersToProperties Mappings
+            $customersToProperties = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDCustomersToProperties FROM IntegrationQBDCustomersToProperties INNER JOIN IntegrationQBDCustomers ON IntegrationQBDCustomersToProperties.IntegrationQBDCustomerID = IntegrationQBDCustomers.IntegrationQBDCustomerID WHERE IntegrationQBDCustomers.CustomerID='.$customerID)->execute();
+            if(!$customersToProperties) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove the Customers Mappings
+            $customers = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDCustomers FROM IntegrationQBDCustomers WHERE IntegrationQBDCustomers.CustomerID='.$customerID)->execute();
+            if(!$customers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove the Employees To Servicers Mappings
+            $employeesToServicers = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDEmployeesToServicers FROM IntegrationQBDEmployeesToServicers INNER JOIN IntegrationQBDEmployees ON IntegrationQBDEmployeesToServicers.IntegrationQBDEmployeeID = IntegrationQBDEmployees.IntegrationQBDEmployeeID WHERE IntegrationQBDEmployees.CustomerID='.$customerID)->execute();
+            if(!$employeesToServicers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove the Employees Mappings
+            $employees = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDEmployees FROM IntegrationQBDEmployees WHERE IntegrationQBDEmployees.CustomerID='.$customerID)->execute();
+            if(!$employees) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove the Items To Services Mappings
+            $itemsToServices = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItemsToServices FROM IntegrationQBDItemsToServices INNER JOIN IntegrationQBDItems ON IntegrationQBDItemsToServices.IntegrationQBDItemID = IntegrationQBDItems.IntegrationQBDItemID WHERE IntegrationQBDItems.CustomerID='.$customerID)->execute();
+            if(!$itemsToServices) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove the Items To Services Mappings
+            $items = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItems FROM IntegrationQBDItems WHERE IntegrationQBDItems.CustomerID='.$customerID)->execute();
+            if(!$items) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Remove PayrollItemwages to Customers Mapping and set active state to 0
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
             if(!$integrationToCustomer) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
             $integrationToCustomer->setActive(false);
+            $integrationToCustomer->setIntegrationqbdhourwagetypeid(null);
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
+
+            // Remove the Payroll Item Wages Mappings
+            $payrollItems = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDPayrollItemwages FROM IntegrationQBDPayrollItemwages WHERE IntegrationQBDPayrollItemwages.CustomerID='.$customerID)->execute();
+            if(!$payrollItems) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Delete Billing Records
+            $billingRecords = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDBillingRecords FROM IntegrationQBDBillingRecords INNER JOIN Tasks ON IntegrationQBDBillingRecords.TaskID = Tasks.TaskID INNER JOIN Properties ON Tasks.PropertyID=Properties.PropertyID WHERE Properties.CustomerID='.$customerID)->execute();
+            if(!$billingRecords) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Delete TimeTracking Records
+            $timetrackingRecords = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDTimeTrackingRecords FROM IntegrationQBDTimeTrackingRecords INNER JOIN TimeClockDays ON IntegrationQBDTimeTrackingRecords.TimeClockDaysID = TimeClockDays.TimeClockDayID INNER JOIN Servicers ON Servicers.ServicerID=Servicers.ServicerID WHERE Servicers.CustomerID='.$customerID)->execute();
+            if(!$timetrackingRecords) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            // Delete Batch Table
+            $batch = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBBatches FROM IntegrationQBBatches INNER JOIN IntegrationsToCustomers ON IntegrationsToCustomers.IntegrationToCustomerID=IntegrationQBBatches.IntegrationToCustomerID WHERE IntegrationsToCustomers.CustomerID='.$customerID.' AND IntegrationsToCustomers.IntegrationID='.$integrationID)->execute();
+            if(!$batch) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
             return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
         } catch (HttpException $exception) {
             throw $exception;

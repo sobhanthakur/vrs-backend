@@ -103,4 +103,14 @@ class IntegrationqbdcustomerstopropertiesRepository extends EntityRepository
         }
         return $result;
     }
+
+    public function DeleteCustomersToProperties($customerID)
+    {
+        $result = $this
+            ->getEntityManager()->createQuery(
+             'DELETE c AppBundle:Integrationqbdcustomerstoproperties c INNER JOIN AppBundle:Integrationqbdcustomers ic ON c.integrationqbdcustomerid=ic.integrationqbdcustomerid WHERE ic.customerid=1'
+            );
+        print_r($result->getSQL());die();
+
+    }
 }

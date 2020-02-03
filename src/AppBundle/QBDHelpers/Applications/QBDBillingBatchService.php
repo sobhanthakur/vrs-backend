@@ -31,13 +31,12 @@ class QBDBillingBatchService extends AbstractQBWCApplication
         $description = [];
         $amount = [];
         $xml = '';
-        $version = 0;
         if (
             $session->get(GeneralConstants::QWC_TICKET_SESSION) &&
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncbilling'=>true,'active'=>true));
             if ($integrationToCustomer) {
                 $version = $integrationToCustomer->getVersion();
 
@@ -50,7 +49,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                 if (!empty($tasks)) {
                     foreach ($tasks as $task) {
                         $ref = $task['IntegrationQBDBillingRecordID'].$this->ReferenceNumber(8-strlen($task['IntegrationQBDBillingRecordID']));
-                        $response[$task['QBDCustomerListID']][] = $task['QBDItemFullName'];
+                        $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                         $referenceID[$task['QBDCustomerListID']] = $ref;
                         $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
                         $description[$task['QBDCustomerListID']][] = $task['PropertyName'].' - '.$task['TaskName'].' - '.$task['ServiceName'].' - '.$this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'),$task['Region']).' - '.($task['LaborOrMaterial'] === true ? "Materials":"Labor");
@@ -90,7 +89,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                     <SalesOrderLineAdd>';    
                             }
                             $xml .= '<ItemRef>
-                                <FullName >'.$value1.'</FullName>
+                                <ListID >'.$value1.'</ListID>
                                 </ItemRef>
                                 <Desc>'.(string)$description[$key][$key1].'</Desc>
                                 <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>';
@@ -151,6 +150,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
         if(isset($response->QBXMLMsgsRs)) {

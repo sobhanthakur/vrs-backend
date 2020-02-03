@@ -33,7 +33,7 @@ class QBDResourcesService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'active'=>true));
             if ($integrationToCustomer) {
                 // Append XML request as per configurations
                 $qbxmlVersion = $this->_config['qbxmlVersion'];
@@ -80,6 +80,7 @@ class QBDResourcesService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $response = simplexml_load_string($object->response);
         // Parse the XML and Store the records accordingly

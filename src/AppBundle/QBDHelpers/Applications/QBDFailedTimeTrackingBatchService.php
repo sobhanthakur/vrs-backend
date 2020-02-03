@@ -27,7 +27,7 @@ class QBDFailedTimeTrackingBatchService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncpayroll'=>true));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncpayroll'=>true,'active'=>true));
             if ($integrationToCustomer) {
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $session->set(GeneralConstants::CUSTOMER_ID,$customerID);
@@ -67,6 +67,7 @@ class QBDFailedTimeTrackingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $customerID = $session->get(GeneralConstants::CUSTOMER_ID);
         $failedRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetFailedTimeTrackingRecord($customerID);

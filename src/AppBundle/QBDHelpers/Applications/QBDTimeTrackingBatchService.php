@@ -32,7 +32,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
             $session->get(GeneralConstants::QWC_USERNAME_SESSION)
         ) {
             $username = $session->get(GeneralConstants::QWC_USERNAME_SESSION);
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncpayroll'=>true));
+            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('username' => $username,'qbdsyncpayroll'=>true,'active'=>true));
             if ($integrationToCustomer) {
                 $customerID = $integrationToCustomer->getCustomerid()->getCustomerid();
                 $timeClockDays = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetTimeTrackingRecordsToSync($customerID);
@@ -52,7 +52,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                                 <TimeTrackingAdd>
                                     <TxnDate >'.$timeClockDay['Date']->format('Y-m-d').'</TxnDate>
                                     <EntityRef>
-                                        <FullName>'.$timeClockDay['QBDEmployeeName'].'</FullName>
+                                        <ListID>'.$timeClockDay['QBDEmployeeName'].'</ListID>
                                     </EntityRef>
                                     <Duration>PT'.$date.'</Duration>
                                     <PayrollItemWageRef>
@@ -88,6 +88,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $batchID = $session->get(GeneralConstants::QWC_BATCHID_SESSION);
         $response = simplexml_load_string($object->response);

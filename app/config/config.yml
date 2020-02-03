@@ -251,4 +251,9 @@ monolog:
             path: "%kernel.logs_dir%/exception.log"
             level: error
             channels: [exception]
-    channels: [api,exception]
+        qb:
+            type: stream
+            path: "%kernel.logs_dir%/qbResponse.log"
+            level: debug
+            channels: [qb]
+    channels: [api,exception,qb]
