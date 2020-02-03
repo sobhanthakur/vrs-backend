@@ -176,12 +176,12 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS QBDEmployeeName')
+            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeelistid AS QBDEmployeeName')
             ->innerJoin('b1.timeclockdaysid','t2')
             ->innerJoin('t2.servicerid','s2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
             ->innerJoin('ies.integrationqbdemployeeid','ie')
-            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeefullname')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeelistid')
             ->where('b1.status=1')
             ->andWhere('b1.txnid IS NULL')
             ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
