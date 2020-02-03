@@ -45,9 +45,7 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return array
      */
-    public function fetchRegionGroups($customerDetails, $queryParameter, $regionGroupsID, $offset){
-        $query = "";
-        $fields = array();
+    public function fetchRegionGroups($customerDetails, $queryParameter, $regionGroupsID, $offset, $query, $limit = null){
         $sortOrder = array();
 
         $result = $this
@@ -59,18 +57,7 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
-        //check for limit option in query paramter
-        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
-
         //condition to set query for all or some required fields
-        if (sizeof($fields) > 0) {
-            foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::REGION_GROUPS_MAPPING[$field];
-            }
-        } else {
-            $query .= implode(',', GeneralConstants::REGION_GROUPS_MAPPING);
-        }
-        $query = trim($query, ',');
         $result->select($query);
 
         //condition to set sortorder
@@ -98,6 +85,56 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
+
+    }
+
+    /**
+     * Function to fetch region details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $regiongroupID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $regiongroupID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all regions field
+        $regiongroupField = GeneralConstants::REGION_GROUPS_MAPPING;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $regiongroupField[$field];
+            }
+        } else {
+            $query .= implode(',', $regiongroupField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchRegionGroups($customerDetails, $queryParameter, $regiongroupID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of regions of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $regionID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $regiongroupID, $offset)
+    {
+        $query = "rg.regiongroupid";
+        return $this->fetchRegionGroups($customerDetails, $queryParameter, $regiongroupID, $offset, $query);
 
     }
 }

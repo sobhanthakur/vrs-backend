@@ -167,6 +167,10 @@ final class GeneralConstants
     const CUSTOMER_ID_CONDITION = 'c.customerid= :CustomerID';
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
+    /*constants used in API request limiting*/
+    const LIMIT = 1000;
+    const PERIOD = 3600;
+
     /*constants used in login api*/
     const ACCESS_TOKEN = "Access_Token";
     const REFRESH_TOKEN = "Refresh_Token";
@@ -254,9 +258,9 @@ final class GeneralConstants
         'isowner' => 'pb.isowner as IsOwner',
         'bookingtags' => 'pb.bookingtags as BookingTags',
         'manualbookingtags' => 'pb.manualbookingtags as ManualBookingTags',
-        'createdate' => 'pb.createdate as CreateDate'
+        'createdate' => 'pb.createdate as CreateDate',
+        'active' => 'CASE WHEN pb.active = 1 THEN 1 ELSE 0 END as Active'
     ];
-
     const PROPERTY_BOOKINGS_RESTRICTION = ['guest', 'guestemail', 'guestphone'];
 
     const ISSUE_MAPPING = [
@@ -282,11 +286,13 @@ final class GeneralConstants
         'OWNERS' => 'owners',
         'REGION_GROUPS' => 'regiongroups',
         'REGIONS' => 'regions',
-        'ISSUES' => 'issues'
+        'ISSUES' => 'issues',
+        'PROPERTY_BOOKINGS' => 'propertybookings'
     ];
 
     const PARAMS = [
         'OWNERID' => 'ownerid',
+        'ACTIVE' => 'active',
         'REGIONID' => 'regionid',
         'FIELDS' => 'fields',
         'SORT' => 'sort',

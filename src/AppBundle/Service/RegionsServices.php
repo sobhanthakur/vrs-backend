@@ -50,11 +50,14 @@ class RegionsServices extends BaseService
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
+            //check for limit option in query paramter
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+
             //Setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting regions Detail
-            $regionsData = $regionsRepo->fetchRegions($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset);
+            $regionsData = $regionsRepo->getItems($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset, $limit);
 
             //return 404 if resource not found
             if(empty($regionsData)){
@@ -62,7 +65,10 @@ class RegionsServices extends BaseService
             }
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($regionsRepo->fetchRegions($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset + 1));
+            $totalItems = count($regionsRepo->getItemsCount($authDetails['customerID'], $queryParameter, $regionGroupsID, $offset));
+
+            //setting page count
+            $totalPage = (int) ceil($totalItems/$limit);
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($regionsData); $i++) {
@@ -73,8 +79,12 @@ class RegionsServices extends BaseService
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
-            $hasMoreDate != 0 ? $returnData['has_more'] = true : $returnData['has_more'] = false;
+            ($totalItems <= $offset * $limit)  ? $returnData['has_more'] = false : $returnData['has_more'] = true;
             $returnData['data'] = $regionsData;
+            $returnData['page_count'] = $totalPage;
+            $returnData['page_size'] = $limit;
+            $returnData['page'] = $offset;
+            $returnData['total_items'] = $totalItems;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;

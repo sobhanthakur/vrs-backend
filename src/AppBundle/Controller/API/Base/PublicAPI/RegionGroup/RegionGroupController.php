@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Swagger\Annotations as SWG;
 
 /**
@@ -26,7 +27,8 @@ use Swagger\Annotations as SWG;
 class RegionGroupController extends FOSRestController
 {
     /**
-     * Region Group
+     * Region Group to fetch region group details
+     *
      * @SWG\Tag(name="Region Group")
      * @SWG\Response(
      *     response=200,
@@ -89,7 +91,7 @@ class RegionGroupController extends FOSRestController
             $authService = $this->container->get('vrscheduler.public_authentication_service');
             //check resteiction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restrictionStatus) {
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 

@@ -33,26 +33,16 @@ class OwnersRepository extends EntityRepository
      * @param $queryParameter
      * @param $ownerID
      * @param $offset
+     * @param $limit
      *
      * @return array
      */
-    public function fetchOwners($customerDetails, $queryParameter, $ownerID, $restriction, $offset)
+    public function fetchOwners($customerDetails, $queryParameter, $ownerID, $offset, $query, $limit = null)
     {
-        $query = "";
-        $fields = array();
         $sortOrder = array();
-
-        //Get all owners field
-        $ownersField = GeneralConstants::OWNERS_MAPPING;
-
-        //Get owners restrict field
-        $ownersRestrictField = GeneralConstants::OWNERS_RESTRICTION;
 
         $result = $this
             ->createQueryBuilder('o');
-
-        //Checking restrict personal data
-        $restrictionPersonalData = $restriction->restrictPersonalData;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
@@ -60,23 +50,7 @@ class OwnersRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
-        //check for limit option in query paramter
-        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
-
-        //condition to set query for all or some required fields
-        if (sizeof($fields) > 0) {
-            foreach ($fields as $field) {
-                $query .= ',' . $ownersField[$field];
-            }
-        } else {
-            if ($restrictionPersonalData) {
-                $ownersField = array_diff_key($ownersField, array_flip($ownersRestrictField));
-            }
-            $query .= implode(',', $ownersField);
-        }
-
         //Setting select query
-        $query = trim($query, ',');
         $result->select($query);
 
         //condition to set sortorder
@@ -101,4 +75,64 @@ class OwnersRepository extends EntityRepository
             ->setMaxResults($limit)
             ->execute();
     }
+
+    /**
+     * Function to fetch order details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $ownerID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $ownerID, $restriction, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all properties field
+        $ownersField = GeneralConstants::OWNERS_MAPPING;
+
+        //Get properties restrict field
+        $propertiesRestrictField = GeneralConstants::OWNERS_RESTRICTION;
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $ownersField[$field];
+            }
+        } else {
+            if ($restrictionPersonalData) {
+                $ownersField = array_diff_key($ownersField, array_flip($propertiesRestrictField));
+            }
+            $query .= implode(',', $ownersField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchOwners($customerDetails, $queryParameter, $ownerID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. owners
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $ownerID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $ownerID, $offset)
+    {
+        $query = "o.ownerid";
+        return $this->fetchOwners($customerDetails, $queryParameter, $ownerID, $offset, $query);
+
+    }
+
 }

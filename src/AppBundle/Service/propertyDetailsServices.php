@@ -33,7 +33,6 @@ class propertyDetailsServices extends BaseService
      */
     public function getProperties($authDetails, $queryParameter, $pathInfo, $restriction, $propertyID = null)
     {
-        $returnData = array();
         try {
             //Get properties Repo
             $propertiesRepo = $this->entityManager->getRepository('AppBundle:Properties');
@@ -51,11 +50,14 @@ class propertyDetailsServices extends BaseService
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
+            //check for limit option in query paramter
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+
             //Setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting properties Detail
-            $propertyData = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset);
+            $propertyData = $propertiesRepo->getItems($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset, $limit);
 
             //return 404 if resource not found
             if(empty($propertyData)){
@@ -63,7 +65,10 @@ class propertyDetailsServices extends BaseService
             }
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($restrictions = $propertiesRepo->fetchProperties($authDetails['customerID'], $queryParameter, $propertyID, $restriction, $offset + 1));
+            $totalItems = count($propertiesRepo->getItemsCount($authDetails['customerID'], $queryParameter, $propertyID, $offset));
+
+            //setting page count
+            $totalPage = (int) ceil($totalItems/$limit);
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyData); $i++) {
@@ -74,8 +79,12 @@ class propertyDetailsServices extends BaseService
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
-            $hasMoreDate != 0 ? $returnData['has_more'] = true : $returnData['has_more'] = false;
+            ($totalItems <= $offset * $limit)  ? $returnData['has_more'] = false : $returnData['has_more'] = true;
             $returnData['data'] = $propertyData;
+            $returnData['page_count'] = $totalPage;
+            $returnData['page_size'] = $limit;
+            $returnData['page'] = $offset;
+            $returnData['total_items'] = $totalItems;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;

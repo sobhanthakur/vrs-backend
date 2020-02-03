@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Swagger\Annotations as SWG;
 
 /**
@@ -27,6 +28,8 @@ class OwnersController extends FOSRestController
 {
     /**
      * Properties
+     *
+     *
      * @SWG\Tag(name="Owners")
      * @SWG\Response(
      *     response=200,
@@ -62,6 +65,8 @@ class OwnersController extends FOSRestController
      * @return array
      * @param Request $request
      * @Get("/owners", name="owners_get")
+     *
+     *
      */
     public function GetOwners(Request $request)
     {

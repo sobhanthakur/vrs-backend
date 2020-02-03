@@ -298,6 +298,7 @@ class AuthenticationPublicService extends BaseService
             if (strtolower($restriction->resourseName) == $baseName) {
                 return $restriction;
             };
+
         }
     }
 }

@@ -198,46 +198,20 @@ class PropertiesRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchProperties($customerDetails, $queryParameter, $propertyID, $restriction, $offset)
+    public function fetchProperties($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit = null)
     {
-        $query = "";
-        $fields = array();
         $sortOrder = array();
-
-        //Get all properties field
-        $propertiesField = GeneralConstants::PROPERTIES_MAPPING;
-
-        //Get properties restrict field
-        $propertiesRestrictField = GeneralConstants::PROPERTIES_RESTRICTION;
 
         $result = $this
             ->createQueryBuilder('p');
 
-        //Checking restrict personal data
-        $restrictionPersonalData = $restriction->restrictPersonalData;
+        $result->select($query);
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
 
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
-
-        //check for limit option in query paramter
-        (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
-
-        //condition to set query for all or some required fields
-        if (sizeof($fields) > 0) {
-            foreach ($fields as $field) {
-                $query .= ',' . $propertiesField[$field];
-            }
-        } else {
-            if ($restrictionPersonalData) {
-                $propertiesField = array_diff_key($propertiesField, array_flip($propertiesRestrictField));
-            }
-            $query .= implode(',', $propertiesField);
-        }
-        $query = trim($query, ',');
-        $result->select($query);
 
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
@@ -269,14 +243,79 @@ class PropertiesRepository extends EntityRepository
             $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
+
+        //condition to filter by customer details
+        if (isset($limit)) {
+            $result->setMaxResults($limit);
+        }
+
         //return property details
         return $result
             ->innerJoin('p.ownerid', 'o')
             ->innerJoin('p.regionid', 'r')
             ->andWhere('p.active=1')
             ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * Function to fetch property details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $propertyID, $restriction, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all properties field
+        $propertiesField = GeneralConstants::PROPERTIES_MAPPING;
+
+        //Get properties restrict field
+        $propertiesRestrictField = GeneralConstants::PROPERTIES_RESTRICTION;
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $propertiesField[$field];
+            }
+        } else {
+            if ($restrictionPersonalData) {
+                $propertiesField = array_diff_key($propertiesField, array_flip($propertiesRestrictField));
+            }
+            $query .= implode(',', $propertiesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchProperties($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of properties of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $propertyID, $offset)
+    {
+        $query = "p.propertyid";
+        return $this->fetchProperties($customerDetails, $queryParameter, $propertyID, $offset, $query);
+
+    }
+
 }

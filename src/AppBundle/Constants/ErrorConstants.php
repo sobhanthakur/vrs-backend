@@ -66,6 +66,7 @@ final class ErrorConstants
     const INVALID_INTEGRATION = 'INVALIDINTEGRATION';
     const INVALID_JSON = 'INVALID_JSON';
     const INVALID_REQUEST = 'INVALID_REQUEST';
+    const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
 
@@ -114,6 +115,7 @@ final class ErrorConstants
         self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
         self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
         self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential'],
-        self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete']
+        self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],
+        self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust']
     ];
 }
