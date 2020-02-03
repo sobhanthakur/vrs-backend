@@ -141,6 +141,8 @@ final class GeneralConstants
     const TIME_TRACKING = 'Time Tracking';
 
     const MONOLOG_EXCEPTION = 'monolog.logger.exception';
+    const MONOLOG_API = 'monolog.logger.api';
+    const MONOLOG_QB = 'monolog.logger.qb';
     const FUNCTION_LOG = ' function failed due to Error : ';
     const AUTHPAYLOAD = 'AuthPayload';
     const AUTHORIZATION = 'Authorization';

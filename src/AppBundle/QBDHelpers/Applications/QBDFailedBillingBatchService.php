@@ -79,6 +79,7 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
         $session = new Session();
         $version = $session->get('Version');
 
+        $this->qbLogger->debug($object->response);
         $response = simplexml_load_string($object->response);
         if (isset($response->QBXMLMsgsRs)) {
             if($version == 1) {

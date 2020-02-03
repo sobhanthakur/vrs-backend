@@ -67,6 +67,7 @@ class QBDFailedTimeTrackingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $customerID = $session->get(GeneralConstants::CUSTOMER_ID);
         $failedRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetFailedTimeTrackingRecord($customerID);

@@ -52,7 +52,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                                 <TimeTrackingAdd>
                                     <TxnDate >'.$timeClockDay['Date']->format('Y-m-d').'</TxnDate>
                                     <EntityRef>
-                                        <FullName>'.$timeClockDay['QBDEmployeeName'].'</FullName>
+                                        <ListID>'.$timeClockDay['QBDEmployeeName'].'</ListID>
                                     </EntityRef>
                                     <Duration>PT'.$date.'</Duration>
                                     <PayrollItemWageRef>
@@ -88,6 +88,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
+        $this->qbLogger->debug($object->response);
         $session = new Session();
         $batchID = $session->get(GeneralConstants::QWC_BATCHID_SESSION);
         $response = simplexml_load_string($object->response);
