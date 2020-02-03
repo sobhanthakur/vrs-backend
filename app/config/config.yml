@@ -170,6 +170,7 @@ nelmio_api_doc:
                 -  /api/v1/propertybookings
                 -  /api/v1/propertybookings/{id}
                 -  /api/v1/issues
+                -  /api/v1/issues/{id}
 
 #snc_redis:
 #    clients:

@@ -87,12 +87,12 @@ class OwnersController extends FOSRestController
 
             //get api path info and basename
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['OWNERS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['ISSUES'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
 
-            //check resteiction for the user
+            //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);

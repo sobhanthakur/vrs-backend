@@ -21,36 +21,22 @@ class IssueRepository extends EntityRepository
      * @param $queryParameter
      * @param $issueID
      * @param $offset
+     * @param $query
+     * @param $limit
      *
      * @return array
      */
-    public function fetchIssues($customerDetails, $queryParameter, $issueID, $offset)
+    public function fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query, $limit = null)
     {
-        $query = "";
-        $fields = array();
         $sortOrder = array();
 
         $result = $this
             ->createQueryBuilder('i');
 
-        //check for fields option in query paramter
-        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
-
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
-        //check for limit option in query paramter
-        (isset($queryParameter['limit']) ? $limit = $queryParameter['limit'] : $limit = 20);
-
         //condition to set query for all or some required fields
-        if (sizeof($fields) > 0) {
-            foreach ($fields as $field) {
-                $query .= ',' . GeneralConstants::ISSUE_MAPPING[$field];
-            }
-        } else {
-            $query .= implode(',', GeneralConstants::ISSUE_MAPPING);
-        }
-        $query = trim($query, ',');
         $result->select($query);
 
         //condition to set sortorder
@@ -60,33 +46,94 @@ class IssueRepository extends EntityRepository
             }
         }
 
+        //condition to filter by issue id
+        if ($issueID) {
+            $result->andWhere('i.issueid IN (:IssueID)')
+                ->setParameter('IssueID', $issueID);
+        }
+
         //condition to filter by customer details
         if ($customerDetails) {
             $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
 
-        //check for image url
-        if (empty($fields) || in_array('image1', $fields)) {
+        //check images and set parameter
+        if (strpos($query, 'image1') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-        if (empty($fields) || in_array('image2', $fields)) {
+
+        if (strpos($query, 'image2') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-        if (empty($fields) || in_array('image3', $fields)) {
+
+        if (strpos($query, 'image3') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
 
         //return issue details
-        return $result
+         return $result
             ->innerJoin('i.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->execute();
+    }
+
+    /**
+     * Function to fetch issue details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $regionID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $issueID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all regions field
+        $issuesField = GeneralConstants::ISSUE_MAPPING;
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $issuesField[$field];
+            }
+        } else {
+            $query .= implode(',', $issuesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of issues of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $issueID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $issueID, $offset)
+    {
+        $query = "i.issueid";
+        return $this->fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query);
+
     }
 
 }

@@ -22,7 +22,7 @@ class IssueService extends BaseService
      * @param $authDetails
      * @param $queryParameter
      * @param $pathInfo
-     * @param $regionGroupsID
+     * @param $issueID
      *
      * @return mixed
      */
@@ -30,7 +30,7 @@ class IssueService extends BaseService
     {
         $returnData = array();
         try {
-            //Get region Repo
+            //Get issue Repo
             $issueRepo = $this->entityManager->getRepository('AppBundle:Issues');
 
             //cheking valid query parameters
@@ -46,14 +46,25 @@ class IssueService extends BaseService
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
+            //check for limit option in query paramter
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+
             //Setting offset
-            (isset($queryParameter['startingafter']) ? $offset = $queryParameter['startingafter'] : $offset = 1);
+            (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //Getting issue Detail
-            $issuesData = $issueRepo->fetchIssues($authDetails['customerID'], $queryParameter, $issueID, $offset);
+            $issuesData = $issueRepo->getItems($authDetails['customerID'], $queryParameter, $issueID, $offset, $limit);
+
+            //return 404 if resource not found
+            if (empty($issuesData)) {
+                throw new HttpException(404);
+            }
 
             //checking if more records are there to fetch from db
-            $hasMoreDate = count($issueRepo->fetchIssues($authDetails['customerID'], $queryParameter, $issueID, $offset + 1));
+            $totalItems = count($issueRepo->getItemsCount($authDetails['customerID'], $queryParameter, $issueID, $offset));
+
+            //setting page count
+            $totalPage = (int) ceil($totalItems/$limit);
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($issuesData); $i++) {
@@ -65,8 +76,12 @@ class IssueService extends BaseService
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
-            $hasMoreDate != 0 ? $returnData['has_more'] = true : $returnData['has_more'] = false;
+            ($totalItems <= $offset * $limit)  ? $returnData['has_more'] = false : $returnData['has_more'] = true;
             $returnData['data'] = $issuesData;
+            $returnData['page_count'] = $totalPage;
+            $returnData['page_size'] = $limit;
+            $returnData['page'] = $offset;
+            $returnData['total_items'] = $totalItems;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
