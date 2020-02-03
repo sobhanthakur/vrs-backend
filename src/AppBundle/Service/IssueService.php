@@ -69,8 +69,11 @@ class IssueService extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($issuesData); $i++) {
                 if (isset($issuesData[$i]['CreateDate'])) {
-                    $issuesData[$i]['ClosedDate'] = $issuesData[$i]['ClosedDate']->format('Ymd');
                     $issuesData[$i]['CreateDate'] = $issuesData[$i]['CreateDate']->format('Ymd');
+                }
+
+                if (isset($issuesData[$i]['ClosedDate'])) {
+                    $issuesData[$i]['ClosedDate'] = $issuesData[$i]['ClosedDate']->format('Ymd');
                 }
             }
 

@@ -87,7 +87,7 @@ class OwnersController extends FOSRestController
 
             //get api path info and basename
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['ISSUES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['OWNERS'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
