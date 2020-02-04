@@ -297,7 +297,12 @@ final class GeneralConstants
         'FIELDS' => 'fields',
         'SORT' => 'sort',
         'PER_PAGE' => 'per_page',
-        'PAGE' => 'page'
+        'PAGE' => 'page',
+        'PROPERTYID' => 'propertyid',
+        'CHECKINSTARTDATE' => 'checkinstartdate',
+        'CHECKINENDDATE' => 'checkinenddate',
+        'CHECKOUTSTARTDATE' => 'checkoutstartdate',
+        'CHECKOUTENDDATE' => 'checkoutenddate'
     ];
 
 }

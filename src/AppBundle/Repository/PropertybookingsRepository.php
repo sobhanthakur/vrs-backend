@@ -25,15 +25,30 @@ class PropertybookingsRepository extends EntityRepository
      */
     public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query, $limit = null)
     {
+        //dump($queryParameter); die();
         $sortOrder = array();
+        $propertyID = null;
 
         $result = $this
             ->createQueryBuilder('pb');
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
+
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for propertyid in query paramter
+        isset($queryParameter['propertyid']) ? $propertyID = explode(',', $queryParameter['propertyid']) : null;
+
+        //check for checkinstartdate and checkinendtdate in query paramter
+        isset($queryParameter['checkinstartdate']) ? $checkInStartDate = explode(',', $queryParameter['checkinstartdate']) : $checkInStartDate = null;
+        isset($queryParameter['checkinenddate']) ? $checkInEndDate = explode(',', $queryParameter['checkinenddate']) : $checkInEndDate = null;
+
+        //check for checkoutstartdate and checkoutenddate in query paramter
+        isset($queryParameter['checkoutstartdate']) ? $checkOutStartDate = explode(',', $queryParameter['checkoutstartdate']) : $checkOutStartDate = null;
+        isset($queryParameter['checkoutenddate']) ? $checkOutEndDate = explode(',', $queryParameter['checkoutenddate']) : $checkOutEndDate = null;
+
 
         //check for limit option in query paramter
         (isset($queryParameter[GeneralConstants::PARAMS['ACTIVE']]) ? $active = $queryParameter[GeneralConstants::PARAMS['ACTIVE']] : null);
@@ -47,19 +62,53 @@ class PropertybookingsRepository extends EntityRepository
             }
         }
 
-        //condition to filter by property id
+        //condition to filter by property booking id
         if (isset($propertyBookingID)) {
             $result->andWhere('pb.propertybookingid IN (:PropertyBookingID)')
                 ->setParameter('PropertyBookingID', $propertyBookingID);
         }
 
-        //condition to filter by customer details
+        //condition to filter by property  id
+        if (isset($propertyID)) {
+            $result->andWhere('p.propertyid IN (:PropertyID)')
+                ->setParameter('PropertyID', $propertyID);
+        }
+
+        //condition to filter by  checkinstartdate
+        if ($checkInStartDate) {
+            $checkInStartDate = date("Y-m-d", strtotime($checkInStartDate[0]));
+            $result->andWhere('pb.checkin >= (:CheckInStartDate)')
+                ->setParameter('CheckInStartDate', $checkInStartDate);
+        }
+
+        //condition to filter by  checkinenddate
+        if ($checkInEndDate) {
+            $checkInEndDate = date("Y-m-d", strtotime($checkInEndDate[0]));
+            $result->andWhere('pb.checkin <= (:CheckInEndDate)')
+                ->setParameter('CheckInEndDate', $checkInEndDate);
+        }
+
+        //condition to filter by  checkoutstartdate
+        if ($checkOutStartDate) {
+            $checkOutStartDate = date("Y-m-d", strtotime($checkOutStartDate[0]));
+            $result->andWhere('pb.checkout >= (:CheckOutStartDate)')
+                ->setParameter('CheckOutStartDate', $checkOutStartDate);
+        }
+
+        //condition to filter by  checkoutenddate
+        if ($checkOutEndDate) {
+            $checkOutEndDate = date("Y-m-d", strtotime($checkOutEndDate[0]));
+            $result->andWhere('pb.checkout <= (:CheckOutEndDate)')
+                ->setParameter('CheckOutEndDate', $checkOutEndDate);
+        }
+
+        //condition to filter by by customer details
         if ($customerDetails) {
             $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
 
-        //condition to filter by customer details
+        //condition to filter by by active status
         if (isset($active)) {
             $result->andWhere('pb.active IN (:Active)')
                 ->setParameter('Active', $active);
@@ -72,6 +121,7 @@ class PropertybookingsRepository extends EntityRepository
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->execute();
+
     }
 
     /**
