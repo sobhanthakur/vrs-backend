@@ -56,7 +56,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                                     </EntityRef>
                                     <Duration>PT'.$date.'</Duration>
                                     <PayrollItemWageRef>
-                                        <FullName>'.$integrationToCustomer->getIntegrationqbdhourwagetypeid()->getQbdpayrollitemwagename().'</FullName>
+                                        <FullName>'.str_replace(array('&', '<', '>', '\'', '"'), array('&amp;', '&lt;', '&gt;', '&apos;', '&quot;'), $integrationToCustomer->getIntegrationqbdhourwagetypeid()->getQbdpayrollitemwagename()).'</FullName>
                                     </PayrollItemWageRef>
                                     <BillableStatus >NotBillable</BillableStatus>
                                 </TimeTrackingAdd>
