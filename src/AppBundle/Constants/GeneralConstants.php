@@ -92,6 +92,13 @@ final class GeneralConstants
     const LOGGEDINSTAFFID = 'LoggedInStaffID';
     const CREATEDATETIME = 'CreateDateTime';
     const LOGGED_IN_SERVICER_PASSWORD = 'LoggedInServicerPassword';
+    const SERVICERID = 'ServicerID';
+    const SERVICERNAME = 'ServicerName';
+    const TIMETRACKING = 'TimeTracking';
+    const MILEAGE = 'Mileage';
+    const STARTEARLY = 'StartEarly';
+    const CHANGEDATE = 'ChangeDate';
+
 
     const RESTRICTIONS = 'Restrictions';
 

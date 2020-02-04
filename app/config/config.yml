@@ -171,6 +171,9 @@ nelmio_api_doc:
                 -  /api/v1/propertybookings/{id}
                 -  /api/v1/issues
                 -  /api/v1/issues/{id}
+        servicer_dashboard:
+            path_patterns:
+                -  /v1/vrs/pwa/authenticate
 
 #snc_redis:
 #    clients:

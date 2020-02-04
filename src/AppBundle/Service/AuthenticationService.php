@@ -290,4 +290,53 @@ class AuthenticationService extends BaseService
             ->getToken() // Retrieves Generated Token Object
             ->__toString(); // Converts Token into encoded String.
     }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function PWAAutheticate($content)
+    {
+        try {
+            $servicerID = $content[GeneralConstants::SERVICERID];
+            $password = $content[GeneralConstants::PASS];
+
+            // Check Servicer table to validate the servicerID and password
+            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
+
+            if(empty($servicer)) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
+            }
+
+            // Create a new token
+            $signer = new Sha256();
+            $accessToken = (new Builder())
+                ->set(GeneralConstants::SERVICERID, $servicerID)
+                ->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
+                ->setHeader('exp',GeneralConstants::TOKEN_EXPIRY_TIME)
+
+                // Creating Signature.
+                ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
+                ->getToken() // Retrieves Generated Token Object
+                ->__toString(); // Converts Token into encoded String.
+
+            // Return response
+            return array(
+                "AccessToken" => $accessToken,
+                GeneralConstants::SERVICERID => $servicer[0][GeneralConstants::SERVICERID],
+                GeneralConstants::SERVICERNAME => $servicer[0][GeneralConstants::SERVICERNAME],
+                GeneralConstants::TIMETRACKING => ($servicer[0][GeneralConstants::TIMETRACKING] ? 1 : 0),
+                GeneralConstants::MILEAGE => ($servicer[0][GeneralConstants::MILEAGE] ? 1 : 0),
+                GeneralConstants::STARTEARLY => ($servicer[0][GeneralConstants::STARTEARLY] ? 1 : 0),
+                GeneralConstants::CHANGEDATE => ($servicer[0][GeneralConstants::CHANGEDATE] ? 1 : 0)
+
+            );
+        } catch (UnauthorizedHttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

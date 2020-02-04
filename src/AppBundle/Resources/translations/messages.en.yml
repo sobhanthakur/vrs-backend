@@ -48,6 +48,7 @@ api:
             invalid_timeclockdaysid: "Invalid TimeClockDaysID"
             invalid_payload: "Invalid Request Payload"
             unable_to_delete: "Unable to delete the mappings"
+            invalid_auth_body: "Invalid Authentication Content"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."

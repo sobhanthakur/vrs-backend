@@ -178,4 +178,22 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $servicerid
+     * @param $password
+     * @return mixed
+     */
+    public function ValidateAuthentication($servicerid, $password)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, s.timetracking AS TimeTracking, s.timetrackingmileage AS Mileage, s.allowstartearly AS StartEarly, s.allowchangetaskdate AS ChangeDate')
+            ->where('s.servicerid= :ServicerID')
+            ->andWhere('s.password= :Password')
+            ->setParameter('ServicerID',$servicerid)
+            ->setParameter('Password', $password)
+            ->getQuery()
+            ->execute();
+    }
 }
