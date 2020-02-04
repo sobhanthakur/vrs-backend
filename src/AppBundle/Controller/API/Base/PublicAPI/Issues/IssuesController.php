@@ -100,7 +100,7 @@ class IssuesController extends FOSRestController
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
-            
+
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['ISSUES'];
@@ -116,7 +116,6 @@ class IssuesController extends FOSRestController
             //Get issue booking details
             $issueService = $this->container->get('vrscheduler.public_issues_service');
             $issues = $issueService->getIssues($authDetails, $queryParameter, $pathInfo);
-
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -180,6 +179,7 @@ class IssuesController extends FOSRestController
      */
     public function getIssueById(Request $request)
     {
+
         $queryParameter = array();
 
         //setting logger
@@ -198,6 +198,7 @@ class IssuesController extends FOSRestController
             //Getting date from jwt token
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
             //get base path
             $pathInfo = $request->getPathInfo();
 

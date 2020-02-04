@@ -287,7 +287,7 @@ final class GeneralConstants
         'REGION_GROUPS' => 'regiongroups',
         'REGIONS' => 'regions',
         'ISSUES' => 'issues',
-        'PROPERTY_BOOKINGS' => 'propertybookings'
+        'PROPERTY_BOOKINGS' => 'propertybookings',
     ];
 
     const PARAMS = [
@@ -302,7 +302,8 @@ final class GeneralConstants
         'CHECKINSTARTDATE' => 'checkinstartdate',
         'CHECKINENDDATE' => 'checkinenddate',
         'CHECKOUTSTARTDATE' => 'checkoutstartdate',
-        'CHECKOUTENDDATE' => 'checkoutenddate'
+        'CHECKOUTENDDATE' => 'checkoutenddate',
+        'CLOSED' => 'closed'
     ];
 
 }

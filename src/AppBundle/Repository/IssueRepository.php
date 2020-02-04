@@ -36,6 +36,12 @@ class IssueRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for closed option in query paramter
+        isset($queryParameter['closed']) ? $closed = $queryParameter['closed'] : $closed = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
@@ -43,6 +49,15 @@ class IssueRepository extends EntityRepository
         if (sizeof($sortOrder) > 0) {
             foreach ($sortOrder as $field) {
                 $result->orderBy('i.' . $field);
+            }
+        }
+
+        //Filter for closed Date,
+        if (isset($closed)) {
+            if ($closed == 1) {
+                $result->andWhere('i.closeddate IS NOT NULL');
+            } elseif ($closed == 0) {
+                $result->andWhere('i.closeddate IS NULL');
             }
         }
 
@@ -63,19 +78,17 @@ class IssueRepository extends EntityRepository
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-
         if (strpos($query, 'image2') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-
         if (strpos($query, 'image3') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
 
         //return issue details
-         return $result
+        return $result
             ->innerJoin('i.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
