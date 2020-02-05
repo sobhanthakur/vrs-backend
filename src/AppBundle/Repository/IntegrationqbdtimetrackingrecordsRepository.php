@@ -297,4 +297,16 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->execute();
 
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function ResetTimeTrackingBatch($batchID)
+    {
+        return $this
+            ->getEntityManager()
+            ->createQuery('UPDATE AppBundle:Integrationqbdtimetrackingrecords b1 SET b1.sentstatus=NULL,b1.integrationqbbatchid=NULL WHERE b1.txnid IS NULL AND b1.integrationqbbatchid='.$batchID)
+            ->getArrayResult();
+    }
 }

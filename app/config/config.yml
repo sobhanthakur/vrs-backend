@@ -158,6 +158,7 @@ nelmio_api_doc:
                 - /v1/vrs/qbdsynclogs
                 - /v1/vrs/qbdsynclogs/batch
                 - /v1/vrs/qbddisconnect
+                - /v1/vrs/logs/reset
         public_api:
             path_patterns:
                 -  /api/v1/oauth/login

@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
+use FOS\RestBundle\Controller\Annotations\Put;
 
 class SyncLogsController extends FOSRestController
 {
@@ -133,5 +134,68 @@ class SyncLogsController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
         return $response;
+    }
+
+    /**
+     * Reset Sync Logs
+     * @SWG\Tag(name="Sync Logs")
+     * @Put("/logs/reset", name="vrs_logs_reset")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="BatchID",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="BatchType",
+     *              type="integer",
+     *              example=0
+     *         )
+     *     )
+     *  ),
+     * @SWG\Response(
+     *     response=200,
+     *     description="Reset that batch if sync fails",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          ),
+     *          @SWG\Property(
+     *              property="ReasonText",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function ResetSyncBatch(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $content = json_decode($request->getContent(),true);
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $syncLogsService = $this->container->get('vrscheduler.sync_logs');
+            return $syncLogsService->ResetSyncLogs($customerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }
