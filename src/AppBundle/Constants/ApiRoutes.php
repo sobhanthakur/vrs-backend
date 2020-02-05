@@ -53,6 +53,8 @@ final class ApiRoutes
         "property_bookings_get",
         "property_bookings_get_id",
         "issues_get",
-        "issues_get_id"
+        "issues_get_id",
+        "taskrules_get",
+        "task_rules_get_id"
     );
 }

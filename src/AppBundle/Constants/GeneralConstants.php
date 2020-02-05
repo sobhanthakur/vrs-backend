@@ -281,6 +281,14 @@ final class GeneralConstants
         'createdate' => 'i.createdate as CreateDate'
     ];
 
+    const TASK_RULES_MAPPING = [
+        'serviceid' => 's.serviceid as TaskRuleID',
+        'active' => 's.active as Active',
+        'servicename' => 's.servicename as TaskRule',
+        'abbreviation' => 's.abbreviation as Abbreviation',
+        'createdate' => 's.createdate as CreateDate'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
@@ -288,6 +296,7 @@ final class GeneralConstants
         'REGIONS' => 'regions',
         'ISSUES' => 'issues',
         'PROPERTY_BOOKINGS' => 'propertybookings',
+        'TASK_RULES' => 'taskrules'
     ];
 
     const PARAMS = [
