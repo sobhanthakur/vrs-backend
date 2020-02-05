@@ -254,4 +254,16 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->getResult();
 
     }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function ResetBillingBatch($batchID)
+    {
+        return $this
+            ->getEntityManager()
+            ->createQuery('UPDATE AppBundle:Integrationqbdbillingrecords b1 SET b1.sentstatus=NULL,b1.refnumber=NULL,b1.integrationqbbatchid=NULL WHERE b1.txnid IS NULL AND b1.integrationqbbatchid='.$batchID)
+            ->getArrayResult();
+    }
 }
