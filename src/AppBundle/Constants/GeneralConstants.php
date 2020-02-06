@@ -168,8 +168,8 @@ final class GeneralConstants
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
     /*constants used in API request limiting*/
-    const LIMIT = 1000;
-    const PERIOD = 3600;
+    const LIMIT = 500;
+    const PERIOD = 60;
 
     /*constants used in login api*/
     const ACCESS_TOKEN = "Access_Token";
