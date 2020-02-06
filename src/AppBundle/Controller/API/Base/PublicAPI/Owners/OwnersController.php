@@ -27,9 +27,9 @@ use Swagger\Annotations as SWG;
 class OwnersController extends FOSRestController
 {
     /**
-     * Properties
+     * Get Owners Details
      *
-     *
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Owners")
      * @SWG\Response(
      *     response=200,

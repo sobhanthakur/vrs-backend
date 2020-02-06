@@ -25,6 +25,7 @@ class TaskRulesController extends FOSRestController
     /**
      * TaskRulesController controller to fetch all task rule details
      *
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Task Rules")
      * @SWG\Response(
      *     response=200,
@@ -118,6 +119,7 @@ class TaskRulesController extends FOSRestController
 
     /**
      * Fetch task rules of the consumer by id
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Task Rules")
      * @SWG\Response(
      *     response=200,

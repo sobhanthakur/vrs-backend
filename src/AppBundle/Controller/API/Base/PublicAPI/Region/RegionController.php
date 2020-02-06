@@ -26,6 +26,7 @@ class RegionController extends FOSRestController
     /**
      * Regions controller to fetch region details
      *
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Regions")
      * @SWG\Response(
      *     response=200,

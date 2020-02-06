@@ -17,12 +17,14 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Swagger\Annotations as SWG;
 
 class IssuesController extends FOSRestController
 {
     /**
      * Fetch all issues of the consumer
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Issues")
      * @SWG\Response(
      *     response=200,
@@ -133,6 +135,7 @@ class IssuesController extends FOSRestController
 
     /**
      * Fetch all issues of the consumer
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Issues")
      * @SWG\Response(
      *     response=200,
