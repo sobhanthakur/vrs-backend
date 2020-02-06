@@ -62,7 +62,7 @@ class IntegrationController extends FOSRestController
      *     name="body",
      *     in="body",
      *     required=true,
-     *     description="0=Quickbooks-Enterprise,1=Quickbooks-Pro,2=Quickbooks-Online",
+     *     description="For Version: 0=Quickbooks-Enterprise,1=Quickbooks-Pro,2=Quickbooks-Online",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="StartDate",
@@ -93,6 +93,11 @@ class IntegrationController extends FOSRestController
      *              property="Version",
      *              type="integer",
      *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Type",
+     *              type="integer",
+     *              example=0
      *         )
      *     )
      *  )

@@ -50,7 +50,8 @@ class IntegrationsService extends BaseService
                         GeneralConstants::QBDSYNCTT => $installedObject['qbdsyncpayroll'],
                         'CreateDate' => $installedObject['createdate'],
                         'StartDate' => $installedObject['startdate'],
-                        'Version' => $installedObject['version']
+                        'Version' => $installedObject['version'],
+                        'Type' => $installedObject['type']
                     );
                 }
                 $integrationResponse[$i] = array(
@@ -213,6 +214,7 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setUsername('VRS'.uniqid());
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
                 $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
+                $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
                 $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
                 $integrationToCustomer->setCustomerid($customer);
@@ -234,6 +236,10 @@ class IntegrationsService extends BaseService
 
                 if(array_key_exists(GeneralConstants::QBDVERSION,$content)) {
                     $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
+                }
+
+                if(array_key_exists(GeneralConstants::QBDTYPE,$content)) {
+                    $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
                 }
 
                 if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
