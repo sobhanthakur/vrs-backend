@@ -47,6 +47,7 @@ final class ErrorConstants
     const INVALID_TIMECLOCKDAYSID = 'INVALIDTIMECLOCKDAYSID';
     const INVALID_PAYLOAD='INVALIDPAYLOAD';
     const UNABLE_TO_DELETE = 'UNABLETODELETE';
+    const UNABLE_TO_RESET_BATCH = 'UNABLETORESETBATCH';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -115,7 +116,8 @@ final class ErrorConstants
         self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
         self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
         self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential'],
+        self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust'],
         self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],
-        self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust']
+        self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch']
     ];
 }
