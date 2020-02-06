@@ -22,6 +22,7 @@ class OwnersRepository extends EntityRepository
             ->select('p.ownerid as OwnerID, p.ownername as OwnerName')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.ownername','ASC')
             ->getQuery()
             ->execute();
     }

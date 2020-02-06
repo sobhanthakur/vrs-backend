@@ -33,6 +33,7 @@ class PropertiesRepository extends EntityRepository
             ->where('p.customerid= :CustomerID')
             ->andWhere('p.active=1')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.propertyname','ASC')
             ->getQuery()
             ->execute();
     }

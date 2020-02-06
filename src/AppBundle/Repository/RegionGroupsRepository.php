@@ -31,6 +31,7 @@ class RegionGroupsRepository extends \Doctrine\ORM\EntityRepository
             ->select('r.regiongroupid as RegionGroupID, r.regiongroup as RegionGroup')
             ->where('r.customerid = (:CustomerID)')
             ->setParameter('CustomerID',$customerID)
+            ->orderBy('r.regiongroup','ASC')
             ->getQuery()
             ->execute();
     }
