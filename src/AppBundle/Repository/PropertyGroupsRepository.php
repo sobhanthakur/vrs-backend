@@ -19,6 +19,7 @@ class PropertyGroupsRepository extends EntityRepository
             ->select('p.propertygroupid as PropertyGroupID, p.propertygroup as PropertyGroup')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.propertygroup','ASC')
             ->getQuery()
             ->execute();
     }

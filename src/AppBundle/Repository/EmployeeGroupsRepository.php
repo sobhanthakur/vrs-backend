@@ -20,6 +20,7 @@ class EmployeeGroupsRepository extends EntityRepository
             ->select('p.employeegroupid as EmployeeGroupID, p.employeegroup as EmployeeGroup')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.employeegroup','ASC')
             ->getQuery()
             ->execute();
     }
