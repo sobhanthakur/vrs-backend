@@ -120,6 +120,12 @@ class Integrationstocustomers implements UserInterface
      */
     private $version = 0;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="Type", type="integer", nullable=true, options={"default"="0","comment"="0=SalesOrder,1=Estimate,2=Invoice"})
+     */
+    private $type = 0;
 
 
     /**
@@ -452,5 +458,29 @@ class Integrationstocustomers implements UserInterface
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Set type.
+     *
+     * @param int|null $type
+     *
+     * @return Integrationstocustomers
+     */
+    public function setType($type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type.
+     *
+     * @return int|null
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }
