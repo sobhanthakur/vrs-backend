@@ -106,6 +106,7 @@ final class GeneralConstants
     const REGION_GROUPS_API = 'Region groups API error ';
     const PROPERTY_BOOKING_API = 'property booking API error ';
     const ISSUES_API = 'Issues API error ';
+    const STAFF_API = 'staff API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -290,6 +291,17 @@ final class GeneralConstants
         'createdate' => 's.createdate as CreateDate'
     ];
 
+    const STAFF_MAPPING = [
+        'servicerid' => 's.servicerid as StaffID',
+        'name' => 's.name as Name',
+        'servicerabbreviation' => 's.servicerabbreviation as Abbreviation',
+        'email' => 's.email as Email',
+        'phone' => 's.phone as Phone',
+        'countryid' => 's.countryid as CountryID',
+        'active' => 's.active as Active',
+        'createdate' => 's.createdate as CreateDate'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
@@ -297,7 +309,8 @@ final class GeneralConstants
         'REGIONS' => 'regions',
         'ISSUES' => 'issues',
         'PROPERTY_BOOKINGS' => 'propertybookings',
-        'TASK_RULES' => 'taskrules'
+        'TASK_RULES' => 'taskrules',
+        'STAFF' => 'staff'
     ];
 
     const PARAMS = [
