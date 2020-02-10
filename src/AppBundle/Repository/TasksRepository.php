@@ -177,4 +177,112 @@ class TasksRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * Function to fetch task details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function fetchTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit = null)
+    {
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('t');
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //condition to set query for all or some required fields
+        $result->select($query);
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('t.' . $field);
+            }
+        }
+
+        //condition to filter by task id
+        if ($taskID) {
+            $result->andWhere('t.taskid IN (:TaskID)')
+                ->setParameter('TaskID', $taskID);
+        }
+
+
+        //condition to filter by customer details
+        if ($customerDetails) {
+            $result->andWhere('p.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //return task details
+         return $result
+            ->innerJoin('t.propertybookingid', 'pb')
+            ->innerJoin('t.propertyid', 'p')
+            ->getQuery()
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->execute();
+    }
+
+    /**
+     * Function to fetch task rules details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $taskID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all task field
+        $issuesField = GeneralConstants::TASKS_MAPPING;
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $issuesField[$field];
+            }
+        } else {
+            $query .= implode(',', $issuesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of task of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $taskID, $offset)
+    {
+        $query = "count(t.taskid)";
+        return $this->fetchTasks($customerDetails, $queryParameter, $taskID, $offset, $query);
+
+    }
 }

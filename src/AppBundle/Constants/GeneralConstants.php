@@ -107,6 +107,7 @@ final class GeneralConstants
     const PROPERTY_BOOKING_API = 'property booking API error ';
     const ISSUES_API = 'Issues API error ';
     const STAFF_API = 'staff API error ';
+    const TASKS_API = 'tasks API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -302,6 +303,22 @@ final class GeneralConstants
         'createdate' => 's.createdate as CreateDate'
     ];
 
+    const TASKS_MAPPING = [
+        'taskid' => 't.taskid as TaskID',
+        'serviceid' => 't.serviceid as TaskRuleID',
+        'propertybookingid' => 'pb.propertybookingid as PropertyBookingID',
+        'propertyid' => 'p.propertyid as PropertyID',
+        'taskname' => 't.taskname as TaskName',
+        'taskdescription' => 't.taskdescription as TaskDescription',
+        'billable' => 't.billable as Billable',
+        'amount' => 't.amount as LaborAmount',
+        'expenseamount' => 't.expenseamount as MaterialsAmount',
+        'taskdate' => 't.taskdate as TaskDate',
+        'completeconfirmeddate' => 't.completeconfirmeddate as CompleteConfirmedDate',
+        'created' => 't.createdate as CreateDate'
+
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
@@ -310,7 +327,8 @@ final class GeneralConstants
         'ISSUES' => 'issues',
         'PROPERTY_BOOKINGS' => 'propertybookings',
         'TASK_RULES' => 'taskrules',
-        'STAFF' => 'staff'
+        'STAFF' => 'staff',
+        'TASKS' => 'tasks'
     ];
 
     const PARAMS = [

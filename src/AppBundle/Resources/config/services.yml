@@ -132,4 +132,8 @@ services:
         parent: vrscheduler.base_service
         public: true
 
+    vrscheduler.public_tasks_service:
+        class: AppBundle\Service\TasksService
+        parent: vrscheduler.base_service
+        public: true
 

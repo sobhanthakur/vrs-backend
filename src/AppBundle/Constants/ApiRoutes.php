@@ -58,6 +58,8 @@ final class ApiRoutes
         "taskrules_get",
         "task_rules_get_id",
         "staff_get",
-        "staff_get_id"
+        "staff_get_id",
+        "tasks_get",
+        "tasks_get_id"
     );
 }
