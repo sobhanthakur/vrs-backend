@@ -80,6 +80,10 @@ class TasksService extends BaseService
                 if (isset($taskRulesData[$i]['CompleteConfirmedDate'])) {
                     $taskRulesData[$i]['CompleteConfirmedDate'] = $taskRulesData[$i]['CompleteConfirmedDate']->format('Ymd');
                 }
+
+                if (isset($taskRulesData[$i]['ApprovedDate'])) {
+                    $taskRulesData[$i]['ApprovedDate'] = $taskRulesData[$i]['ApprovedDate']->format('Ymd');
+                }
             }
 
             //Setting return Data

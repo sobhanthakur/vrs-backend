@@ -46,13 +46,22 @@ class TasksController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "TaskRuleID": 132,
-     *                      "Active": true,
-     *                      "TaskRule": "Bay View Bungalow",
-     *                      "Abbreviation": "BVB",
-     *                      "CreateDate": "20190302"
-     *
-     *                  },
+     *                  "TaskID": 12049,
+     *                   "TaskRuleID": 1,
+     *                   "PropertyBookingID": 1204,
+     *                   "PropertyID": 13,
+     *                   "TaskName": null,
+     *                   "TaskDescription": null,
+     *                   "Approved": null,
+                        "ApprovedDate": null,
+                        "Completed": "1",
+                        "Billable": true,
+                        "LaborAmount": 0,
+                        "MaterialsAmount": 0,
+                        "TaskDate": "20170427",
+                        "CompleteConfirmedDate": "20170705",
+                        "CreateDate": "20170414"
+                        },
      *                  {
      *                      "TaskRuleID": 133,
      *                      "Active": true,

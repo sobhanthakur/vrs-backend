@@ -33,8 +33,8 @@ class TasksRepository extends EntityRepository
             ->select('DISTINCT(t.region) AS Region')
             ->where('t2.active=1')
             ->innerJoin('t2.propertyid', 'p2')
-            ->innerJoin('p2.regionid','r')
-            ->innerJoin('r.timezoneid','t')
+            ->innerJoin('p2.regionid', 'r')
+            ->innerJoin('r.timezoneid', 't')
             ->andWhere('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
@@ -55,16 +55,16 @@ class TasksRepository extends EntityRepository
      * @param $offset
      * @return mixed
      */
-    public function MapTasks($customerID, $properties, $createDate, $completedDate,$timezones, $limit, $offset,$new)
+    public function MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $new)
     {
         $result = $this
             ->createQueryBuilder('t2')
             ->select('DISTINCT(t2.taskid) as TaskID, s2.servicename AS ServiceName,b1.status AS Status,t2.taskname AS TaskName,p2.propertyid AS PropertyID,p2.propertyname AS PropertyName,t2.amount AS LaborAmount, t2.expenseamount AS MaterialAmount,t2.completeconfirmeddate AS CompleteConfirmedDate, t.region AS TimeZoneRegion')
-            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid');
+            ->innerJoin('AppBundle:Services', 's2', Expr\Join::WITH, 't2.serviceid=s2.serviceid');
 
-        $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
+        $result = $this->TrimMapTasks($result, $new, $properties, $completedDate, $timezones, $createDate, $customerID);
 
-        $result->orderBy('t2.completeconfirmeddate','ASC');
+        $result->orderBy('t2.completeconfirmeddate', 'ASC');
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
         return $result
@@ -80,14 +80,14 @@ class TasksRepository extends EntityRepository
      * @param $timezones
      * @return mixed
      */
-    public function CountMapTasks($customerID, $properties, $createDate, $completedDate,$timezones,$new)
+    public function CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $new)
     {
         $result = $this
             ->createQueryBuilder('t2')
             ->select('count(DISTINCT(t2.taskid))')
-            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid');
+            ->innerJoin('AppBundle:Services', 's2', Expr\Join::WITH, 't2.serviceid=s2.serviceid');
 
-        $result = $this->TrimMapTasks($result,$new,$properties,$completedDate,$timezones,$createDate,$customerID);
+        $result = $this->TrimMapTasks($result, $new, $properties, $completedDate, $timezones, $createDate, $customerID);
 
         return $result
             ->getQuery()
@@ -98,18 +98,18 @@ class TasksRepository extends EntityRepository
      * @param QueryBuilder $result
      * @param $new
      * @param $properties
-     * @param $completedDate,$timezones
+     * @param $completedDate ,$timezones
      * @param $createDate
      * @param $customerID
      * @return mixed
      */
-    public function TrimMapTasks($result, $new, $properties, $completedDate,$timezones, $createDate, $customerID)
+    public function TrimMapTasks($result, $new, $properties, $completedDate, $timezones, $createDate, $customerID)
     {
         $result
             ->innerJoin('t2.propertyid', 'p2')
             ->leftJoin('AppBundle:Integrationqbdbillingrecords', 'b1', Expr\Join::WITH, 'b1.taskid=t2.taskid')
-            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','e1',Expr\Join::WITH, 'e1.propertyid=p2.propertyid')
-            ->innerJoin('AppBundle:Integrationqbditemstoservices','e2',Expr\Join::WITH, 'e2.serviceid=s2.serviceid')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties', 'e1', Expr\Join::WITH, 'e1.propertyid=p2.propertyid')
+            ->innerJoin('AppBundle:Integrationqbditemstoservices', 'e2', Expr\Join::WITH, 'e2.serviceid=s2.serviceid')
             ->where('t2.active=1')
             ->andWhere('b1.txnid IS NULL')
             ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0')
@@ -119,45 +119,45 @@ class TasksRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
             ->andWhere('t2.completeconfirmeddate IS NOT NULL');
-        if(!empty($timezones)) {
+        if (!empty($timezones)) {
             $size = count($timezones);
 
             $query = 't2.completeconfirmeddate >= :TimeZone0';
-            $result->setParameter('TimeZone0',$timezones[0]);
-            for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.completeconfirmeddate >= :TimeZone'.$i;
-                $result->setParameter('TimeZone'.$i,$timezones[$i]);
+            $result->setParameter('TimeZone0', $timezones[0]);
+            for ($i = 1; $i < $size; $i++) {
+                $query .= ' OR t2.completeconfirmeddate >= :TimeZone' . $i;
+                $result->setParameter('TimeZone' . $i, $timezones[$i]);
             }
             $result->andWhere($query);
         }
 
-        if(!empty($completedDate)) {
+        if (!empty($completedDate)) {
             $size = count($completedDate);
             $query = 't2.completeconfirmeddate BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
-            $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
+            $result->setParameter('CompletedDateFrom0', $completedDate[0]['From']);
             $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
-            for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t2.completeconfirmeddate BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
-                $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
-                $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
+            for ($i = 1; $i < $size; $i++) {
+                $query .= ' OR t2.completeconfirmeddate BETWEEN :CompletedDateFrom' . $i . ' AND :CompletedDateTo' . $i;
+                $result->setParameter('CompletedDateFrom' . $i, $completedDate[$i]['From']);
+                $result->setParameter('CompletedDateTo' . $i, $completedDate[$i]['To']);
             }
             $result->andWhere($query);
         }
 
-        if($new) {
+        if ($new) {
             $condition1 = null;
             $condition2 = null;
             $condition3 = null;
             $condition = null;
-            if(in_array(GeneralConstants::APPROVED,$new)) {
+            if (in_array(GeneralConstants::APPROVED, $new)) {
                 $condition1 = 'b1.status=1';
                 $condition = $condition1;
             }
-            if(in_array(GeneralConstants::EXCLUDED,$new)) {
+            if (in_array(GeneralConstants::EXCLUDED, $new)) {
                 $condition2 = $condition1 ? ' OR b1.status=0' : 'b1.status=0';
                 $condition .= $condition2;
             }
-            if(in_array(GeneralConstants::NEW,$new)) {
+            if (in_array(GeneralConstants::NEW, $new)) {
                 $condition3 = $condition1 || $condition2 ? ' OR b1.status IS NULL OR b1.status=2' : 'b1.status IS NULL OR b1.status=2';
                 $condition .= $condition3;
             }
@@ -205,6 +205,8 @@ class TasksRepository extends EntityRepository
 
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
+            dump('ff');
+            die();
             foreach ($sortOrder as $field) {
                 $result->orderBy('t.' . $field);
             }
@@ -213,7 +215,7 @@ class TasksRepository extends EntityRepository
         //condition to filter by task id
         if ($taskID) {
             $result->andWhere('t.taskid IN (:TaskID)')
-                ->setParameter('TaskID', $taskID);
+                ->setParameter('TaskIDpl', $taskID);
         }
 
 
@@ -227,9 +229,9 @@ class TasksRepository extends EntityRepository
          return $result
             ->innerJoin('t.propertybookingid', 'pb')
             ->innerJoin('t.propertyid', 'p')
-            ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
+            ->getQuery()
             ->execute();
     }
 
