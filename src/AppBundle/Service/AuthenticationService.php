@@ -317,13 +317,7 @@ class AuthenticationService extends BaseService
             // Return response
             return array(
                 "AccessToken" => $accessToken,
-                GeneralConstants::SERVICERID => $servicer[0][GeneralConstants::SERVICERID],
-                GeneralConstants::SERVICERNAME => $servicer[0][GeneralConstants::SERVICERNAME],
-                GeneralConstants::TIMETRACKING => ($servicer[0][GeneralConstants::TIMETRACKING] ? 1 : 0),
-                GeneralConstants::MILEAGE => ($servicer[0][GeneralConstants::MILEAGE] ? 1 : 0),
-                GeneralConstants::STARTEARLY => ($servicer[0][GeneralConstants::STARTEARLY] ? 1 : 0),
-                GeneralConstants::CHANGEDATE => ($servicer[0][GeneralConstants::CHANGEDATE] ? 1 : 0)
-
+                "Details" => $servicer[0]
             );
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;

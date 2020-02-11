@@ -49,6 +49,8 @@ class AuthController extends FOSRestController
      *              type="string",
      *              example="abcsg.vvdd.12fff"
      *          ),
+     *     @SWG\Property(
+     *              property="Details",
      *          @SWG\Property(
      *              property="ServicerID",
      *              type="integer",
@@ -85,6 +87,7 @@ class AuthController extends FOSRestController
      *              example=1
      *          )
      *     )
+     *    )
      * )
      * @return array
      * @param Request $request
