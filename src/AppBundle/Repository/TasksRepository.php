@@ -177,4 +177,49 @@ class TasksRepository extends EntityRepository
 
         return $result;
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function FetchTasksForDashboard($servicerID, $servicers)
+    {
+        $result =  $this
+            ->createQueryBuilder('t2');
+
+        // Fetch Basic task details
+        $result->select('t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+            ->innerJoin('t2.propertyid','p2')
+            ->innerJoin('p2.regionid','r2')
+            ->innerJoin('t2.propertybookingid','pb2')
+            ->innerJoin('p2.customerid','c2')
+            ->innerJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 't2.servicerid=s2.servicerid')
+            ->andWhere('t2.servicerid='.$servicerID)
+            ->andWhere('p2.active=1')
+            ->andWhere('t2.completeconfirmeddate IS NULL')
+            ->andWhere('p2.customerid=s2.customerid')
+            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
+        ;
+
+        // If Task Estimates is true then select minimum and maximum time (In Hours)
+        if($servicers[0]['ShowTaskEstimates']) {
+            $result->addSelect('t2.mintimetocomplete AS Min, t2.maxtimetocomplete AS Max');
+        }
+
+        // Fetch Guest Details based on conditions
+        if($servicers[0]['IncludeGuestNumbers']) {
+            $result->addSelect('pb2.numberofguests AS Number');
+        }
+
+        if($servicers[0]['IncludeGuestEmailPhone']) {
+            $result->addSelect('pb2.guestemail AS Email,pb2.guestphone AS Phone');
+        }
+
+        if($servicers[0]['IncludeGuestName']) {
+            $result->addSelect('pb2.guest AS Name');
+        }
+
+        return $result->getQuery()
+            ->getResult();
+    }
 }

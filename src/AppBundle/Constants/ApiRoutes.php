@@ -55,4 +55,8 @@ final class ApiRoutes
         "issues_get",
         "issues_get_id"
     );
+
+    const PWA_ROUTES = array(
+      "vrs_pwa_tasks"
+    );
 }

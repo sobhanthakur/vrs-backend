@@ -10,7 +10,6 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
-use AppBundle\Repository\ServicersRepository;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -18,12 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\DateTime;
-use AppBundle\Entity\Servicers;
-use AppBundle\Entity\Regiongroups;
-use AppBundle\Entity\Propertygroups;
 
 
 /**
@@ -338,5 +332,69 @@ class AuthenticationService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+    /**
+     * @param Request $request
+     * @return mixed
+     * This method validates the Authorization token and checks its validity for PWA APIs
+     */
+    public function VerifyPWAAuthentication(Request $request)
+    {
+        $authenticateResult[GeneralConstants::STATUS] = false;
+        try {
+            // Checking Authorization Key for validating Token.
+            $authorizationParts = explode(" ", $request->headers->get('Authorization'));
+
+            if (
+                count($authorizationParts) !== 2 || 'VRS' !== $authorizationParts[0]
+                || empty(trim($authorizationParts[1]))
+            ) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
+            }
+
+            // Parsing String Token to JWT Token Object.
+            $token = (new Parser())->parse((string)$authorizationParts[1]);
+            $signer = new Sha256();
+
+            // Checking If Token passed in API Request Header is valid OR not.
+            if (!$token->verify($signer, $this->serviceContainer->getParameter('api_secret'))) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+            }
+
+            // Check if the token is expired
+
+            $exp = $token->getHeader('exp');
+            $createTime = $token->getClaim(GeneralConstants::CREATEDATETIME);
+
+            $tokenTime = new \DateTime($createTime, new \DateTimeZone("UTC"));
+            $currentTime = new \DateTime("now", new \DateTimeZone("UTC"));
+
+            // Check if the token is expired
+            if ($currentTime->getTimestamp() - $tokenTime->getTimestamp() > $exp) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::TOKEN_EXPIRED);
+            }
+
+            // Checking That access_token must be used in API Calls.
+            if (!$token->hasClaim(GeneralConstants::SERVICERID)) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+            }
+
+            // Set token claims in authenticateResult array
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID] = $token->getClaim(GeneralConstants::SERVICERID);
+
+            //Set authenticated status to true
+            $authenticateResult[GeneralConstants::STATUS] = true;
+        } catch (\InvalidArgumentException $ex) {
+            throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (UnauthorizedHttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+        return $authenticateResult;
     }
 }

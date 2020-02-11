@@ -22,4 +22,4 @@ public:
 app.swagger_ui:
     path: /api/doc/{area}
     methods: GET
-    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, areas: [integrationportal,public_api,servicer_dashboard]}
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui, areas: [integrationportal,public_api,servicers_dashboard]}

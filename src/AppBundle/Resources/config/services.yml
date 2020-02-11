@@ -122,4 +122,9 @@ services:
         parent: vrscheduler.base_service
         public: true
 
+    vrscheduler.servicers_dashboard:
+        class: AppBundle\Service\ServicersDashboardService
+        parent: vrscheduler.base_service
+        public: true
+
 
