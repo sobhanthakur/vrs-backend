@@ -23,3 +23,12 @@ parameters:
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
     dsn: "redis://"
+    QuickBooksConfiguration:
+        ClientID: ~
+        ClientSecret: ~
+        RedirectURI: ~
+        Scope: 'com.intuit.quickbooks.accounting openid profile email phone address'
+        BaseURL: 'development'
+        AuthMode: 'oauth2'
+        RedirectAfterCallback: 'http://localhost:3000'
+

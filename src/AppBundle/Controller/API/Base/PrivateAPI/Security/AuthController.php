@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
+use QuickBooksOnline\API\DataService\DataService;
 
 /**
  * Class AuthController
@@ -118,5 +119,96 @@ class AuthController extends FOSRestController
             'ReasonCode' => 0,
             'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message')
         );
+    }
+
+    /**
+     * @Rest\Get("/qbo", name="vrs_qbo_authenticate")
+     * @param Request $request
+     * @return array
+     * @throws \QuickBooksOnline\API\Exception\SdkException
+     */
+    public function QBO(Request $request)
+    {
+        try {
+            $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+            // Capture Quickbooks Config Parameters
+            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+
+            // Configure Data Service
+            $dataService = DataService::Configure(array(
+                'auth_mode' => $quickbooksConfig['AuthMode'],
+                'ClientID' => $quickbooksConfig['ClientID'],
+                'ClientSecret' => $quickbooksConfig['ClientSecret'],
+                'RedirectURI' => $quickbooksConfig['RedirectURI'],
+                'scope' => $quickbooksConfig['Scope'],
+                'baseUrl' => $quickbooksConfig['BaseURL']
+            ));
+            $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
+            $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
+                'RedirectURI' => $authUrl
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @return array
+     * @param Request $request
+     * @Rest\Get("/callback", name="qwc_callback")
+     */
+    public function QBOMethod(Request $request)
+    {
+        try {
+            $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+            // Capture Quickbooks Config Parameters
+            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+
+            // Configure Data Service
+            $dataService = DataService::Configure(array(
+                'auth_mode' => $quickbooksConfig['AuthMode'],
+                'ClientID' => $quickbooksConfig['ClientID'],
+                'ClientSecret' => $quickbooksConfig['ClientSecret'],
+                'RedirectURI' => $quickbooksConfig['RedirectURI'],
+                'scope' => $quickbooksConfig['Scope'],
+                'baseUrl' => $quickbooksConfig['BaseURL']
+            ));
+            $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
+            $url = $request->server->get('QUERY_STRING');
+            parse_str($url,$qsArray);
+            $parseUrl = array('code' => $qsArray['code'],
+                'realmId' => $qsArray['realmId']
+            );
+
+            /*
+             * Update the OAuth2Token
+             */
+            $accessToken = $OAuth2LoginHelper->exchangeAuthorizationCodeForToken($parseUrl['code'], $parseUrl['realmId']);
+
+
+            $dataService->updateOAuth2Token($accessToken);
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
+                'Tokens' => $accessToken
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

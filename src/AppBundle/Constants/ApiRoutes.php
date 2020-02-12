@@ -41,7 +41,8 @@ final class ApiRoutes
         "vrs_qbdtimetracking_approve",
         "vrs_synclogs",
         "vrs_synclogs_batch",
-        "vrs_qwd_disconnect"
+        "vrs_qwd_disconnect",
+        "vrs_qbo_authenticate"
     );
 
     const PUBLIC_ROUTES = array(
