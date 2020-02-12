@@ -200,33 +200,121 @@ class TasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for property id in query paramter
+        isset($queryParameter['propertyid']) ? $propertyID = $queryParameter['propertyid'] : $propertyID = null;
+
+        //check for approved in query paramter
+        isset($queryParameter['completed']) ? $completed = $queryParameter['completed'] : $completed = null;
+
+        //check for approved in query paramter
+        isset($queryParameter['approved']) ? $approved = $queryParameter['approved'] : $approved = null;
+
+        //check for billable in query paramter
+        isset($queryParameter['billable']) ? $billable = $queryParameter['billable'] : $billable = null;
+
+        //check for approvedstartdate and approvedenddate in query paramter
+        isset($queryParameter['approvedstartdate']) ? $approvedStartDate = $queryParameter['approvedstartdate'] : $approvedStartDate = null;
+        isset($queryParameter['approvedenddate']) ? $approvedEndDate = $queryParameter['approvedenddate'] : $approvedEndDate = null;
+
+        //check for completedstartdate and completedenddate in query paramter
+        isset($queryParameter['completedstartdate']) ? $completedStartDate = $queryParameter['completedstartdate'] : $completedStartDate = null;
+        isset($queryParameter['completedenddate']) ? $completedEndDate = $queryParameter['completedenddate'] : $completedEndDate = null;
+
+        //check for taskstartdate and taskenddate in query paramter
+        isset($queryParameter['taskstartdate']) ? $taskStartDate = $queryParameter['taskstartdate'] : $taskStartDate = null;
+        isset($queryParameter['taskenddate']) ? $taskEndDate = $queryParameter['taskenddate'] : $taskEndDate = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
-            dump('ff');
-            die();
             foreach ($sortOrder as $field) {
                 $result->orderBy('t.' . $field);
             }
         }
 
+
+        //condition to filter by property id
+        if (isset($propertyID)) {
+            $result->andWhere('p.propertyid IN (:PropertyID)')
+                ->setParameter('PropertyID', $propertyID);
+        }
+
+        //condition to filter by  billable
+        if (isset($billable)) {
+            $result->andWhere('t.billable = (:Billable)')
+                ->setParameter('Billable', $billable);
+        }
+
         //condition to filter by task id
         if ($taskID) {
             $result->andWhere('t.taskid IN (:TaskID)')
-                ->setParameter('TaskIDpl', $taskID);
+                ->setParameter('TaskID', $taskID);
         }
 
-
-        //condition to filter by customer details
+        //condition to check for customer specific data
         if ($customerDetails) {
             $result->andWhere('p.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
         }
 
+        //condition to check for approved task
+        if ($approved) {
+            $result->andWhere('t.approved = (:Approved)')
+                ->setParameter('Approved', $approved);
+        }
+
+        //condition to check for completed task
+        if (isset($completed)) {
+            if ($completed == 1) {
+                $result->andWhere('t.completeconfirmeddate IS NOT NULL');
+            } else {
+                $result->andWhere('t.completeconfirmeddate IS NULL');
+            }
+        }
+
+        //condition to filter by  approvedStartDate
+        if ($approvedStartDate) {
+            $approvedStartDate = date("Y-m-d", strtotime($approvedStartDate));
+            $result->andWhere('t.approveddate >= (:ApprovedDate)')
+                ->setParameter('ApprovedDate', $approvedStartDate);
+        }
+        //condition to filter by  approvedEndDate
+        if ($approvedEndDate) {
+            $approvedEndDate = date("Y-m-d", strtotime($approvedEndDate));
+            $result->andWhere('t.approveddate <= (:ApprovedEndDate)')
+                ->setParameter('ApprovedEndDate', $approvedEndDate);
+        }
+
+        //condition to filter by  completedStartDate
+        if ($completedStartDate) {
+            $completedStartDate = date("Y-m-d", strtotime($completedStartDate));
+            $result->andWhere('t.completeconfirmeddate >= (:ConfirmationDate)')
+                ->setParameter('ConfirmationDate', $completedStartDate);
+        }
+        //condition to filter by  $completedEndDate
+        if ($completedEndDate) {
+            $completedEndDate = date("Y-m-d", strtotime($completedEndDate));
+            $result->andWhere('t.completeconfirmeddate <= (:ConfirmationDate)')
+                ->setParameter('ConfirmationDate', $completedEndDate);
+        }
+
+        //condition to filter by taskStartDate
+        if ($taskStartDate) {
+            $taskStartDate = date("Y-m-d", strtotime($taskStartDate));
+            $result->andWhere('t.taskdate >= (:TaskDate)')
+                ->setParameter('TaskDate', $taskStartDate);
+        }
+        //condition to filter by  taskEndDate
+        if ($taskEndDate) {
+            $taskEndDate = date("Y-m-d", strtotime($taskEndDate));
+            $result->andWhere('t.taskdate <= (:TaskEndDate)')
+                ->setParameter('TaskEndDate', $taskEndDate);
+        }
+
         //return task details
-         return $result
+        return $result
             ->innerJoin('t.propertybookingid', 'pb')
             ->innerJoin('t.propertyid', 'p')
             ->setFirstResult(($offset - 1) * $limit)
@@ -236,7 +324,7 @@ class TasksRepository extends EntityRepository
     }
 
     /**
-     * Function to fetch task rules details
+     * Function to fetch task details
      *
      * @param $customerDetails
      * @param $queryParameter
@@ -252,21 +340,22 @@ class TasksRepository extends EntityRepository
         $fields = array();
 
         //Get all task field
-        $issuesField = GeneralConstants::TASKS_MAPPING;
+        $taskFields = GeneralConstants::TASKS_MAPPING;
 
         //check for fields option in query paramter
         (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
 
-        //condition to set query for all or some required fields
+        //condition to set query for all or some required fields according to resquest
         if (sizeof($fields) > 0) {
             foreach ($fields as $field) {
-                $query .= ',' . $issuesField[$field];
+                $query .= ',' . $taskFields[$field];
             }
         } else {
-            $query .= implode(',', $issuesField);
+            $query .= implode(',', $taskFields);
         }
         $query = trim($query, ',');
 
+        //return task results
         return $this->fetchTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit);
 
     }

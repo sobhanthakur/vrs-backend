@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class TasksService extends BaseService
 {
     /**
-     * Function to validate and get all tasks of consumer
+     * Function to validate and get all tasks
      *
      * @param $authDetails
      * @param $queryParameter
@@ -35,6 +35,7 @@ class TasksService extends BaseService
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
+            dump($checkParams);die();
             if (count($checkParams) > 0) {
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
@@ -49,10 +50,10 @@ class TasksService extends BaseService
             //check for limit option in query paramter
             (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
 
-            //Setting offset
+            //setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
-            //Getting task Detail
+            //getting task Detail
             $taskRulesData = $tasksRepo->getItems($authDetails['customerID'], $queryParameter, $tasksID, $offset, $limit);
 
 
@@ -109,5 +110,5 @@ class TasksService extends BaseService
 
         return $returnData;
     }
-
+    
 }

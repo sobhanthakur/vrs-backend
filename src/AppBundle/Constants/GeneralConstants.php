@@ -171,7 +171,7 @@ final class GeneralConstants
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
     /*constants used in API request limiting*/
-    const LIMIT = 500;
+    const LIMIT = 5;
     const PERIOD = 60;
 
     /*constants used in login api*/
@@ -347,7 +347,16 @@ final class GeneralConstants
         'CHECKINENDDATE' => 'checkinenddate',
         'CHECKOUTSTARTDATE' => 'checkoutstartdate',
         'CHECKOUTENDDATE' => 'checkoutenddate',
-        'CLOSED' => 'closed'
+        'CLOSED' => 'closed',
+        'APPROVED' => 'approved',
+        'APPROVEDSTARTDATE' => 'approvedstartdate',
+        'APPROVEDENDDATE' => 'approvedenddate',
+        'COMPLETEDSTARTDATE' => 'completedstartdate',
+        'COMPLETEDENDDATE' => 'completedenddate',
+        'TASKSTARTDATE' => 'taskstartdate',
+        'TASKENDDATE' => 'taskenddate',
+        'BILLABLE' => 'billable',
+        'COMPLETED' => 'completed'
     ];
 
 }

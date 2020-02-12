@@ -23,7 +23,7 @@ use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 class TasksController extends FOSRestController
 {
     /**
-     * TaskRulesController controller to fetch all task rule details
+     * TaskController controller to fetch all task details
      *
      * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Task")
@@ -53,23 +53,32 @@ class TasksController extends FOSRestController
      *                   "TaskName": null,
      *                   "TaskDescription": null,
      *                   "Approved": null,
-                        "ApprovedDate": null,
-                        "Completed": "1",
-                        "Billable": true,
-                        "LaborAmount": 0,
-                        "MaterialsAmount": 0,
-                        "TaskDate": "20170427",
-                        "CompleteConfirmedDate": "20170705",
-                        "CreateDate": "20170414"
-                        },
+     *                   "ApprovedDate": null,
+     *                   "Completed": "1",
+     *                   "Billable": true,
+     *                   "LaborAmount": 0,
+     *                   "MaterialsAmount": 0,
+     *                   "TaskDate": "20170427",
+     *                   "CompleteConfirmedDate": "20170705",
+     *                   "CreateDate": "20170414"
+     *                   },
      *                  {
-     *                      "TaskRuleID": 133,
-     *                      "Active": true,
-     *                      "TaskRule": "Bay View Bungalow",
-     *                      "Abbreviation": "LIS",
-     *                      "CreateDate": "20190332"
-     *
-     *                  }
+     *                  "TaskID": 12040,
+     *                   "TaskRuleID": 4,
+     *                   "PropertyBookingID": 1200,
+     *                   "PropertyID": 10,
+     *                   "TaskName": null,
+     *                   "TaskDescription": null,
+     *                   "Approved": null,
+     *                   "ApprovedDate": null,
+     *                   "Completed": "1",
+     *                   "Billable": true,
+     *                   "LaborAmount": 0,
+     *                   "MaterialsAmount": 0,
+     *                   "TaskDate": "20170427",
+     *                   "CompleteConfirmedDate": "20170705",
+     *                   "CreateDate": "20170414"
+     *                   }
      *              }
      *         )
      *     )
@@ -127,7 +136,7 @@ class TasksController extends FOSRestController
     }
 
     /**
-     * TaskRulesController controller to fetch all task rule details
+     * TaskController controller to fetch  task details by id
      *
      * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Task")
@@ -148,23 +157,24 @@ class TasksController extends FOSRestController
      *       @SWG\Property(
      *              property="data",
      *              example=
-     *               {
+     *                {
      *                  {
-     *                      "TaskRuleID": 132,
-     *                      "Active": true,
-     *                      "TaskRule": "Bay View Bungalow",
-     *                      "Abbreviation": "BVB",
-     *                      "CreateDate": "20190302"
-     *
-     *                  },
-     *                  {
-     *                      "TaskRuleID": 133,
-     *                      "Active": true,
-     *                      "TaskRule": "Bay View Bungalow",
-     *                      "Abbreviation": "LIS",
-     *                      "CreateDate": "20190332"
-     *
-     *                  }
+     *                  "TaskID": 12049,
+     *                   "TaskRuleID": 1,
+     *                   "PropertyBookingID": 1204,
+     *                   "PropertyID": 13,
+     *                   "TaskName": null,
+     *                   "TaskDescription": null,
+     *                   "Approved": null,
+     *                   "ApprovedDate": null,
+     *                   "Completed": "1",
+     *                   "Billable": true,
+     *                   "LaborAmount": 0,
+     *                   "MaterialsAmount": 0,
+     *                   "TaskDate": "20170427",
+     *                   "CompleteConfirmedDate": "20170705",
+     *                   "CreateDate": "20170414"
+     *                   }
      *              }
      *         )
      *     )

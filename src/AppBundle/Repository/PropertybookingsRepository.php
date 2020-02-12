@@ -25,7 +25,6 @@ class PropertybookingsRepository extends EntityRepository
      */
     public function fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query, $limit = null)
     {
-        //dump($queryParameter); die();
         $sortOrder = array();
         $propertyID = null;
 
