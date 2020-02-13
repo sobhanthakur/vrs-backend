@@ -12,8 +12,16 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class IntegrationsToCustomersRepository
+ * @package AppBundle\Repository
+ */
 class IntegrationsToCustomersRepository extends EntityRepository
 {
+    /**
+     * @param $customerID
+     * @return mixed
+     */
     public function GetAllIntegrations($customerID)
     {
         return $this
@@ -25,6 +33,11 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $integrationID
+     * @param $customerID
+     * @return mixed
+     */
     public function CheckIntegration($integrationID, $customerID)
     {
         return $this
@@ -39,6 +52,11 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $integrationID
+     * @param $customerID
+     * @return mixed
+     */
     public function GetSyncRecords($integrationID, $customerID)
     {
         return $this
@@ -53,6 +71,11 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $integrationID
+     * @param $customerID
+     * @return mixed
+     */
     public function IsQBDSyncBillingEnabled($integrationID, $customerID)
     {
         return $this
@@ -69,6 +92,11 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->execute();
     }
 
+    /**
+     * @param $integrationID
+     * @param $customerID
+     * @return mixed
+     */
     public function IsQBDSyncTimeTrackingEnabled($integrationID, $customerID)
     {
         return $this

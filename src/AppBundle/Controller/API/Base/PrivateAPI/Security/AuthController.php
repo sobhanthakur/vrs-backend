@@ -170,38 +170,18 @@ class AuthController extends FOSRestController
     {
         try {
             $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+            $authenticationResult = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
 
             // Capture Quickbooks Config Parameters
             $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
 
-            // Configure Data Service
-            $dataService = DataService::Configure(array(
-                'auth_mode' => $quickbooksConfig['AuthMode'],
-                'ClientID' => $quickbooksConfig['ClientID'],
-                'ClientSecret' => $quickbooksConfig['ClientSecret'],
-                'RedirectURI' => $quickbooksConfig['RedirectURI'],
-                'scope' => $quickbooksConfig['Scope'],
-                'baseUrl' => $quickbooksConfig['BaseURL']
-            ));
-            $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
-            $url = $request->server->get('QUERY_STRING');
-            parse_str($url,$qsArray);
-            $parseUrl = array('code' => $qsArray['code'],
-                'realmId' => $qsArray['realmId']
-            );
+            $authService = $this->container->get('vrscheduler.quickbooksonline_authentication')->QBOAuthentication($authenticationResult,$quickbooksConfig,$request);
 
-            /*
-             * Update the OAuth2Token
-             */
-            $accessToken = $OAuth2LoginHelper->exchangeAuthorizationCodeForToken($parseUrl['code'], $parseUrl['realmId']);
+            if(!$authService) {
+                throw new UnprocessableEntityHttpException();
+            }
 
 
-            $dataService->updateOAuth2Token($accessToken);
-            return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
-                'Tokens' => $accessToken
-            );
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

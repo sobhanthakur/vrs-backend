@@ -90,6 +90,11 @@ class IntegrationController extends FOSRestController
      *              example=false
      *         ),
      *         @SWG\Property(
+     *              property="RealmID",
+     *              type="string",
+     *              example="123146180022419"
+     *         ),
+     *         @SWG\Property(
      *              property="Version",
      *              type="integer",
      *              example=1
