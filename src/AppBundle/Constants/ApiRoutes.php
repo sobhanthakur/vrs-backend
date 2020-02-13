@@ -42,7 +42,9 @@ final class ApiRoutes
         "vrs_synclogs",
         "vrs_synclogs_batch",
         "vrs_qwd_disconnect",
-        "vrs_qbo_authenticate"
+        "vrs_qbo_authenticate",
+        "vrs_qwd_disconnect",
+        "vrs_logs_reset"
     );
 
     const PUBLIC_ROUTES = array(

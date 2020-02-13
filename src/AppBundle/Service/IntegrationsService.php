@@ -10,6 +10,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Entity\Integrationqbotokens;
 use AppBundle\Entity\Integrationstocustomers;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -50,7 +51,8 @@ class IntegrationsService extends BaseService
                         GeneralConstants::QBDSYNCTT => $installedObject['qbdsyncpayroll'],
                         'CreateDate' => $installedObject['createdate'],
                         'StartDate' => $installedObject['startdate'],
-                        'Version' => $installedObject['version']
+                        'Version' => $installedObject['version'],
+                        'Type' => $installedObject['type']
                     );
                 }
                 $integrationResponse[$i] = array(
@@ -204,8 +206,6 @@ class IntegrationsService extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
                 }
 
-                $integrationToCustomer->setUsername('VRS' . uniqid());
-
                 $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
                 if (empty($integration)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
@@ -213,6 +213,7 @@ class IntegrationsService extends BaseService
 
                 $integrationToCustomer = new Integrationstocustomers();
 
+                $integrationToCustomer->setUsername('VRS' . uniqid());
                 $integrationToCustomer->setCustomerid($customer);
                 $integrationToCustomer->setIntegrationid($integration);
             }
@@ -220,11 +221,11 @@ class IntegrationsService extends BaseService
             if (array_key_exists(GeneralConstants::REALMID, $content)) {
                 if(!$customer) {
                     $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
-                    $tokens = new Integrationqbotokens();
-                    $tokens->setRealmID($content[GeneralConstants::REALMID]);
-                    $tokens->setCustomerid($customer);
-                    $this->entityManager->persist($tokens);
                 }
+                $tokens = new Integrationqbotokens();
+                $tokens->setRealmID($content[GeneralConstants::REALMID]);
+                $tokens->setCustomerid($customer);
+                $this->entityManager->persist($tokens);
             }
 
             if (array_key_exists(GeneralConstants::START_DATE, $content)) {
@@ -243,6 +244,13 @@ class IntegrationsService extends BaseService
             if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
             }
+                if(array_key_exists(GeneralConstants::QBDTYPE,$content)) {
+                    $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
+                }
+
+                if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
+                    $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+                }
 
             if (array_key_exists(GeneralConstants::QBDSYNCTT, $content)) {
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
@@ -312,6 +320,11 @@ class IntegrationsService extends BaseService
             // Remove the Items To Services Mappings
             $items = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItems FROM IntegrationQBDItems WHERE IntegrationQBDItems.CustomerID='.$customerID)->execute();
             if(!$items) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
+            $integrationqbotokens = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBOTokens FROM IntegrationQBOTokens WHERE IntegrationQBOTokens.CustomerID='.$customerID)->execute();
+            if(!$integrationqbotokens) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
             }
 

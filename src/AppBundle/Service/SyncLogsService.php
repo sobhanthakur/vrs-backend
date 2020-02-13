@@ -240,4 +240,35 @@ class SyncLogsService extends BaseService
             'To' => $toLocal->format('Y-m-d')
         );
     }
+
+    /**
+     * @param $customerID
+     * @param $content
+     * @return array
+     */
+    public function ResetSyncLogs($customerID, $content)
+    {
+        try {
+            $batchID = $content['BatchID'];
+            $batchType = $content['BatchType'];
+            $update = null;
+            if($batchType === 1) {
+                $update = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->ResetTimeTrackingBatch($batchID);
+            } else {
+                $update = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->ResetBillingBatch($batchID);
+            }
+            if(!$update) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_RESET_BATCH);
+            }
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed resetting logs due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

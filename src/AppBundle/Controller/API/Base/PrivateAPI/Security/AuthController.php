@@ -162,7 +162,7 @@ class AuthController extends FOSRestController
     }
 
     /**
-     * @return array
+     * @return null
      * @param Request $request
      * @Rest\Get("/callback", name="qwc_callback")
      */
@@ -170,17 +170,18 @@ class AuthController extends FOSRestController
     {
         try {
             $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-            $authenticationResult = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
 
             // Capture Quickbooks Config Parameters
             $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
 
-            $authService = $this->container->get('vrscheduler.quickbooksonline_authentication')->QBOAuthentication($authenticationResult,$quickbooksConfig,$request);
+            $authService = $this->container->get('vrscheduler.quickbooksonline_authentication')->QBOAuthentication($quickbooksConfig,$request);
 
             if(!$authService) {
                 throw new UnprocessableEntityHttpException();
             }
 
+            // Redirect on success
+            return $this->redirect($this->container->getParameter('QuickBooksConfiguration')['RedirectAfterCallback']);
 
         } catch (HttpException $exception) {
             throw $exception;

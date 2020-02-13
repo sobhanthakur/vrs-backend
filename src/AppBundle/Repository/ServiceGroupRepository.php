@@ -20,6 +20,7 @@ class ServiceGroupRepository extends EntityRepository
             ->select('p.servicegroupid as ServiceGroupID, p.servicegroup as ServiceGroup')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.servicegroup','ASC')
             ->getQuery()
             ->execute();
     }

@@ -124,6 +124,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.active=1')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.servicertype=0')
+            ->orderBy('s.name','ASC')
             ->getQuery()
             ->execute();
     }

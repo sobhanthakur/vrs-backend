@@ -17,11 +17,9 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class QuickbooksOnlineAuthentication extends BaseService
 {
-    public function QBOAuthentication($authenticationResult, $quickbooksConfig, $request)
+    public function QBOAuthentication($quickbooksConfig, $request)
     {
         try {
-            $customerID = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-
             // Configure Data Service
             $dataService = DataService::Configure(array(
                 'auth_mode' => $quickbooksConfig['AuthMode'],
@@ -39,18 +37,22 @@ class QuickbooksOnlineAuthentication extends BaseService
             );
 
             $accessToken = $OAuth2LoginHelper->exchangeAuthorizationCodeForToken($parseUrl['code'], $parseUrl['realmId']);
-            print_r($accessToken);die();
 
             // Store the access tokens in the DB
-            $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID));
-            if(!$integrationsToCustomers) {
+            $integrationsqboTokens = $this->entityManager->getRepository('AppBundle:Integrationqbotokens')->findOneBy(array('realmID'=>$accessToken->getRealmID()));
+            if(!$integrationsqboTokens) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
-            print_r($integrationsToCustomers->getIntegrationtocustomerid());
-            die();
+
+            $integrationsqboTokens->setAccessToken($accessToken->getAccessToken());
+            $integrationsqboTokens->setRefreshToken($accessToken->getRefreshToken());
+
+            $this->entityManager->persist($integrationsqboTokens);
+            $this->entityManager->flush();
 
             // Update the OAuth2Token
             $dataService->updateOAuth2Token($accessToken);
+            return true;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (UnauthorizedHttpException $exception) {
