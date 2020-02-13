@@ -35,7 +35,6 @@ class TasksService extends BaseService
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
-            dump($checkParams);die();
             if (count($checkParams) > 0) {
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
@@ -107,8 +106,7 @@ class TasksService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-
         return $returnData;
     }
-    
+
 }

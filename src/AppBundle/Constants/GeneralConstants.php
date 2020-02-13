@@ -356,7 +356,14 @@ final class GeneralConstants
         'TASKSTARTDATE' => 'taskstartdate',
         'TASKENDDATE' => 'taskenddate',
         'BILLABLE' => 'billable',
-        'COMPLETED' => 'completed'
+        'COMPLETED' => 'completed',
+        'STATUSID' => 'statusid',
+        'ISSUETYPE' => 'issuetype',
+        'URGENT' => 'urgent',
+        'CREATESTARTDATE' => 'createstartdate',
+        'CREATEENDDATE' => 'createenddate',
+        'CLOSEDSTARTDATE' => 'closedstartdate',
+        'CLOSEDENDDATE' => 'closedenddate'
     ];
 
 }

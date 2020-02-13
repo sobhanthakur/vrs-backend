@@ -33,14 +33,71 @@ class IssueRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('i');
 
+        //check for createstartdate and createenddate in query paramter
+        isset($queryParameter['createstartdate']) ? $createdStartDate = $queryParameter['createstartdate'] : $createdStartDate = null;
+        isset($queryParameter['createenddate']) ? $createdEndDate = $queryParameter['createenddate'] : $createdEndDate = null;
+
+        //check for closedstartdate and closedenddate in query paramter
+        isset($queryParameter['closedstartdate']) ? $closedStartDate = $queryParameter['closedstartdate'] : $closedStartDate = null;
+        isset($queryParameter['closedenddate']) ? $closedEndDate = $queryParameter['closedenddate'] : $closedEndDate = null;
+
+        //setting status id
+        if (isset($queryParameter['statusid'])) {
+            switch (strtolower($queryParameter['statusid'])) {
+                case "new":
+                    $statusID = 0;
+                    break;
+                case "inprogress":
+                    $statusID = 1;
+                    break;
+                case "onhold":
+                    $statusID = 2;
+                    break;
+                case "cateloged":
+                    $statusID = 0;
+                    break;
+                default:
+                    $statusID = null;
+            }
+        }
+
+        //setting issue type
+        if (isset($queryParameter['issuetype'])) {
+            switch (strtolower($queryParameter['issuetype'])) {
+                case "damage":
+                    $issueType = 0;
+                    break;
+                case "maintenance":
+                    $issueType = 1;
+                    break;
+                case "lostandfound":
+                    $issueType = 2;
+                    break;
+                case "supplyflag":
+                    $issueType = 3;
+                    break;
+                case "None":
+                    $issueType = -1;
+                    break;
+                default:
+                    $issueType = null;
+            }
+        }
+
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for urgent option in query paramter
+        isset($queryParameter['urgent']) ? $urgent = $queryParameter['urgent'] : $urgent = null;
 
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
         //check for closed option in query paramter
         isset($queryParameter['closed']) ? $closed = $queryParameter['closed'] : $closed = null;
+
+        //check for billable in query paramter
+        isset($queryParameter['billable']) ? $billable = $queryParameter['billable'] : $billable = null;
 
         //condition to set query for all or some required fields
         $result->select($query);
@@ -61,10 +118,60 @@ class IssueRepository extends EntityRepository
             }
         }
 
+        //condition to filter by  createdStartDate
+        if ($createdStartDate) {
+            $createdStartDate = date("Y-m-d", strtotime($createdStartDate));
+            $result->andWhere('i.createdate >= (:CreatedDate)')
+                ->setParameter('CreatedDate', $createdStartDate);
+        }
+        //condition to filter by  createdEndDate
+        if ($createdEndDate) {
+            $createdEndDate = date("Y-m-d", strtotime($createdEndDate));
+            $result->andWhere('i.createdate <= (:CreatedDate)')
+                ->setParameter('CreatedDate', $createdEndDate);
+        }
+
+        //condition to filter by  closedStartDate
+        if ($closedStartDate) {
+            $closedStartDate = date("Y-m-d", strtotime($closedStartDate));
+            $result->andWhere('i.closeddate >= (:ClosedDate)')
+                ->setParameter('ClosedDate', $closedStartDate);
+        }
+        //condition to filter by  closedEndDate
+        if ($closedEndDate) {
+            $closedEndDate = date("Y-m-d", strtotime($closedEndDate));
+            $result->andWhere('i.closeddate <= (:ClosedDate)')
+                ->setParameter('ClosedDate', $closedEndDate);
+        }
+
         //condition to filter by issue id
         if ($issueID) {
             $result->andWhere('i.issueid IN (:IssueID)')
                 ->setParameter('IssueID', $issueID);
+        }
+
+        //condition to filter by status id
+        if (isset($statusID)) {
+            $result->andWhere('i.statusid = (:StatusID)')
+                ->setParameter('StatusID', $statusID);
+        }
+
+        //condition to filter by  issueType
+        if (isset($issueType)) {
+            $result->andWhere('i.issuetype = (:IssueType)')
+                ->setParameter('IssueType', $issueType);
+        }
+
+        //condition to filter by  issueType
+        if (isset($urgent)) {
+            $result->andWhere('i.urgent = (:Urgent)')
+                ->setParameter('Urgent', $urgent);
+        }
+
+        //condition to filter by  billable
+        if (isset($billable)) {
+            $result->andWhere('i.billable = (:Billable)')
+                ->setParameter('Billable', $billable);
         }
 
         //condition to filter by customer details
