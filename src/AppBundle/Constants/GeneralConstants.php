@@ -171,7 +171,7 @@ final class GeneralConstants
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
     /*constants used in API request limiting*/
-    const LIMIT = 5;
+    const LIMIT = 500;
     const PERIOD = 60;
 
     /*constants used in login api*/
@@ -377,7 +377,9 @@ final class GeneralConstants
         'CREATESTARTDATE' => 'createstartdate',
         'CREATEENDDATE' => 'createenddate',
         'CLOSEDSTARTDATE' => 'closedstartdate',
-        'CLOSEDENDDATE' => 'closedenddate'
+        'CLOSEDENDDATE' => 'closedenddate',
+        'TASDRULEID' => 'taskruleid',
+        'PROPERTYBOOKINGID' => 'propertybookingid',
     ];
 
 }

@@ -13,6 +13,7 @@ use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class TasksRepository
@@ -200,6 +201,12 @@ class TasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for task rule id in query paramter
+        isset($queryParameter['taskruleid']) ? $taskRuleID = $queryParameter['taskruleid'] : $taskRuleID = null;
+
+        //check for task rule id in query paramter
+        isset($queryParameter['propertybookingid']) ? $propertyBookingID = $queryParameter['propertybookingid'] : $propertyBookingID = null;
+
         //check for property id in query paramter
         isset($queryParameter['propertyid']) ? $propertyID = $queryParameter['propertyid'] : $propertyID = null;
 
@@ -234,11 +241,16 @@ class TasksRepository extends EntityRepository
             }
         }
 
+        //condition to filter by property booking id
+        if (isset($propertyBookingID)) {
+            $result->andWhere('t.propertybookingid = (:PropertyBookingId)')
+                ->setParameter('PropertyBookingId', $propertyBookingID);
+        }
 
-        //condition to filter by property id
-        if (isset($propertyID)) {
-            $result->andWhere('p.propertyid IN (:PropertyID)')
-                ->setParameter('PropertyID', $propertyID);
+        //condition to filter by  task rule id
+        if (isset($taskRuleID)) {
+            $result->andWhere('t.serviceid =  (:TaskRuleID)')
+                ->setParameter('TaskRuleID', $taskRuleID);
         }
 
         //condition to filter by  billable
@@ -272,6 +284,13 @@ class TasksRepository extends EntityRepository
             } else {
                 $result->andWhere('t.completeconfirmeddate IS NULL');
             }
+        }
+
+        //condition to filter by  approvedStartDate
+        if ($approvedStartDate) {
+            $approvedStartDate = date("Y-m-d", strtotime($approvedStartDate));
+            $result->andWhere('t.approveddate >= (:ApprovedDate)')
+                ->setParameter('ApprovedDate', $approvedStartDate);
         }
 
         //condition to filter by  approvedStartDate
