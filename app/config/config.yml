@@ -179,6 +179,7 @@ nelmio_api_doc:
                 -  /api/v1/tasks
                 -  /api/v1/tasks/{id}
                 -  /api/v1/stafftasks
+                -  /api/v1/stafftasks/{id}
 
 snc_redis:
     clients:

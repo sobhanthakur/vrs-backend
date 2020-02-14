@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Taskstoservicers
  *
  * @ORM\Table(name="TasksToServicers", indexes={@ORM\Index(name="IsLead", columns={"IsLead"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="ServicerIDwithTaskID", columns={"TaskID", "ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\StaffTasksRepository")
  */
 class Taskstoservicers
 {

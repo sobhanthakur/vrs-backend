@@ -322,6 +322,19 @@ final class GeneralConstants
 
     ];
 
+    const STAFF_TASKS_MAPPING = [
+        'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
+        'taskid' => 't.taskid as TaskID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'paytype' => 'st.paytype as PayType',
+        'payrate' => 'st.payrate as PayRate',
+        'piecepay' => 'st.piecepay as PiecePay',
+        'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
+        'Pay' => '\'\' as Pay',
+        'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
+        'servicerPayRate' => 'st.payrate as ServicerPayRate',
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
@@ -331,7 +344,8 @@ final class GeneralConstants
         'PROPERTY_BOOKINGS' => 'propertybookings',
         'TASK_RULES' => 'taskrules',
         'STAFF' => 'staff',
-        'TASKS' => 'tasks'
+        'TASKS' => 'tasks',
+        'STAFF_TASKS' => 'stafftasks'
     ];
 
     const PARAMS = [
