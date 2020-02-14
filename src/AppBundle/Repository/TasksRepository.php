@@ -292,16 +292,9 @@ class TasksRepository extends EntityRepository
             $result->andWhere('t.approveddate >= (:ApprovedDate)')
                 ->setParameter('ApprovedDate', $approvedStartDate);
         }
-
-        //condition to filter by  approvedStartDate
-        if ($approvedStartDate) {
-            $approvedStartDate = date("Y-m-d", strtotime($approvedStartDate));
-            $result->andWhere('t.approveddate >= (:ApprovedDate)')
-                ->setParameter('ApprovedDate', $approvedStartDate);
-        }
         //condition to filter by  approvedEndDate
         if ($approvedEndDate) {
-            $approvedEndDate = date("Y-m-d", strtotime($approvedEndDate));
+            $approvedEndDate = date("Y-m-d", strtotime($approvedEndDate . ' +1 day'));
             $result->andWhere('t.approveddate <= (:ApprovedEndDate)')
                 ->setParameter('ApprovedEndDate', $approvedEndDate);
         }
@@ -314,7 +307,7 @@ class TasksRepository extends EntityRepository
         }
         //condition to filter by  $completedEndDate
         if ($completedEndDate) {
-            $completedEndDate = date("Y-m-d", strtotime($completedEndDate));
+            $completedEndDate = date("Y-m-d", strtotime($completedEndDate . ' +1 day'));
             $result->andWhere('t.completeconfirmeddate <= (:ConfirmationDate)')
                 ->setParameter('ConfirmationDate', $completedEndDate);
         }
@@ -327,7 +320,7 @@ class TasksRepository extends EntityRepository
         }
         //condition to filter by  taskEndDate
         if ($taskEndDate) {
-            $taskEndDate = date("Y-m-d", strtotime($taskEndDate));
+            $taskEndDate = date("Y-m-d", strtotime($taskEndDate . ' +1 day'));
             $result->andWhere('t.taskdate <= (:TaskEndDate)')
                 ->setParameter('TaskEndDate', $taskEndDate);
         }

@@ -76,7 +76,7 @@ class IssueRepository extends EntityRepository
                 case "supplyflag":
                     $issueType = 3;
                     break;
-                case "None":
+                case "none":
                     $issueType = -1;
                     break;
                 default:
@@ -126,7 +126,7 @@ class IssueRepository extends EntityRepository
         }
         //condition to filter by  createdEndDate
         if ($createdEndDate) {
-            $createdEndDate = date("Y-m-d", strtotime($createdEndDate));
+            $createdEndDate = date("Y-m-d", strtotime($createdEndDate . ' +1 day'));
             $result->andWhere('i.createdate <= (:CreatedDate)')
                 ->setParameter('CreatedDate', $createdEndDate);
         }
@@ -139,7 +139,7 @@ class IssueRepository extends EntityRepository
         }
         //condition to filter by  closedEndDate
         if ($closedEndDate) {
-            $closedEndDate = date("Y-m-d", strtotime($closedEndDate));
+            $closedEndDate = date("Y-m-d", strtotime($closedEndDate . ' +1 day'));
             $result->andWhere('i.closeddate <= (:ClosedDate)')
                 ->setParameter('ClosedDate', $closedEndDate);
         }
