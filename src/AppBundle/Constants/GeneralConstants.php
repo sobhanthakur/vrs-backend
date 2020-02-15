@@ -380,6 +380,8 @@ final class GeneralConstants
         'CLOSEDENDDATE' => 'closedenddate',
         'TASDRULEID' => 'taskruleid',
         'PROPERTYBOOKINGID' => 'propertybookingid',
+        'TASKID' => 'taskid',
+        'PAYTYPE' => 'paytype',
     ];
 
 }

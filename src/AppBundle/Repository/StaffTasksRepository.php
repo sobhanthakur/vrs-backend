@@ -42,6 +42,12 @@ class StaffTasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for property id in query paramter
+        isset($queryParameter['propertyid']) ? $propertyID = $queryParameter['propertyid'] : $propertyID = null;
+
+        //check for property id in query paramter
+        isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
@@ -55,8 +61,13 @@ class StaffTasksRepository extends EntityRepository
         //condition to filter by staff tasks id
         if ($staffTaskID) {
             $result->andWhere('st.tasktoservicerid = (:StaffTaskID)')
-                ->setParameter('StaffTaskID', $staffTaskID)
-                ->distinct('st.tasktoservicerid');
+                ->setParameter('StaffTaskID', $staffTaskID);
+        }
+
+        //condition to filter by staff tasks id
+        if ($taskID) {
+            $result->andWhere('st.taskid = (:TaskID)')
+                ->setParameter('TaskID', $taskID);
         }
 
         //condition to check for customer specific data
@@ -67,9 +78,11 @@ class StaffTasksRepository extends EntityRepository
 
         //return task details
         return $result
-            ->leftJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
+            //->addSelect('DATEDIFF(tct.clockout, tct.clockin) as TotalTimeWorked')
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
+            //->groupBy('tct.taskid')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
