@@ -49,6 +49,7 @@ final class ErrorConstants
     const UNABLE_TO_DELETE = 'UNABLETODELETE';
     const INVALID_AUTHENTICATION_BODY = 'INVALIDAUTHENTICATIONBODY';
     const UNABLE_TO_RESET_BATCH = 'UNABLETORESETBATCH';
+    const OAUTH_FAILED = 'OAUTHFAILED';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -121,6 +122,7 @@ final class ErrorConstants
         self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
         self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],
         self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust'],
-        self::INVALID_AUTHENTICATION_BODY => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_body']
+        self::INVALID_AUTHENTICATION_BODY => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_body'],
+        self::OAUTH_FAILED => ['code' => 1002, self::MESSAGE => 'api.response.error.oauth_failed']
     ];
 }

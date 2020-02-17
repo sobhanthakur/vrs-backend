@@ -35,7 +35,7 @@ class SyncResourcesController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $qbService = $this->container->get('vrscheduler.quickbooksonline');
+            $qbService = $this->container->get('vrscheduler.quickbooksonline_resources');
             return $qbService->SyncResources($customerID,$this->container->getParameter('QuickBooksConfiguration'));
         } catch (BadRequestHttpException $exception) {
             throw $exception;
