@@ -335,6 +335,19 @@ final class GeneralConstants
         'servicerPayRate' => 'st.payrate as ServicerPayRate',
     ];
 
+    const STAFF_TASKS_TIMES_MAPPING = [
+        'timeclocktaskid' => 'tct.timeclocktaskid as StaffDayTimeID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'clockin' => 'tct.clockin as ClockIn',
+        'clockout' => 'tct.clockout as ClockOut',
+        'inlat' => 'tct.inlat as InLat',
+        'InLon' => 'tct.inlon as InLon',
+        'OutLat' => 'tct.outlat as OutLat',
+        'OutLon' => 'tct.outlon as OutLon',
+        'note' => 'tct.note as Note',
+        'autologoutflag' => 'tct.autologoutflag as AutoLogOutFlagxxxx'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
@@ -345,7 +358,8 @@ final class GeneralConstants
         'TASK_RULES' => 'taskrules',
         'STAFF' => 'staff',
         'TASKS' => 'tasks',
-        'STAFF_TASKS' => 'stafftasks'
+        'STAFF_TASKS' => 'stafftasks',
+        'STAFF_TASK_TIMES' => 'stafftasktimes'
     ];
 
     const PARAMS = [
