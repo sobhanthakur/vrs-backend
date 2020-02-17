@@ -160,6 +160,7 @@ nelmio_api_doc:
                 - /v1/vrs/qbddisconnect
                 - /v1/vrs/qbo
                 - /v1/vrs/logs/reset
+                - /v1/vrs/qbo/syncresources
         public_api:
             path_patterns:
                 -  /api/v1/oauth/login

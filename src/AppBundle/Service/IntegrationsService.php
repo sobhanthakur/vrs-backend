@@ -225,6 +225,7 @@ class IntegrationsService extends BaseService
                 $tokens = new Integrationqbotokens();
                 $tokens->setRealmID($content[GeneralConstants::REALMID]);
                 $tokens->setCustomerid($customer);
+                $integrationToCustomer->setQbdsyncbilling(true);
                 $this->entityManager->persist($tokens);
             }
 
@@ -244,13 +245,13 @@ class IntegrationsService extends BaseService
             if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
             }
-                if(array_key_exists(GeneralConstants::QBDTYPE,$content)) {
-                    $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
-                }
+            if (array_key_exists(GeneralConstants::QBDTYPE, $content)) {
+                $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
+            }
 
-                if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
-                    $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
-                }
+            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
+                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+            }
 
             if (array_key_exists(GeneralConstants::QBDSYNCTT, $content)) {
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
@@ -334,6 +335,11 @@ class IntegrationsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
             $integrationToCustomer->setActive(false);
+            $integrationToCustomer->setPassword(null);
+            $integrationToCustomer->setQbdsyncbilling(false);
+            $integrationToCustomer->setQbdsyncpayroll(false);
+            $integrationToCustomer->setVersion(null);
+            $integrationToCustomer->setType(null);
             $integrationToCustomer->setIntegrationqbdhourwagetypeid(null);
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();

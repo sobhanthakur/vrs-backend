@@ -130,5 +130,9 @@ services:
         class: AppBundle\Service\QuickbooksOnlineAuthentication
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.quickbooksonline:
+        class: AppBundle\Service\QuickbooksOnlineService
+        parent: vrscheduler.base_service
+        public: true
 
 

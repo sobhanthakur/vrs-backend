@@ -122,6 +122,12 @@ class AuthController extends FOSRestController
     }
 
     /**
+     * Returns the OAuth URL
+     * @SWG\Tag(name="Quickbooks Online")
+     * @SWG\Response(
+     *     response=200,
+     *     description="RedirectURL"
+     * )
      * @Rest\Get("/qbo", name="vrs_qbo_authenticate")
      * @param Request $request
      * @return array
@@ -136,14 +142,7 @@ class AuthController extends FOSRestController
             $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
 
             // Configure Data Service
-            $dataService = DataService::Configure(array(
-                'auth_mode' => $quickbooksConfig['AuthMode'],
-                'ClientID' => $quickbooksConfig['ClientID'],
-                'ClientSecret' => $quickbooksConfig['ClientSecret'],
-                'RedirectURI' => $quickbooksConfig['RedirectURI'],
-                'scope' => $quickbooksConfig['Scope'],
-                'baseUrl' => $quickbooksConfig['BaseURL']
-            ));
+            $dataService = $this->container->get('vrscheduler.quickbooksonline_authentication')->Configure($quickbooksConfig);
             $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
             $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
             return array(
