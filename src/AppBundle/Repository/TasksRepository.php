@@ -320,7 +320,7 @@ class TasksRepository extends EntityRepository
         }
         //condition to filter by  taskEndDate
         if ($taskEndDate) {
-            $taskEndDate = date("Y-m-d", strtotime($taskEndDate . ' +1 day'));
+            $taskEndDate = date("Y-m-d", strtotime($taskEndDate));
             $result->andWhere('t.taskdate <= (:TaskEndDate)')
                 ->setParameter('TaskEndDate', $taskEndDate);
         }

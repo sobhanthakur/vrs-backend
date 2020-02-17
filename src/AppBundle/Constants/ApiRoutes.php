@@ -64,6 +64,7 @@ final class ApiRoutes
         "staff_tasks_get",
         "staff_get_id",
         "staff_tasks_get_id",
-        "staff_task_times_get"
+        "staff_task_times_get",
+        "staff_day_times"
     );
 }

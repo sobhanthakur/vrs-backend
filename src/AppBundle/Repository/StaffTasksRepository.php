@@ -77,16 +77,30 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //return task details
-        return $result
-            //->addSelect('DATEDIFF(tct.clockout, tct.clockin) as TotalTimeWorked')
+        $result1 = $result
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
-            //->groupBy('tct.taskid')
+            //->groupBy('st.tasktoservicerid, t.taskid, sr.servicerid')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
+
+        dump($result1); die();
+
+        /*const STAFF_TASKS_MAPPING = [
+            'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
+            'taskid' => 't.taskid as TaskID',
+            'servicerid' => 'sr.servicerid as StaffID',
+            'paytype' => 'st.paytype as PayType',
+            'payrate' => 'st.payrate as PayRate',
+            'piecepay' => 'st.piecepay as PiecePay',
+            'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
+            'Pay' => '\'\' as Pay',
+            'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
+            'servicerPayRate' => 'st.payrate as ServicerPayRate',
+        ];*/
     }
 
     /**

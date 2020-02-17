@@ -40,6 +40,9 @@ class TimeClockTasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for staffid option in query paramter
+        isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
@@ -54,6 +57,12 @@ class TimeClockTasksRepository extends EntityRepository
         if ($customerDetails) {
             $result->andWhere('sr.customerid IN (:CustomerID)')
                 ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //condition to check for staff id data
+        if ($staffID) {
+            $result->andWhere('sr.servicerid IN (:StaffID)')
+                ->setParameter('StaffID', $staffID);
         }
 
         //return staff task times details
