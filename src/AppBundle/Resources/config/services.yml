@@ -134,5 +134,9 @@ services:
         class: AppBundle\Service\QuickbooksOnlineSyncResources
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.quickbooksonline_billing:
+        class: AppBundle\Service\QuickbooksOnlineSyncBilling
+        parent: vrscheduler.base_service
+        public: true
 
 

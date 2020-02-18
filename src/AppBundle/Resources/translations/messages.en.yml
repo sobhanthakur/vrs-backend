@@ -67,6 +67,7 @@ api:
             invalid_request: "Invalid request"
             limit_exhaust: "You exceeded the rate limit"
             oauth_failed: "Login Failed. Connect to Quickbooks first"
+            nothing_to_map: "Nothing to sync"
         success:
             message: success
             password_reset: The password was reset successfully.

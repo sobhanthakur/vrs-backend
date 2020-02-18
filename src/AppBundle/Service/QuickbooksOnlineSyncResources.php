@@ -41,6 +41,7 @@ class QuickbooksOnlineSyncResources extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
+            // If Access and refresh tokens are not present in the table
             if(!$integrationQBOTokens->getRefreshToken() || !$integrationQBOTokens->getAccessToken()) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::OAUTH_FAILED);
             }
@@ -59,6 +60,10 @@ class QuickbooksOnlineSyncResources extends BaseService
             $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
             $this->StoreItems($items,$customerObj);
         } catch (ServiceException $exception) {
+            /*
+             * This occurs when authentication fails using the existing access token.
+             * Re-connect to QBO using the refresh token to get a new pair of tokens
+             */
             $authService->RefreshAccessToken($dataService,$integrationQBOTokens);
 
             // Re-Login with new Updated Tokens
