@@ -328,20 +328,20 @@ final class GeneralConstants
         //'taskid' => 'count(t.taskid) as TaskID',
         'taskid' => 't.taskid as TaskID',
         'servicerid' => 'sr.servicerid as StaffID',
-        //'paytype' => 'st.paytype as PayType',
-        //'payrate' => 'st.payrate as PayRate',
-        //'piecepay' => 'st.piecepay as PiecePay',
+        'paytype' => 'st.paytype as PayType',
+        'payrate' => 'st.payrate as PayRate',
+        'piecepay' => 'st.piecepay as PiecePay',
         //'piecepay' => 'sum(tct.clockout) as Clockout',
         'clockout' => 'tct.clockout as ClockOut',
         'clockin' => 'tct.clockin as ClockIn',
-        //'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
+        'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
         'Pay' => '\'\' as Pay',
         //'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
         //'servicerPayRate' => 'st.payrate as ServicerPayRate',
     ];
 
     const STAFF_TASKS_TIMES_MAPPING = [
-        'timeclocktaskid' => 'tct.timeclocktaskid as StaffDayTimeID',
+        'timeclocktaskid' => 'tct.timeclocktaskid as StaffTaskTimeID',
         'servicerid' => 'sr.servicerid as StaffID',
         'clockin' => 'tct.clockin as ClockIn',
         'clockout' => 'tct.clockout as ClockOut',
@@ -416,7 +416,9 @@ final class GeneralConstants
         'PROPERTYBOOKINGID' => 'propertybookingid',
         'TASKID' => 'taskid',
         'PAYTYPE' => 'paytype',
-        'STAFFID' => 'staffid'
+        'STAFFID' => 'staffid',
+        'STARTDATE' => 'startdate',
+        'ENDDATE' => 'enddate',
     ];
 
 }

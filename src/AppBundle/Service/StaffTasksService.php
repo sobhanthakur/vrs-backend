@@ -29,6 +29,8 @@ class StaffTasksService  extends BaseService
     public function getStaffTasks($authDetails, $queryParameter, $pathInfo, $staffTasksID = null)
     {
         $returnData = array();
+        $allIds = array();
+
         try {
             //Get Tasks Repo
             $staffTasksRepo = $this->entityManager->getRepository('AppBundle:Taskstoservicers');
@@ -52,8 +54,11 @@ class StaffTasksService  extends BaseService
             //setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
+            //checking if more records are there to fetch from db
+            $allIds = $staffTasksRepo->getAllTaskID($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit);;
+
             //getting task Detail
-            $staffTasksData = $staffTasksRepo->getItems($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit);
+            $staffTasksData = $staffTasksRepo->getItems($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit, $allIds);
 
             //return 404 if resource not found
             if (empty($staffTasksData)) {
@@ -66,28 +71,20 @@ class StaffTasksService  extends BaseService
             //setting page count
             $totalPage = (int)ceil($totalItems / $limit);
 
-            //Formating Date to utc ymd format
-            for ($i = 0; $i < count($staffTasksData); $i++) {
-                if(isset($staffTasksData[$i]['TimeTracked'])){
-                    $staffTasksData[$i]['TimeTracked'] = gmdate("H:i:s", strtotime($staffTasksData[$i]['TimeTracked']));
+            $resultArray = array();
+
+            foreach ($staffTasksData as $key => $value){
+                if(isset($value['TimeTracked'])){
+                    $value['TimeTracked'] = strtotime(gmdate("H:i:s", strtotime($value['TimeTracked'])));
+                    if (array_key_exists($value['StaffTaskID'],$resultArray)) {
+                        $resultArray[$value['StaffTaskID']]['TimeTracked'] += $value['TimeTracked'];
+                    } else {
+                        $resultArray[$value['StaffTaskID']] = $value;
+                    }
                 }
 
-                switch ($staffTasksData[$i]['PayType']) {
-                    case 0:
-                        $staffTasksData[$i]['Pay'] = 0;
-                        break;
-                    case 1:
-                        $staffTasksData[$i]['Pay'] = $staffTasksData[$i]['PiecePay'];
-                        break;
-                    case 2:
-                        $staffTasksData[$i]['Pay'] = $staffTasksData[$i]['ServicerPayRate'];
-                        break;
-                    default:
-                        $staffTasksData[$i]['Pay'] = null;
-                }
-
-                unset($staffTasksData[$i]['ServicerPayRate']);
             }
+            
 
             //Setting return Data
             $returnData['url'] = $pathInfo;

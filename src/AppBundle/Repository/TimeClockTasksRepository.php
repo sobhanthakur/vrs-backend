@@ -40,6 +40,12 @@ class TimeClockTasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check for  option in query paramter
+        isset($queryParameter['startdate']) ? $startDate = $queryParameter['startdate'] : $startDate = null;
+
+        //check for  option in query paramter
+        isset($queryParameter['enddate']) ? $endDate =  $queryParameter['enddate']: $endDate = null;
+
         //check for staffid option in query paramter
         isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
 
@@ -49,7 +55,7 @@ class TimeClockTasksRepository extends EntityRepository
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
             foreach ($sortOrder as $field) {
-                $result->orderBy('t.' . $field);
+                $result->orderBy('tct.' . $field);
             }
         }
 
@@ -65,13 +71,35 @@ class TimeClockTasksRepository extends EntityRepository
                 ->setParameter('StaffID', $staffID);
         }
 
+
+        //condition to check for data after this date
+        if (isset($startDate)) {
+            $startDate = date("Y-m-d", strtotime($startDate));
+            $result->andWhere('tct.clockin >= (:StartDate)')
+                ->setParameter('StartDate', $startDate);
+        }
+
+        //condition to check for data before this date
+        /*if (isset($endDate)) {
+            $endDate = date("Y-m-d", strtotime($endDate));
+            $result->andWhere('tct.clockout <= (:EndDate)')
+                ->setParameter('EndDate', $endDate);
+        }*/
+
+        if (isset($endDate)) {
+            $endDate = date("Y-m-d", strtotime($endDate . ' +1 day'));
+            $result->andWhere('tct.clockout <= (:EndDate)')
+                ->setParameter('EndDate', $endDate);
+        }
+
         //return staff task times details
-        return $result
+         return $result
             ->innerJoin('tct.servicerid', 'sr')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
+
     }
 
     /**

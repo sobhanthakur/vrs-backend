@@ -32,12 +32,13 @@ class StaffTasksRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchStaffTasks($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null)
+    public function fetchStaffTasks($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null , $ids = array())
     {
         $sortOrder = array();
 
         $result = $this
             ->createQueryBuilder('st');
+
 
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
@@ -59,16 +60,23 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //condition to filter by staff tasks id
+        if ($ids) {
+            $result->andWhere('st.taskid IN (:TaskID)')
+                ->setParameter('TaskID', $ids);
+        }
+
+
+        //condition to filter by staff tasks id
         if ($staffTaskID) {
             $result->andWhere('st.tasktoservicerid = (:StaffTaskID)')
                 ->setParameter('StaffTaskID', $staffTaskID);
         }
 
         //condition to filter by staff tasks id
-        if ($taskID) {
+        /*if ($taskID) {
             $result->andWhere('st.taskid = (:TaskID)')
                 ->setParameter('TaskID', $taskID);
-        }
+        }*/
 
         //condition to check for customer specific data
         if ($customerDetails) {
@@ -77,17 +85,17 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //return task details
-        $result1 = $result
+        return $result1= $result
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
             //->groupBy('st.tasktoservicerid, t.taskid, sr.servicerid')
-            ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
+            //->setFirstResult(($offset - 1) * $limit)
+            //->setMaxResults($limit)
             ->getQuery()
             ->execute();
 
-        dump($result1); die();
+
 
         /*const STAFF_TASKS_MAPPING = [
             'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
@@ -114,7 +122,7 @@ class StaffTasksRepository extends EntityRepository
      *
      * @return array
      */
-    public function getItems($customerDetails, $queryParameter, $taskID, $offset, $limit)
+    public function getItems($customerDetails, $queryParameter, $taskID, $offset, $limit, $allIds)
     {
         $query = "";
         $fields = array();
@@ -136,7 +144,8 @@ class StaffTasksRepository extends EntityRepository
         $query = trim($query, ',');
 
         //return task results
-        return $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit);
+       $result1 = $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit, $allIds);
+       return $result1;
 
     }
 
@@ -155,6 +164,37 @@ class StaffTasksRepository extends EntityRepository
         $query = "count(st.tasktoservicerid)";
         return $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query);
 
+    }
+
+   /* public function getAllID(){
+        $result = $this
+            ->createQueryBuilder('st')
+            ->select('distinct(t.taskid)')
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
+            ->innerJoin('st.taskid', 't')
+            ->setFirstResult(0)
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getArrayResult();
+        dump( array_column($result, 1)); die();
+    }*/
+
+    public function getAllTaskID($customerDetails, $queryParameter, $taskID, $offset, $limit){
+        $limit= 100;
+        $result = $this
+            ->createQueryBuilder('st')
+            ->select('distinct(t.taskid)')
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
+            ->innerJoin('st.taskid', 't')
+            ->innerJoin('st.servicerid', 'sr')
+            ->andWhere('sr.customerid IN (:CustomerID)')
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->setParameter('CustomerID', $customerDetails)
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_column($result, 1);
     }
 
 }
