@@ -84,7 +84,6 @@ class StaffTasksService  extends BaseService
                 }
 
             }
-            
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
