@@ -26,7 +26,7 @@ class StaffDayTimesController extends FOSRestController
      * StaffController used to  fetch all staff details
      *
      * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
-     * @SWG\Tag(name="Staff")
+     * @SWG\Tag(name="Staff Day Times")
      * @SWG\Response(
      *     response=200,
      *     description="Returns all staff details",
@@ -34,7 +34,7 @@ class StaffDayTimesController extends FOSRestController
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/stafftasktimes"
+     *              example="/api/v1/staffdaytimes"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -105,6 +105,10 @@ class StaffDayTimesController extends FOSRestController
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
+            //Get staff Day Times detail
+            $staffDayTimesService = $this->container->get('vrscheduler.public_staff_day_times_service');
+            $staffDayTimesDetails = $staffDayTimesService->getStaffDayTimes($authDetails, $queryParameter, $pathInfo);
+
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -117,6 +121,8 @@ class StaffDayTimesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+
+        return $staffDayTimesDetails;
     }
 
 }

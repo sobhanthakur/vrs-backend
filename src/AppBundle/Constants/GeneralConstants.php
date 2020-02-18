@@ -108,6 +108,7 @@ final class GeneralConstants
     const ISSUES_API = 'Issues API error ';
     const STAFF_API = 'staff API error ';
     const TASKS_API = 'tasks API error ';
+    const STAFF_DAY_TIMES_API = 'staff day times API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -350,6 +351,20 @@ final class GeneralConstants
         'OutLon' => 'tct.outlon as OutLon',
         'note' => 'tct.note as Note',
         'autologoutflag' => 'tct.autologoutflag as AutoLogOutFlagxxxx'
+    ];
+
+    const STAFF_DAY_TIMES_MAPPING = [
+        'timeclockdayid' => 'tcd.timeclockdayid as StaffDayTimeID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'clockin' => 'tcd.clockin as ClockIn',
+        'clockout' => 'tcd.clockout as ClockOut',
+        'inlat' => 'tcd.inlat as InLat',
+        'inlon' => 'tcd.inlon as InLon',
+        'outlat' => 'tcd.outlat as OutLat',
+        'outlon' => 'tcd.outlon as OutLon',
+        'mileagein' => 'tcd.mileagein as MileageIn',
+        'mileageout' => 'tcd.mileageout as MileageOut',
+        'autologoutflag' => 'tcd.autologoutflag as AutoLogOutFlag'
     ];
 
     const CHECK_API_RESTRICTION = [

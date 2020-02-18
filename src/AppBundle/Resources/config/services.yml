@@ -147,5 +147,10 @@ services:
         parent: vrscheduler.base_service
         public: true
 
+    vrscheduler.public_staff_day_times_service:
+        class: AppBundle\Service\StaffDayTimesService
+        parent: vrscheduler.base_service
+        public: true
+
 
 
