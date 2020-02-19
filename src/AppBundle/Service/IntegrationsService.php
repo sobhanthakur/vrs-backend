@@ -218,17 +218,6 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setIntegrationid($integration);
             }
 
-            if (array_key_exists(GeneralConstants::REALMID, $content)) {
-                if(!$customer) {
-                    $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
-                }
-                $tokens = new Integrationqbotokens();
-                $tokens->setRealmID($content[GeneralConstants::REALMID]);
-                $tokens->setCustomerid($customer);
-                $integrationToCustomer->setQbdsyncbilling(true);
-                $this->entityManager->persist($tokens);
-            }
-
             if (array_key_exists(GeneralConstants::START_DATE, $content)) {
                 $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
             }
@@ -249,12 +238,23 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
             }
 
-            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content) && !array_key_exists(GeneralConstants::REALMID, $content)) {
+            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
             }
 
             if (array_key_exists(GeneralConstants::QBDSYNCTT, $content)) {
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
+            }
+
+            if (array_key_exists(GeneralConstants::REALMID, $content)) {
+                if(!$customer) {
+                    $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+                }
+                $tokens = new Integrationqbotokens();
+                $tokens->setRealmID($content[GeneralConstants::REALMID]);
+                $tokens->setCustomerid($customer);
+                $integrationToCustomer->setQbdsyncbilling(true);
+                $this->entityManager->persist($tokens);
             }
 
             // Set Active state to true
