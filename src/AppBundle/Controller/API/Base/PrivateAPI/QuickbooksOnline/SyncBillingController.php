@@ -12,6 +12,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use QuickBooksOnline\API\Exception\ServiceException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -36,6 +37,7 @@ class SyncBillingController extends FOSRestController
      *     description="Success"
      * )
      * @return array
+     * @throws ServiceException
      * @param Request $request
      * @Get("/qbo/syncbilling", name="vrs_qbo_syncbilling")
      */
@@ -48,8 +50,10 @@ class SyncBillingController extends FOSRestController
             $integrationID = $data['IntegrationID'];
             $qbService = $this->container->get('vrscheduler.quickbooksonline_billing');
             return $qbService->SyncBilling($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
-        } catch (BadRequestHttpException $exception) {
-            throw $exception;
+        } catch (ServiceException $exception) {
+            $message = $exception->getMessage();
+            preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
+            throw new BadRequestHttpException($match[1]);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
