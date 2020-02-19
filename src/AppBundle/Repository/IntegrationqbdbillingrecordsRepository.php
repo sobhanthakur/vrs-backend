@@ -210,26 +210,31 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $customerID
      * @return mixed
      */
-    public function GetTasksForSalesOrder($customerID)
+    public function GetTasksForSalesOrder($customerID,$qbo=null)
     {
         $result = $this
             ->createQueryBuilder('b1')
             ->select('b1.integrationqbdbillingrecordid AS IntegrationQBDBillingRecordID,ii.qbditemlistid AS QBDListID,ic.qbdcustomerlistid as QBDCustomerListID,iis.laborormaterials AS LaborOrMaterial,t2.taskname AS TaskName,p2.propertyname AS PropertyName,s2.servicename AS ServiceName,t2.completeconfirmeddate AS CompleteConfirmedDate,t.region AS Region,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount')
             ->innerJoin($this->taskid, 't2')
-            ->innerJoin($this->propertyid,'p2')
-            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
-            ->innerJoin('icp.integrationqbdcustomerid','ic')
-            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
-            ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
-            ->innerJoin('iis.integrationqbditemid','ii')
-            ->innerJoin('p2.regionid','r')
-            ->innerJoin('r.timezoneid','t')
+            ->innerJoin($this->propertyid, 'p2')
+            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties', 'icp', Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->innerJoin('icp.integrationqbdcustomerid', 'ic')
+            ->innerJoin('AppBundle:Services', 's2', Expr\Join::WITH, 't2.serviceid=s2.serviceid')
+            ->leftJoin('AppBundle:Integrationqbditemstoservices', 'iis', Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
+            ->innerJoin('iis.integrationqbditemid', 'ii')
+            ->innerJoin('p2.regionid', 'r')
+            ->innerJoin('r.timezoneid', 't')
             ->where($this->customerCondition)
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
             ->andWhere($this->txnid)
-            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
-            ->andWhere('b1.refnumber IS NULL OR b1.refnumber=0')
-            ->andWhere('b1.status=1');
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL');
+
+        // Don't look for refnumber if the version is QBO
+        if (!$qbo) {
+            $result->andWhere('b1.refnumber IS NULL OR b1.refnumber=0');
+        }
+
+        $result->andWhere('b1.status=1');
         return $result->getQuery()->getResult();
     }
 

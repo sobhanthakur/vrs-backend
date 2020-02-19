@@ -25,7 +25,7 @@ class ApiResponse extends BaseService
      *
      * @return array
      */
-    public function createApiErrorResponse($errorCode, $status)
+    public function createApiErrorResponse($errorCode)
     {
         return [
             GeneralConstants::REASON_CODE => ErrorConstants::$errorCodeMap[$errorCode]['code'],

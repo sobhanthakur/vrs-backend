@@ -42,7 +42,11 @@ final class ApiRoutes
         "vrs_synclogs",
         "vrs_synclogs_batch",
         "vrs_qwd_disconnect",
-        "vrs_logs_reset"
+        "vrs_qbo_authenticate",
+        "vrs_qwd_disconnect",
+        "vrs_logs_reset",
+        "vrs_qbo_syncresources",
+        "vrs_qbo_syncbilling"
     );
 
     const PUBLIC_ROUTES = array(
@@ -66,5 +70,9 @@ final class ApiRoutes
         "staff_tasks_get_id",
         "staff_task_times_get",
         "staff_day_times"
+    );
+
+    const PWA_ROUTES = array(
+      "vrs_pwa_tasks"
     );
 }

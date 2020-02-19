@@ -8,6 +8,7 @@
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Integrationqbotokens;
 use AppBundle\Entity\Integrationstocustomers;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -189,6 +190,7 @@ class IntegrationsService extends BaseService
     public function UpdateQuickbooksDesktop($content, $customerID)
     {
         try {
+            $customer = null;
             /*
              * Read Request object. Extract attributes and parameters.
              */
@@ -198,59 +200,66 @@ class IntegrationsService extends BaseService
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
 
             // Create new entry
-            if(!$integrationToCustomer) {
+            if (!$integrationToCustomer) {
                 $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
-                if(!$customer) {
+                if (!$customer) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
                 }
 
                 $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
-                if(empty($integration)) {
+                if (empty($integration)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
                 }
 
                 $integrationToCustomer = new Integrationstocustomers();
-                $integrationToCustomer->setActive(true);
-                $integrationToCustomer->setUsername('VRS'.uniqid());
-                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
-                $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
-                $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
-                $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
-                $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
+
+                $integrationToCustomer->setUsername('VRS' . uniqid());
                 $integrationToCustomer->setCustomerid($customer);
                 $integrationToCustomer->setIntegrationid($integration);
+            }
 
-                // Encode the password to SHA1
+            if (array_key_exists(GeneralConstants::REALMID, $content)) {
+                if(!$customer) {
+                    $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+                }
+                $tokens = new Integrationqbotokens();
+                $tokens->setRealmID($content[GeneralConstants::REALMID]);
+                $tokens->setCustomerid($customer);
+                $integrationToCustomer->setQbdsyncbilling(true);
+                $this->entityManager->persist($tokens);
+            }
+
+            if (array_key_exists(GeneralConstants::START_DATE, $content)) {
+                $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
+            }
+
+            if (array_key_exists(GeneralConstants::PASS, $content) && $content[GeneralConstants::PASS]) {
                 $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
                 $integrationToCustomer->setPassword($encoder);
-
-            } else {
-                if(array_key_exists(GeneralConstants::START_DATE,$content)) {
-                    $integrationToCustomer->setStartdate(new \DateTime($content[GeneralConstants::START_DATE], new \DateTimeZone('UTC')));
-                }
-
-                if(array_key_exists(GeneralConstants::PASS,$content) && $content[GeneralConstants::PASS]) {
-                    $encoder = $this->serviceContainer->get('security.password_encoder')->encodePassword($integrationToCustomer, $content[GeneralConstants::PASS]);
-                    $integrationToCustomer->setPassword($encoder);
-                }
-
-                if(array_key_exists(GeneralConstants::QBDVERSION,$content)) {
-                    $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
-                }
-
-                if(array_key_exists(GeneralConstants::QBDTYPE,$content)) {
-                    $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
-                }
-
-                if(array_key_exists(GeneralConstants::QBDSYNCBILLING,$content)) {
-                    $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
-                }
-
-                if(array_key_exists(GeneralConstants::QBDSYNCTT,$content)) {
-                    $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
-                }
-                $integrationToCustomer->setActive(true);
             }
+
+            if (array_key_exists(GeneralConstants::QBDVERSION, $content)) {
+                $integrationToCustomer->setVersion($content[GeneralConstants::QBDVERSION]);
+            }
+
+            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
+                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+            }
+            if (array_key_exists(GeneralConstants::QBDTYPE, $content)) {
+                $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
+            }
+
+            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
+                $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
+            }
+
+            if (array_key_exists(GeneralConstants::QBDSYNCTT, $content)) {
+                $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
+            }
+
+            // Set Active state to true
+            $integrationToCustomer->setActive(true);
+
 
             // Persist the record in DB.
             $this->entityManager->persist($integrationToCustomer);
@@ -315,12 +324,22 @@ class IntegrationsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
             }
 
+            $integrationqbotokens = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBOTokens FROM IntegrationQBOTokens WHERE IntegrationQBOTokens.CustomerID='.$customerID)->execute();
+            if(!$integrationqbotokens) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
             // Remove PayrollItemwages to Customers Mapping and set active state to 0
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
             if(!$integrationToCustomer) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
             $integrationToCustomer->setActive(false);
+            $integrationToCustomer->setPassword(null);
+            $integrationToCustomer->setQbdsyncbilling(false);
+            $integrationToCustomer->setQbdsyncpayroll(false);
+            $integrationToCustomer->setVersion(null);
+            $integrationToCustomer->setType(null);
             $integrationToCustomer->setIntegrationqbdhourwagetypeid(null);
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();

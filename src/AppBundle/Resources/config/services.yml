@@ -153,4 +153,21 @@ services:
         public: true
 
 
+    vrscheduler.servicers_dashboard:
+        class: AppBundle\Service\ServicersDashboardService
+        parent: vrscheduler.base_service
+        public: true
+    vrscheduler.quickbooksonline_authentication:
+        class: AppBundle\Service\QuickbooksOnlineAuthentication
+        parent: vrscheduler.base_service
+        public: true
+    vrscheduler.quickbooksonline_resources:
+        class: AppBundle\Service\QuickbooksOnlineSyncResources
+        parent: vrscheduler.base_service
+        public: true
+    vrscheduler.quickbooksonline_billing:
+        class: AppBundle\Service\QuickbooksOnlineSyncBilling
+        parent: vrscheduler.base_service
+        public: true
+
 
