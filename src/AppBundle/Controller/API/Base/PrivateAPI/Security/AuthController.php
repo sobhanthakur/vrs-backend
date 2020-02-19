@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
+use QuickBooksOnline\API\DataService\DataService;
 
 /**
  * Class AuthController
@@ -118,5 +119,76 @@ class AuthController extends FOSRestController
             'ReasonCode' => 0,
             'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message')
         );
+    }
+
+    /**
+     * Returns the OAuth URL
+     * @SWG\Tag(name="Quickbooks Online")
+     * @SWG\Response(
+     *     response=200,
+     *     description="RedirectURL"
+     * )
+     * @Rest\Get("/qbo", name="vrs_qbo_authenticate")
+     * @param Request $request
+     * @return array
+     * @throws \QuickBooksOnline\API\Exception\SdkException
+     */
+    public function QBO(Request $request)
+    {
+        try {
+            $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+            // Capture Quickbooks Config Parameters
+            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+
+            // Configure Data Service
+            $dataService = $this->container->get('vrscheduler.quickbooksonline_authentication')->Configure($quickbooksConfig);
+            $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
+            $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
+            return array(
+                'ReasonCode' => 0,
+                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
+                'RedirectURI' => $authUrl
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @return null
+     * @param Request $request
+     * @Rest\Get("/callback", name="qwc_callback")
+     */
+    public function QBOMethod(Request $request)
+    {
+        try {
+            $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+            // Capture Quickbooks Config Parameters
+            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+
+            $authService = $this->container->get('vrscheduler.quickbooksonline_authentication')->QBOAuthentication($quickbooksConfig,$request);
+
+            if(!$authService) {
+                throw new UnprocessableEntityHttpException();
+            }
+
+            // Redirect on success
+            return $this->redirect($this->container->getParameter('QuickBooksConfiguration')['RedirectAfterCallback']);
+
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

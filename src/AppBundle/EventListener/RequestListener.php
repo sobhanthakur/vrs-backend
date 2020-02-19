@@ -80,6 +80,16 @@ class RequestListener extends BaseService
                 $request->attributes->set('AuthPayload',$authenticateResult);
             }
         }
+
+        // Check if the incoming request is for the PWA application
+        if(in_array($route, ApiRoutes::PWA_ROUTES)) {
+            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            $authenticateResult = $authService->VerifyPWAAuthentication($request);
+            if($authenticateResult['status']) {
+                $request->attributes->set('AuthPayload',$authenticateResult);
+            }
+        }
+
         $this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),

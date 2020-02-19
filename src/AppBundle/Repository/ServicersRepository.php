@@ -288,4 +288,39 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
         return $this->fetchStaff($customerDetails, $queryParameter, $staffID, $offset, $query);
 
     }
+
+    /**
+     * @param $servicerid
+     * @param $password
+     * @return mixed
+     */
+    public function ValidateAuthentication($servicerid, $password)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowstartearly=1 THEN 1 ELSE 0 END) AS StartEarly, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
+            ->where('s.servicerid= :ServicerID')
+            ->andWhere('s.password= :Password')
+            ->setParameter('ServicerID',$servicerid)
+            ->setParameter('Password', $password)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function ServicerDashboardRestrictions($servicerID)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('(CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->where('s.servicerid= :ServicerID')
+            ->setParameter('ServicerID',$servicerID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }
