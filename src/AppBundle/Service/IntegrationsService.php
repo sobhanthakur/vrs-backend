@@ -249,7 +249,7 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setType($content[GeneralConstants::QBDTYPE]);
             }
 
-            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content) && !array_key_exists(GeneralConstants::REALMID, $content)) {
+            if (array_key_exists(GeneralConstants::QBDSYNCBILLING, $content)) {
                 $integrationToCustomer->setQbdsyncbilling($content[GeneralConstants::QBDSYNCBILLING]);
             }
 
