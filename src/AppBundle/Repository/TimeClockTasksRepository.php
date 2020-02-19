@@ -49,6 +49,9 @@ class TimeClockTasksRepository extends EntityRepository
         //check for staffid option in query paramter
         isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
 
+        //check for taskid option in query paramter
+        isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
@@ -65,6 +68,13 @@ class TimeClockTasksRepository extends EntityRepository
                 ->setParameter('CustomerID', $customerDetails);
         }
 
+
+        //condition to check for task id data
+        if ($taskID) {
+            $result->andWhere('t.taskid IN (:TaskID)')
+                ->setParameter('TaskID', $taskID);
+        }
+
         //condition to check for staff id data
         if ($staffID) {
             $result->andWhere('sr.servicerid IN (:StaffID)')
@@ -78,14 +88,7 @@ class TimeClockTasksRepository extends EntityRepository
             $result->andWhere('tct.clockin >= (:StartDate)')
                 ->setParameter('StartDate', $startDate);
         }
-
-        //condition to check for data before this date
-        /*if (isset($endDate)) {
-            $endDate = date("Y-m-d", strtotime($endDate));
-            $result->andWhere('tct.clockout <= (:EndDate)')
-                ->setParameter('EndDate', $endDate);
-        }*/
-
+        
         if (isset($endDate)) {
             $endDate = date("Y-m-d", strtotime($endDate . ' +1 day'));
             $result->andWhere('tct.clockout <= (:EndDate)')
@@ -95,6 +98,7 @@ class TimeClockTasksRepository extends EntityRepository
         //return staff task times details
          return $result
             ->innerJoin('tct.servicerid', 'sr')
+             ->innerJoin('tct.taskid', 't')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()

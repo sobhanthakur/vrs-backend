@@ -343,6 +343,7 @@ final class GeneralConstants
     const STAFF_TASKS_TIMES_MAPPING = [
         'timeclocktaskid' => 'tct.timeclocktaskid as StaffTaskTimeID',
         'servicerid' => 'sr.servicerid as StaffID',
+        'taskid' => 't.taskid as TaskID',
         'clockin' => 'tct.clockin as ClockIn',
         'clockout' => 'tct.clockout as ClockOut',
         'inlat' => 'tct.inlat as InLat',
@@ -350,7 +351,7 @@ final class GeneralConstants
         'OutLat' => 'tct.outlat as OutLat',
         'OutLon' => 'tct.outlon as OutLon',
         'note' => 'tct.note as Note',
-        'autologoutflag' => 'tct.autologoutflag as AutoLogOutFlagxxxx'
+        'autologoutflag' => 'tct.autologoutflag as AutoLogOutFlag'
     ];
 
     const STAFF_DAY_TIMES_MAPPING = [
