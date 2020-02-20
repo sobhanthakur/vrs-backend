@@ -193,6 +193,12 @@ class TimeclockdaysRepository extends EntityRepository
         //check for staffid option in query paramter
         isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
 
+        //check for  option in query paramter
+        isset($queryParameter['startdate']) ? $startDate = $queryParameter['startdate'] : $startDate = null;
+
+        //check for  option in query paramter
+        isset($queryParameter['enddate']) ? $endDate =  $queryParameter['enddate']: $endDate = null;
+
         //condition to set query for all or some required fields
         $result->select($query);
 
@@ -213,6 +219,19 @@ class TimeclockdaysRepository extends EntityRepository
         if ($staffID) {
             $result->andWhere('sr.servicerid IN (:StaffID)')
                 ->setParameter('StaffID', $staffID);
+        }
+
+        //condition to check for data after this date
+        if (isset($startDate)) {
+            $startDate = date("Y-m-d", strtotime($startDate));
+            $result->andWhere('tcd.clockin >= (:StartDate)')
+                ->setParameter('StartDate', $startDate);
+        }
+
+        if (isset($endDate)) {
+            $endDate = date("Y-m-d", strtotime($endDate . ' +1 day'));
+            $result->andWhere('tcd.clockout <= (:EndDate)')
+                ->setParameter('EndDate', $endDate);
         }
 
         //return staff day times details

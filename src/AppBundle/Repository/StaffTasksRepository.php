@@ -32,7 +32,7 @@ class StaffTasksRepository extends EntityRepository
      *
      * @return array
      */
-    public function fetchStaffTasks($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null , $ids = array())
+    public function fetchStaffTasks($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null, $ids = array())
     {
         $sortOrder = array();
 
@@ -72,12 +72,6 @@ class StaffTasksRepository extends EntityRepository
                 ->setParameter('StaffTaskID', $staffTaskID);
         }
 
-        //condition to filter by staff tasks id
-        /*if ($taskID) {
-            $result->andWhere('st.taskid = (:TaskID)')
-                ->setParameter('TaskID', $taskID);
-        }*/
-
         //condition to check for customer specific data
         if ($customerDetails) {
             $result->andWhere('sr.customerid IN (:CustomerID)')
@@ -85,30 +79,12 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //return task details
-        return $result1= $result
+        return $result1 = $result
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
-            //->groupBy('st.tasktoservicerid, t.taskid, sr.servicerid')
-            //->setFirstResult(($offset - 1) * $limit)
-            //->setMaxResults($limit)
             ->getQuery()
             ->execute();
-
-
-
-        /*const STAFF_TASKS_MAPPING = [
-            'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
-            'taskid' => 't.taskid as TaskID',
-            'servicerid' => 'sr.servicerid as StaffID',
-            'paytype' => 'st.paytype as PayType',
-            'payrate' => 'st.payrate as PayRate',
-            'piecepay' => 'st.piecepay as PiecePay',
-            'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
-            'Pay' => '\'\' as Pay',
-            'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
-            'servicerPayRate' => 'st.payrate as ServicerPayRate',
-        ];*/
     }
 
     /**
@@ -144,9 +120,8 @@ class StaffTasksRepository extends EntityRepository
         $query = trim($query, ',');
 
         //return task results
-       $result1 = $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit, $allIds);
-       return $result1;
-
+        $fatch1 = $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit, $allIds);
+        return $fatch1;
     }
 
     /**
@@ -161,29 +136,26 @@ class StaffTasksRepository extends EntityRepository
      */
     public function getItemsCount($customerDetails, $queryParameter, $taskID, $offset)
     {
-        $query = "count(st.tasktoservicerid)";
-        return $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query);
-
-    }
-
-   /* public function getAllID(){
         $result = $this
             ->createQueryBuilder('st')
-            ->select('distinct(t.taskid)')
+            ->select('distinct(st.taskid)')
+           // ->select('distinct(t.taskid)')
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
-            ->setFirstResult(0)
-            ->setMaxResults(20)
+            ->innerJoin('st.servicerid', 'sr')
+            ->andWhere('sr.customerid = (:CustomerID)')
+            ->setParameter('CustomerID', $customerDetails)
             ->getQuery()
             ->getArrayResult();
-        dump( array_column($result, 1)); die();
-    }*/
 
-    public function getAllTaskID($customerDetails, $queryParameter, $taskID, $offset, $limit){
-        $limit= 100;
+        return $result;
+    }
+
+    public function getAllTaskID($customerDetails, $queryParameter, $taskID, $offset, $limit)
+    {
         $result = $this
             ->createQueryBuilder('st')
-            ->select('distinct(t.taskid)')
+            ->select('distinct(st.taskid)')
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
@@ -194,7 +166,7 @@ class StaffTasksRepository extends EntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        return array_column($result, 1);
+          return $result1 = array_column($result, 1);
     }
 
 }

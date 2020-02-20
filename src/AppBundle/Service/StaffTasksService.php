@@ -55,10 +55,14 @@ class StaffTasksService  extends BaseService
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
 
             //checking if more records are there to fetch from db
-            $allIds = $staffTasksRepo->getAllTaskID($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit);;
+            $allIds = $staffTasksRepo->getAllTaskID($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit);
+
+            //dump($allIds); die();
 
             //getting task Detail
             $staffTasksData = $staffTasksRepo->getItems($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit, $allIds);
+
+
 
             //return 404 if resource not found
             if (empty($staffTasksData)) {
@@ -76,6 +80,7 @@ class StaffTasksService  extends BaseService
             foreach ($staffTasksData as $key => $value){
                 if(isset($value['TimeTracked'])){
                     $value['TimeTracked'] = strtotime(gmdate("H:i:s", strtotime($value['TimeTracked'])));
+
                     if (array_key_exists($value['StaffTaskID'],$resultArray)) {
                         $resultArray[$value['StaffTaskID']]['TimeTracked'] += $value['TimeTracked'];
                     } else {
@@ -88,7 +93,7 @@ class StaffTasksService  extends BaseService
             //Setting return Data
             $returnData['url'] = $pathInfo;
             ($totalItems <= $offset * $limit) ? $returnData['has_more'] = false : $returnData['has_more'] = true;
-            $returnData['data'] = $staffTasksData;
+            $returnData['data'] = array_values($resultArray);
             $returnData['page_count'] = $totalPage;
             $returnData['page_size'] = $limit;
             $returnData['page'] = $offset;
