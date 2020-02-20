@@ -124,7 +124,6 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $batch->setIntegrationtocustomer($integrationsToCustomers);
             $this->entityManager->persist($batch);
 
-
             // Create the billing array
             foreach ($response as $key => $value) {
                 $line = [];
@@ -164,13 +163,18 @@ class QuickbooksOnlineSyncBilling extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
                 }
 
-                $billingRecord = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->find(array_unique($billingRecordID[$key])[0]);
-                $billingRecord->setSentstatus(true);
-                $billingRecord->setIntegrationqbbatchid($batch);
-                if($result) {
-                    $billingRecord->setTxnid($result->Id);
+                $billingIDs = array_unique($billingRecordID[$key]);
+                foreach ($billingIDs as $item) {
+                    $billingID = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->findOneBy(array('integrationqbdbillingrecordid'=>$item));
+                    if($billingID) {
+                        if($result) {
+                            $billingID->setTxnid($result->Id);
+                        }
+                        $billingID->setSentstatus(true);
+                        $billingID->setIntegrationqbbatchid($batch);
+                        $this->entityManager->persist($billingID);
+                    }
                 }
-                $this->entityManager->persist($billingRecord);
             }
             $this->entityManager->flush();
             return true;
