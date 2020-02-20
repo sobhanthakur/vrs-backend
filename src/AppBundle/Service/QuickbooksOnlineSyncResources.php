@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Entity\Customers;
 use AppBundle\Entity\Integrationqbdcustomers;
 use AppBundle\Entity\Integrationqbditems;
 use QuickBooksOnline\API\Exception\ServiceException;
@@ -90,23 +91,39 @@ class QuickbooksOnlineSyncResources extends BaseService
 
     /**
      * @param $customers
-     * @param $customerObj
+     * @param Customers $customerObj
      * @return bool
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function StoreCustomers($customers, $customerObj)
     {
+        $incomingListIDs = [];
         foreach ($customers as $customer) {
             $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id));
             if(!$integrationQBDCustomers) {
                 $integrationQBDCustomers = new Integrationqbdcustomers();
             }
+            $incomingListIDs[] = $customer->Id;
             $integrationQBDCustomers->setCustomerid($customerObj);
             $integrationQBDCustomers->setActive($customer->Active);
             $integrationQBDCustomers->setQbdcustomerfullname($customer->FullyQualifiedName);
             $integrationQBDCustomers->setQbdcustomerlistid($customer->Id);
             $this->entityManager->persist($integrationQBDCustomers);
+        }
+
+        // Fetch available Customers to keep track of customers that are made inactive in QBO
+        $qbdListIDs = [];
+        $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->GetAllCustomers($customerObj->getCustomerid());
+        foreach ($qbdCustomers as $val) {
+            $qbdListIDs[] = $val['QBDCustomerListID'];
+        }
+
+        // Check if any record is deleted or not.
+        $diffArray = array_diff($qbdListIDs, $incomingListIDs);
+        foreach ($diffArray as $key => $value) {
+            $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value));
+            $qbdCustomers->setActive(false);
         }
         $this->entityManager->flush();
         return true;
@@ -114,23 +131,38 @@ class QuickbooksOnlineSyncResources extends BaseService
 
     /**
      * @param $items
-     * @param $customerObj
+     * @param Customers $customerObj
      * @return bool
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function StoreItems($items, $customerObj)
     {
+        $incomingItemListIDs = [];
         foreach ($items as $item) {
             $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id));
             if(!$integrationQBDItems) {
                 $integrationQBDItems = new Integrationqbditems();
             }
+            $incomingItemListIDs[] = $item->Id;
             $integrationQBDItems->setCustomerid($customerObj);
             $integrationQBDItems->setActive($item->Active);
             $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
             $integrationQBDItems->setQbditemlistid($item->Id);
             $this->entityManager->persist($integrationQBDItems);
+        }
+
+
+        // Fetch all the Items existing in DB and set active field to 0 for inactive items
+        $qbdListIDs = [];
+        $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->GetAllItems($customerObj->getCustomerid());
+        foreach ($qbdItems as $val) {
+            $qbdListIDs[] = $val['QBDItemListID'];
+        }
+        $diffArray = array_diff($qbdListIDs, $incomingItemListIDs);
+        foreach ($diffArray as $key => $value) {
+            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value));
+            $qbdItems->setActive(false);
         }
         $this->entityManager->flush();
         return true;
