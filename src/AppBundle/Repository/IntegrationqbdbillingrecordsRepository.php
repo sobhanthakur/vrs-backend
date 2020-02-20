@@ -101,7 +101,6 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
-            ->andWhere('b1.refnumber IS NOT NULL')
             ->andWhere('b1.integrationqbbatchid='.$batchID);
         return $result->getQuery()->getResult();
     }
@@ -122,7 +121,6 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
-            ->andWhere('b1.refnumber IS NOT NULL')
             ->andWhere('b1.integrationqbbatchid='.$batchID)
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
@@ -145,7 +143,6 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
-            ->andWhere('b1.refnumber IS NOT NULL')
             ->andWhere('b1.integrationqbbatchid='.$batchID);
         return $result->getQuery()->getResult();
     }
