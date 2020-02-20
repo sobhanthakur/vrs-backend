@@ -21,11 +21,11 @@ use Doctrine\ORM\QueryBuilder;
 class StaffTasksRepository extends EntityRepository
 {
     /**
-     * Function to fetch task details
+     * Function to fetch staff task details
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $taskID
+     * @param $staffTaskID
      * @param $offset
      * @param $query
      * @param $limit
@@ -39,15 +39,8 @@ class StaffTasksRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('st');
 
-
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
-
-        //check for property id in query paramter
-        isset($queryParameter['propertyid']) ? $propertyID = $queryParameter['propertyid'] : $propertyID = null;
-
-        //check for property id in query paramter
-        isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
 
         //condition to set query for all or some required fields
         $result->select($query);
@@ -58,13 +51,6 @@ class StaffTasksRepository extends EntityRepository
                 $result->orderBy('st.' . $field);
             }
         }
-
-        //condition to filter by staff tasks id
-        if ($ids) {
-            $result->andWhere('st.taskid IN (:TaskID)')
-                ->setParameter('TaskID', $ids);
-        }
-
 
         //condition to filter by staff tasks id
         if ($staffTaskID) {
@@ -83,23 +69,26 @@ class StaffTasksRepository extends EntityRepository
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
+            ->andWhere('st.taskid IN (:TaskID)')
+            ->setParameter('TaskID', $ids)
             ->getQuery()
             ->execute();
     }
 
     /**
-     * Function to fetch task details
+     * Function to fetch all data according to taskid
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $taskID
+     * @param $staffTaskID
      * @param $offset
      * @param $limit
      *
      * @return array
      */
-    public function getItems($customerDetails, $queryParameter, $taskID, $offset, $limit, $allIds)
+    public function getItems($customerDetails, $queryParameter, $staffTaskID, $offset, $limit, $allIds)
     {
+
         $query = "";
         $fields = array();
 
@@ -120,53 +109,97 @@ class StaffTasksRepository extends EntityRepository
         $query = trim($query, ',');
 
         //return task results
-        $fatch1 = $this->fetchStaffTasks($customerDetails, $queryParameter, $taskID, $offset, $query, $limit, $allIds);
-        return $fatch1;
+        return $this->fetchStaffTasks($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit, $allIds);
+    }
+
+    /**
+     * Function to data according to query
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffTaskID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null)
+    {
+
+        $result = $this
+            ->createQueryBuilder('st');
+
+        //check for task id in query paramter
+        isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
+
+        //check for staff id in query paramter
+        isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
+
+        //condition to check for task id data
+        if ($taskID) {
+            $result->andWhere('st.taskid  = (:TaskID)')
+                ->setParameter('TaskID', $taskID);
+        }
+
+        //condition to check data form staff id
+        if ($staffID) {
+            $result->andWhere('st.servicerid  = (:StaffID)')
+                ->setParameter('StaffID', $staffID);
+        }
+
+        //setting query
+        $result->select($query);
+
+        return $result
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
+            ->innerJoin('st.servicerid', 'sr')
+            ->andWhere('st.servicerid=tct.servicerid')
+            ->innerJoin('st.taskid', 't')
+            ->setFirstResult(($offset - 1) * $limit)
+            ->andWhere('sr.customerid = (:CustomerID)')
+            ->setParameter('CustomerID', $customerDetails)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->execute();
+
     }
 
     /**
      * Function to get no. of task of the consumer
      *
+     *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $taskID
+     * @param $staffTaskID
      * @param $offset
      *
      * @return array
      */
-    public function getItemsCount($customerDetails, $queryParameter, $taskID, $offset)
+    public function getItemsCount($customerDetails, $queryParameter, $staffTaskID, $offset)
     {
-        $result = $this
-            ->createQueryBuilder('st')
-            ->select('distinct(st.taskid)')
-           // ->select('distinct(t.taskid)')
-            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
-            ->innerJoin('st.taskid', 't')
-            ->innerJoin('st.servicerid', 'sr')
-            ->andWhere('sr.customerid = (:CustomerID)')
-            ->setParameter('CustomerID', $customerDetails)
-            ->getQuery()
-            ->getArrayResult();
-
+        $query = 'count(distinct(st.taskid))';
+        $result = $this->getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query);
         return $result;
     }
 
-    public function getAllTaskID($customerDetails, $queryParameter, $taskID, $offset, $limit)
+    /**
+     * Function to fetch distinct task id
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffTaskID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getAllTaskID($customerDetails, $queryParameter, $staffTaskID, $offset, $limit)
     {
-        $result = $this
-            ->createQueryBuilder('st')
-            ->select('distinct(st.taskid)')
-            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
-            ->innerJoin('st.taskid', 't')
-            ->innerJoin('st.servicerid', 'sr')
-            ->andWhere('sr.customerid IN (:CustomerID)')
-            ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
-            ->setParameter('CustomerID', $customerDetails)
-            ->getQuery()
-            ->getArrayResult();
-
-          return $result1 = array_column($result, 1);
+        $query = 'distinct(st.taskid)';
+        $result = $this->getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit);
+        return array_column($result, 1);
     }
 
 }

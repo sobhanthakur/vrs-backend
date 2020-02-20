@@ -116,6 +116,7 @@ final class GeneralConstants
     const STAFF_API = 'staff API error ';
     const TASKS_API = 'tasks API error ';
     const STAFF_DAY_TIMES_API = 'staff day times API error ';
+    const STAFF_TASK_API = 'staff Task API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -333,19 +334,18 @@ final class GeneralConstants
 
     const STAFF_TASKS_MAPPING = [
         'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
-        //'taskid' => 'count(t.taskid) as TaskID',
         'taskid' => 't.taskid as TaskID',
         'servicerid' => 'sr.servicerid as StaffID',
         'paytype' => 'st.paytype as PayType',
         'payrate' => 'st.payrate as PayRate',
         'piecepay' => 'st.piecepay as PiecePay',
-        //'piecepay' => 'sum(tct.clockout) as Clockout',
-        'clockout' => 'tct.clockout as ClockOut',
-        'clockin' => 'tct.clockin as ClockIn',
-        'TimeTracked' => 'tct.clockout - tct.clockin as TimeTracked',
+        'TimeTracked' => '\'\' as TimeTracked',
         'Pay' => '\'\' as Pay',
-        //'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
-        //'servicerPayRate' => 'st.payrate as ServicerPayRate',
+        'servicerpayrate' => 'sr.payrate as ServicerPayRate',
+        'clockin' => 'tct.clockin as ClockIn',
+        'clockout' => 'tct.clockout as ClockOut',
+        'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
+        'approvedDate' => 'st.approvedDate as ApprovedDate',
     ];
 
     const STAFF_TASKS_TIMES_MAPPING = [

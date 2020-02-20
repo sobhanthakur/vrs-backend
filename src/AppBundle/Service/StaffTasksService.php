@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class StaffTasksService  extends BaseService
+class StaffTasksService extends BaseService
 {
     /**
      * Function to validate and get all staff tasks
@@ -30,9 +30,11 @@ class StaffTasksService  extends BaseService
     {
         $returnData = array();
         $allIds = array();
+        $timestamp = null;
+        $resultArray = array();
 
         try {
-            //Get Tasks Repo
+            //Get Taskstoservicers Repo
             $staffTasksRepo = $this->entityManager->getRepository('AppBundle:Taskstoservicers');
 
             //cheking valid query parameters
@@ -57,12 +59,8 @@ class StaffTasksService  extends BaseService
             //checking if more records are there to fetch from db
             $allIds = $staffTasksRepo->getAllTaskID($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit);
 
-            //dump($allIds); die();
-
-            //getting task Detail
+            //getting staff task Detail
             $staffTasksData = $staffTasksRepo->getItems($authDetails['customerID'], $queryParameter, $staffTasksID, $offset, $limit, $allIds);
-
-
 
             //return 404 if resource not found
             if (empty($staffTasksData)) {
@@ -70,30 +68,74 @@ class StaffTasksService  extends BaseService
             }
 
             //checking if more records are there to fetch from db
-            $totalItems = (int)$staffTasksRepo->getItemsCount($authDetails['customerID'], $queryParameter, $staffTasksID, $offset)[0][1];
+            $totalItems = $staffTasksRepo->getItemsCount($authDetails['customerID'], $queryParameter, $staffTasksID, $offset)[0][1];
 
             //setting page count
             $totalPage = (int)ceil($totalItems / $limit);
 
-            $resultArray = array();
+            //calculating Timetracked for each staff
+            foreach ($staffTasksData as $value) {
+                if (isset($value['ClockIn']) & isset($value['ClockIn'])) {
+                    $value['ClockIn'] = $value['ClockIn']->getTimestamp();
+                    $value['ClockOut'] = $value['ClockOut']->getTimestamp();
+                    $value['TimeTracked'] = $value['ClockOut'] - $value['ClockIn'];
 
-            foreach ($staffTasksData as $key => $value){
-                if(isset($value['TimeTracked'])){
-                    $value['TimeTracked'] = strtotime(gmdate("H:i:s", strtotime($value['TimeTracked'])));
-
-                    if (array_key_exists($value['StaffTaskID'],$resultArray)) {
+                    if (array_key_exists($value['StaffTaskID'], $resultArray)) {
                         $resultArray[$value['StaffTaskID']]['TimeTracked'] += $value['TimeTracked'];
                     } else {
                         $resultArray[$value['StaffTaskID']] = $value;
                     }
                 }
+            }
+
+            //parsing result array
+            $result = array_values($resultArray);
+
+            //Formating Date to utc ymd format
+            for ($i = 0; $i < count($result); $i++) {
+                if (isset($result[$i]['approvedDate'])) {
+                    $result[$i]['approvedDate'] = $result[$i]['approvedDate']->format('Ymd');
+                }
+
+                //Time worked by staff per task in hour format
+                $timeWorkedInHour = $result[$i]['TimeTracked'] / 3600;
+
+                //Formating time worked by staff to required format
+                if (isset($result[$i]['TimeTracked'])) {
+                    $result[$i]['TimeTracked'] = $this->mediaTimeDeFormater($result[$i]['TimeTracked']);
+                }
+
+                //Setting Pay type  for response
+                if (isset($result[$i]['PayType'])) {
+                    switch ($result[$i]['PayType']) {
+                        case 0:
+                            $result[$i]['Pay'] = 0;
+                            break;
+                        case 1:
+                            $result[$i]['Pay'] = $result[$i]['PiecePay'];
+                            break;
+                        case 2:
+                            $result[$i]['Pay'] = $result[$i]['PiecePay'] * $result[$i]['ServicerPayRate'];
+                            break;
+                        case 3:
+                            $result[$i]['Pay'] = $timeWorkedInHour * $result[$i]['ServicerPayRate'];
+                            break;
+                        default:
+                            $result[$i]['Pay'] = null;
+                    }
+                }
+
+                //unsetting variables
+                unset($result[$i]['ServicerPayRate']);
+                unset($result[$i]['ClockIn']);
+                unset($result[$i]['ClockOut']);
 
             }
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
             ($totalItems <= $offset * $limit) ? $returnData['has_more'] = false : $returnData['has_more'] = true;
-            $returnData['data'] = array_values($resultArray);
+            $returnData['data'] = $result;
             $returnData['page_count'] = $totalPage;
             $returnData['page_size'] = $limit;
             $returnData['page'] = $offset;
@@ -106,11 +148,44 @@ class StaffTasksService  extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error(GeneralConstants::TASKS_API .
+            $this->logger->error(GeneralConstants::STAFF_TASK_API .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
         return $returnData;
+    }
+
+    /**
+     * Format seconds to display format in staff task api
+     * @param $seconds
+     *
+     * @return string
+     */
+    function mediaTimeDeFormater($seconds)
+    {
+        if (!is_numeric($seconds))
+            throw new Exception("Invalid Parameter Type!");
+
+
+        $ret = "";
+
+        $hours = (string )floor($seconds / 3600);
+        $secs = (string )$seconds % 60;
+        $mins = (string )floor(($seconds - ($hours * 3600)) / 60);
+
+        if (strlen($hours) == 1)
+            $hours = "0" . $hours;
+        if (strlen($secs) == 1)
+            $secs = "0" . $secs;
+        if (strlen($mins) == 1)
+            $mins = "0" . $mins;
+
+        if ($hours == 0)
+            $ret = "$mins:$secs";
+        else
+            $ret = "$hours:$mins:$secs";
+
+        return $ret;
     }
 
 }

@@ -81,7 +81,6 @@ class TimeClockTasksRepository extends EntityRepository
                 ->setParameter('StaffID', $staffID);
         }
 
-
         //condition to check for data after this date
         if (isset($startDate)) {
             $startDate = date("Y-m-d", strtotime($startDate));

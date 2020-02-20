@@ -169,6 +169,13 @@ class Taskstoservicers
     private $troubleshootingnote;
 
     /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ApprovedDate", type="datetime", nullable=true)
+     */
+    private $approvedDate;
+
+    /**
      * @var \Tasks
      *
      * @ORM\ManyToOne(targetEntity="Tasks")
@@ -750,5 +757,29 @@ class Taskstoservicers
     public function getServicerid()
     {
         return $this->servicerid;
+    }
+
+    /**
+     * Set approvedDate.
+     *
+     * @param \DateTime|null $approvedDate
+     *
+     * @return Taskstoservicers
+     */
+    public function setApprovedDate($approvedDate = null)
+    {
+        $this->approvedDate = $approvedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get approvedDate.
+     *
+     * @return \DateTime|null
+     */
+    public function getApprovedDate()
+    {
+        return $this->approvedDate;
     }
 }
