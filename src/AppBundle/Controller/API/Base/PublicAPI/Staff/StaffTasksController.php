@@ -45,28 +45,31 @@ class StaffTasksController extends FOSRestController
      *              property="data",
      *              example=
      *               {
-     *                  {
-     *                      "StaffID": 132,
-     *                      "Name": "James Gillette",
-     *                      "Abbreviation": "JG",
-     *                      "Email": "demo@gmail.com",
-     *                      "Phone": "99999999",
-     *                      "CountryID": "225",
-     *                      "Active": "true",
-     *                      "CreateDate": "20180825"
-     *
-     *                  },
-     *                  {
-     *                      "StaffID": 137,
-     *                      "Name": "James Bond",
-     *                      "Abbreviation": "JG",
-     *                      "Email": "demo@gmail.com",
-     *                      "Phone": "99999999",
-     *                      "CountryID": "225",
-     *                      "Active": "true",
-     *                      "CreateDate": "20180825"
-     *
-     *                  }
+     *                   {
+                            "StaffTaskID": 72157,
+                            "TaskID": 81530,
+                            "StaffID": 134,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "00:04",
+                            "Pay": 0,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            },
+                            {
+                            "StaffTaskID": 72164,
+                            "TaskID": 81535,
+                            "StaffID": 142,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "01:22",
+                            "Pay": 0.57,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            }
+
      *              }
      *         )
      *     )
@@ -148,27 +151,17 @@ class StaffTasksController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "StaffID": 132,
-     *                      "Name": "James Gillette",
-     *                      "Abbreviation": "JG",
-     *                      "Email": "demo@gmail.com",
-     *                      "Phone": "99999999",
-     *                      "CountryID": "225",
-     *                      "Active": "true",
-     *                      "CreateDate": "20180825"
-     *
-     *                  },
-     *                  {
-     *                      "StaffID": 137,
-     *                      "Name": "James Bond",
-     *                      "Abbreviation": "JG",
-     *                      "Email": "demo@gmail.com",
-     *                      "Phone": "99999999",
-     *                      "CountryID": "225",
-     *                      "Active": "true",
-     *                      "CreateDate": "20180825"
-     *
-     *                  }
+                            "StaffTaskID": 72157,
+                            "TaskID": 81530,
+                            "StaffID": 134,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "00:04",
+                            "Pay": 0,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            }
      *              }
      *         )
      *     )

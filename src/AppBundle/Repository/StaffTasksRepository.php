@@ -66,9 +66,10 @@ class StaffTasksRepository extends EntityRepository
 
         //return task details
         return $result1 = $result
-            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
             ->innerJoin('st.taskid', 't')
             ->innerJoin('st.servicerid', 'sr')
+            ->andWhere('st.taskid=tct.taskid')
             ->andWhere('st.taskid IN (:TaskID)')
             ->setParameter('TaskID', $ids)
             ->getQuery()
@@ -126,7 +127,6 @@ class StaffTasksRepository extends EntityRepository
      */
     public function getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit = null)
     {
-
         $result = $this
             ->createQueryBuilder('st');
 
@@ -143,18 +143,18 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //condition to check data form staff id
-        if ($staffID) {
-            $result->andWhere('st.servicerid  = (:StaffID)')
-                ->setParameter('StaffID', $staffID);
+        if ($staffTaskID) {
+            $result->andWhere('st.tasktoservicerid  = (:StaffTaskID)')
+                ->setParameter('StaffTaskID', $staffTaskID);
         }
 
         //setting query
         $result->select($query);
 
         return $result
-            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.taskid = tct.taskid')
+            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
             ->innerJoin('st.servicerid', 'sr')
-            ->andWhere('st.servicerid=tct.servicerid')
+            ->andWhere('st.taskid=tct.taskid')
             ->innerJoin('st.taskid', 't')
             ->setFirstResult(($offset - 1) * $limit)
             ->andWhere('sr.customerid = (:CustomerID)')

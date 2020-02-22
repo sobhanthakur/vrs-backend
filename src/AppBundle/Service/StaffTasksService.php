@@ -51,7 +51,7 @@ class StaffTasksService extends BaseService
             }
 
             //check for limit option in query paramter
-            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 100);
 
             //setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
@@ -118,7 +118,8 @@ class StaffTasksService extends BaseService
                             $result[$i]['Pay'] = $result[$i]['PiecePay'] * $result[$i]['ServicerPayRate'];
                             break;
                         case 3:
-                            $result[$i]['Pay'] = $timeWorkedInHour * $result[$i]['ServicerPayRate'];
+                            $totalWorked = $timeWorkedInHour * $result[$i]['ServicerPayRate'];
+                            $result[$i]['Pay'] = round($totalWorked, 2);
                             break;
                         default:
                             $result[$i]['Pay'] = null;
