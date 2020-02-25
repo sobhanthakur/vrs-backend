@@ -69,10 +69,13 @@ final class ApiRoutes
         "staff_get_id",
         "staff_tasks_get_id",
         "staff_task_times_get",
-        "staff_day_times"
+        "staff_day_times",
+        "property_bookings_post",
+        "property_bookings_put",
+        "property_bookings_delete"
     );
 
     const PWA_ROUTES = array(
-      "vrs_pwa_tasks"
+        "vrs_pwa_tasks"
     );
 }

@@ -130,11 +130,24 @@ class StaffTasksRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('st');
 
+        //check for approvedstartdate and approvedenddate in query paramter
+        isset($queryParameter['approvedstartdate']) ? $approvedStartDate = $queryParameter['approvedstartdate'] : $approvedStartDate = null;
+        isset($queryParameter['approvedenddate']) ? $approvedEndDate = $queryParameter['approvedenddate'] : $approvedEndDate = null;
+
         //check for task id in query paramter
         isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
 
         //check for staff id in query paramter
         isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
+
+        //check for approved in query paramter
+        isset($queryParameter['approved']) ? $approved = $queryParameter['approved'] : $approved = null;
+        
+        //condition to check for task id data
+        if ($taskID) {
+            $result->andWhere('st.taskid  = (:TaskID)')
+                ->setParameter('TaskID', $taskID);
+        }
 
         //condition to check for task id data
         if ($taskID) {
@@ -142,10 +155,38 @@ class StaffTasksRepository extends EntityRepository
                 ->setParameter('TaskID', $taskID);
         }
 
+        //condition to check for task id data
+        if ($taskID) {
+            $result->andWhere('st.taskid  = (:TaskID)')
+                ->setParameter('TaskID', $taskID);
+        }
+
+        //condition to check for staff id data
+        if (isset($approved)) {
+            if ($approved != 0) {
+                $result->andWhere('st.piecepaystatus !=0');
+            } else {
+                $result->andWhere('st.piecepaystatus = 0');
+            }
+        }
+
         //condition to check data form staff id
         if ($staffTaskID) {
             $result->andWhere('st.tasktoservicerid  = (:StaffTaskID)')
                 ->setParameter('StaffTaskID', $staffTaskID);
+        }
+
+        //condition to filter by  approvedStartDate
+        if ($approvedStartDate) {
+            $approvedStartDate = date("Y-m-d", strtotime($approvedStartDate));
+            $result->andWhere('st.approvedDate >= (:ApprovedDate)')
+                ->setParameter('ApprovedDate', $approvedStartDate);
+        }
+        //condition to filter by  approvedEndDate
+        if ($approvedEndDate) {
+            $approvedEndDate = date("Y-m-d", strtotime($approvedEndDate . ' +1 day'));
+            $result->andWhere('st.approvedDate <= (:ApprovedEndDate)')
+                ->setParameter('ApprovedEndDate', $approvedEndDate);
         }
 
         //setting query

@@ -51,7 +51,7 @@ class StaffTasksService extends BaseService
             }
 
             //check for limit option in query paramter
-            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 100);
+            (isset($queryParameter[GeneralConstants::PARAMS['PER_PAGE']]) ? $limit = $queryParameter[GeneralConstants::PARAMS['PER_PAGE']] : $limit = 20);
 
             //setting offset
             (isset($queryParameter[GeneralConstants::PARAMS['PAGE']]) ? $offset = $queryParameter[GeneralConstants::PARAMS['PAGE']] : $offset = 1);
@@ -93,8 +93,8 @@ class StaffTasksService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($result); $i++) {
-                if (isset($result[$i]['approvedDate'])) {
-                    $result[$i]['approvedDate'] = $result[$i]['approvedDate']->format('Ymd');
+                if (isset($result[$i]['ApprovedDate'])) {
+                    $result[$i]['ApprovedDate'] = $result[$i]['ApprovedDate']->format('Ymd');
                 }
 
                 //Time worked by staff per task in hour format

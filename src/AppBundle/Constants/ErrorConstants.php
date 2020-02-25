@@ -73,6 +73,7 @@ final class ErrorConstants
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
     const NOTHING_TO_MAP = 'NOTHINGTOMAP';
+    const INVALID_PROPERTY_BOOKING_ID = 'INVALID_PROPERTY_BOOKING_ID';
 
 
 
@@ -127,6 +128,7 @@ final class ErrorConstants
         self::INVALID_AUTHENTICATION_BODY => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_body'],
         self::OAUTH_FAILED => ['code' => 1002, self::MESSAGE => 'api.response.error.oauth_failed'],
         self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
-        self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch']
+        self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
+        self::INVALID_PROPERTY_BOOKING_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_booking']
     ];
 }

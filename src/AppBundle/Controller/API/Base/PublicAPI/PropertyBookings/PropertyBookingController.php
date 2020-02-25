@@ -8,8 +8,12 @@
 
 namespace AppBundle\Controller\API\Base\PublicAPI\PropertyBookings;
 
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Put;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
@@ -120,7 +124,7 @@ class PropertyBookingController extends FOSRestController
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             //check access level for read and write
-            $accessLevel = ($restriction->accessLevel == 0)? $accessLevel = false : $accessLevel = true;
+            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
             if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
@@ -222,7 +226,7 @@ class PropertyBookingController extends FOSRestController
             $authService = $this->container->get('vrscheduler.public_authentication_service');
             //check resteiction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
-            $accessLevel = ($restriction->accessLevel == 0)? $accessLevel = false : $accessLevel = true;
+            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
             if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
@@ -244,5 +248,344 @@ class PropertyBookingController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
         return $propertyBooking;
+    }
+
+    /**
+     * Fetch all property booking details of the consumer by id
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     * @SWG\Tag(name="Property Booking")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns all property booking details of the customer",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="url",
+     *              type="string",
+     *              example="/api/v1/propertybookings/14"
+     *          ),
+     *          @SWG\Property(
+     *              property="has_more",
+     *              type="boolean",
+     *              example="true"
+     *          ),
+     *       @SWG\Property(
+     *              property="data",
+     *              example=
+     *               {
+     *                  {
+     *                      "PropertyBookingID": 1322343    ,
+     *                      "PropertyID": 234,
+     *                      "CheckIn": "20190824",
+     *                      "CheckInTime": 14,
+     *                      "CheckInTimeMinutes": 30,
+     *                      "CheckOut": "20190826",
+     *                      "CheckOutTime": 10,
+     *                      "CheckOutTimeMinutes": 0,
+     *                      "Guest": "Fred Smith",
+     *                      "GuestEmail": "Fred@VRScheduler.com",
+     *                      "GuestPhone": "541-555-1212",
+     *                      "NumberOfGuest": 6,
+     *                      "NumberOfChildren": 1,
+     *                      "NumberOfPets": 1,
+     *                      "IsOwner": 0,
+     *                      "BookingTags": "BeachChairs,MidClean",
+     *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
+     *                      "CreateDate": "20190302"
+     *                  }
+     *              }
+     *         )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/propertybookings", name="property_bookings_post")
+     */
+    public function postPropertyBooking(Request $request)
+    {
+        //setting logger
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+        try {
+            //collecting authdetails
+            $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
+            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //parse the json content from request
+            $content = $authService->parseContent($request->getContent(), "json");
+
+            //validate the request
+            $apiRequest = $this->validatePropertyBookingRequest($content);
+            if ($apiRequest['status'] === false) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+
+            //Get pathinfo
+            $pathInfo = $request->getPathInfo();
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+
+            //check restriction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            //check access level for read and write
+            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
+            }
+
+            //Get property booking details
+            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails);
+
+
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new BadRequestHttpException(null, 'Invalid Input types');
+        }
+
+        return $insertPropertyBooking;
+
+    }
+
+
+    /**
+     * Fetch all property booking details of the consumer by id
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     * @SWG\Tag(name="Property Booking")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns all property booking details of the customer",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="url",
+     *              type="string",
+     *              example="/api/v1/propertybookings/14"
+     *          ),
+     *          @SWG\Property(
+     *              property="has_more",
+     *              type="boolean",
+     *              example="true"
+     *          ),
+     *       @SWG\Property(
+     *              property="data",
+     *              example=
+     *               {
+     *                  {
+     *                      "PropertyBookingID": 1322343    ,
+     *                      "PropertyID": 234,
+     *                      "CheckIn": "20190824",
+     *                      "CheckInTime": 14,
+     *                      "CheckInTimeMinutes": 30,
+     *                      "CheckOut": "20190826",
+     *                      "CheckOutTime": 10,
+     *                      "CheckOutTimeMinutes": 0,
+     *                      "Guest": "Fred Smith",
+     *                      "GuestEmail": "Fred@VRScheduler.com",
+     *                      "GuestPhone": "541-555-1212",
+     *                      "NumberOfGuest": 6,
+     *                      "NumberOfChildren": 1,
+     *                      "NumberOfPets": 1,
+     *                      "IsOwner": 0,
+     *                      "BookingTags": "BeachChairs,MidClean",
+     *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
+     *                      "CreateDate": "20190302"
+     *                  }
+     *              }
+     *         )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Put("/propertybookings/{id}", name="property_bookings_put")
+     */
+    public function updatePropertyBooking(Request $request)
+    {
+
+        //setting logger
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+        try {
+            //collecting authdetails
+            $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
+            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //Getting properyId from parameter
+            $propertyBookingID = $request->get('id');
+
+            //parse the json content from request
+            $content = $authService->parseContent($request->getContent(), "json");
+
+            //validate the request
+            $apiRequest = $this->validatePropertyBookingRequest($content);
+            if ($apiRequest['status'] === false) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            //Get pathinfo
+            $pathInfo = $request->getPathInfo();
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+
+            //check restriction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            //check access level for read and write
+            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
+            }
+
+            //Get property booking details
+            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID);
+            return $insertPropertyBooking;
+
+
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new BadRequestHttpException(null, 'Invalid Input types');
+        }
+
+    }
+
+
+    /**
+     * Fetch all property booking details of the consumer by id
+     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     * @SWG\Tag(name="Property Booking")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns all property booking details of the customer",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="url",
+     *              type="string",
+     *              example="/api/v1/propertybookings/14"
+     *          ),
+     *          @SWG\Property(
+     *              property="has_more",
+     *              type="boolean",
+     *              example="true"
+     *          ),
+     *       @SWG\Property(
+     *              property="data",
+     *              example=
+     *               {
+     *                  {
+     *                      "PropertyBookingID": 1322343    ,
+     *                      "PropertyID": 234,
+     *                      "CheckIn": "20190824",
+     *                      "CheckInTime": 14,
+     *                      "CheckInTimeMinutes": 30,
+     *                      "CheckOut": "20190826",
+     *                      "CheckOutTime": 10,
+     *                      "CheckOutTimeMinutes": 0,
+     *                      "Guest": "Fred Smith",
+     *                      "GuestEmail": "Fred@VRScheduler.com",
+     *                      "GuestPhone": "541-555-1212",
+     *                      "NumberOfGuest": 6,
+     *                      "NumberOfChildren": 1,
+     *                      "NumberOfPets": 1,
+     *                      "IsOwner": 0,
+     *                      "BookingTags": "BeachChairs,MidClean",
+     *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
+     *                      "CreateDate": "20190302"
+     *                  }
+     *              }
+     *         )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Delete("/propertybookings/{id}", name="property_bookings_delete")
+     */
+    public function deletePropertyBooking(Request $request)
+    {
+        //setting logger
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+        try {
+            //collecting authdetails
+            $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
+            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //Getting properyId from parameter
+            $propertyBookingID = $request->get('id');
+
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+
+            //check restriction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            //check access level for read and write
+            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
+            }
+
+            //Get property booking details
+            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $insertPropertyBooking = $propertyBookingService->deletePropertBookingDetails($propertyBookingID);
+            return  $insertPropertyBooking;
+
+
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new BadRequestHttpException(null, 'Invalid Input types');
+        }
+
+    }
+
+    /**
+     * Function to validate the request object
+     *
+     * @param $content
+     *
+     * @return mixed
+     */
+    private function validatePropertyBookingRequest($content)
+    {
+        //validate request key for processing
+        $propertyID = !isset($content['PropertyID']) || !(gettype($content['PropertyID']) == "integer");
+        $checkIn = !isset($content['CheckIn']) || !(gettype($content['CheckIn']) == "string");
+        $checkOut = !isset($content['CheckOut']) || !(gettype($content['CheckOut']) == "string");
+
+        //returns false if request object is not valid
+        if ($propertyID) {
+            return ['status' => false];
+        }
+        if ($checkIn) {
+            return ['status' => false];
+        }
+
+        if ($checkOut) {
+            return ['status' => false];
+        }
+
+        //returns true if key in request object is valid
+        return true;
     }
 }
