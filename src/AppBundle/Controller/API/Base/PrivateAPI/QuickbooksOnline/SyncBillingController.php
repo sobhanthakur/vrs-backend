@@ -52,7 +52,10 @@ class SyncBillingController extends FOSRestController
             return $qbService->SyncBilling($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
         } catch (ServiceException $exception) {
             $message = $exception->getMessage();
-            preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
+            $message = preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
+            if(!$message) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
+            }
             throw new BadRequestHttpException($match[1]);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

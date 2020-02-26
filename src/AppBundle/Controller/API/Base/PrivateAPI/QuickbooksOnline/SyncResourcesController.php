@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
+use QuickBooksOnline\API\Exception\ServiceException;
 
 class SyncResourcesController extends FOSRestController
 {
@@ -37,6 +38,8 @@ class SyncResourcesController extends FOSRestController
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $qbService = $this->container->get('vrscheduler.quickbooksonline_resources');
             return $qbService->SyncResources($customerID,$this->container->getParameter('QuickBooksConfiguration'));
+        } catch (ServiceException $exception) {
+            throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

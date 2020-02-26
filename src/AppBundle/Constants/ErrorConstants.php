@@ -50,6 +50,7 @@ final class ErrorConstants
     const INVALID_AUTHENTICATION_BODY = 'INVALIDAUTHENTICATIONBODY';
     const UNABLE_TO_RESET_BATCH = 'UNABLETORESETBATCH';
     const OAUTH_FAILED = 'OAUTHFAILED';
+    const QBO_CONNECTION_ERROR = 'QBOCONNECTIONERROR';
 
     const REQ_TIME_OUT = 'REQTIMEOUT';
     const SERVICE_UNAVAIL = 'SERVICEUNAVAIL';
@@ -125,6 +126,7 @@ final class ErrorConstants
         self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust'],
         self::INVALID_AUTHENTICATION_BODY => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_body'],
         self::OAUTH_FAILED => ['code' => 1002, self::MESSAGE => 'api.response.error.oauth_failed'],
-        self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map']
+        self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
+        self::QBO_CONNECTION_ERROR => ['code' => 1002, self::MESSAGE => 'api.response.error.qbo_connection_error']
     ];
 }
