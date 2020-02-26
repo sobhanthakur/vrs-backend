@@ -8,7 +8,6 @@
 
 namespace AppBundle\Controller\API\Base\PublicAPI\PropertyBookings;
 
-use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
@@ -251,17 +250,17 @@ class PropertyBookingController extends FOSRestController
     }
 
     /**
-     * Fetch all property booking details of the consumer by id
+     * Insert property booking Details
      * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Property Booking")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all property booking details of the customer",
+     *     description="Insert property booking Details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/propertybookings/14"
+     *              example="/api/v1/propertybookings"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -348,7 +347,7 @@ class PropertyBookingController extends FOSRestController
             $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
-            throw new BadRequestHttpException(null, 'Invalid Input types');
+            throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
         }
 
         return $insertPropertyBooking;
@@ -357,7 +356,7 @@ class PropertyBookingController extends FOSRestController
 
 
     /**
-     * Fetch all property booking details of the consumer by id
+     *  Update property booking  of the consumer by id
      * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Property Booking")
      * @SWG\Response(
@@ -367,7 +366,7 @@ class PropertyBookingController extends FOSRestController
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/propertybookings/14"
+     *              example="/api/v1/propertybookings/1322343"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -431,7 +430,6 @@ class PropertyBookingController extends FOSRestController
             }
 
             //Get pathinfo
-            $pathInfo = $request->getPathInfo();
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
 
             //check restriction for the user
@@ -458,7 +456,7 @@ class PropertyBookingController extends FOSRestController
             $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
-            throw new BadRequestHttpException(null, 'Invalid Input types');
+            throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
         }
 
     }
@@ -473,41 +471,15 @@ class PropertyBookingController extends FOSRestController
      *     description="Returns all property booking details of the customer",
      *     @SWG\Schema(
      *         @SWG\Property(
-     *              property="url",
+     *              property="ReasonCode",
      *              type="string",
-     *              example="/api/v1/propertybookings/14"
+     *              example=0
      *          ),
      *          @SWG\Property(
-     *              property="has_more",
+     *              property="ReasonText",
      *              type="boolean",
-     *              example="true"
-     *          ),
-     *       @SWG\Property(
-     *              property="data",
-     *              example=
-     *               {
-     *                  {
-     *                      "PropertyBookingID": 1322343    ,
-     *                      "PropertyID": 234,
-     *                      "CheckIn": "20190824",
-     *                      "CheckInTime": 14,
-     *                      "CheckInTimeMinutes": 30,
-     *                      "CheckOut": "20190826",
-     *                      "CheckOutTime": 10,
-     *                      "CheckOutTimeMinutes": 0,
-     *                      "Guest": "Fred Smith",
-     *                      "GuestEmail": "Fred@VRScheduler.com",
-     *                      "GuestPhone": "541-555-1212",
-     *                      "NumberOfGuest": 6,
-     *                      "NumberOfChildren": 1,
-     *                      "NumberOfPets": 1,
-     *                      "IsOwner": 0,
-     *                      "BookingTags": "BeachChairs,MidClean",
-     *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
-     *                      "CreateDate": "20190302"
-     *                  }
-     *              }
-     *         )
+     *              example="Data is succesfully deleted"
+     *          )
      *     )
      * )
      * @return array
@@ -528,9 +500,8 @@ class PropertyBookingController extends FOSRestController
             //Getting properyId from parameter
             $propertyBookingID = $request->get('id');
 
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
-
             //check restriction for the user
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             //check access level for read and write
             $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
@@ -538,10 +509,10 @@ class PropertyBookingController extends FOSRestController
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get property booking details
+            //delete property booking details
             $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
             $insertPropertyBooking = $propertyBookingService->deletePropertBookingDetails($propertyBookingID);
-            return  $insertPropertyBooking;
+            return $insertPropertyBooking;
 
 
         } catch (BadRequestHttpException $exception) {
@@ -554,7 +525,7 @@ class PropertyBookingController extends FOSRestController
             $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
                 $exception->getMessage());
             // Throwing Internal Server Error Response In case of Unknown Errors.
-            throw new BadRequestHttpException(null, 'Invalid Input types');
+            throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
         }
 
     }

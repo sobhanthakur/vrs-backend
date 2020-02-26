@@ -10,8 +10,6 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\ErrorConstants;
-//use DoctrineExtensions\Query\Mysql\Date;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -104,6 +102,15 @@ class PropertyBookingsService extends BaseService
         return $returnData;
     }
 
+    /**
+     * Function to validate and create and update property booking
+     *
+     * @param $content
+     * @param $authDetails
+     * @param $propertyBookingID
+     *
+     * @return array
+     */
     public function insertPropertBookingDetails($content, $authDetails, $propertyBookingID = null)
     {
         $returnData = array();
@@ -127,11 +134,12 @@ class PropertyBookingsService extends BaseService
             isset($propertyBookingApiContent['guestphone']) ? $guestPhone = $propertyBookingApiContent['guestphone'] : $guestPhone = null;
             isset($propertyBookingApiContent['numberofguest']) ? $numberOfGuest = $propertyBookingApiContent['numberofguest'] : $numberOfGuest = null;
             isset($propertyBookingApiContent['numberofchildren']) ? $numberOfChildren = $propertyBookingApiContent['numberofchildren'] : $numberOfChildren = null;
-            isset($propertyBookingApiContent['numberofpet']) ? $numberOfPet = $propertyBookingApiContent['numberofpet'] : $numberOfPet = null;
+            isset($propertyBookingApiContent['numberofpets']) ? $numberOfPets = $propertyBookingApiContent['numberofpets'] : $numberOfPets = null;
             isset($propertyBookingApiContent['isowner']) ? $isOwner = $propertyBookingApiContent['isowner'] : $isOwner = null;
             isset($propertyBookingApiContent['bookingtags']) ? $bookingTags = $propertyBookingApiContent['bookingtags'] : $bookingTags = null;
 
             if (isset($propertyBookingID)) {
+                $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['UPDATE'];
                 $propertyBookingsRepo = $this->entityManager->getRepository('AppBundle:Propertybookings');
                 $propertyBooking = $propertyBookingsRepo->findOneBy(array('propertybookingid' => $propertyBookingID));
 
@@ -139,6 +147,7 @@ class PropertyBookingsService extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
                 }
             } else {
+                $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['INSERT'];
                 $propertyBooking = new Propertybookings();
             }
 
@@ -214,22 +223,22 @@ class PropertyBookingsService extends BaseService
 
             //setting numberofguest
             if (isset($numberOfGuest)) {
-                $propertyBooking->setGuestphone($numberOfGuest);
+                $propertyBooking->setNumberofguests($numberOfGuest);
             }
 
             //setting numberofchilden
             if (isset($numberOfChildren)) {
-                $propertyBooking->setGuestphone($numberOfChildren);
+                $propertyBooking->setNumberofchildren($numberOfChildren);
             }
 
             //setting numberofpet
-            if (isset($numberOfPet)) {
-                $propertyBooking->setGuestphone($numberOfPet);
+            if (isset($numberOfPets)) {
+                $propertyBooking->setNumberofpets($numberOfPets);
             }
 
             //setting isowner
             if (isset($isOwner)) {
-                $propertyBooking->setGuestphone($isOwner);
+                $propertyBooking->setIsowner($isOwner);
             }
 
             //setting bookingTags
@@ -241,34 +250,36 @@ class PropertyBookingsService extends BaseService
             $this->entityManager->persist($propertyBooking);
             $this->entityManager->flush();
 
-            $returnData['PropertyBookingID'] = $propertyBooking->getPropertybookingid();
-            $returnData['PropertyID'] = $propertyBooking->getPropertyid()->getPropertyid();
+            //setting return data
+            $data['PropertyBookingID'] = $propertyBooking->getPropertybookingid();
+            $data['PropertyID'] = $propertyBooking->getPropertyid()->getPropertyid();
 
             $checkin = $propertyBooking->getCheckin();
-            isset($checkin) ? $returnData['CheckIn'] =
-                $checkin->format('Ymd') : $returnData['CheckIn'] = null;
+            isset($checkin) ? $data['CheckIn'] =
+                $checkin->format('Ymd') : $data['CheckIn'] = null;
 
-            $returnData['CheckInTime'] = $propertyBooking->getCheckintime();
-            $returnData['CheckInTimeMinutes'] = $propertyBooking->getCheckintimeminutes();
-            $returnData['CheckOut'] = $propertyBooking->getCheckout();
-            $returnData['CheckOutTime'] = $propertyBooking->getCheckouttime();
-            $returnData['CheckOutTimeMinutes'] = $propertyBooking->getCheckouttimeminutes();
-            $returnData['Guest'] = $propertyBooking->getGuest();
-            $returnData['GuestEmail'] = $propertyBooking->getGuestemail();
-            $returnData['GuestPhone'] = $propertyBooking->getGuestphone();
-            $returnData['NumberOfGuest'] = $propertyBooking->getNumberofguests();
-            $returnData['NumberOfPets'] = $propertyBooking->getNumberofpets();
-            $returnData['IsOwner'] = $propertyBooking->getIsowner();
+            $data['CheckInTime'] = $propertyBooking->getCheckintime();
+            $data['CheckInTimeMinutes'] = $propertyBooking->getCheckintimeminutes();
+            $data['CheckOut'] = $propertyBooking->getCheckout();
+            $data['CheckOutTime'] = $propertyBooking->getCheckouttime();
+            $data['CheckOutTimeMinutes'] = $propertyBooking->getCheckouttimeminutes();
+            $data['Guest'] = $propertyBooking->getGuest();
+            $data['GuestEmail'] = $propertyBooking->getGuestemail();
+            $data['GuestPhone'] = $propertyBooking->getGuestphone();
+            $data['NumberOfGuest'] = $propertyBooking->getNumberofguests();
+            $data['NumberOfPets'] = $propertyBooking->getNumberofpets();
+            $data['IsOwner'] = $propertyBooking->getIsowner();
 
             $checkout = $propertyBooking->getCheckout();
-            isset($checkout) ? $returnData['CheckOut'] =
-                $checkout->format('Ymd') : $returnData['CheckOut'] = null;
+            isset($checkout) ? $data['CheckOut'] =
+                $checkout->format('Ymd') : $data['CheckOut'] = null;
 
             $createdDate = $propertyBooking->getCreatedate();
-            isset($createdDate) ? $returnData['CreateDate'] =
-                $createdDate->format('Ymd') : $returnData['CreateDate'] = null;
+            isset($createdDate) ? $data['CreateDate'] =
+                $createdDate->format('Ymd') : $data['CreateDate'] = null;
 
-            //dump($returnData); die();
+
+            $returnData['data'] = $data;
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -285,6 +296,13 @@ class PropertyBookingsService extends BaseService
         return $returnData;
     }
 
+    /**
+     * Function to delete property booking
+     *
+     * @param $propertyBookingID
+     *
+     * @return array
+     */
     public function deletePropertBookingDetails($propertyBookingID)
     {
         $returnData = array();
@@ -296,10 +314,11 @@ class PropertyBookingsService extends BaseService
             }
             $propertyBooking->setDeleted(1);
             $propertyBooking->setDeleteddate(new \DateTime());
+            $propertyBooking->setActive(0);
             $this->entityManager->persist($propertyBooking);
             $this->entityManager->flush();
-            $returnData['code'] = GeneralConstants::REASON_CODE;
-            $returnData['message'] = GeneralConstants::REASON_TEXT;
+            $returnData[GeneralConstants::REASON_CODE] = 0;
+            $returnData[GeneralConstants::REASON_TEXT] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['DELETED'];
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;

@@ -200,6 +200,13 @@ final class GeneralConstants
     const IMAGE_URL = "https://images.vrscheduler.com/70/";
     const USER_AGENT = "user_agent";
     const PROPERTIES = "properties";
+
+    const PROPERTIES_BOOKING_MESSEGE = [
+        'INSERT' => 'Data is succesfully inserted',
+        'UPDATE' => 'Data is succesfully updated',
+        'DELETED' => 'Data is succesfully deleted'
+    ];
+
     const PAYLOAD = [
         'CUSTOMER_ID' => 'customerID',
         'CUSTOMER_NAME' => 'customerName',
@@ -329,7 +336,6 @@ final class GeneralConstants
         'taskdate' => 't.taskdate as TaskDate',
         'completeconfirmeddate' => 't.completeconfirmeddate as CompleteConfirmedDate',
         'created' => 't.createdate as CreateDate'
-
     ];
 
     const STAFF_TASKS_MAPPING = [
