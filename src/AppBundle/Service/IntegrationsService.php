@@ -251,7 +251,7 @@ class IntegrationsService extends BaseService
                     $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
                 }
                 $tokens = new Integrationqbotokens();
-                $tokens->setRealmID($content[GeneralConstants::REALMID]);
+                $tokens->setRealmID($string = preg_replace('/\s+/', '', $content[GeneralConstants::REALMID]));
                 $tokens->setCustomerid($customer);
                 $integrationToCustomer->setQbdsyncbilling(true);
                 $this->entityManager->persist($tokens);
