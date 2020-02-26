@@ -104,12 +104,16 @@ class SyncLogsService extends BaseService
                 $success = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCountSuccess($billingBatch[$i]['BatchID']);
                 if($success) {
                     $success = (int)$success[0][1];
+                } else {
+                    $success = 0;
                 }
 
                 // Count Failed
                 $failed = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCountFailed($billingBatch[$i]['BatchID']);
                 if($failed) {
                     $failed = (int)$failed[0][1];
+                } else {
+                    $failed = 0;
                 }
                 $timeZoneRegion = new \DateTimeZone($region);
                 $billingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
@@ -130,12 +134,16 @@ class SyncLogsService extends BaseService
                 $success = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCountSuccess($timeTrackingBatch[$i]['BatchID']);
                 if($success) {
                     $success = (int)$success[0][1];
+                } else {
+                    $success = 0;
                 }
 
                 // Count Records that Failed
                 $failed = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCountFailed($timeTrackingBatch[$i]['BatchID']);
                 if($failed) {
                     $failed = (int)$failed[0][1];
+                } else {
+                    $failed = 0;
                 }
 
                 $timeZoneRegion = new \DateTimeZone($region);
