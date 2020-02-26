@@ -20,9 +20,21 @@ use Doctrine\ORM\Query\Expr;
  */
 class IntegrationqbdbillingrecordsRepository extends EntityRepository
 {
+    /**
+     * @var string
+     */
     private $taskid = 'b1.taskid';
+    /**
+     * @var string
+     */
     private $propertyid = 't2.propertyid';
+    /**
+     * @var string
+     */
     private $customerCondition = 'p2.customerid = :CustomerID';
+    /**
+     * @var string
+     */
     private $txnid = 'b1.txnid IS NULL';
 
     /**
@@ -89,11 +101,35 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
      * @param $batchID
      * @return mixed
      */
-    public function DistinctBatchCount($batchID)
+    public function DistinctBatchCountFailed($batchID)
     {
         $result = $this
-            ->createQueryBuilder('b1')
-            ->select('COUNT(b1.integrationqbdbillingrecordid)')
+            ->createQueryBuilder('b1');
+        $result = $this->TrimBatchCount($result,$batchID);
+        $result->andWhere('b1.txnid IS NULL');
+        return $result->getQuery()->getResult();
+    }
+
+    /**
+     * @param $batchID
+     * @return mixed
+     */
+    public function DistinctBatchCountSuccess($batchID)
+    {
+        $result = $this
+            ->createQueryBuilder('b1');
+        $result = $this->TrimBatchCount($result,$batchID);
+        $result->andWhere('b1.txnid IS NOT NULL');
+        return $result->getQuery()->getResult();
+    }
+
+    /**
+     * @param QueryBuilder $result
+     * @return mixed
+     */
+    public function TrimBatchCount($result,$batchID)
+    {
+        $result->select('COUNT(b1.integrationqbdbillingrecordid)')
             ->innerJoin($this->taskid, 't2')
             ->innerJoin($this->propertyid,'p2')
             ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
@@ -101,8 +137,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
             ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
-            ->andWhere('b1.integrationqbbatchid='.$batchID);
-        return $result->getQuery()->getResult();
+            ->andWhere('b1.integrationqbbatchid='.$batchID)
+            ->groupBy('b1.txnid')
+        ;
+
+        return $result;
     }
 
     /**

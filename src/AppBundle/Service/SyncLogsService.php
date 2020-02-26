@@ -100,32 +100,61 @@ class SyncLogsService extends BaseService
 
             // Search Logs in BillingRecords Table
             for($i=0;$i<count($billingBatch);$i++) {
-                $record = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCount($billingBatch[$i]['BatchID']);
-                if($record) {
-                    $record = (int)$record[0][1];
+                // Count Succeeded
+                $success = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCountSuccess($billingBatch[$i]['BatchID']);
+                if($success) {
+                    $success = (int)$success[0][1];
+                } else {
+                    $success = 0;
+                }
+
+                // Count Failed
+                $failed = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->DistinctBatchCountFailed($billingBatch[$i]['BatchID']);
+                if($failed) {
+                    $failed = (int)$failed[0][1];
+                } else {
+                    $failed = 0;
                 }
                 $timeZoneRegion = new \DateTimeZone($region);
                 $billingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 0,
                     'Sent' => $billingBatch[$i]['CreateDate'],
-                    'Records' => $record,
+                    'Records' => array(
+                        "Success" => $success,
+                        "Failed" => $failed
+                    ),
                     'BatchID' => $billingBatch[$i]['BatchID']
                 );
             }
 
             // Search Logs in TimeTracking Table
             for($i=0;$i<count($timeTrackingBatch);$i++) {
-                $record = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCount($timeTrackingBatch[$i]['BatchID']);
-                if($record) {
-                    $record = (int)$record[0][1];
+                // Count Records that succeeded
+                $success = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCountSuccess($timeTrackingBatch[$i]['BatchID']);
+                if($success) {
+                    $success = (int)$success[0][1];
+                } else {
+                    $success = 0;
                 }
+
+                // Count Records that Failed
+                $failed = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DistinctBatchCountFailed($timeTrackingBatch[$i]['BatchID']);
+                if($failed) {
+                    $failed = (int)$failed[0][1];
+                } else {
+                    $failed = 0;
+                }
+
                 $timeZoneRegion = new \DateTimeZone($region);
                 $timeTrackingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 1,
                     'Sent' => $timeTrackingBatch[$i]['CreateDate'],
-                    'Records' => $record,
+                    'Records' => array(
+                        "Success" => $success,
+                        "Failed" => $failed
+                    ),
                     'BatchID' => $timeTrackingBatch[$i]['BatchID']
                 );
             }
