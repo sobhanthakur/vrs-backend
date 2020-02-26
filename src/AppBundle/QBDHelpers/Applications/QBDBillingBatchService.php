@@ -84,7 +84,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
                                          <ItemRef>
                                             <ListID >'.$value1.'</ListID>
                                          </ItemRef>
-                                         <Desc>'.(string)$description[$key][$key1].'</Desc>
+                                         <Desc>'.str_replace(array('&', '<', '>', '\'', '"'), array('&amp;', '&lt;', '&gt;', '&apos;', '&quot;'), ((string)$description[$key][$key1])).'</Desc>
                                          <Amount>'.number_format((float)$amount[$key][$key1],2,'.','').'</Amount>
                                          </InvoiceLineAdd>';
                             }
