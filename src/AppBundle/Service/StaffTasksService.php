@@ -97,6 +97,10 @@ class StaffTasksService extends BaseService
                     $result[$i]['ApprovedDate'] = $result[$i]['ApprovedDate']->format('Ymd');
                 }
 
+                if (isset($result[$i]['CompleteConfirmedDate'])) {
+                    $result[$i]['CompleteConfirmedDate'] = $result[$i]['CompleteConfirmedDate']->format('Ymd');
+                }
+
                 //Time worked by staff per task in hour format
                 $timeWorkedInHour = $result[$i]['TimeTracked'] / 3600;
 
@@ -104,6 +108,11 @@ class StaffTasksService extends BaseService
                 if (isset($result[$i]['TimeTracked'])) {
                     $result[$i]['TimeTracked'] = $this->mediaTimeDeFormater($result[$i]['TimeTracked']);
                 }
+
+                isset($result[$i]['ServiceName']) ? $serviceName = $result[$i]['ServiceName'] : $serviceName  = '';
+                isset($result[$i]['TaskShortName']) ? $taskshortName = $result[$i]['TaskShortName'] : $taskshortName  = '';
+
+                $result[$i]['TaskName'] = trim($serviceName." ".$taskshortName);
 
                 //Setting Pay type  for response
                 if (isset($result[$i]['PayType'])) {
@@ -127,6 +136,8 @@ class StaffTasksService extends BaseService
                 }
 
                 //unsetting variables
+                unset($result[$i]['ServiceName']);
+                unset($result[$i]['TaskShortName']);
                 unset($result[$i]['ServicerPayRate']);
                 unset($result[$i]['ClockIn']);
                 unset($result[$i]['ClockOut']);

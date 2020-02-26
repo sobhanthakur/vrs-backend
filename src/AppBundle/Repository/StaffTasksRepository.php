@@ -65,9 +65,10 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //return task details
-        return $result1 = $result
+        return $result
             ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
             ->innerJoin('st.taskid', 't')
+            ->leftJoin('AppBundle:Services', 's', Expr\Join::WITH, 't.serviceid = s.serviceid')
             ->innerJoin('st.servicerid', 'sr')
             ->andWhere('st.taskid=tct.taskid')
             ->andWhere('st.taskid IN (:TaskID)')
@@ -134,6 +135,13 @@ class StaffTasksRepository extends EntityRepository
         isset($queryParameter['approvedstartdate']) ? $approvedStartDate = $queryParameter['approvedstartdate'] : $approvedStartDate = null;
         isset($queryParameter['approvedenddate']) ? $approvedEndDate = $queryParameter['approvedenddate'] : $approvedEndDate = null;
 
+        //check for completedstartdate and completedenddate in query paramter
+        isset($queryParameter['completedstartdate']) ? $completedStartDate = $queryParameter['completedstartdate'] : $completedStartDate = null;
+        isset($queryParameter['completedenddate']) ? $completedEndDate = $queryParameter['completedenddate'] : $completedEndDate = null;
+
+        //check for approved in query paramter
+        isset($queryParameter['completed']) ? $completed = $queryParameter['completed'] : $completed = null;
+
         //check for task id in query paramter
         isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
 
@@ -142,7 +150,7 @@ class StaffTasksRepository extends EntityRepository
 
         //check for approved in query paramter
         isset($queryParameter['approved']) ? $approved = $queryParameter['approved'] : $approved = null;
-        
+
         //condition to check for task id data
         if ($taskID) {
             $result->andWhere('st.taskid  = (:TaskID)')
@@ -153,6 +161,28 @@ class StaffTasksRepository extends EntityRepository
         if ($taskID) {
             $result->andWhere('st.taskid  = (:TaskID)')
                 ->setParameter('TaskID', $taskID);
+        }
+
+        //condition to check for completed task
+        if (isset($completed)) {
+            if ($completed == 1) {
+                $result->andWhere('st.completeconfirmeddate IS NOT NULL');
+            } else {
+                $result->andWhere('st.completeconfirmeddate IS NULL');
+            }
+        }
+
+        //condition to filter by  completedStartDate
+        if ($completedStartDate) {
+            $completedStartDate = date("Y-m-d", strtotime($completedStartDate));
+            $result->andWhere('st.completeconfirmeddate >= (:ConfirmationDate)')
+                ->setParameter('ConfirmationDate', $completedStartDate);
+        }
+        //condition to filter by  completedEndDate
+        if ($completedEndDate) {
+            $completedEndDate = date("Y-m-d", strtotime($completedEndDate . ' +1 day'));
+            $result->andWhere('st.completeconfirmeddate <= (:ConfirmationDate)')
+                ->setParameter('ConfirmationDate', $completedEndDate);
         }
 
         //condition to check for task id data
@@ -203,7 +233,6 @@ class StaffTasksRepository extends EntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->execute();
-
     }
 
     /**
