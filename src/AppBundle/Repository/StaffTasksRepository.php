@@ -145,6 +145,9 @@ class StaffTasksRepository extends EntityRepository
         //check for task id in query paramter
         isset($queryParameter['taskid']) ? $taskID = $queryParameter['taskid'] : $taskID = null;
 
+        //check for task rules id in query paramter
+        isset($queryParameter['taskruleid']) ? $taskRuleID = $queryParameter['taskruleid'] : $taskRuleID = null;
+
         //check for staff id in query paramter
         isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
 
@@ -158,9 +161,15 @@ class StaffTasksRepository extends EntityRepository
         }
 
         //condition to check for task id data
-        if ($taskID) {
-            $result->andWhere('st.taskid  = (:TaskID)')
-                ->setParameter('TaskID', $taskID);
+        if ($staffID) {
+            $result->andWhere('st.servicerid  = (:StaffID)')
+                ->setParameter('StaffID', $staffID);
+        }
+
+        //condition to check for task rule id data
+        if ($taskRuleID) {
+            $result->andWhere('t.serviceid  = (:TaskRuleID)')
+                ->setParameter('TaskRuleID', $taskRuleID);
         }
 
         //condition to check for completed task
@@ -183,12 +192,6 @@ class StaffTasksRepository extends EntityRepository
             $completedEndDate = date("Y-m-d", strtotime($completedEndDate . ' +1 day'));
             $result->andWhere('st.completeconfirmeddate <= (:ConfirmationDate)')
                 ->setParameter('ConfirmationDate', $completedEndDate);
-        }
-
-        //condition to check for task id data
-        if ($taskID) {
-            $result->andWhere('st.taskid  = (:TaskID)')
-                ->setParameter('TaskID', $taskID);
         }
 
         //condition to check for staff id data

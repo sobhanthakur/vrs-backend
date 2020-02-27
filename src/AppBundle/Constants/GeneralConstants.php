@@ -342,6 +342,7 @@ final class GeneralConstants
         'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
         'taskid' => 't.taskid as TaskID',
         'task' => '\'\' as TaskName',
+        'serviceid' => 't.serviceid as TaskRuleID',
         'servicerid' => 'sr.servicerid as StaffID',
         'staffname' => 'sr.name as StaffName',
         'paytype' => 'st.paytype as PayType',
@@ -440,6 +441,7 @@ final class GeneralConstants
         'STAFFID' => 'staffid',
         'STARTDATE' => 'startdate',
         'ENDDATE' => 'enddate',
+        'TASKRULEID' => 'taskruleid'
     ];
 
 }
