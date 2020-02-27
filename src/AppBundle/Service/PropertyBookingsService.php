@@ -73,7 +73,13 @@ class PropertyBookingsService extends BaseService
             for ($i = 0; $i < count($propertyBookingData); $i++) {
                 if (isset($propertyBookingData[$i]['CreateDate'])) {
                     $propertyBookingData[$i]['CreateDate'] = $propertyBookingData[$i]['CreateDate']->format('Ymd');
+                }
+
+                if (isset($propertyBookingData[$i]['CheckIn'])) {
                     $propertyBookingData[$i]['CheckIn'] = $propertyBookingData[$i]['CheckIn']->format('Ymd');
+                }
+
+                if (isset($propertyBookingData[$i]['CheckOut'])) {
                     $propertyBookingData[$i]['CheckOut'] = $propertyBookingData[$i]['CheckOut']->format('Ymd');
                 }
             }
@@ -117,18 +123,16 @@ class PropertyBookingsService extends BaseService
         $propertyBookingApiContent = array();
 
         try {
-
             //Get all query parameter and set it in an array
             foreach ($content as $key => $value) {
-                (isset($value) && $value != "") ? $propertyBookingApiContent[strtolower($key)] = strtolower($value) : null;
+                (isset($key)) ? $propertyBookingApiContent[strtolower($key)] = $value : null;
             }
 
             //Get customerID
             $customerID = $authDetails['customerID'];
 
             //setting insertdata
-            isset($propertyBookingApiContent['propertyid']) ? $propertyID = $propertyBookingApiContent['propertyid'] : $propertyID = null;
-            isset($propertyBookingApiContent['checkin']) ? $checkIn = $propertyBookingApiContent['checkin'] : $checkIn = null;
+            isset($propertyBookingApiContent['propertyid']) ? $propID = $propertyBookingApiContent['propertyid'] : $propID = null;
             isset($propertyBookingApiContent['guest']) ? $guest = $propertyBookingApiContent['guest'] : $guest = null;
             isset($propertyBookingApiContent['guestemail']) ? $guestEmail = $propertyBookingApiContent['guestemail'] : $guestEmail = null;
             isset($propertyBookingApiContent['guestphone']) ? $guestPhone = $propertyBookingApiContent['guestphone'] : $guestPhone = null;
@@ -142,17 +146,35 @@ class PropertyBookingsService extends BaseService
                 $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['UPDATE'];
                 $propertyBookingsRepo = $this->entityManager->getRepository('AppBundle:Propertybookings');
                 $propertyBooking = $propertyBookingsRepo->findOneBy(array('propertybookingid' => $propertyBookingID));
+                $id = $propertyBooking->getPropertyid()->getPropertyid();
+
+                $chkIn = $propertyBooking->getCheckin();
+                $chkOut = $propertyBooking->getCheckout();
+
+                if (isset($chkIn)) {
+                    $chkIn = $chkIn->format('Ymd');
+                }
+
+                if (isset($chkOut)) {
+                    $chkOut = $chkOut->format('Ymd');
+                }
 
                 if (!$propertyBooking) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
                 }
+
             } else {
                 $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['INSERT'];
                 $propertyBooking = new Propertybookings();
             }
 
+            isset($propID) ? $propertyID = $propID : $propertyID = $id;
+            isset($propertyBookingApiContent['checkin']) ? $checkIn = $propertyBookingApiContent['checkin'] : $checkIn = $chkIn;
+            isset($propertyBookingApiContent['checkout']) ? $checkOut = $propertyBookingApiContent['checkout'] : $checkOut = $chkOut;
+
             //Checking property id for the customer
             $propertyRepo = $this->entityManager->getRepository('AppBundle:Properties');
+
             $property = $propertyRepo->findOneBy(array('customerid' => $customerID, 'propertyid' => $propertyID));
             if (!$property) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
@@ -165,9 +187,15 @@ class PropertyBookingsService extends BaseService
             $CheckOutTimeMinutesValue = $property->getDefaultcheckouttimeminutes();
             isset($propertyBookingApiContent['checkintime']) ? $checkInTime = $propertyBookingApiContent['checkintime'] : $checkInTime = $checkInTimeValue;
             isset($propertyBookingApiContent['checkintimeminutes']) ? $checkInTimeMinutes = $propertyBookingApiContent['checkintimeminutes'] : $checkInTimeMinutes = $checkInTimeMinutesValue;
-            isset($propertyBookingApiContent['checkout']) ? $checkOut = $propertyBookingApiContent['checkout'] : $checkOut = null;
             isset($propertyBookingApiContent['checkouttime']) ? $checkOutTime = $propertyBookingApiContent['checkouttime'] : $checkOutTime = $checkOutTimeValue;
             isset($propertyBookingApiContent['checkouttimeminutes']) ? $CheckOutTimeMinutes = $propertyBookingApiContent['checkouttimeminutes'] : $CheckOutTimeMinutes = $CheckOutTimeMinutesValue;
+
+
+            //validating check and checkout time
+            $workTime = strtotime($checkOut) - strtotime($checkIn);
+            if ($workTime < 0) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
 
             //setting propertyid
             if (isset($propertyID)) {

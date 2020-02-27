@@ -319,7 +319,6 @@ class PropertyBookingController extends FOSRestController
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
-
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
@@ -407,7 +406,6 @@ class PropertyBookingController extends FOSRestController
      */
     public function updatePropertyBooking(Request $request)
     {
-
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
@@ -422,12 +420,6 @@ class PropertyBookingController extends FOSRestController
 
             //parse the json content from request
             $content = $authService->parseContent($request->getContent(), "json");
-
-            //validate the request
-            $apiRequest = $this->validatePropertyBookingRequest($content);
-            if ($apiRequest['status'] === false) {
-                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
-            }
 
             //Get pathinfo
             $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
@@ -444,7 +436,6 @@ class PropertyBookingController extends FOSRestController
             $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
             $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID);
             return $insertPropertyBooking;
-
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
