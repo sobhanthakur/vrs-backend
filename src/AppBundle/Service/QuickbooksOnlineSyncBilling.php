@@ -13,6 +13,7 @@ use QuickBooksOnline\API\DataService\DataService;
 use QuickBooksOnline\API\Exception\ServiceException;
 use QuickBooksOnline\API\Facades\Estimate;
 use QuickBooksOnline\API\Facades\Invoice;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -57,6 +58,12 @@ class QuickbooksOnlineSyncBilling extends BaseService
             // Create Billing
             $status = $this->CreateBilling($dataService,$customerID,$integrationID);
         } catch (ServiceException $exception) {
+            $message = $exception->getMessage();
+            $message = preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
+            if($message) {
+                throw new BadRequestHttpException($match[1]);
+            }
+
             /*
              * This occurs when authentication fails using the existing access token.
              * Re-connect to QBO using the refresh token to get a new pair of tokens

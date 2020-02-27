@@ -13,6 +13,7 @@ use AppBundle\Entity\Customers;
 use AppBundle\Entity\Integrationqbdcustomers;
 use AppBundle\Entity\Integrationqbditems;
 use QuickBooksOnline\API\Exception\ServiceException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 

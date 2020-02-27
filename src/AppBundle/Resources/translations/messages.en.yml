@@ -68,6 +68,7 @@ api:
             limit_exhaust: "You exceeded the rate limit"
             oauth_failed: "Login Failed. Connect to Quickbooks first"
             nothing_to_map: "Nothing to sync"
+            qbo_connection_error: "Unable to Connect to Quickbooks Online"
             invalid_property_booking: "Invalid Property ID"
         success:
             message: success
