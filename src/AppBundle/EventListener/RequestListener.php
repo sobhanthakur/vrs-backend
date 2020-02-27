@@ -11,6 +11,7 @@
 namespace AppBundle\EventListener;
 
 use AppBundle\Constants\ApiRoutes;
+use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,13 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use AppBundle\Service\BaseService;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Cache\Simple\FilesystemCache;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Class RequestListener
+ * @package AppBundle\EventListener
+ */
 class RequestListener extends BaseService
 {
     /**
@@ -37,9 +44,26 @@ class RequestListener extends BaseService
         $this->apiLogger = $apiLogger;
     }
 
+    /**
+     * @param GetResponseEvent $event
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+
+        // Cache Rate Limiting
+        $cache = new FilesystemCache();
+        // If IP doesn't exist
+        if(!$cache->has($request->getClientIp())) {
+            $cache->set($request->getClientIp(),1,GeneralConstants::RATE_LIMIT_TTL);
+        } else {
+            $count = $cache->get($request->getClientIp());
+            if($count >= GeneralConstants::RATE_LIMIT) {
+                throw new HttpException(429,ErrorConstants::LIMIT_EXHAUST);
+            }
+            $cache->set($request->getClientIp(),$count+1,GeneralConstants::RATE_LIMIT_TTL);
+        }
 
         // If Request Method is OPTIONS, then send set the necessary headers.
         if ($event->getRequest()->getMethod() === 'OPTIONS') {

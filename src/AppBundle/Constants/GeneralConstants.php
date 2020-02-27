@@ -444,4 +444,7 @@ final class GeneralConstants
         'TASKRULEID' => 'taskruleid'
     ];
 
+    const RATE_LIMIT = 100;
+    const RATE_LIMIT_TTL = 60;
+
 }
