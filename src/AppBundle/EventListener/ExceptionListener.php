@@ -30,7 +30,6 @@ class ExceptionListener extends BaseService
      */
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-        $result = null;
         $status = method_exists($event->getException(), 'getStatusCode')
             ? $event->getException()->getStatusCode()
             : 500;
@@ -51,11 +50,6 @@ class ExceptionListener extends BaseService
 
         switch ($status) {
             case 400:
-                $result = array(
-                    GeneralConstants::REASON_CODE => $status,
-                    GeneralConstants::REASON_TEXT => $exceptionMessage
-                );
-                break;
             case 401:
             case 409:
             case 422:
@@ -92,10 +86,7 @@ class ExceptionListener extends BaseService
         }
         $responseService = $this->serviceContainer->get('vrscheduler.api_response_service');
 
-        // Creating Http Error response.
-        if(!$result) {
-            $result = $responseService->createApiErrorResponse($messageKey);
-        }
+        $result = $responseService->createApiErrorResponse($messageKey);
         $response = new JsonResponse($result, $status);
 
         // Logging Exception in Exception log.
