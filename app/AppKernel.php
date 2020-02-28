@@ -21,9 +21,7 @@ class AppKernel extends Kernel
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
-            new Nelmio\CorsBundle\NelmioCorsBundle(),
-            new Noxlogic\RateLimitBundle\NoxlogicRateLimitBundle(),
-            new Snc\RedisBundle\SncRedisBundle()
+            new Nelmio\CorsBundle\NelmioCorsBundle()
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

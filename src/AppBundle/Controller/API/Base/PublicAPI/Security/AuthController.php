@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use Swagger\Annotations as SWG;
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -29,7 +28,6 @@ class AuthController extends FOSRestController
     /**
      * Validate your Api Key and value and return Access and refresh token
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Authentication")
      * @SWG\Parameter(
      *     name="body",
@@ -122,7 +120,6 @@ class AuthController extends FOSRestController
     /**
      * Returns a auth token using refresh token
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
      * @SWG\Tag(name="Authentication")
      *
      * @SWG\Response(

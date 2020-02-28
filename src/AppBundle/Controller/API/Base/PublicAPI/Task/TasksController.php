@@ -18,14 +18,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 
 class TasksController extends FOSRestController
 {
     /**
      * TaskController controller to fetch all task details
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Task")
      * @SWG\Response(
      *     response=200,
@@ -138,7 +137,7 @@ class TasksController extends FOSRestController
     /**
      * TaskController controller to fetch  task details by id
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Task")
      * @SWG\Response(
      *     response=200,

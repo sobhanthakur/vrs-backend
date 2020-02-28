@@ -18,14 +18,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 
 class StaffTaskTimesController extends FOSRestController
 {
     /**
      * StaffTaskTimesController used to  fetch all staff task times details
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Staff Task Times")
      * @SWG\Response(
      *     response=200,

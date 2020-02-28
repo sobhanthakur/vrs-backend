@@ -18,7 +18,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 
 
 class RegionController extends FOSRestController
@@ -26,7 +25,7 @@ class RegionController extends FOSRestController
     /**
      * Regions controller to fetch region details
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Regions")
      * @SWG\Response(
      *     response=200,

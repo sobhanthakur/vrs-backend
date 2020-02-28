@@ -25,7 +25,7 @@ class StaffTasksController extends FOSRestController
     /**
      * StaffController used to  fetch all staff details
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Staff Tasks")
      * @SWG\Response(
      *     response=200,
@@ -130,7 +130,7 @@ class StaffTasksController extends FOSRestController
     /**
      * StaffController used to  fetch all staff details
      *
-     * @RateLimit(limit = GeneralConstants::LIMIT, period = GeneralConstants::PERIOD)
+     *
      * @SWG\Tag(name="Staff Tasks")
      * @SWG\Response(
      *     response=200,

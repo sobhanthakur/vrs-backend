@@ -190,11 +190,18 @@ class PropertyBookingsService extends BaseService
             isset($propertyBookingApiContent['checkouttime']) ? $checkOutTime = $propertyBookingApiContent['checkouttime'] : $checkOutTime = $checkOutTimeValue;
             isset($propertyBookingApiContent['checkouttimeminutes']) ? $CheckOutTimeMinutes = $propertyBookingApiContent['checkouttimeminutes'] : $CheckOutTimeMinutes = $CheckOutTimeMinutesValue;
 
-
             //validating check and checkout time
             $workTime = strtotime($checkOut) - strtotime($checkIn);
-            if ($workTime < 0) {
-                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+
+            if ($workTime < 86400) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_CHECKOUT);
+            }
+
+            //Return error if bookings with checkout date is 2 days or earlier than today
+            $currentDate = gmdate("Ymd");
+            $constraint = strtotime($currentDate) - strtotime($checkOut);
+            if ($constraint > 172800) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_TIMELOGIN_DETAILS);
             }
 
             //setting propertyid
@@ -274,7 +281,6 @@ class PropertyBookingsService extends BaseService
                 $propertyBooking->setBookingtags($bookingTags);
             }
 
-
             $this->entityManager->persist($propertyBooking);
             $this->entityManager->flush();
 
@@ -305,7 +311,6 @@ class PropertyBookingsService extends BaseService
             $createdDate = $propertyBooking->getCreatedate();
             isset($createdDate) ? $data['CreateDate'] =
                 $createdDate->format('Ymd') : $data['CreateDate'] = null;
-
 
             $returnData['data'] = $data;
 
