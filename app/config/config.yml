@@ -106,7 +106,7 @@ jms_serializer:
 nelmio_api_doc:
     documentation:
             host: '%api_host%'
-            schemes: [http, https]
+            schemes: [https, http]
             info:
                 title: VRScheduler
                 version: 1.0.0
