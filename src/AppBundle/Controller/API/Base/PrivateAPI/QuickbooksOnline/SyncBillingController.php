@@ -51,12 +51,7 @@ class SyncBillingController extends FOSRestController
             $qbService = $this->container->get('vrscheduler.quickbooksonline_billing');
             return $qbService->SyncBilling($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
         } catch (ServiceException $exception) {
-            $message = $exception->getMessage();
-            $message = preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
-            if(!$message) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
-            }
-            throw new BadRequestHttpException($match[1]);
+            throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {

@@ -58,11 +58,6 @@ class QuickbooksOnlineSyncBilling extends BaseService
             // Create Billing
             $status = $this->CreateBilling($dataService,$customerID,$integrationID);
         } catch (ServiceException $exception) {
-            $message = $exception->getMessage();
-            $message = preg_match('/<Message>(.*)<\/Message>/m',$message, $match);
-            if($message) {
-                throw new BadRequestHttpException($match[1]);
-            }
 
             /*
              * This occurs when authentication fails using the existing access token.
