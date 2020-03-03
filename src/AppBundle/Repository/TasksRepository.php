@@ -399,12 +399,13 @@ class TasksRepository extends EntityRepository
             ->createQueryBuilder('t2');
 
         // Fetch Basic task details
-        $result->select('t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+        $result->select('ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
             ->innerJoin('t2.propertyid','p2')
             ->innerJoin('p2.regionid','r2')
             ->innerJoin('t2.propertybookingid','pb2')
             ->innerJoin('p2.customerid','c2')
             ->innerJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 't2.servicerid=s2.servicerid')
+            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
             ->andWhere('t2.servicerid='.$servicerID)
             ->andWhere('p2.active=1')
             ->andWhere('t2.completeconfirmeddate IS NULL')
