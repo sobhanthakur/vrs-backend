@@ -159,4 +159,22 @@ class TimeClockTasksRepository extends EntityRepository
 
     }
 
+    public function CheckOtherStartedTasks($servicerID)
+    {
+        $timeZoneUTC = new \DateTimeZone('UTC');
+        $today = (new \DateTime('now', $timeZoneUTC))->format('Y-m-d');
+        $tomorrow = (new \DateTime('tomorrow', $timeZoneUTC))->format('Y-m-d');
+        $result = $this
+            ->createQueryBuilder('tct')
+            ->select('IDENTITY(tct.taskid) AS TaskID')
+            ->where('tct.servicerid = :ServicerID')
+            ->andWhere('tct.clockin <= '.$today)
+            ->andWhere('tct.clockout <= '.$tomorrow)
+            ->setParameter('ServicerID',$servicerID);
+
+        return $result->setMaxResults(1)
+        ->getQuery()
+        ->execute();
+    }
+
 }
