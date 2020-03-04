@@ -47,6 +47,7 @@ class ServicersDashboardController extends FOSRestController
      *                      "AcceptDecline" : 1,
      *                      "Expand" : 1,
      *                      "StartTask" : 1,
+     *                      "PauseTask" : 1,
      *                      "AssignedDate" : "2019-10-10",
      *                      "Window" : {
      *                          "From" : "2019-10-09",

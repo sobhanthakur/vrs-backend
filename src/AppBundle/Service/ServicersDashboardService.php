@@ -28,6 +28,8 @@ class ServicersDashboardService extends BaseService
                 $acceptDecline = null;
                 $expand = null;
                 $startTask = null;
+                $pauseTask = null;
+                $window = null;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -42,13 +44,25 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Expand'] = $expand;
 
                 // Show or hide Start Task
-                if(!$acceptDecline && (int)$servicers[0]['TimeTracking'] === 1) {
+                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+                if(!$acceptDecline
+                    && (int)$servicers[0]['TimeTracking'] === 1
+                    && (empty($timeClockTasks) || ($timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID']))
+                ) {
                     $startTask = 1;
                 }
                 $response[$i]['StartTask'] = $startTask;
 
-                // Task Estimates Response
+                // Show or hide Pause Task
+                if(!$acceptDecline
+                    && (int)$servicers[0]['TimeTracking'] === 1
+                    && (!empty($timeClockTasks) ? ($timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID']) : null)
+                ) {
+                    $pauseTask = 1;
+                }
+                $response[$i]['PauseTask'] = $pauseTask;
 
+                // Task Estimates Response
                 if($servicers[0]['ShowTaskEstimates']) {
                     $taskEstimates = array(
                         'Min' => $tasks[$i]['Min'],
@@ -59,6 +73,12 @@ class ServicersDashboardService extends BaseService
 
                 // Assigned Date
                 $response[$i]['AssignedDate'] = $tasks[$i]['AssignedDate'];
+
+                // Window Calculation
+                $response[$i]['Window'] = array(
+                  'From' => $tasks[$i]['TaskStartDate'],
+                  'To' =>   $tasks[$i]['TaskCompleteByDate']
+                );
 
                 // Task Details
                 $response[$i]['Details'] = array(
