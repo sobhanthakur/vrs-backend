@@ -316,7 +316,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('(CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->select('s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
             ->where('s.servicerid= :ServicerID')
             ->setParameter('ServicerID',$servicerID)
             ->setMaxResults(1)
