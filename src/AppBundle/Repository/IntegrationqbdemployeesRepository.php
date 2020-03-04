@@ -25,6 +25,7 @@ class IntegrationqbdemployeesRepository extends EntityRepository
             ->where('c.customerid= :CustomerID')
             ->andWhere('c.active=1')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('c.qbdemployeefullname','ASC')
             ->getQuery()
             ->execute();
     }

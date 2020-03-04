@@ -71,6 +71,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->leftJoin('AppBundle:Integrationqbdemployeestoservicers', 'm', Expr\Join::WITH, 'm.servicerid=s.servicerid')
             ->where('s.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('s.name','ASC')
             ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 

@@ -61,6 +61,7 @@ class PropertiesRepository extends EntityRepository
             ->innerJoin('p.ownerid', 'o')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->orderBy('p.propertyname','ASC')
             ->andWhere('p.active=1');
 
         $result = $this->TrimMapProperties($result, $unmatched, $region, $owner, $propertyTags, $createDate);

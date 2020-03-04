@@ -97,7 +97,7 @@ class MapTaskRulesService extends BaseService
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2'] . ' ORDER BY s0_.ServiceID OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2'] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
                 $response->execute();
                 $response = $response->fetchAll();
                 $temp = [];
