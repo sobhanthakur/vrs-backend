@@ -29,6 +29,7 @@ class ServicersDashboardService extends BaseService
                 $expand = null;
                 $startTask = null;
                 $pauseTask = null;
+                $window = null;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -72,6 +73,12 @@ class ServicersDashboardService extends BaseService
 
                 // Assigned Date
                 $response[$i]['AssignedDate'] = $tasks[$i]['AssignedDate'];
+
+                // Window Calculation
+                $response[$i]['Window'] = array(
+                  'From' => $tasks[$i]['TaskStartDate'],
+                  'To' =>   $tasks[$i]['TaskCompleteByDate']
+                );
 
                 // Task Details
                 $response[$i]['Details'] = array(
