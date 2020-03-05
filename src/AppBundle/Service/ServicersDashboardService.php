@@ -25,11 +25,18 @@ class ServicersDashboardService extends BaseService
                 // Initialize local variables
                 $taskEstimates = null;
                 $guestDetails = null;
-                $acceptDecline = null;
-                $expand = null;
-                $startTask = null;
-                $pauseTask = null;
+                $acceptDecline = 0;
+                $expand = 0;
+                $startTask = 0;
+                $pauseTask = 0;
                 $window = null;
+                $isLead = 0;
+
+                // Check is servicer Is Lead
+                if($tasks[$i]['IsLead']) {
+                    $isLead = 1;
+                }
+                $response[$i]['IsLead'] = $isLead;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -76,8 +83,12 @@ class ServicersDashboardService extends BaseService
 
                 // Window Calculation
                 $response[$i]['Window'] = array(
-                  'From' => $tasks[$i]['TaskStartDate'],
-                  'To' =>   $tasks[$i]['TaskCompleteByDate']
+                    'FromDate' => $tasks[$i]['TaskStartDate'],
+                    'ToDate' => $tasks[$i]['TaskCompleteByDate'],
+                    'FromTime' => $tasks[$i]['TaskStartTime'],
+                    'ToTime' => $tasks[$i]['TaskCompleteByTime'],
+                    'FromMinutes' => $tasks[$i]['TaskStartTimeMinutes'],
+                    'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes']
                 );
 
                 // Task Details

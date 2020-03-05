@@ -45,13 +45,18 @@ class ServicersDashboardController extends FOSRestController
      *                          "Max" : 2
      *                      },
      *                      "AcceptDecline" : 1,
+     *                      "IsLead" : 1,
      *                      "Expand" : 1,
      *                      "StartTask" : 1,
      *                      "PauseTask" : 1,
      *                      "AssignedDate" : "2019-10-10",
-     *                      "Window" : {
-     *                          "From" : "2019-10-09",
-     *                          "To" : "2019-10-11"
+     *                      "Window": {
+     *                          "FromDate": "2017-04-16T00:00:00+00:00",
+     *                          "ToDate": "2017-04-16T00:00:00+00:00",
+     *                          "FromTime": 11,
+     *                          "ToTime": 15,
+     *                          "FromMinutes": 0,
+     *                          "ToMinutes": 0,
      *                      },
      *                      "Details" : {
      *                          "TaskID" : 1,
