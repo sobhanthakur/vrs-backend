@@ -68,11 +68,6 @@ class AuthController extends FOSRestController
      *              example=0
      *          ),
      *          @SWG\Property(
-     *              property="StartEarly",
-     *              type="boolean",
-     *              example=1
-     *          ),
-     *          @SWG\Property(
      *              property="ChangeDate",
      *              type="boolean",
      *              example=1

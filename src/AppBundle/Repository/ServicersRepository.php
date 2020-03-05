@@ -298,7 +298,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowstartearly=1 THEN 1 ELSE 0 END) AS StartEarly, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
+            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
             ->where('s.servicerid= :ServicerID')
             ->andWhere('s.password= :Password')
             ->setParameter('ServicerID',$servicerid)
