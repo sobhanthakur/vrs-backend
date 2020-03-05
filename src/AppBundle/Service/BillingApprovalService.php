@@ -40,7 +40,6 @@ class BillingApprovalService extends BaseService
             $count = null;
             $filters = [];
             $flag = null;
-            $response = [];
             $status = [];
             $new = null;
             $completedDate = [];
