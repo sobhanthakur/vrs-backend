@@ -63,6 +63,7 @@ class ServicersDashboardController extends FOSRestController
      *                          "TaskName" : "Check IN",
      *                          "Region" : "USA",
      *                          "RegionColor" : "#DAA902",
+     *                          "TaskDescription" : "TaskDescription",
      *                          "Map" : {
      *                              "Lat" : "100.21",
      *                              "Long" : "104.22"

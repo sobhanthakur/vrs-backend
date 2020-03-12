@@ -97,6 +97,7 @@ class ServicersDashboardService extends BaseService
                     'TaskName' => $tasks[$i]['TaskName'],
                     'Region' => $tasks[$i]['Region'],
                     'RegionColor' => $tasks[$i]['RegionColor'],
+                    'TaskDescription' => $tasks[$i]['TaskDescription'],
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],
                         'Lon' => $tasks[$i]['Lat']
