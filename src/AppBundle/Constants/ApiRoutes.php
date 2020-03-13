@@ -76,6 +76,7 @@ final class ApiRoutes
     );
 
     const PWA_ROUTES = array(
-        "vrs_pwa_tasks"
+        "vrs_pwa_tasks",
+        "vrs_pwa_starttask"
     );
 }

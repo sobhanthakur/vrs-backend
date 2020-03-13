@@ -127,4 +127,12 @@ class ServicersDashboardService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    public function StartTask()
+    {
+        return array(
+            "ReasonCode" => 0,
+            "ReasonText" => "Success"
+        );
+    }
 }
