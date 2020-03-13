@@ -52,7 +52,8 @@ class IntegrationsService extends BaseService
                         'CreateDate' => $installedObject['createdate'],
                         'StartDate' => $installedObject['startdate'],
                         'Version' => $installedObject['version'],
-                        'Type' => $installedObject['type']
+                        'Type' => $installedObject['type'],
+                        GeneralConstants::TIMETRACKING_TYPE => $installedObject['timetrackingtype']
                     );
                 }
                 $integrationResponse[$i] = array(
@@ -246,6 +247,10 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setQbdsyncpayroll($content[GeneralConstants::QBDSYNCTT]);
             }
 
+            if (array_key_exists(GeneralConstants::TIMETRACKING_TYPE, $content)) {
+                $integrationToCustomer->setTimetrackingtype($content[GeneralConstants::TIMETRACKING_TYPE]);
+            }
+
             if (array_key_exists(GeneralConstants::REALMID, $content)) {
                 if(!$customer) {
                     $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
@@ -253,7 +258,6 @@ class IntegrationsService extends BaseService
                 $tokens = new Integrationqbotokens();
                 $tokens->setRealmID($string = preg_replace('/\s+/', '', $content[GeneralConstants::REALMID]));
                 $tokens->setCustomerid($customer);
-                $integrationToCustomer->setQbdsyncbilling(true);
                 $this->entityManager->persist($tokens);
             }
 

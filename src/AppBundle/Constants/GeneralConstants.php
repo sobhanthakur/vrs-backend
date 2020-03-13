@@ -121,6 +121,7 @@ final class GeneralConstants
     const QBDVERSION = 'Version';
     const QBDTYPE = 'Type';
     const REALMID = 'RealmID';
+    const TIMETRACKING_TYPE = 'TimeTrackingType';
 
     const FILTER_MATCHED = 'Matched';
     const FILTER_NOT_MATCHED = 'Not Yet Matched';

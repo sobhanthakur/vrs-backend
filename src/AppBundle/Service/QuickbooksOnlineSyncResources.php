@@ -11,7 +11,10 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Entity\Customers;
 use AppBundle\Entity\Integrationqbdcustomers;
+use AppBundle\Entity\Integrationqbdemployees;
 use AppBundle\Entity\Integrationqbditems;
+use AppBundle\Entity\Integrationstocustomers;
+use QuickBooksOnline\API\DataService\DataService;
 use QuickBooksOnline\API\Exception\ServiceException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -32,9 +35,15 @@ class QuickbooksOnlineSyncResources extends BaseService
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \QuickBooksOnline\API\Exception\SdkException
      */
-    public function SyncResources($customerID, $quickbooksConfig)
+    public function SyncResources($customerID, $quickbooksConfig,$integrationID)
     {
         $customerObj = $this->entityManager->getRepository('AppBundle:Customers')->findOneBy(array('customerid'=>$customerID));
+
+        $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID));
+        if(!$integrationsToCustomers) {
+            throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
+        }
+
         $authService = $this->serviceContainer->get('vrscheduler.quickbooksonline_authentication');
         $integrationQBOTokens = $this->entityManager->getRepository('AppBundle:Integrationqbotokens')->findOneBy(array('customerid'=>$customerID));
         $dataService = null;
@@ -54,13 +63,8 @@ class QuickbooksOnlineSyncResources extends BaseService
                 throw new ServiceException('Unauthorized');
             }
 
-            // Fetch Customers
-            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
-            $this->StoreCustomers($customers,$customerObj);
+            $this->PerformSyncOperations($dataService,$integrationsToCustomers,$customerObj);
 
-            // Fetch Items
-            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
-            $this->StoreItems($items,$customerObj);
         } catch (ServiceException $exception) {
             /*
              * This occurs when authentication fails using the existing access token.
@@ -71,13 +75,7 @@ class QuickbooksOnlineSyncResources extends BaseService
             // Re-Login with new Updated Tokens
             $dataService = $authService->Authenticate($integrationQBOTokens, $quickbooksConfig);
 
-            // Fetch Customers
-            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
-            $this->StoreCustomers($customers,$customerObj);
-
-            // Fetch Items
-            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
-            $this->StoreItems($items,$customerObj);
+            $this->PerformSyncOperations($dataService,$integrationsToCustomers,$customerObj);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -131,6 +129,46 @@ class QuickbooksOnlineSyncResources extends BaseService
     }
 
     /**
+     * @param $employees
+     * @param Customers $customerObj
+     * @return bool
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function StoreEmployees($employees, $customerObj)
+    {
+        $incomingListIDs = [];
+        foreach ($employees as $employee) {
+            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid'=>$employee->Id));
+            if(!$integrationQBDEmployees) {
+                $integrationQBDEmployees = new Integrationqbdemployees();
+            }
+            $incomingListIDs[] = $employee->Id;
+            $integrationQBDEmployees->setCustomerid($customerObj);
+            $integrationQBDEmployees->setActive($employee->Active);
+            $integrationQBDEmployees->setQbdemployeefullname($employee->GivenName);
+            $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
+            $this->entityManager->persist($integrationQBDEmployees);
+        }
+
+        // Fetch available Employess to keep track of employees that are made inactive in QBO
+        $qbdListIDs = [];
+        $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->GetAllEmployees($customerObj->getCustomerid());
+        foreach ($qbdEmployees as $val) {
+            $qbdListIDs[] = $val['QBDEmployeeListID'];
+        }
+
+        // Check if any record is deleted or not.
+        $diffArray = array_diff($qbdListIDs, $incomingListIDs);
+        foreach ($diffArray as $key => $value) {
+            $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $value));
+            $qbdEmployees->setActive(false);
+        }
+        $this->entityManager->flush();
+        return true;
+    }
+
+    /**
      * @param $items
      * @param Customers $customerObj
      * @return bool
@@ -166,6 +204,37 @@ class QuickbooksOnlineSyncResources extends BaseService
             $qbdItems->setActive(false);
         }
         $this->entityManager->flush();
+        return true;
+    }
+
+
+    /**
+     * @param DataService $dataService
+     * @param Integrationstocustomers $integrationsToCustomers
+     * @param $customerObj
+     * @return bool
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Exception
+     */
+    public function PerformSyncOperations($dataService, $integrationsToCustomers, $customerObj)
+    {
+        if($integrationsToCustomers->getQbdsyncbilling()) {
+            // Fetch Customers
+            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
+            $this->StoreCustomers($customers,$customerObj);
+
+            // Fetch Items
+            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
+            $this->StoreItems($items,$customerObj);
+        }
+
+        if($integrationsToCustomers->getQbdsyncpayroll()) {
+            // Fetch Customers
+            $employees = $dataService->Query('select Active,GivenName,Id from Employee');
+            $this->StoreEmployees($employees,$customerObj);
+        }
+
         return true;
     }
 }

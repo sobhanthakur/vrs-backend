@@ -23,6 +23,14 @@ class SyncResourcesController extends FOSRestController
     /**
      * Connects to Quickbooks online to fetch the list of customers and items
      * @SWG\Tag(name="Quickbooks Online")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 encode {""IntegrationID"":1}. Example eyJJbnRlZ3JhdGlvbklEIjoxfQ=="
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Success"
@@ -36,8 +44,10 @@ class SyncResourcesController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $data = json_decode(base64_decode($request->get('data')),true);
+            $integrationID = $data['IntegrationID'];
             $qbService = $this->container->get('vrscheduler.quickbooksonline_resources');
-            return $qbService->SyncResources($customerID,$this->container->getParameter('QuickBooksConfiguration'));
+            return $qbService->SyncResources($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
         } catch (ServiceException $exception) {
             throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (BadRequestHttpException $exception) {

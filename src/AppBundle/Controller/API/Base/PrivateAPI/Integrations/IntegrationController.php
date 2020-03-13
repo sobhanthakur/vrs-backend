@@ -89,6 +89,11 @@ class IntegrationController extends FOSRestController
      *              type="boolean",
      *              example=false
      *         ),
+     *        @SWG\Property(
+     *              property="TimeTrackingType",
+     *              type="boolean",
+     *              example=false
+     *         ),
      *         @SWG\Property(
      *              property="RealmID",
      *              type="string",

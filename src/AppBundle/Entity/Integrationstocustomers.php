@@ -127,6 +127,13 @@ class Integrationstocustomers implements UserInterface
      */
     private $type = 0;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="TimeTrackingType", type="boolean", nullable=true)
+     */
+    private $timetrackingtype = 0;
+
 
     /**
      * Get integrationtocustomerid.
@@ -482,5 +489,29 @@ class Integrationstocustomers implements UserInterface
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set timetrackingtype.
+     *
+     * @param bool|null $timetrackingtype
+     *
+     * @return Integrationstocustomers
+     */
+    public function setTimetrackingtype($timetrackingtype = null)
+    {
+        $this->timetrackingtype = $timetrackingtype;
+
+        return $this;
+    }
+
+    /**
+     * Get timetrackingtype.
+     *
+     * @return bool|null
+     */
+    public function getTimetrackingtype()
+    {
+        return $this->timetrackingtype;
     }
 }
