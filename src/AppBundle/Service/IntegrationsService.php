@@ -251,7 +251,7 @@ class IntegrationsService extends BaseService
                 $integrationToCustomer->setTimetrackingtype($content[GeneralConstants::TIMETRACKING_TYPE]);
             }
 
-            if (array_key_exists(GeneralConstants::REALMID, $content)) {
+            if (array_key_exists(GeneralConstants::REALMID, $content) && $content[GeneralConstants::REALMID] !== "") {
                 if(!$customer) {
                     $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
                 }
@@ -345,6 +345,7 @@ class IntegrationsService extends BaseService
             $integrationToCustomer->setVersion(null);
             $integrationToCustomer->setType(null);
             $integrationToCustomer->setIntegrationqbdhourwagetypeid(null);
+            $integrationToCustomer->setTimetrackingtype(null);
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
 
