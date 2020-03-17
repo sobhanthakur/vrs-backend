@@ -218,6 +218,8 @@ class TimeTrackingApprovalService extends BaseService
 
             // Traverse data to create/update mappings
             for ($i = 0; $i < count($data); $i++) {
+                $timetrackingRecords = null;
+                $timeclock = null;
 
                 // Check If status is correct or not
                 if(
@@ -228,28 +230,28 @@ class TimeTrackingApprovalService extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
 
-                $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
-                    array(
-                        'timeclockdaysid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
-                    )
-                );
+                if(array_key_exists('TimeClockTasksID',$data[$i])) {
+                    $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
+                        array(
+                            'timeclocktasksid' => $data[$i][GeneralConstants::TIME_CLOCK_TASKS_ID]
+                        )
+                    );
 
-                // Throw Exception if the the record's txnID is not null
-                if(
-                ($timetrackingRecords !== null?($timetrackingRecords->getTxnid() !== null):null)
-                ) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TIMECLOCKDAYSID);
-                }
+                    $timeclock = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
+                            'timeclocktaskid' => $data[$i][GeneralConstants::TIME_CLOCK_TASKS_ID]
+                        )
+                    );
+                } else {
+                    $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
+                        array(
+                            'timeclockdaysid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
+                        )
+                    );
 
-                $timeclockdays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->findOneBy(array(
-                        'timeclockdayid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
-                    )
-                );
-
-                if(!$timeclockdays ||
-                    ($timeclockdays !== null?($timeclockdays->getServicerid()->getCustomerid()->getCustomerid() !== $customerID):null)
-                ) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TIMECLOCKDAYSID);
+                    $timeclock = $this->entityManager->getRepository('AppBundle:Timeclockdays')->findOneBy(array(
+                            'timeclockdayid' => $data[$i][GeneralConstants::TIME_CLOCK_DAYS_ID]
+                        )
+                    );
                 }
 
                 // If Integration QBD Time Tracking Record exist, then simply update the record with the new Status
@@ -257,10 +259,15 @@ class TimeTrackingApprovalService extends BaseService
                     // Create New Record
                     $timetrackingRecords = new Integrationqbdtimetrackingrecords();
 
-                    $timetrackingRecords->setTimeclockdaysid($timeclockdays);
+                    if(array_key_exists('TimeClockTasksID',$data[$i])) {
+                        $timetrackingRecords->setTimeclocktasksid($timeclock);
+                    } else {
+                        $timetrackingRecords->setTimeclockdaysid($timeclock);
+                    }
+
                     $timetrackingRecords->setStatus($data[$i]['Status']);
                     $timetrackingRecords->setDay(new \DateTime($data[$i]['Date']));
-                    $timetrackingRecords->setTimetrackedseconds($this->DateDiffCalculation($timeclockdays->getClockout()->diff($timeclockdays->getClockin())));
+                    $timetrackingRecords->setTimetrackedseconds($this->DateDiffCalculation($timeclock->getClockout()->diff($timeclock->getClockin())));
 
                     $this->entityManager->persist($timetrackingRecords);
                 } else {
