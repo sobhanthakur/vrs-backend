@@ -31,14 +31,12 @@ class TimeTrackingApprovalService extends BaseService
             $filters = null;
             $staff = null;
             $createDate = null;
-            $limit = 10;
+            $limit = 20;
             $offset = 1;
             $response = null;
             $integrationID = null;
             $count = null;
             $filters = [];
-            $flag = null;
-            $response = [];
             $status = [];
             $completedDate = [];
             $timezones = [];
@@ -50,8 +48,13 @@ class TimeTrackingApprovalService extends BaseService
             $integrationID = $data['IntegrationID'];
 
             //Check if the customer has enabled the integration or not and QBDSyncTimeTracking is enabled.
-            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncTimeTrackingEnabled($integrationID, $customerID);
-            if (empty($integrationToCustomers)) {
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array(
+               'integrationid' => $integrationID,
+                'customerid' => $customerID,
+                'active' => true,
+                'qbdsyncpayroll' => true
+            ));
+            if (!$integrationToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
@@ -64,7 +67,7 @@ class TimeTrackingApprovalService extends BaseService
                 }
 
                 $regions = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
-                $timezones = $this->StartDateCalculation($regions,$integrationToCustomers[0]['startdate']);
+                $timezones = $this->StartDateCalculation($regions,$integrationToCustomers->getStartdate());
 
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
@@ -84,15 +87,26 @@ class TimeTrackingApprovalService extends BaseService
                 $status = $filters['Status'];
             }
 
-            //Default Condition
-            if (!$flag) {
+            // Process Time tracking records
+            if ($integrationToCustomers->getTimetrackingtype()) {
+                // Fetch Time Clock Tasks
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones,$status);
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CountMapTimeClockTasks($customerID, $staff, $completedDate, $timezones, $status);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate,$timezones, $limit, $offset,$status);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->MapTimeClockTasks($customerID, $staff,$completedDate, $timezones, $limit, $offset, $status);
+                $response = $this->processResponse($response);
+            } else {
+                // Fetch Time Clock Days
+                if ($offset === 1) {
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate, $timezones, $status);
+                    if ($count) {
+                        $count = (int)$count[0][1];
+                    }
+                }
+                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate, $timezones, $limit, $offset, $status);
                 $response = $this->processResponse($response);
             }
 

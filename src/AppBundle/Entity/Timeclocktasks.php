@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Timeclocktasks
  *
  * @ORM\Table(name="TimeClockTasks", indexes={@ORM\Index(name="AutoLogOutFlag", columns={"AutoLogOutFlag"}), @ORM\Index(name="ClockIn", columns={"ClockIn"}), @ORM\Index(name="Clockout", columns={"ClockOut"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TimeClockTasksRepository")
  */
 class Timeclocktasks
 {

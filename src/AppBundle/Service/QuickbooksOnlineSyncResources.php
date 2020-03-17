@@ -219,10 +219,15 @@ class QuickbooksOnlineSyncResources extends BaseService
      */
     public function PerformSyncOperations($dataService, $integrationsToCustomers, $customerObj)
     {
-        if($integrationsToCustomers->getQbdsyncbilling()) {
+        if (
+            ($integrationsToCustomers->getQbdsyncpayroll() && (int)$integrationsToCustomers->getTimetrackingtype() === 1) ||
+            $integrationsToCustomers->getQbdsyncbilling()) {
             // Fetch Customers
             $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
-            $this->StoreCustomers($customers,$customerObj);
+            $this->StoreCustomers($customers, $customerObj);
+        }
+
+        if($integrationsToCustomers->getQbdsyncbilling()) {
 
             // Fetch Items
             $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');

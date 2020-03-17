@@ -85,6 +85,16 @@ class Integrationqbdtimetrackingrecords
     private $timeclockdaysid;
 
     /**
+     * @var \Timeclocktasks
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Timeclocktasks")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="TimeClockTasksID", referencedColumnName="TimeClockTaskID")
+     * })
+     */
+    private $timeclocktasksid;
+
+    /**
      * Get integrationqbdtimetrackingrecords.
      *
      * @return int
@@ -294,5 +304,29 @@ class Integrationqbdtimetrackingrecords
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set timeclocktasksid.
+     *
+     * @param \AppBundle\Entity\Timeclocktasks|null $timeclocktasksid
+     *
+     * @return Integrationqbdtimetrackingrecords
+     */
+    public function setTimeclocktasksid(\AppBundle\Entity\Timeclocktasks $timeclocktasksid = null)
+    {
+        $this->timeclocktasksid = $timeclocktasksid;
+
+        return $this;
+    }
+
+    /**
+     * Get timeclocktasksid.
+     *
+     * @return \AppBundle\Entity\Timeclocktasks|null
+     */
+    public function getTimeclocktasksid()
+    {
+        return $this->timeclocktasksid;
     }
 }
