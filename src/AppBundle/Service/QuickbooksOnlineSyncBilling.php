@@ -13,7 +13,6 @@ use QuickBooksOnline\API\DataService\DataService;
 use QuickBooksOnline\API\Exception\ServiceException;
 use QuickBooksOnline\API\Facades\Estimate;
 use QuickBooksOnline\API\Facades\Invoice;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -108,7 +107,7 @@ class QuickbooksOnlineSyncBilling extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
             }
 
-            $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID));
+            $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID,'active'=>true,'qbdsyncbilling'=>true));
             if(!$integrationsToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }

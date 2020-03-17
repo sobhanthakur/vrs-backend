@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: sobhan
- * Date: 18/2/20
- * Time: 10:57 AM
+ * Date: 17/3/20
+ * Time: 2:08 PM
  */
 
 namespace AppBundle\Controller\API\Base\PrivateAPI\QuickbooksOnline;
@@ -18,10 +18,14 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
 
-class SyncBillingController extends FOSRestController
+/**
+ * Class SyncTimeTrackingController
+ * @package AppBundle\Controller\API\Base\PrivateAPI\QuickbooksOnline
+ */
+class SyncTimeTrackingController extends FOSRestController
 {
     /**
-     * Connects to Quickbooks online and create Billing information
+     * Connects to Quickbooks online and create TimeActivity information
      * @SWG\Tag(name="Quickbooks Online")
      * @SWG\Parameter(
      *     name="data",
@@ -38,7 +42,7 @@ class SyncBillingController extends FOSRestController
      * @return array
      * @throws ServiceException
      * @param Request $request
-     * @Get("/qbo/syncbilling", name="vrs_qbo_syncbilling")
+     * @Get("/qbo/synctimetracking", name="vrs_qbo_synctimetracking")
      */
     public function SyncBilling(Request $request)
     {
@@ -47,8 +51,8 @@ class SyncBillingController extends FOSRestController
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             $integrationID = $data['IntegrationID'];
-            $qbService = $this->container->get('vrscheduler.quickbooksonline_billing');
-            return $qbService->SyncBilling($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
+            $qbService = $this->container->get('vrscheduler.quickbooksonline_timetracking');
+            return $qbService->SyncTimeTracking($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
         } catch (ServiceException $exception) {
             throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (UnprocessableEntityHttpException $exception) {

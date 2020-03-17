@@ -46,7 +46,8 @@ final class ApiRoutes
         "vrs_qwd_disconnect",
         "vrs_logs_reset",
         "vrs_qbo_syncresources",
-        "vrs_qbo_syncbilling"
+        "vrs_qbo_syncbilling",
+        "vrs_qbo_synctimetracking"
     );
 
     const PUBLIC_ROUTES = array(

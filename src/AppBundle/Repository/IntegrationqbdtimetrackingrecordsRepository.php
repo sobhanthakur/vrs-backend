@@ -192,7 +192,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeelistid AS QBDEmployeeName')
+            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeelistid AS QBDEmployeeListID')
             ->innerJoin('b1.timeclockdaysid','t2')
             ->innerJoin('t2.servicerid','s2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
@@ -324,5 +324,31 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->getEntityManager()
             ->createQuery('UPDATE AppBundle:Integrationqbdtimetrackingrecords b1 SET b1.sentstatus=NULL,b1.integrationqbbatchid=NULL WHERE b1.txnid IS NULL AND b1.integrationqbbatchid='.$batchID)
             ->getArrayResult();
+    }
+
+    /**
+     * @param $customerID
+     * @return mixed
+     */
+    public function TimeClockTasksForQuickbooksOnline($customerID)
+    {
+        return $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue')
+            ->innerJoin('b1.timeclocktasksid', 't2')
+            ->innerJoin('t2.servicerid', 's2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
+            ->innerJoin('t2.taskid', 'taskid')
+            ->innerJoin('taskid.propertyid', 'propertyid')
+            ->innerJoin('ies.integrationqbdemployeeid', 'ie')
+            ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties', 'icp', Expr\Join::WITH, 'propertyid.propertyid=icp.propertyid')
+            ->leftJoin('icp.integrationqbdcustomerid','ic')
+            ->where('b1.status=1')
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
+            ->andWhere('s2.customerid = :CustomerID')
+            ->setParameter('CustomerID', $customerID)
+            ->getQuery()
+            ->getResult();
     }
 }

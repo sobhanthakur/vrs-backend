@@ -41,6 +41,7 @@ class TimeTrackingApprovalService extends BaseService
             $completedDate = [];
             $timezones = [];
             $new = null;
+            $qbo = null;
 
             if (!array_key_exists('IntegrationID', $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
@@ -56,6 +57,11 @@ class TimeTrackingApprovalService extends BaseService
             ));
             if (!$integrationToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
+            }
+
+            // Set if version is QBO
+            if($integrationToCustomers->getVersion() === 2) {
+                $qbo = true;
             }
 
             if (!empty($data)) {
@@ -101,12 +107,12 @@ class TimeTrackingApprovalService extends BaseService
             } else {
                 // Fetch Time Clock Days
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate, $timezones, $status);
+                    $count = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CountMapTimeClockDaysWithFilters($customerID, $staff,$completedDate, $timezones, $status,$qbo);
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $createDate, $completedDate, $timezones, $limit, $offset, $status);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $completedDate, $timezones, $limit, $offset, $status,$qbo);
                 $response = $this->processResponse($response);
             }
 

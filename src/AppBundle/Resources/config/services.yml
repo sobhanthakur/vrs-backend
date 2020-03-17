@@ -138,5 +138,9 @@ services:
         class: AppBundle\Service\QuickbooksOnlineSyncBilling
         parent: vrscheduler.base_service
         public: true
+    vrscheduler.quickbooksonline_timetracking:
+        class: AppBundle\Service\QuickbooksOnlineSyncTimeTracking
+        parent: vrscheduler.base_service
+        public: true
 
 
