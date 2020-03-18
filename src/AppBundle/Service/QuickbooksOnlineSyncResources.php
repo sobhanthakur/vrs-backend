@@ -139,8 +139,8 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($employees as $employee) {
-            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid'=>$employee->Id));
-            if(!$integrationQBDEmployees) {
+            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id));
+            if (!$integrationQBDEmployees) {
                 $integrationQBDEmployees = new Integrationqbdemployees();
             }
             $incomingListIDs[] = $employee->Id;
@@ -224,20 +224,26 @@ class QuickbooksOnlineSyncResources extends BaseService
             $integrationsToCustomers->getQbdsyncbilling()) {
             // Fetch Customers
             $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
-            $this->StoreCustomers($customers, $customerObj);
+            if(!empty($customers)) {
+                $this->StoreCustomers($customers, $customerObj);
+            }
         }
 
         if($integrationsToCustomers->getQbdsyncbilling()) {
 
             // Fetch Items
             $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
-            $this->StoreItems($items,$customerObj);
+            if(!empty($items)) {
+                $this->StoreItems($items,$customerObj);
+            }
         }
 
         if($integrationsToCustomers->getQbdsyncpayroll()) {
             // Fetch Customers
             $employees = $dataService->Query('select Active,GivenName,Id from Employee');
-            $this->StoreEmployees($employees,$customerObj);
+            if(!empty($employees)) {
+                $this->StoreEmployees($employees,$customerObj);
+            }
         }
 
         return true;
