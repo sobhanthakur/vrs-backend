@@ -145,7 +145,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $this->entityManager->persist($integrationQBDTimeTracking);
                     }
                 }
-                $this->entityManager->flush();
 
             } else {
                 // Time Clock Days
@@ -155,30 +154,41 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 }
 
                 // Set Sent Status to 1
-//                $batch = $this->CreateBatch($integrationsToCustomers);
-//                $integrationQBDTimetrackingID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetUnsycedTimeTrackingBatch($customerID);
-//                $updateTimeTrackingBatch = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateTimeTrackingBatches($batch->getIntegrationqbbatchid(),$integrationQBDTimetrackingID);
-//
-//                foreach ($timeclocks as $timeclock) {
-//                    $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
-//                    $timeActivity = array(
-//                        "NameOf" => "Employee",
-//                        "TxnDate" => $timeclock['Date']->format('Y-m-d'),
-//                        "EmployeeRef" => [
-//                            "Value" => $timeclock['QBDEmployeeListID']
-//                        ],
-//                        "Minutes" => $timeTracked[1],
-//                        "Hours" => $timeTracked[0]
-//                    );
-//
-//                    $timeActivity = TimeActivity::create($timeActivity);
-//                    $result = $dataService->Add($timeActivity);
-//                }
+                $batch = $this->CreateBatch($integrationsToCustomers);
+                $integrationQBDTimetrackingID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetUnsycedTimeTrackingBatch($customerID);
+                foreach ($integrationQBDTimetrackingID as $id) {
+                    $result = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$id['integrationqbdtimetrackingrecords']));
+                    $result->setIntegrationqbbatchid($batch);
+                    $result->setSentstatus(true);
+                    $this->entityManager->persist($result);
+                }
+                $this->entityManager->flush();
 
-                // Create time activity object for Quickbooks Online
+                foreach ($timeclocks as $timeclock) {
+                    $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
+                    $timeActivity = array(
+                        "NameOf" => "Employee",
+                        "TxnDate" => $timeclock['Date']->format('Y-m-d'),
+                        "EmployeeRef" => [
+                            "Value" => $timeclock['QBDEmployeeListID']
+                        ],
+                        "Minutes" => $timeTracked[1],
+                        "Hours" => $timeTracked[0]
+                    );
+
+                    $timeActivity = TimeActivity::create($timeActivity);
+                    $result = $dataService->Add($timeActivity);
+                    $timetrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batch->getIntegrationqbbatchid(),$timeclock['Date'],$timeclock['QBDEmployeeListID']);
+                    foreach ($timetrackingIDs as $id) {
+                        $ttid = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$id['integrationqbdtimetrackingrecords']));
+                        $ttid->setTxnid($result->Id);
+                        $this->entityManager->persist($ttid);
+                    }
+                }
+
             }
+            $this->entityManager->flush();
 
-//            $this->entityManager->flush();
             return true;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

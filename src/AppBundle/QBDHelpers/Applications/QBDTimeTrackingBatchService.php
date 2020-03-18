@@ -99,7 +99,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                 $txnID = $timeTrackingRet->TxnID;
                 $txnDate = (string)$timeTrackingRet->TxnDate;
                 $listID = (string)$timeTrackingRet->EntityRef->ListID;
-                $timeTrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batchID,$txnDate,$listID,$txnID);
+                $timeTrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batchID,$txnDate,$listID);
                 foreach ($timeTrackingIDs as $items) {
                     $txnTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords' => $items['integrationqbdtimetrackingrecords']));
                     $txnTimeTracking->setTxnid($txnID);

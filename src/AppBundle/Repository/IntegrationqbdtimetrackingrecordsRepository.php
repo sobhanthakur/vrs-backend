@@ -258,7 +258,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $txnID
      * @return mixed
      */
-    public function UpdateSuccessTxnID($batchID, $txnDate, $listID, $txnID)
+    public function UpdateSuccessTxnID($batchID, $txnDate, $listID)
     {
         return $this
             ->createQueryBuilder('b2')
