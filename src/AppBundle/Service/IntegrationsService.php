@@ -53,7 +53,7 @@ class IntegrationsService extends BaseService
                         'StartDate' => $installedObject['startdate'],
                         'Version' => $installedObject['version'],
                         'Type' => $installedObject['type'],
-                        GeneralConstants::TIMETRACKING_TYPE => $installedObject['timetrackingtype']
+                        GeneralConstants::TIMETRACKING_TYPE => ($installedObject['timetrackingtype'] === true ? "1" : "0")
                     );
                 }
                 $integrationResponse[$i] = array(
@@ -248,7 +248,8 @@ class IntegrationsService extends BaseService
             }
 
             if (array_key_exists(GeneralConstants::TIMETRACKING_TYPE, $content)) {
-                $integrationToCustomer->setTimetrackingtype($content[GeneralConstants::TIMETRACKING_TYPE]);
+                $type = ($content[GeneralConstants::TIMETRACKING_TYPE] === "1" ? true : false);
+                $integrationToCustomer->setTimetrackingtype($type);
             }
 
             if (array_key_exists(GeneralConstants::REALMID, $content) && $content[GeneralConstants::REALMID] !== "") {
