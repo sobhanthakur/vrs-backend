@@ -121,17 +121,23 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $batchID
      * @return mixed
      */
-    public function BatchWiseLog($batchID,$limit,$offset)
+    public function BatchWiseLog($batchID,$limit,$offset,$timeTrackingType)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('b1')
-            ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status')
-            ->innerJoin('b1.timeclockdaysid','t2')
-            ->innerJoin('t2.servicerid','s2')
+            ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status');
+        if ($timeTrackingType) {
+            $result->innerJoin('b1.timeclocktasksid', 't2');
+        } else {
+            $result->innerJoin('b1.timeclockdaysid', 't2');
+        }
+
+        $result->innerJoin('t2.servicerid', 's2')
             ->where('b1.integrationqbbatchid = :BatchID')
             ->setParameter('BatchID', $batchID)
-            ->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit)
+            ->setFirstResult(($offset - 1) * $limit);
+
+        return $result->setMaxResults($limit)
             ->getQuery()->execute();
     }
 
