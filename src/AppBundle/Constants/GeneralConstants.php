@@ -26,14 +26,16 @@ final class GeneralConstants
             self::OWNERID => '{90A44FB7-33D6-4815-AC85-AC86A7E71231}',
             self::FILEID => '{57F3B9B6-86F6-4FCC-B1FF-967DE1813121}',
             self::APP_NAME => 'Sync Billing With VRS',
-            self::APP_DESCRIPTION => 'Create Sales Orders in Quickbooks',
+            self::DESCRIPTION1 => 'Create',
+            self::DESCRIPTION2 => 'in Quickbooks',
             self::APP_URL => '/v1/vrs/qbdsalesorderitems'
         ],
         [
             self::OWNERID => '{90A44FB7-33D6-4815-AC85-AC86A7E71232}',
             self::FILEID => '{57F3B9B6-86F6-4FCC-B1FF-967DE1813122}',
-            self::APP_NAME => 'Map sync info for failed records',
-            self::APP_DESCRIPTION => 'Use this application to fetch the Sales Orders that are failed during the sync process',
+            self::APP_NAME => 'Sync Billing for failed records',
+            self::DESCRIPTION1 => 'Use this application to fetch the',
+            self::DESCRIPTION2 => 'that are failed during the sync process',
             self::APP_URL => '/v1/vrs/qbdfailedsalesorders'
         ]
     ];
@@ -49,7 +51,7 @@ final class GeneralConstants
         [
             self::OWNERID => '{90A44FB7-33D6-4815-AC85-AC86A7E71234}',
             self::FILEID => '{57F3B9B6-86F6-4FCC-B1FF-967DE1813124}',
-            self::APP_NAME => 'Map sync info for failed records',
+            self::APP_NAME => 'Sync Time Tracking for failed records',
             self::APP_DESCRIPTION => 'Use this application to fetch the Time Tracking that are failed during the sync process',
             self::APP_URL => '/v1/vrs/qbdfailedtimetracking'
         ]
@@ -68,6 +70,8 @@ final class GeneralConstants
     const QWC_QBFS = 'QBFS';
     const QWC_QBTYPE = 'QBType';
     const QWC_FALSE = "false";
+    const DESCRIPTION1 = 'Description1';
+    const DESCRIPTION2 = 'Description2';
 
     const QWC_SYNC_NAME = 'VRS-SyncInfo.qwc';
 

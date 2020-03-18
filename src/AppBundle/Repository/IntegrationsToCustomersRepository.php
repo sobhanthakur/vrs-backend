@@ -61,7 +61,7 @@ class IntegrationsToCustomersRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('i')
-            ->select('i.username, i.qbdsyncbilling, i.qbdsyncpayroll, i.active')
+            ->select('i.type,i.username, i.qbdsyncbilling, i.qbdsyncpayroll, i.active')
             ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere('i.integrationid= :IntegrationID')
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)

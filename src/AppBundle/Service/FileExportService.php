@@ -47,6 +47,7 @@ class FileExportService extends BaseService
             $username = $integrationToCustomers[0]['username'];
             $billing = $integrationToCustomers[0]['qbdsyncbilling'];
             $timeTracking = $integrationToCustomers[0]['qbdsyncpayroll'];
+            $billingType = $integrationToCustomers[0]['type'];
 
             /*
              * If the customer is active then generate the qwc files accordingly.
@@ -72,7 +73,7 @@ class FileExportService extends BaseService
              * Create XMLs for Billing Info
              */
             if ($billing) {
-                $this->BillingQWCFile($username, $filePath);
+                $this->BillingQWCFile($username, $filePath,$billingType);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_BILLING_SUCCESS, GeneralConstants::QWC_BILLING_SUCCESS);
                 $zip->addFile($filePath . $username . GeneralConstants::QWC_BILLING_FAIL, GeneralConstants::QWC_BILLING_FAIL);
             }
@@ -160,8 +161,16 @@ class FileExportService extends BaseService
      * @param $username
      * @return bool
      */
-    public function BillingQWCFile($username, $filePath)
+    public function BillingQWCFile($username, $filePath,$billingType)
     {
+        $billing = null;
+        if($billingType === 0) {
+            $billing = ' Sales Orders ';
+        } elseif ($billingType === 1) {
+            $billing = ' Estimates ';
+        } else {
+            $billing = ' Invoices ';
+        }
         $fileName = null;
         for ($i = 0; $i < 2; $i++) {
             $xml = new \SimpleXMLElement(GeneralConstants::QBWCXML);
@@ -169,7 +178,7 @@ class FileExportService extends BaseService
             $xml->addChild(GeneralConstants::APP_NAME, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_NAME]);
             $xml->addChild(GeneralConstants::APP_ID, GeneralConstants::QWC_APP_ID);
             $xml->addChild(GeneralConstants::APP_URL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST) . GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_URL]);
-            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i][GeneralConstants::APP_DESCRIPTION]);
+            $xml->addChild(GeneralConstants::APP_DESCRIPTION, GeneralConstants::QWC_BILLING[$i][GeneralConstants::DESCRIPTION1].$billing.GeneralConstants::QWC_BILLING[$i][GeneralConstants::DESCRIPTION2]);
             $xml->addChild(GeneralConstants::APP_SUPPORT, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST).GeneralConstants::QWC_CERT_RESOURCE);
             $xml->addChild(GeneralConstants::CERTURL, $this->serviceContainer->getParameter('SSL') . $this->serviceContainer->getParameter(GeneralConstants::API_HOST).GeneralConstants::QWC_CERT_RESOURCE);
             $xml->addChild(GeneralConstants::USERNAME, $username);
