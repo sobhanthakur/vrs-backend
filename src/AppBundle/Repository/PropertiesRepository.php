@@ -58,7 +58,7 @@ class PropertiesRepository extends EntityRepository
             ->select('p.propertyid AS PropertyID, IDENTITY(m.integrationqbdcustomerid) AS IntegrationQBDCustomerID,p.propertyname AS PropertyName, p.propertyabbreviation as PropertyAbbreviation, r.region AS RegionName, o.ownername AS OwnerName')
             ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties', 'm', Expr\Join::WITH, 'm.propertyid=p.propertyid')
             ->innerJoin('p.regionid', 'r')
-            ->innerJoin('p.ownerid', 'o')
+            ->leftJoin('p.ownerid', 'o')
             ->where('p.customerid= :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->orderBy('p.propertyname','ASC')
