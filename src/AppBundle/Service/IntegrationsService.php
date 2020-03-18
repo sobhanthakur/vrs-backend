@@ -53,7 +53,7 @@ class IntegrationsService extends BaseService
                         'StartDate' => $installedObject['startdate'],
                         'Version' => $installedObject['version'],
                         'Type' => $installedObject['type'],
-                        GeneralConstants::TIMETRACKING_TYPE => ($installedObject['timetrackingtype'] === true ? "1" : "0")
+                        GeneralConstants::TIMETRACKING_TYPE => ($installedObject['timetrackingtype'] === true ? "1" : ($installedObject['timetrackingtype'] === null ? null : "0"))
                     );
                 }
                 $integrationResponse[$i] = array(
