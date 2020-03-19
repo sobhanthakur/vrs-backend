@@ -121,7 +121,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
      * @param $batchID
      * @return mixed
      */
-    public function BatchWiseLog($batchID,$limit,$offset,$timeTrackingType)
+    public function BatchWiseLog($batchID,$limit,$offset,$timeTrackingType=null)
     {
         $result = $this
             ->createQueryBuilder('b1')

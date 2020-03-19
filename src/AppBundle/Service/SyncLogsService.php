@@ -207,7 +207,6 @@ class SyncLogsService extends BaseService
             $limit = $content['Pagination']['Limit'];
             $offset = $content['Pagination']['Offset'];
             $batchID = $content['BatchID'];
-            $timeTrackingType = $integrationToCustomers->getTimetrackingtype();
 
             // Batch Type = 0 Means Billing And Batch Type = 1 Means Time Tracking
             if ($batchType === 0) {
@@ -227,7 +226,9 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset,$timeTrackingType);
+                $response1 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset,true);
+                $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset);
+                $response = array_merge($response,$response1);
             }
 
 
