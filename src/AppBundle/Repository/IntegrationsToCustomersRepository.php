@@ -84,7 +84,7 @@ class IntegrationsToCustomersRepository extends EntityRepository
             ->where(GeneralConstants::CUSTOMER_CONDITION)
             ->andWhere(GeneralConstants::INTEGRATION_CONDITION)
             ->andWhere('i.active=1')
-            ->andWhere('i.qbdsyncbilling=1')
+            ->andWhere('i.qbdsyncbilling=1 OR i.timetrackingtype=1')
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
             ->setParameter(GeneralConstants::INTEGRATION_ID, $integrationID)
             ->setMaxResults(1)
