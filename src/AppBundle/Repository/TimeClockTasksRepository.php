@@ -30,7 +30,7 @@ class TimeClockTasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('t1.timeclocktaskid as TimeClockTasksID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
+            ->select('serviceid.servicename AS ServiceName,taskid.taskname AS TaskName,propertyid.propertyname AS PropertyName,t1.timeclocktaskid as TimeClockTasksID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
         $result = $this->TrimMapTimeClockTasks($result, $completedDate,$timezones, $new, $staff,$customerID);
 
         $result->setFirstResult(($offset - 1) * $limit)
@@ -82,6 +82,7 @@ class TimeClockTasksRepository extends EntityRepository
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
             ->innerJoin('t1.taskid','taskid')
+            ->innerJoin('AppBundle:Services','serviceid',Expr\Join::WITH, 'taskid.serviceid=serviceid.serviceid')
             ->innerJoin('taskid.propertyid','propertyid')
             ->andWhere('propertyid.customerid='.$customerID)
             ->andWhere('t1.clockin IS NOT NULL')
