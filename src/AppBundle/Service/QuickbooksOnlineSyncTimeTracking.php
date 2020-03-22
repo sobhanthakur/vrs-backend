@@ -17,6 +17,10 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
+/**
+ * Class QuickbooksOnlineSyncTimeTracking
+ * @package AppBundle\Service
+ */
 class QuickbooksOnlineSyncTimeTracking extends BaseService
 {
     /**
@@ -114,6 +118,16 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
 
                 // Create time activity object for Quickbooks Online
                 foreach ($timeclocks as $timeclock) {
+                    $description = '';
+                    if(!empty($timeclock['PropertyName'])) {
+                        $description .= $timeclock['PropertyName']." ";
+                    }
+                    if(!empty($timeclock['TaskName'])) {
+                        $description .= $timeclock['TaskName']." ";
+                    }
+                    if(!empty($timeclock['ServiceName'])) {
+                        $description .= $timeclock['ServiceName']." ";
+                    }
                     $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
                     $timeActivity = array(
                         "NameOf" => "Employee",
@@ -125,7 +139,11 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         "Hours" => $timeTracked[0],
                         "CustomerRef" => [
                             "Value" => $timeclock['CustomerValue']
-                        ]
+                        ],
+//                        "BillableStatus" => "Billable",
+                        "Taxable" => "false",
+                        "HourlyRate" => $timeclock['PayRate'],
+                        "Description" => $description
                     );
 
                     if(!$timeclock['CustomerValue']) {
@@ -173,7 +191,10 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                             "Value" => $timeclock['QBDEmployeeListID']
                         ],
                         "Minutes" => $timeTracked[1],
-                        "Hours" => $timeTracked[0]
+                        "Hours" => $timeTracked[0],
+//                        "BillableStatus" => "Billable",
+                        "Taxable" => "false",
+                        "HourlyRate" => $timeclock['PayRate']
                     );
 
                     $timeActivity = TimeActivity::create($timeActivity);
@@ -197,6 +218,11 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
         }
     }
 
+    /**
+     * @param $integrationsToCustomers
+     * @return Integrationqbbatches
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function CreateBatch($integrationsToCustomers)
     {
         $batch = new Integrationqbbatches();
