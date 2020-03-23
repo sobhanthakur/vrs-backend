@@ -415,6 +415,7 @@ class TasksRepository extends EntityRepository
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
             ->andWhere("t2.taskdate < :Today")
             ->setParameter('Today',$today)
+            ->orderBy('t2.taskdate','ASC')
         ;
 
         // If Task Estimates is true then select minimum and maximum time (In Hours)
