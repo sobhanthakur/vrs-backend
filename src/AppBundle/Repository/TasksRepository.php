@@ -395,6 +395,7 @@ class TasksRepository extends EntityRepository
      */
     public function FetchTasksForDashboard($servicerID, $servicers)
     {
+        $today = (new \DateTime('now'))->format('Y-m-d');
         $result =  $this
             ->createQueryBuilder('t2');
 
@@ -411,6 +412,8 @@ class TasksRepository extends EntityRepository
             ->andWhere('t2.completeconfirmeddate IS NULL')
             ->andWhere('p2.customerid=s2.customerid')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
+            ->andWhere("t2.taskdate < :Today")
+            ->setParameter('Today',$today)
         ;
 
         // If Task Estimates is true then select minimum and maximum time (In Hours)
