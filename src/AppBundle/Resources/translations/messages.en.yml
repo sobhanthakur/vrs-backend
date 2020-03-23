@@ -69,6 +69,9 @@ api:
             oauth_failed: "Login Failed. Connect to Quickbooks first"
             nothing_to_map: "Nothing to sync"
             qbo_connection_error: "Unable to Connect to Quickbooks Online"
+            invalid_property_booking: "Invalid Property ID"
+            invalid_checkout: "Checkout Date cannot be Same or Before Date of Checkin"
+            invalid_timelogin_details: "Bookings are not allowed with checkout 2 days or earlier than today."
         success:
             message: success
             password_reset: The password was reset successfully.

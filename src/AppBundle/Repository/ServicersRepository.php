@@ -9,6 +9,7 @@ namespace AppBundle\Repository;
 
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class ServicersRepository
@@ -45,7 +46,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->where('s.customerid= :CustomerID')
             ->andWhere('s.active=1')
             ->setParameter('CustomerID', $customerID)
-            ->addOrderBy('s.timetracking','DESC')
+            ->addOrderBy('s.timetracking', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
@@ -75,10 +76,10 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
-        $result = $this->TrimMappingResult($result,$unmatched,$staffTags,$department,$createDate);
+        $result = $this->TrimMappingResult($result, $unmatched, $staffTags, $department, $createDate);
 
         $result
-            ->setFirstResult(($offset-1)*$limit)
+            ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
         return $result
             ->getQuery()
@@ -93,7 +94,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      * @param $unmatched
      * @return mixed
      */
-    public function CountSyncServicers($customerID, $staffTags, $department, $createDate,$unmatched)
+    public function CountSyncServicers($customerID, $staffTags, $department, $createDate, $unmatched)
     {
         $result = null;
         $result = $this
@@ -105,7 +106,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.servicertype=0')
             ->andWhere('s.active=1');
 
-        $result = $this->TrimMappingResult($result,$unmatched,$staffTags,$department,$createDate);
+        $result = $this->TrimMappingResult($result, $unmatched, $staffTags, $department, $createDate);
 
         return $result
             ->getQuery()
@@ -125,7 +126,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.active=1')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('s.servicertype=0')
-            ->orderBy('s.name','ASC')
+            ->orderBy('s.name', 'ASC')
             ->getQuery()
             ->execute();
     }
@@ -144,7 +145,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.active=1')
             ->andWhere('s.servicertype=0')
             ->andWhere('s.servicerid IN (:Staffs)')
-            ->setParameter('Staffs',$staff)
+            ->setParameter('Staffs', $staff)
             ->setParameter('CustomerID', $customerID)
             ->getQuery()
             ->execute();
@@ -160,7 +161,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
      */
     public function TrimMappingResult($result, $unmatched, $staffTags, $department, $createDate)
     {
-        if($unmatched) {
+        if ($unmatched) {
             $result->andWhere('m.integrationqbdemployeeid IS NULL');
         }
 
@@ -182,6 +183,114 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * Function to fetch staff details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function fetchStaff($customerDetails, $queryParameter, $staffID, $offset, $query, $limit = null)
+    {
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('s');
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //condition to set query for all or some required fields
+        $result->select($query);
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('s.' . $field);
+            }
+        }
+
+        //condition to filter by staff id
+        if ($staffID) {
+            $result->andWhere('s.servicerid IN (:StaffID)')
+                ->setParameter('StaffID', $staffID);
+        }
+
+
+        //condition to filter by customer details
+        if ($customerDetails) {
+            $result->andWhere('s.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //return staff details
+        return $result
+            ->getQuery()
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->execute();
+
+
+    }
+
+    /**
+     * Function to fetch task rules details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $staffID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all task rules field
+        $issuesField = GeneralConstants::STAFF_MAPPING;
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $issuesField[$field];
+            }
+        } else {
+            $query .= implode(',', $issuesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchStaff($customerDetails, $queryParameter, $staffID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of task rules of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $staffID, $offset)
+    {
+        $query = "count(s.servicerid)";
+        return $this->fetchStaff($customerDetails, $queryParameter, $staffID, $offset, $query);
+
+    }
+
+    /**
      * @param $servicerid
      * @param $password
      * @return mixed
@@ -190,7 +299,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowstartearly=1 THEN 1 ELSE 0 END) AS StartEarly, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
+            ->select('s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
             ->where('s.servicerid= :ServicerID')
             ->andWhere('s.password= :Password')
             ->setParameter('ServicerID',$servicerid)
@@ -208,8 +317,9 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('(CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->select('t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
             ->where('s.servicerid= :ServicerID')
+            ->innerJoin('s.timezoneid','t')
             ->setParameter('ServicerID',$servicerID)
             ->setMaxResults(1)
             ->getQuery()

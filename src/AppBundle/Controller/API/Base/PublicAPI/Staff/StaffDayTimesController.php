@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 15/1/20
- * Time: 4:08 PM
+ * Date: 17/2/20
+ * Time: 10:31 AM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Region;
+namespace AppBundle\Controller\API\Base\PublicAPI\Staff;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -19,22 +19,20 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
 
-
-class RegionController extends FOSRestController
+class StaffDayTimesController extends FOSRestController
 {
     /**
-     * Regions controller to fetch region details
+     * StaffController used to  fetch all staff details
      *
-     *
-     * @SWG\Tag(name="Regions")
+     * @SWG\Tag(name="Staff Day Times")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all regions of the customer",
+     *     description="Returns all staff details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/region"
+     *              example="/api/v1/staffdaytimes"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -46,21 +44,25 @@ class RegionController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "RegionID": 1,
-     *                      "RegionGroupID": 3,
-     *                      "Region": "NorthSide",
-     *                      "Color": "#ffcccc",
-     *                      "TimeZoneID": 3,
-     *                      "CreateDate": "20190302"
+     *                      "StaffID": 132,
+     *                      "Name": "James Gillette",
+     *                      "Abbreviation": "JG",
+     *                      "Email": "demo@gmail.com",
+     *                      "Phone": "99999999",
+     *                      "CountryID": "225",
+     *                      "Active": "true",
+     *                      "CreateDate": "20180825"
      *
      *                  },
      *                  {
-     *                      "RegionID": 2,
-     *                      "RegionGroupID": 3,
-     *                      "Region": "West-NorthSide",
-     *                      "Color": "#ffcccc",
-     *                      "TimeZoneID": 4,
-     *                      "CreateDate": "20190301"
+     *                      "StaffID": 137,
+     *                      "Name": "James Bond",
+     *                      "Abbreviation": "JG",
+     *                      "Email": "demo@gmail.com",
+     *                      "Phone": "99999999",
+     *                      "CountryID": "225",
+     *                      "Active": "true",
+     *                      "CreateDate": "20180825"
      *
      *                  }
      *              }
@@ -69,9 +71,9 @@ class RegionController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/regions", name="regions_get")
+     * @Get("/staffdaytimes", name="staff_day_times")
      */
-    public function GetRegionGroup(Request $request)
+    public function GetStaffDayTimes(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -84,26 +86,26 @@ class RegionController extends FOSRestController
         }
 
         try {
+
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['REGIONS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF_DAY_TIMES'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
+            //check restriction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
             if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get regions details
-            $regionsService = $this->container->get('vrscheduler.public_regions_service');
-            $regionsDetails = $regionsService->getRegions($authDetails, $queryParameter, $pathInfo);
-            return $regionsDetails;
+            //Get staff Day Times detail
+            $staffDayTimesService = $this->container->get('vrscheduler.public_staff_day_times_service');
+            $staffDayTimesDetails = $staffDayTimesService->getStaffDayTimes($authDetails, $queryParameter, $pathInfo);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -117,6 +119,8 @@ class RegionController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+
+        return $staffDayTimesDetails;
     }
 
 }

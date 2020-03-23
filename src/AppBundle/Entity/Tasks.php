@@ -845,6 +845,20 @@ class Tasks
      */
     private $propertyid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="Approved", type="boolean", nullable=false, options={"default"="0"})
+     */
+    private $approved = '0';
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ApprovedDate", type="datetime", nullable=true)
+     */
+    private $approveddate;
+
 
 
     /**
@@ -3639,5 +3653,53 @@ class Tasks
     public function getPropertyid()
     {
         return $this->propertyid;
+    }
+
+    /**
+     * Set approved.
+     *
+     * @param bool $approved
+     *
+     * @return Tasks
+     */
+    public function setApproved($approved)
+    {
+        $this->approved = $approved;
+
+        return $this;
+    }
+
+    /**
+     * Get approved.
+     *
+     * @return bool
+     */
+    public function getApproved()
+    {
+        return $this->approved;
+    }
+
+    /**
+     * Set approveddate.
+     *
+     * @param \DateTime|null $approveddate
+     *
+     * @return Tasks
+     */
+    public function setApproveddate($approveddate = null)
+    {
+        $this->approveddate = $approveddate;
+
+        return $this;
+    }
+
+    /**
+     * Get approveddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getApproveddate()
+    {
+        return $this->approveddate;
     }
 }

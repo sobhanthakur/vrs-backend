@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 21/1/20
- * Time: 1:58 PM
+ * Date: 10/2/20
+ * Time: 5:23 PM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Issues;
+namespace AppBundle\Controller\API\Base\PublicAPI\Staff;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -18,21 +18,23 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 
-class IssuesController extends FOSRestController
+class StaffTasksController extends FOSRestController
 {
     /**
-     * Fetch all issues of the consumer
+     * StaffController used to  fetch all staff details
      *
-     * @SWG\Tag(name="Issues")
+     *
+     * @SWG\Tag(name="Staff Tasks")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all issues booking details of the customer",
+     *     description="Returns all staff tasks  details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/issues"
+     *              example="/api/v1/stafftasks"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -43,49 +45,40 @@ class IssuesController extends FOSRestController
      *              property="data",
      *              example=
      *               {
-     *                  {
-     *                      "IssueID": 135,
-     *                      "StatusID": 0,
-     *                      "IssueType": 1,
-     *                      "Urgent": false,
-     *                      "Issue": "Maintenance - Dump",
-     *                      "Notes": "",
-     *                      "StaffNotes": null,
-     *                      "InternalNotes": null,
-     *                      "Image1": "https://images.vrscheduler.com/70/IMG_5076.JPG",
-     *                      "Image2": "",
-     *                      "Image3": "",
-     *                      "Billable": false,
-     *                      "PropertyID": 36,
-     *                      "ClosedDate": "20170809",
-     *                      "CreateDate": "20170804"
-     *                  },
-     *                  {
-     *                      "IssueID": 137,
-     *                      "StatusID": 0,
-     *                      "IssueType": 1,
-     *                      "Urgent": false,
-     *                      "Issue": "Maintenance - Demo",
-     *                      "Notes": "",
-     *                      "StaffNotes": null,
-     *                      "InternalNotes": null,
-     *                      "Image1": "https://images.vrscheduler.com/70/IMG_5096.JPG",
-     *                      "Image2": "",
-     *                      "Image3": "",
-     *                      "Billable": false,
-     *                      "PropertyID": 36,
-     *                      "ClosedDate": "20170809",
-     *                      "CreateDate": "20170804"
-     *                  }
+     *                   {
+                            "StaffTaskID": 72157,
+                            "TaskID": 81530,
+                            "StaffID": 134,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "00:04",
+                            "Pay": 0,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            },
+                            {
+                            "StaffTaskID": 72164,
+                            "TaskID": 81535,
+                            "StaffID": 142,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "01:22",
+                            "Pay": 0.57,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            }
+
      *              }
      *         )
      *     )
      * )
      * @return array
      * @param Request $request
-     * @Get("/issues", name="issues_get")
+     * @Get("/stafftasks", name="staff_tasks_get")
      */
-    public function GetIssues(Request $request)
+    public function GetStaffTasks(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -104,19 +97,20 @@ class IssuesController extends FOSRestController
 
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['ISSUES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF_TASKS'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
+            //check restriction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
             if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get issue booking details
-            $issueService = $this->container->get('vrscheduler.public_issues_service');
-            $issues = $issueService->getIssues($authDetails, $queryParameter, $pathInfo);
+            //Get task detail
+            $staffTasksService = $this->container->get('vrscheduler.public_staff_tasks_service');
+            $staffTasksDetails = $staffTasksService->getStaffTasks($authDetails, $queryParameter, $pathInfo);
+
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -129,21 +123,23 @@ class IssuesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $issues;
+
+        return $staffTasksDetails;
     }
 
     /**
-     * Fetch all issues of the consumer
+     * StaffController used to  fetch all staff details
      *
-     * @SWG\Tag(name="Issues")
+     *
+     * @SWG\Tag(name="Staff Tasks")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all issues booking details of the customer",
+     *     description="Returns all staff tasks  details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/issues"
+     *              example="/api/v1/stafftasks"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -155,68 +151,60 @@ class IssuesController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "IssueID": 135,
-     *                      "StatusID": 0,
-     *                      "IssueType": 1,
-     *                      "Urgent": false,
-     *                      "Issue": "Maintenance - Dump",
-     *                      "Notes": "",
-     *                      "StaffNotes": null,
-     *                      "InternalNotes": null,
-     *                      "Image1": "https://images.vrscheduler.com/70/IMG_5076.JPG",
-     *                      "Image2": "",
-     *                      "Image3": "",
-     *                      "Billable": false,
-     *                      "PropertyID": 36,
-     *                      "ClosedDate": "20170809",
-     *                      "CreateDate": "20170804"
-     *                  }
+                            "StaffTaskID": 72157,
+                            "TaskID": 81530,
+                            "StaffID": 134,
+                            "PayType": 3,
+                            "PayRate": 0,
+                            "PiecePay": null,
+                            "TimeTracked": "00:04",
+                            "Pay": 0,
+                            "Approved": "0",
+                            "ApprovedDate": null
+                            }
      *              }
      *         )
      *     )
      * )
      * @return array
      * @param Request $request
-     * @Get("/issues/{id}", name="issues_get_id")
+     * @Get("/stafftasks/{id}", name="staff_tasks_get_id")
      */
-    public function getIssueById(Request $request)
+    public function GetStaffTasksByID(Request $request)
     {
-
-        $queryParameter = array();
-
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
-        //Getting issueId from parameter
-        $issuesID = $request->get('id');
+        //Getting staffTaskID from parameter
+        $staffTaskID = $request->get('id');
 
-        //Getting parameter from the API
+        //Get all query parameter and set it in an array
+        $queryParameter = array();
         $params = $request->query->all();
         foreach ($params as $key => $param) {
             (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : null;
         }
 
         try {
-            //Getting date from jwt token
+            //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
-            //get base path
+            //Get pathinfo
             $pathInfo = $request->getPathInfo();
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF_TASKS'];
 
-            //check accessbility of the consumer to the resource
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['ISSUES'];
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
+            //check restriction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
             if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
-            //Get issue booking details
-            $issuesService = $this->container->get('vrscheduler.public_issues_service');
-            $issues = $issuesService->getIssues($authDetails, $queryParameter, $pathInfo, $issuesID);
 
+            //Get task detail
+            $staffTasksService = $this->container->get('vrscheduler.public_staff_tasks_service');
+            $staffTasksDetails = $staffTasksService->getStaffTasks($authDetails, $queryParameter, $pathInfo, $staffTaskID);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -230,7 +218,8 @@ class IssuesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $issues;
+
+        return $staffTasksDetails;
     }
 
 }

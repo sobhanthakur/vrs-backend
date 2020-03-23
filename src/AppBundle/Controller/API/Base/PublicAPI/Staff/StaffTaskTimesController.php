@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 15/1/20
- * Time: 4:08 PM
+ * Date: 15/2/20
+ * Time: 12:16 PM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Region;
+namespace AppBundle\Controller\API\Base\PublicAPI\Staff;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -19,22 +19,21 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
 
-
-class RegionController extends FOSRestController
+class StaffTaskTimesController extends FOSRestController
 {
     /**
-     * Regions controller to fetch region details
+     * StaffTaskTimesController used to  fetch all staff task times details
      *
      *
-     * @SWG\Tag(name="Regions")
+     * @SWG\Tag(name="Staff Task Times")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all regions of the customer",
+     *     description="Returns all staff task times details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/region"
+     *              example="/api/v1/stafftasktimes"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -46,21 +45,29 @@ class RegionController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "RegionID": 1,
-     *                      "RegionGroupID": 3,
-     *                      "Region": "NorthSide",
-     *                      "Color": "#ffcccc",
-     *                      "TimeZoneID": 3,
-     *                      "CreateDate": "20190302"
+     *                      "StaffDayTimeID": 132,
+     *                      "StaffID": 1507,
+     *                      "ClockIn": "20181107092544",
+     *                      "ClockOut": 20181107100643,
+     *                      "InLat": 47.599614063215,
+     *                      "InLon":  -120.656419605377,
+     *                      "OutLat": 47.599689761945,
+     *                      "OutLon": -120.661492376551,
+     *                      "Note": "Testinteg No",
+     *                      "AutoLogOutFlagxxxx": false,
      *
      *                  },
      *                  {
-     *                      "RegionID": 2,
-     *                      "RegionGroupID": 3,
-     *                      "Region": "West-NorthSide",
-     *                      "Color": "#ffcccc",
-     *                      "TimeZoneID": 4,
-     *                      "CreateDate": "20190301"
+     *                      "StaffDayTimeID": 134,
+     *                      "StaffID": 1507,
+     *                      "ClockIn": 20181107092544,
+     *                      "ClockOut": 20181107100643,
+     *                      "InLat": 47.599614063215,
+     *                      "InLon":  -120.656419605377,
+     *                      "OutLat": 47.599689761945,
+     *                      "OutLon": -120.661492376551,
+     *                      "Note": "Testinteg No",
+     *                      "AutoLogOutFlagxxxx": false,
      *
      *                  }
      *              }
@@ -69,9 +76,9 @@ class RegionController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/regions", name="regions_get")
+     * @Get("/stafftasktimes", name="staff_task_times_get")
      */
-    public function GetRegionGroup(Request $request)
+    public function GetStaffTaskTimes(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -83,27 +90,27 @@ class RegionController extends FOSRestController
             (isset($param) && $param != "") ? $queryParameter[strtolower($key)] = strtolower($param) : null;
         }
 
-        try {
+        try{
+
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['REGIONS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF_TASK_TIMES'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
+            //check restriction for the user
             $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
             if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get regions details
-            $regionsService = $this->container->get('vrscheduler.public_regions_service');
-            $regionsDetails = $regionsService->getRegions($authDetails, $queryParameter, $pathInfo);
-            return $regionsDetails;
+            //Get staff detail
+            $staffTaskTimesService = $this->container->get('vrscheduler.public_staff_task_times_service');
+            $staffTaskTimesDetails = $staffTaskTimesService->getStaffTaskTimes($authDetails, $queryParameter, $pathInfo);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -117,6 +124,8 @@ class RegionController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+
+        return $staffTaskTimesDetails;
     }
 
 }

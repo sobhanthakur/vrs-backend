@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 6/1/20
- * Time: 4:16 PM
+ * Date: 5/2/20
+ * Time: 12:05 PM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Properties;
+namespace AppBundle\Controller\API\Base\PublicAPI\Task;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -18,25 +18,23 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 
-/**
- * Class PropertiesController
- * @package AppBundle\Controller\API\Base\PublicAPI\Properties
- */
-class PropertiesController extends FOSRestController
+class TaskRulesController extends FOSRestController
 {
     /**
-     * Get properties Details
+     * TaskRulesController controller to fetch all task rule details
      *
-     * @SWG\Tag(name="Properties")
+     *
+     * @SWG\Tag(name="Task Rules")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all properties",
+     *     description="Returns all task rules of the customer",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/properties"
+     *              example="/api/v1/taskrules"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -48,42 +46,20 @@ class PropertiesController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyID": 1,
+     *                      "TaskRuleID": 132,
      *                      "Active": true,
-     *                       "PropertyName": "Lake Jolanda",
-     *                       "PropertyAbbreviation": "LJ",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "13905 Highway 2, Leavenworth WA 98826",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "TaskRule": "Bay View Bungalow",
+     *                      "Abbreviation": "BVB",
+     *                      "CreateDate": "20190302"
+     *
      *                  },
      *                  {
-     *                      "PropertyID": 2,
+     *                      "TaskRuleID": 133,
      *                      "Active": true,
-     *                       "PropertyName": "DL Bear Ridge",
-     *                       "PropertyAbbreviation": "DLBR",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "17595 Chumstick Hwy, Leavenworth, Wa 9882",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "TaskRule": "Bay View Bungalow",
+     *                      "Abbreviation": "LIS",
+     *                      "CreateDate": "20190332"
+     *
      *                  }
      *              }
      *         )
@@ -91,9 +67,9 @@ class PropertiesController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/properties", name="properties_get")
+     * @Get("/taskrules", name="taskrules_get")
      */
-    public function GetProperties(Request $request)
+    public function GetTaskRules(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -106,24 +82,26 @@ class PropertiesController extends FOSRestController
         }
 
         try {
+            //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['TASK_RULES'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-
-            //check resteiction for the user
-            $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            //check restriction for the user
+            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get property details
-            $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $propertyDetails = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction);
-            return $propertyDetails;
+            //Get taskrules detail
+            $taskRulesService = $this->container->get('vrscheduler.public_task_rules_service');
+            $taskRulesDetails = $taskRulesService->getTaskRules($authDetails, $queryParameter, $pathInfo);
+
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -136,21 +114,21 @@ class PropertiesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-
+        return $taskRulesDetails;
     }
 
     /**
-     * Properties
+     * Fetch task rules of the consumer by id
      *
-     * @SWG\Tag(name="Properties")
+     * @SWG\Tag(name="Task Rules")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all properties",
+     *     description="Returns task rules of the customer by id",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/properties"
+     *              example="/api/v1/taskrules/4"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -162,23 +140,12 @@ class PropertiesController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyID": 1,
+     *                      "TaskRuleID": 132,
      *                      "Active": true,
-     *                       "PropertyName": "Lake Jolanda",
-     *                       "PropertyAbbreviation": "LJ",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "13905 Highway 2, Leavenworth WA 98826",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "TaskRule": "Bay View Bungalow",
+     *                      "Abbreviation": "BVB",
+     *                      "CreateDate": "20190302"
+     *
      *                  }
      *              }
      *         )
@@ -186,17 +153,17 @@ class PropertiesController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/properties/{id}", name="properties_get_id")
+     * @Get("/taskrules/{id}", name="task_rules_get_id")
      */
-    public function getPropertiesById(Request $request)
+    public function getTaskRulesById(Request $request)
     {
         $queryParameter = array();
 
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
-        //Getting properyId from parameter
-        $propertyID = $request->get('id');
+        //Getting taskRulesId from parameter
+        $taskRulesID = $request->get('id');
 
         //Getting parameter from the API
         $params = $request->query->all();
@@ -213,19 +180,19 @@ class PropertiesController extends FOSRestController
             $pathInfo = $request->getPathInfo();
 
             //check accessbility of the consumer to the resource
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['TASK_RULES'];
+
+            //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
-            $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            //check restriction for the user
+            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //get property details
-            $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $property = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction, $propertyID);
-            return $property;
-
+            //Get taskrules detail
+            $taskRulesService = $this->container->get('vrscheduler.public_task_rules_service');
+            $taskRulesDetails = $taskRulesService->getTaskRules($authDetails, $queryParameter, $pathInfo, $taskRulesID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -238,7 +205,6 @@ class PropertiesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+        return $taskRulesDetails;
     }
-
-
 }

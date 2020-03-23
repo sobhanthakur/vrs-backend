@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: prabhat
- * Date: 6/1/20
- * Time: 4:16 PM
+ * Date: 7/2/20
+ * Time: 3:15 PM
  */
 
-namespace AppBundle\Controller\API\Base\PublicAPI\Properties;
+namespace AppBundle\Controller\API\Base\PublicAPI\Staff;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
@@ -19,24 +19,21 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Swagger\Annotations as SWG;
 
-/**
- * Class PropertiesController
- * @package AppBundle\Controller\API\Base\PublicAPI\Properties
- */
-class PropertiesController extends FOSRestController
+class StaffController extends FOSRestController
 {
     /**
-     * Get properties Details
+     * StaffController used to  fetch all staff details
      *
-     * @SWG\Tag(name="Properties")
+     *
+     * @SWG\Tag(name="Staff")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all properties",
+     *     description="Returns all staff details",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/properties"
+     *              example="/api/v1/staff"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -48,42 +45,26 @@ class PropertiesController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyID": 1,
-     *                      "Active": true,
-     *                       "PropertyName": "Lake Jolanda",
-     *                       "PropertyAbbreviation": "LJ",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "13905 Highway 2, Leavenworth WA 98826",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "StaffID": 132,
+     *                      "Name": "James Gillette",
+     *                      "Abbreviation": "JG",
+     *                      "Email": "demo@gmail.com",
+     *                      "Phone": "99999999",
+     *                      "CountryID": "225",
+     *                      "Active": "true",
+     *                      "CreateDate": "20180825"
+     *
      *                  },
      *                  {
-     *                      "PropertyID": 2,
-     *                      "Active": true,
-     *                       "PropertyName": "DL Bear Ridge",
-     *                       "PropertyAbbreviation": "DLBR",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "17595 Chumstick Hwy, Leavenworth, Wa 9882",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "StaffID": 137,
+     *                      "Name": "James Bond",
+     *                      "Abbreviation": "JG",
+     *                      "Email": "demo@gmail.com",
+     *                      "Phone": "99999999",
+     *                      "CountryID": "225",
+     *                      "Active": "true",
+     *                      "CreateDate": "20180825"
+     *
      *                  }
      *              }
      *         )
@@ -91,9 +72,9 @@ class PropertiesController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/properties", name="properties_get")
+     * @Get("/staff", name="staff_get")
      */
-    public function GetProperties(Request $request)
+    public function GetStaff(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -106,24 +87,27 @@ class PropertiesController extends FOSRestController
         }
 
         try {
+
+            //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF'];
 
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-
-            //check resteiction for the user
-            $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            //check restriction for the user
+            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get property details
-            $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $propertyDetails = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction);
-            return $propertyDetails;
+            //Get staff detail
+            $staffService = $this->container->get('vrscheduler.public_staff_service');
+            $staffDetails = $staffService->getStaff($authDetails, $queryParameter, $pathInfo);
+
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -136,21 +120,22 @@ class PropertiesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-
+        return $staffDetails;
     }
 
     /**
-     * Properties
+     * StaffController used to staff details by id
      *
-     * @SWG\Tag(name="Properties")
+     *
+     * @SWG\Tag(name="Staff")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all properties",
+     *     description="Returns staff details by id",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="url",
      *              type="string",
-     *              example="/api/v1/properties"
+     *              example="/api/v1/staff/5"
      *          ),
      *          @SWG\Property(
      *              property="has_more",
@@ -162,23 +147,15 @@ class PropertiesController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyID": 1,
-     *                      "Active": true,
-     *                       "PropertyName": "Lake Jolanda",
-     *                       "PropertyAbbreviation": "LJ",
-     *                       "PropertyNotes": null,
-     *                       "InternalNotes": "",
-     *                       "Address": "13905 Highway 2, Leavenworth WA 98826",
-     *                       "Lat": 0,
-     *                       "Lon": 0,
-     *                      "DoorCode": "",
-     *                      "DefaultCheckInTime": 15,
-     *                      "DefaultCheckInTimeMinutes": 0,
-     *                      "DefaultCheckOutTime": 11,
-     *                      "DefaultCheckOutTimeMinutes": 0,
-     *                      "OwnerID": 2,
-     *                     "RegionID": 655,
-     *                      "CreateDate": "20170617"
+     *                      "StaffID": 137,
+     *                      "Name": "James Bond",
+     *                      "Abbreviation": "JG",
+     *                      "Email": "demo@gmail.com",
+     *                      "Phone": "99999999",
+     *                      "CountryID": "225",
+     *                      "Active": "true",
+     *                      "CreateDate": "20180825"
+     *
      *                  }
      *              }
      *         )
@@ -186,17 +163,17 @@ class PropertiesController extends FOSRestController
      * )
      * @return array
      * @param Request $request
-     * @Get("/properties/{id}", name="properties_get_id")
+     * @Get("/staff/{id}", name="staff_get_id")
      */
-    public function getPropertiesById(Request $request)
+    public function getStaffById(Request $request)
     {
         $queryParameter = array();
 
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
-        //Getting properyId from parameter
-        $propertyID = $request->get('id');
+        //Getting staffID from parameter
+        $staffID = $request->get('id');
 
         //Getting parameter from the API
         $params = $request->query->all();
@@ -209,23 +186,24 @@ class PropertiesController extends FOSRestController
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
+
             //get base path
             $pathInfo = $request->getPathInfo();
 
             //check accessbility of the consumer to the resource
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTIES'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['STAFF'];
+
+            //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
-            //check resteiction for the user
-            $restriction = $authService->resourceRestriction($restriction, $baseName);
-            if (!$restriction->accessLevel) {
+            //check restriction for the user
+            $restrictionStatus = $authService->resourceRestriction($restriction, $baseName);
+            if (!$restrictionStatus->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //get property details
-            $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $property = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction, $propertyID);
-            return $property;
-
+            //Get staff details
+            $staffService = $this->container->get('vrscheduler.public_staff_service');
+            $staffDetails = $staffService->getStaff($authDetails, $queryParameter, $pathInfo, $staffID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -238,7 +216,7 @@ class PropertiesController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+        return $staffDetails;
     }
-
 
 }

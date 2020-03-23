@@ -35,20 +35,20 @@ class ServicesRepository extends EntityRepository
         $select2 = ' AS LaborOrMaterials, IDENTITY(i.integrationqbditemid) AS IntegrationQBDItemID';
         $result = $this
             ->createQueryBuilder('s')
-            ->select($select1.'(CASE WHEN i.laborormaterials=1 OR i.laborormaterials IS NULL THEN 1 ELSE 0 END)'.$select2);
+            ->select($select1 . '(CASE WHEN i.laborormaterials=1 OR i.laborormaterials IS NULL THEN 1 ELSE 0 END)' . $select2);
 
         $result2 = $this
             ->createQueryBuilder('s')
-            ->select($select1.'(CASE WHEN i.laborormaterials=0 OR i.laborormaterials IS NULL THEN 0 ELSE 1 END)'.$select2);
+            ->select($select1 . '(CASE WHEN i.laborormaterials=0 OR i.laborormaterials IS NULL THEN 0 ELSE 1 END)' . $select2);
 
         switch ($matched) {
             // If status is only matched
             case 1:
                 $condition = ' AND i.integrationqbditemid IS NOT NULL';
                 $result
-                    ->where('i.laborormaterials=1'.$condition);
+                    ->where('i.laborormaterials=1' . $condition);
                 $result2
-                    ->where('i.laborormaterials=0'.$condition);
+                    ->where('i.laborormaterials=0' . $condition);
                 break;
             case 2:
                 // If status is only Not yet matched matched
@@ -59,9 +59,9 @@ class ServicesRepository extends EntityRepository
             default:
                 $condition = ' OR i.laborormaterials IS NULL';
                 $result
-                    ->where('i.laborormaterials=1'.$condition);
+                    ->where('i.laborormaterials=1' . $condition);
                 $result2
-                    ->where('i.laborormaterials=0'.$condition);
+                    ->where('i.laborormaterials=0' . $condition);
         }
 
 
@@ -91,11 +91,11 @@ class ServicesRepository extends EntityRepository
 
         if ($department) {
             $condition = 's.servicegroupid IN (';
-            $i=0;
-            for (;$i<count($department)-1;$i++) {
-                $condition .= $department[$i].',';
+            $i = 0;
+            for (; $i < count($department) - 1; $i++) {
+                $condition .= $department[$i] . ',';
             }
-            $condition .= $department[$i].')';
+            $condition .= $department[$i] . ')';
             $result->andWhere($condition);
         }
 
@@ -111,6 +111,122 @@ class ServicesRepository extends EntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * Function to fetch task rules details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskRulesID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function fetchTaskRules($customerDetails, $queryParameter, $taskRulesID, $offset, $query, $limit = null)
+    {
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('s');
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for limit option in query paramter
+        (isset($queryParameter[GeneralConstants::PARAMS['ACTIVE']]) ? $active = $queryParameter[GeneralConstants::PARAMS['ACTIVE']] : null);
+
+        //condition to set query for all or some required fields
+        $result->select($query);
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('s.' . $field);
+            }
+        }
+
+        //condition to filter by task rules id
+        if ($taskRulesID) {
+            $result->andWhere('s.serviceid IN (:TaskRuleID)')
+                ->setParameter('TaskRuleID', $taskRulesID);
+        }
+
+
+        //condition to filter by customer details
+        if ($customerDetails) {
+            $result->andWhere('s.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //condition to filter by by active status
+        if (isset($active)) {
+            $result->andWhere('s.active IN (:Active)')
+                ->setParameter('Active', $active);
+        }
+
+        //return issue details
+        return $result
+            ->getQuery()
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->execute();
+
+    }
+
+    /**
+     * Function to fetch task rules details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskRulesID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $taskRulesID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all task rules field
+        $issuesField = GeneralConstants::TASK_RULES_MAPPING;
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $issuesField[$field];
+            }
+        } else {
+            $query .= implode(',', $issuesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchTaskRules($customerDetails, $queryParameter, $taskRulesID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of task rules of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $taskRulesID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $taskRulesID, $offset)
+    {
+        $query = "count(s.serviceid)";
+        return $this->fetchTaskRules($customerDetails, $queryParameter, $taskRulesID, $offset, $query);
+
     }
 }
 
