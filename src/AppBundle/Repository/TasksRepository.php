@@ -407,7 +407,7 @@ class TasksRepository extends EntityRepository
             ->leftJoin('p2.customerid','c2')
             ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
             ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
-            ->where('t2.servicerid='.$servicerID)
+            ->where('s2.servicerid='.$servicerID)
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
             ->andWhere('t2.completeconfirmeddate IS NULL')
