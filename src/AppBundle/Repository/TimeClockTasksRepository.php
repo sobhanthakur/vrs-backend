@@ -142,4 +142,24 @@ class TimeClockTasksRepository extends EntityRepository
         return $result;
     }
 
+    /**
+     * @param $customerID
+     * @param $startDate
+     * @return mixed
+     */
+    public function TimeClockTasksForDriveTime($customerID, $startDate)
+    {
+        return $this
+            ->createQueryBuilder('t1')
+            ->select('t1.clockin AS ClockIn, t1.clockout AS ClockOut, s2.servicerid AS ServicerID')
+            ->innerJoin('t1.servicerid', 's2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'e1', Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
+            ->innerJoin('t1.taskid', 't2')
+            ->where('s2.customerid=' . $customerID)
+            ->andWhere('t1.clockin >= :StartDate')
+            ->setParameter('StartDate', $startDate)
+            ->getQuery()
+            ->execute();
+    }
+
 }

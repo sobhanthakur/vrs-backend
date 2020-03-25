@@ -156,4 +156,48 @@ class TimeTrackingApprovalController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Get Drive Time for Approved Staffs
+     * @SWG\Tag(name="Time Tracking")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 encode {""IntegrationID"":1}. Example eyJJbnRlZ3JhdGlvbklEIjoxfQ=="
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the drive time records for the approved staffs"
+     * )
+     * @return array
+     * @param Request $request
+     * @Get("/drivetime", name="vrs_staffs_drivetime")
+     */
+    public function DriveTime(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        try {
+            $data = json_decode(base64_decode($request->get('data')),true);
+            if(empty($data)) {
+                $data = [];
+            }
+            $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
+            $timetrackingApprovalService = $this->container->get('vrscheduler.timetracking_approval');
+            return $timetrackingApprovalService->FetchDriveTimeForStaffs($customerID, $data);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

@@ -155,10 +155,10 @@ class TimeTrackingApprovalService extends BaseService
      */
     public function DateDiffCalculation($diff)
     {
-        $days = $diff->format('%a');
-        $hours = $diff->format('%h');
-        $minutes = $diff->format('%i');
-        $seconds = $diff->format('%s');
+        $days = (float)$diff->format('%a');
+        $hours = (float)$diff->format('%h');
+        $minutes = (float)$diff->format('%i');
+        $seconds = (float)$diff->format('%s');
 
         $totalTime = ($days*24*60*60)+($hours*60*60)+($minutes*60)+$seconds;
         return $totalTime;
@@ -354,5 +354,92 @@ class TimeTrackingApprovalService extends BaseService
             $response[] = $dateFilter[$i]['TimeClockDaysID'];
         }
         return $response;
+    }
+
+    public function FetchDriveTimeForStaffs($customerID,$data)
+    {
+        try {
+            $integrationID = $data['IntegrationID'];
+            $startDate = null;
+
+            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array(
+               'customerid' => $customerID,
+                'integrationid' => $integrationID
+            ));
+            if (!$integrationToCustomers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INTEGRATION_NOT_PRESENT);
+            }
+
+            $startDate = $integrationToCustomers->getStartdate();
+            $timeTrackingType = $integrationToCustomers->getTimetrackingtype();
+
+            if ($timeTrackingType) {
+                $clockSortByID = [];
+                $taskSortByID = [];
+                $clockResponse = [];
+                $taskResponse = [];
+
+
+                // Get Time Clock Days For Drive Time
+                $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->TimeClockDaysForDriveTime($customerID,$startDate->format('Y-m-d'));
+                if(!empty($timeClockDays)) {
+                    foreach ($timeClockDays as $timeClockDay) {
+                        $clockSortByID[$timeClockDay['ServicerID']][$timeClockDay['ClockIn']->format('Y-m-d')][] =
+                            $this->DateDiffCalculation($timeClockDay['ClockIn']->diff($timeClockDay['ClockOut']));
+                    }
+                    foreach ($clockSortByID as $outerKey => $outerValue) {
+                        foreach ($outerValue as $innerKey => $innerValue) {
+                            $sum = 0;
+                            foreach ($innerValue as $time) {
+                                $sum += (float)$time;
+                            }
+                            $clockResponse[$outerKey][$innerKey] = $sum;
+                        }
+                    }
+                }
+
+                // Get TimeClock Tasks For Drive Time
+                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->TimeClockTasksForDriveTime($customerID,$startDate->format('Y-m-d'));
+                if (!empty($timeClockDays) && !empty($timeClockTasks)) {
+                    foreach ($timeClockTasks as $timeClockTask) {
+                        $taskSortByID[$timeClockTask['ServicerID']][$timeClockTask['ClockIn']->format('Y-m-d')][] =
+                            $this->DateDiffCalculation($timeClockTask['ClockIn']->diff($timeClockTask['ClockOut']));
+                    }
+                    foreach ($taskSortByID as $outerKey => $outerValue) {
+                        foreach ($outerValue as $innerKey => $innerValue) {
+                            $sum = 0;
+                            foreach ($innerValue as $time) {
+                                $sum += (float)$time;
+                            }
+                            $taskResponse[$outerKey][$innerKey] = $sum;
+                        }
+                    }
+                }
+
+                // Calculate The Difference
+                foreach ($clockResponse as $outerKey => $outerValue) {
+                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$outerKey));
+                    foreach ($outerValue as $innerKey => $innerValue) {
+//                            print_r($innerValue);
+                        if(array_key_exists($innerKey,$taskResponse[$outerKey])) {
+                            $diff = $innerValue - $taskResponse[$outerKey][$innerKey];
+                            $response[$outerKey][$innerKey] = $diff;
+                            $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
+                            $integrationQBDTimeTracking->setStatus(2);
+                            $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
+                            $integrationQBDTimeTracking->setTimetrackedseconds($diff);
+                            $integrationQBDTimeTracking->setDrivetimestaffid($staff);
+                            $this->entityManager->persist($integrationQBDTimeTracking);
+                        }
+                    }
+                }
+                $this->entityManager->flush();
+                return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+            }
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed fetching DriveTime due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }
