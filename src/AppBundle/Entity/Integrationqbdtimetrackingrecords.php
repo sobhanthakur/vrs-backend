@@ -95,6 +95,16 @@ class Integrationqbdtimetrackingrecords
     private $timeclocktasksid;
 
     /**
+     * @var Servicers
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Servicers")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="DriveTimeStaffID", referencedColumnName="ServicerID")
+     * })
+     */
+    private $drivetimestaffid;
+
+    /**
      * Get integrationqbdtimetrackingrecords.
      *
      * @return int
@@ -328,5 +338,29 @@ class Integrationqbdtimetrackingrecords
     public function getTimeclocktasksid()
     {
         return $this->timeclocktasksid;
+    }
+
+    /**
+     * Set drivetimestaffid.
+     *
+     * @param \AppBundle\Entity\Servicers|null $drivetimestaffid
+     *
+     * @return Integrationqbdtimetrackingrecords
+     */
+    public function setDrivetimestaffid(\AppBundle\Entity\Servicers $drivetimestaffid = null)
+    {
+        $this->drivetimestaffid = $drivetimestaffid;
+
+        return $this;
+    }
+
+    /**
+     * Get drivetimestaffid.
+     *
+     * @return \AppBundle\Entity\Servicers|null
+     */
+    public function getDrivetimestaffid()
+    {
+        return $this->drivetimestaffid;
     }
 }

@@ -172,6 +172,27 @@ class TimeclockdaysRepository extends EntityRepository
     }
 
     /**
+     * @param $customerID
+     * @param $startDate
+     * @return mixed
+     */
+    public function TimeClockDaysForDriveTime($customerID, $startDate)
+    {
+        $result = $this
+            ->createQueryBuilder('t1')
+            ->select('t1.clockin AS ClockIn, t1.clockout AS ClockOut, s2.servicerid AS ServicerID,t2.region AS TimeZoneRegion')
+            ->innerJoin('t1.servicerid','s2')
+            ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'e1', Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
+            ->innerJoin('s2.timezoneid','t2')
+            ->where('s2.customerid='.$customerID)
+            ->andWhere('t1.clockin >= :StartDate')
+            ->setParameter('StartDate',$startDate)
+            ->getQuery()
+            ->execute();
+        return $result;
+    }
+
+    /**
      * Function to fetch all staff day time details
      *
      * @param $customerDetails

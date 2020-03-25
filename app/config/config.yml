@@ -163,6 +163,7 @@ nelmio_api_doc:
                 - /v1/vrs/qbo/syncresources
                 - /v1/vrs/qbo/syncbilling
                 - /v1/vrs/qbo/synctimetracking
+                - /v1/vrs/drivetime
         public_api:
             path_patterns:
                 -  /api/v1/oauth/login
