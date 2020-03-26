@@ -512,12 +512,22 @@ class TimeTrackingApprovalService extends BaseService
                         if(array_key_exists($innerKey,$taskResponse[$outerKey])) {
                             $diff = $innerValue - $taskResponse[$outerKey][$innerKey];
                             $response[$outerKey][$innerKey] = $diff;
-                            $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
-                            $integrationQBDTimeTracking->setStatus(2);
-                            $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
-                            $integrationQBDTimeTracking->setTimetrackedseconds($diff);
-                            $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
-                            $this->entityManager->persist($integrationQBDTimeTracking);
+
+                            // Ignore if duplicate record is already present
+                            $integrationQBDTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array(
+                               'drivetimeclocktaskid' => $timeClockTask->getTimeclocktaskid(),
+                               'day' => (new \DateTime($innerKey))
+                            ));
+
+                            // Else Create New
+                            if(!$integrationQBDTimeTracking) {
+                                $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
+                                $integrationQBDTimeTracking->setStatus(2);
+                                $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
+                                $integrationQBDTimeTracking->setTimetrackedseconds($diff);
+                                $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
+                                $this->entityManager->persist($integrationQBDTimeTracking);
+                            }
                         }
                     }
                 }
