@@ -96,8 +96,8 @@ class TimeTrackingApprovalService extends BaseService
             // Process Time tracking records
             if ($integrationToCustomers->getTimetrackingtype()) {
                 // Fetch Time Clock Tasks
-                $response = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->MapTimeClockTasks($customerID, $staff,$completedDate, $timezones, $limit, $offset, $status);
-                $response2 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetDriveTimeRecords($customerID);
+                $response = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->MapTimeClockTasks($customerID, $staff,$completedDate, $timezones,$status);
+                $response2 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetDriveTimeRecords($customerID,$staff,$completedDate, $timezones,$status);
 
                 if ($offset === 1) {
                     $sql = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2);

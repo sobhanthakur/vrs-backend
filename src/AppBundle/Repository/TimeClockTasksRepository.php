@@ -26,7 +26,7 @@ class TimeClockTasksRepository extends EntityRepository
      * @param $new
      * @return mixed
      */
-    public function MapTimeClockTasks($customerID, $staff, $completedDate, $timezones, $limit, $offset, $new)
+    public function MapTimeClockTasks($customerID, $staff, $completedDate, $timezones,$new)
     {
         $result = $this
             ->createQueryBuilder('t1')
