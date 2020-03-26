@@ -330,6 +330,12 @@ class TimeTrackingApprovalService extends BaseService
                             'timeclocktaskid' => $data[$i][GeneralConstants::TIME_CLOCK_TASKS_ID]
                         )
                     );
+                } elseif (array_key_exists('IntegrationQBDTimeTrackingRecordID',$data[$i])) {
+                    $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
+                        array(
+                            'integrationqbdtimetrackingrecords' => $data[$i][GeneralConstants::INTEGRATIONQBDTIMETRACKINGRECORDID]
+                        )
+                    );
                 } else {
                     $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
                         array(
