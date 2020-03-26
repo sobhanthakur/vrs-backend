@@ -358,4 +358,23 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function GetDriveTimeRecords($customerID)
+    {
+        $result = $this
+            ->createQueryBuilder('b1')
+            ->select('b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID,serviceid.servicename AS ServiceName,taskid.taskname AS TaskName,propertyid.propertyname AS PropertyName,t1.timeclocktaskid as TimeClockTasksID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut')
+            ->leftJoin('b1.drivetimeclocktaskid','t1')
+            ->innerJoin('t1.taskid','taskid')
+            ->innerJoin('AppBundle:Services','serviceid',Expr\Join::WITH, 'taskid.serviceid=serviceid.serviceid')
+            ->innerJoin('taskid.propertyid','propertyid')
+            ->innerJoin('t1.servicerid','s2')
+            ->innerJoin('s2.timezoneid','t2')
+            ->where('s2.customerid='.$customerID)
+            ->andWhere('b1.txnid IS NULL')
+            ->andWhere('s2.servicertype=0')
+            ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0');
+        return $result->getQuery()->getSQL();
+
+    }
 }

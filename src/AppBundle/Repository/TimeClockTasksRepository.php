@@ -30,32 +30,12 @@ class TimeClockTasksRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('serviceid.servicename AS ServiceName,taskid.taskname AS TaskName,propertyid.propertyname AS PropertyName,t1.timeclocktaskid as TimeClockTasksID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
+            ->select('b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID,serviceid.servicename AS ServiceName,taskid.taskname AS TaskName,propertyid.propertyname AS PropertyName,t1.timeclocktaskid as TimeClockTasksID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
         $result = $this->TrimMapTimeClockTasks($result, $completedDate,$timezones, $new, $staff,$customerID);
 
-        $result->setFirstResult(($offset - 1) * $limit)
-            ->setMaxResults($limit);
-        return $result->getQuery()->execute();
-
-    }
-
-    /**
-     * @param $customerID
-     * @param $staff
-     * @param $createDate
-     * @param $completedDate
-     * @param $timezones
-     * @param $new
-     * @return mixed
-     */
-    public function CountMapTimeClockTasks($customerID, $staff, $completedDate, $timezones,$new)
-    {
-        $result = $this
-            ->createQueryBuilder('t1')
-            ->select('count(t1.timeclocktaskid)');
-        $result = $this->TrimMapTimeClockTasks($result, $completedDate,$timezones, $new, $staff,$customerID);
-
-        return $result->getQuery()->execute();
+//        $result->setFirstResult(($offset - 1) * $limit)
+//            ->setMaxResults($limit);
+        return $result->getQuery()->getSQL();
 
     }
 
@@ -70,14 +50,14 @@ class TimeClockTasksRepository extends EntityRepository
      */
     public function TrimMapTimeClockTasks($result, $completedDate, $timezones, $new, $staff,$customerID)
     {
-        $result->leftJoin('AppBundle:Integrationqbdtimetrackingrecords', 'b1', Expr\Join::WITH, 'b1.timeclocktasksid=t1.timeclocktaskid')
+        $result
+            ->leftJoin('AppBundle:Integrationqbdtimetrackingrecords', 'b1', Expr\Join::WITH, 'b1.timeclocktasksid=t1.timeclocktaskid')
             ->innerJoin('t1.servicerid', 's2')
             ->innerJoin('s2.timezoneid','t2')
-            ->where('s2.customerid = :CustomerID')
+            ->where('s2.customerid='.$customerID)
             ->andWhere('b1.txnid IS NULL')
             ->andWhere('s2.servicertype=0')
-            ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0')
-            ->setParameter('CustomerID', $customerID);
+            ->andWhere('b1.sentstatus IS NULL OR b1.sentstatus=0');
         $result
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
@@ -114,17 +94,17 @@ class TimeClockTasksRepository extends EntityRepository
                 ->setParameter('Staffs', $staff);
         }
 
-        if(!empty($timezones)) {
-            $size = count($timezones);
-
-            $query = 't1.clockin >= :TimeZone0';
-            $result->setParameter('TimeZone0',$timezones[0]);
-            for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t1.clockin >= :TimeZone'.$i;
-                $result->setParameter('TimeZone'.$i,$timezones[$i]);
-            }
-            $result->andWhere($query);
-        }
+//        if(!empty($timezones)) {
+//            $size = count($timezones);
+//
+//            $query = 't1.clockin >= :TimeZone0';
+//            $result->setParameter('TimeZone0',$timezones[0]);
+//            for ($i=1;$i<$size;$i++) {
+//                $query .= ' OR t1.clockin >= :TimeZone'.$i;
+//                $result->setParameter('TimeZone'.$i,$timezones[$i]);
+//            }
+//            $result->andWhere($query);
+//        }
 
         if(!empty($completedDate)) {
             $size = count($completedDate);
@@ -151,7 +131,7 @@ class TimeClockTasksRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('t1')
-            ->select('t1.clockin AS ClockIn, t1.clockout AS ClockOut, s2.servicerid AS ServicerID')
+            ->select('t1.timeclocktaskid AS TimeClockTaskID,t1.clockin AS ClockIn, t1.clockout AS ClockOut, s2.servicerid AS ServicerID')
             ->innerJoin('t1.servicerid', 's2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'e1', Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('t1.taskid', 't2')
