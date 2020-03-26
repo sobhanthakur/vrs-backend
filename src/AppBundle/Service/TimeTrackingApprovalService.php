@@ -139,6 +139,10 @@ class TimeTrackingApprovalService extends BaseService
         }
     }
 
+    /**
+     * @param $response
+     * @return mixed
+     */
     public function ProcessTimeClockTasksResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
