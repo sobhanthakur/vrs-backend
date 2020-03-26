@@ -212,6 +212,7 @@ class TimeTrackingApprovalService extends BaseService
 
             if($response[$i]['DriveTimeClockTaskID']) {
                 $response[$i]['PropertyName'] = null;
+                $response[$i]['ServiceName'] = null;
                 $response[$i]['TaskName'] = 'Drive / Load Time';
             }
         }
