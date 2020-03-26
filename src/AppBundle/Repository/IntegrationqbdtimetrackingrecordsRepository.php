@@ -127,7 +127,12 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             ->createQueryBuilder('b1')
             ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status');
         if ($timeTrackingType) {
-            $result->innerJoin('b1.timeclocktasksid', 't2');
+            if($timeTrackingType === 0) {
+                $result->innerJoin('b1.timeclocktasksid', 't2');
+            }
+            else {
+                $result->innerJoin('b1.drivetimeclocktaskid', 't2');
+            }
         } else {
             $result->innerJoin('b1.timeclockdaysid', 't2');
         }
