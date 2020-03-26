@@ -24,7 +24,7 @@ class ServicersDashboardController extends FOSRestController
     /**
      * Shows Task Details that needs to be shown in the servicers dashboard
      * @SWG\Tag(name="Servicers Dashboard")
-     * @Get("/tasks", name="vrs_pwa_tasks")
+     * @Get("/tasks/", name="vrs_pwa_tasks")
      * @SWG\Response(
      *     response=200,
      *     description="Authenticates the servicer and returns a JWT in return.",
