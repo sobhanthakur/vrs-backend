@@ -158,6 +158,7 @@ final class GeneralConstants
 
     const TIME_CLOCK_DAYS_ID = 'TimeClockDaysID';
     const TIME_CLOCK_TASKS_ID = 'TimeClockTasksID';
+    const INTEGRATIONQBDTIMETRACKINGRECORDID = 'IntegrationQBDTimeTrackingRecordID';
 
     const BILLING = 'Billing';
     const TIME_TRACKING = 'Time Tracking';

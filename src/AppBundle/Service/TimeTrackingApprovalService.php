@@ -96,14 +96,18 @@ class TimeTrackingApprovalService extends BaseService
             // Process Time tracking records
             if ($integrationToCustomers->getTimetrackingtype()) {
                 // Fetch Time Clock Tasks
+                $response = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->MapTimeClockTasks($customerID, $staff,$completedDate, $timezones,$status);
+                $response2 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetDriveTimeRecords($customerID,$staff,$completedDate, $timezones,$status);
+
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CountMapTimeClockTasks($customerID, $staff, $completedDate, $timezones, $status);
-                    if ($count) {
-                        $count = (int)$count[0][1];
-                    }
+                    $sql = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2);
+                    $sql->execute();
+                    $count = count($sql->fetchAll());
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->MapTimeClockTasks($customerID, $staff,$completedDate, $timezones, $limit, $offset, $status);
-                $response = $this->processResponse($response);
+                $response = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2 . ' ORDER BY Name_9 OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response->execute();
+                $response = $response->fetchAll();
+                $response = $this->ProcessTimeClockTasksResponse($response);
             } else {
                 // Fetch Time Clock Days
                 if ($offset === 1) {
@@ -133,6 +137,86 @@ class TimeTrackingApprovalService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $response
+     * @return mixed
+     */
+    public function ProcessTimeClockTasksResponse($response)
+    {
+        for ($i = 0; $i < count($response); $i++) {
+            // Process Status
+            if ($response[$i]['Status_6'] === null) {
+                $response[$i]["Status"] = 2;
+            } else {
+                // Simply rename Status_6 to Status
+                $response[$i]["Status"] = $response[$i]["Status_6"];
+            }
+            unset($response[$i]["Status_6"]);
+
+            // Process TimeTracked
+            if($response[$i]['TimeTrackedSeconds_8']) {
+                $response[$i]["TimeTracked"] = gmdate('H:i:s',$response[$i]["TimeTrackedSeconds_8"]);
+                $response[$i]["Date"] = $response[$i]["Day_7"];
+            } else {
+                $clockin = (new \DateTime($response[$i]['ClockIn_11']));
+                $clockout = (new \DateTime($response[$i]['ClockOut_12']));
+                $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($clockin->diff($clockout)));
+                $time = $this->TimeZoneCalculation($response[$i]['Region_10'], $clockin);
+                $response[$i]["Date"] = $time->format('Y-m-d');
+            }
+            if(array_key_exists('TimeTrackedSeconds_8',$response[$i])) {
+                unset($response[$i]['TimeTrackedSeconds_8']);
+            }
+            if(array_key_exists('ClockIn_11',$response[$i])) {
+                unset($response[$i]['ClockIn_11']);
+            }
+            if(array_key_exists('ClockOut_12',$response[$i])) {
+                unset($response[$i]['ClockOut_12']);
+            }
+            if(array_key_exists('Region_10',$response[$i])) {
+                unset($response[$i]['Region_10']);
+            }
+            if(array_key_exists('Day_7',$response[$i])) {
+                unset($response[$i]['Day_7']);
+            }
+
+            // Unset IntegrationQBDTimeTrackingRecords_0
+            $response[$i]['IntegrationQBDTimeTrackingRecordID'] = $response[$i]['IntegrationQBDTimeTrackingRecords_0'];
+            unset($response[$i]['IntegrationQBDTimeTrackingRecords_0']);
+
+            // Unset Scalar ID
+            $response[$i]['DriveTimeClockTaskID'] = $response[$i]['sclr_1'];
+            unset($response[$i]['sclr_1']);
+
+            // Unset ServiceName_2
+            $response[$i]['ServiceName'] = $response[$i]['ServiceName_2'];
+            unset($response[$i]['ServiceName_2']);
+
+            // Unset TaskName_3
+            $response[$i]['TaskName'] = $response[$i]['TaskName_3'];
+            unset($response[$i]['TaskName_3']);
+
+            // Unset PropertyName_4
+            $response[$i]['PropertyName'] = $response[$i]['PropertyName_4'];
+            unset($response[$i]['PropertyName_4']);
+
+            // Unset TimeClockTaskID_5
+            $response[$i]['TimeClockTaskID'] = $response[$i]['TimeClockTaskID_5'];
+            unset($response[$i]['TimeClockTaskID_5']);
+
+            // Unset Name_9
+            $response[$i]['StaffName'] = $response[$i]['Name_9'];
+            unset($response[$i]['Name_9']);
+
+            if($response[$i]['DriveTimeClockTaskID']) {
+                $response[$i]['PropertyName'] = null;
+                $response[$i]['ServiceName'] = null;
+                $response[$i]['TaskName'] = 'Drive / Load Time';
+            }
+        }
+        return $response;
     }
 
 
@@ -247,6 +331,12 @@ class TimeTrackingApprovalService extends BaseService
                             'timeclocktaskid' => $data[$i][GeneralConstants::TIME_CLOCK_TASKS_ID]
                         )
                     );
+                } elseif (array_key_exists('IntegrationQBDTimeTrackingRecordID',$data[$i])) {
+                    $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
+                        array(
+                            'integrationqbdtimetrackingrecords' => $data[$i][GeneralConstants::INTEGRATIONQBDTIMETRACKINGRECORDID]
+                        )
+                    );
                 } else {
                     $timetrackingRecords = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(
                         array(
@@ -356,7 +446,12 @@ class TimeTrackingApprovalService extends BaseService
         return $response;
     }
 
-    public function FetchDriveTimeForStaffs($customerID,$data)
+    /**
+     * @param $customerID
+     * @param $data
+     * @return array
+     */
+    public function FetchDriveTimeForStaffs($customerID, $data)
     {
         try {
             $integrationID = $data['IntegrationID'];
@@ -404,6 +499,7 @@ class TimeTrackingApprovalService extends BaseService
                     foreach ($timeClockTasks as $timeClockTask) {
                         $taskSortByID[$timeClockTask['ServicerID']][$timeClockTask['ClockIn']->format('Y-m-d')][] =
                             $this->DateDiffCalculation($timeClockTask['ClockIn']->diff($timeClockTask['ClockOut']));
+                        $timeClockID[$timeClockTask['ServicerID']] = $timeClockTask['TimeClockTaskID'];
                     }
                     foreach ($taskSortByID as $outerKey => $outerValue) {
                         foreach ($outerValue as $innerKey => $innerValue) {
@@ -418,18 +514,27 @@ class TimeTrackingApprovalService extends BaseService
 
                 // Calculate The Difference
                 foreach ($clockResponse as $outerKey => $outerValue) {
-                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$outerKey));
+                    $timeClockTask = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array('timeclocktaskid'=>$timeClockID[$outerKey]));
                     foreach ($outerValue as $innerKey => $innerValue) {
-//                            print_r($innerValue);
                         if(array_key_exists($innerKey,$taskResponse[$outerKey])) {
                             $diff = $innerValue - $taskResponse[$outerKey][$innerKey];
                             $response[$outerKey][$innerKey] = $diff;
-                            $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
-                            $integrationQBDTimeTracking->setStatus(2);
-                            $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
-                            $integrationQBDTimeTracking->setTimetrackedseconds($diff);
-                            $integrationQBDTimeTracking->setDrivetimestaffid($staff);
-                            $this->entityManager->persist($integrationQBDTimeTracking);
+
+                            // Ignore if duplicate record is already present
+                            $integrationQBDTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array(
+                               'drivetimeclocktaskid' => $timeClockTask->getTimeclocktaskid(),
+                               'day' => (new \DateTime($innerKey))
+                            ));
+
+                            // Else Create New
+                            if(!$integrationQBDTimeTracking) {
+                                $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
+                                $integrationQBDTimeTracking->setStatus(2);
+                                $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
+                                $integrationQBDTimeTracking->setTimetrackedseconds($diff);
+                                $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
+                                $this->entityManager->persist($integrationQBDTimeTracking);
+                            }
                         }
                     }
                 }

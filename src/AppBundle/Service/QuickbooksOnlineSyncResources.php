@@ -223,7 +223,7 @@ class QuickbooksOnlineSyncResources extends BaseService
             ($integrationsToCustomers->getQbdsyncpayroll() && (int)$integrationsToCustomers->getTimetrackingtype() === 1) ||
             $integrationsToCustomers->getQbdsyncbilling()) {
             // Fetch Customers
-            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer');
+            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer MAXRESULTS 1000');
             if(!empty($customers)) {
                 $this->StoreCustomers($customers, $customerObj);
             }
@@ -232,7 +232,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         if($integrationsToCustomers->getQbdsyncbilling()) {
 
             // Fetch Items
-            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item');
+            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
             if(!empty($items)) {
                 $this->StoreItems($items,$customerObj);
             }
@@ -240,7 +240,7 @@ class QuickbooksOnlineSyncResources extends BaseService
 
         if($integrationsToCustomers->getQbdsyncpayroll()) {
             // Fetch Customers
-            $employees = $dataService->Query('select Active,GivenName,Id from Employee');
+            $employees = $dataService->Query('select Active,GivenName,Id from Employee MAXRESULTS 1000');
             if(!empty($employees)) {
                 $this->StoreEmployees($employees,$customerObj);
             }

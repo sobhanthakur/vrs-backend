@@ -373,6 +373,11 @@ class IntegrationsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
             }
 
+            $timetrackingRecords = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDTimeTrackingRecords FROM IntegrationQBDTimeTrackingRecords INNER JOIN TimeClockTasks ON IntegrationQBDTimeTrackingRecords.DriveTimeClockTaskID = TimeClockTasks.TimeClockTaskID INNER JOIN Servicers ON Servicers.ServicerID=Servicers.ServicerID WHERE Servicers.CustomerID='.$customerID)->execute();
+            if(!$timetrackingRecords) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
+
             // Delete Batch Table
             $batch = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBBatches FROM IntegrationQBBatches INNER JOIN IntegrationsToCustomers ON IntegrationsToCustomers.IntegrationToCustomerID=IntegrationQBBatches.IntegrationToCustomerID WHERE IntegrationsToCustomers.CustomerID='.$customerID.' AND IntegrationsToCustomers.IntegrationID='.$integrationID)->execute();
             if(!$batch) {
