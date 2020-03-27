@@ -110,6 +110,8 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
             if($timetrackingType) {
                 // Time Clock Tasks
                 $timeclocks = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->TimeClockTasksForQuickbooksOnline($customerID);
+                $driveTimes = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->DriveTimeClockTasksForQuickbooksOnline($customerID);
+                $timeclocks = array_merge($timeclocks,$driveTimes);
                 if (empty($timeclocks)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
                 }
@@ -119,15 +121,20 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 // Create time activity object for Quickbooks Online
                 foreach ($timeclocks as $timeclock) {
                     $description = '';
-                    if(!empty($timeclock['PropertyName'])) {
-                        $description .= $timeclock['PropertyName']." ";
+                    if ($timeclock['DriveTimeClockTaskID']) {
+                        $description = 'Drive / Load Time';
+                    } else {
+                        if(!empty($timeclock['PropertyName'])) {
+                            $description .= $timeclock['PropertyName']." ";
+                        }
+                        if(!empty($timeclock['TaskName'])) {
+                            $description .= $timeclock['TaskName']." ";
+                        }
+                        if(!empty($timeclock['ServiceName'])) {
+                            $description .= $timeclock['ServiceName']." ";
+                        }
                     }
-                    if(!empty($timeclock['TaskName'])) {
-                        $description .= $timeclock['TaskName']." ";
-                    }
-                    if(!empty($timeclock['ServiceName'])) {
-                        $description .= $timeclock['ServiceName']." ";
-                    }
+
                     $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
                     $timeActivity = array(
                         "NameOf" => "Employee",
@@ -140,7 +147,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         "CustomerRef" => [
                             "Value" => $timeclock['CustomerValue']
                         ],
-//                        "BillableStatus" => "Billable",
                         "Taxable" => "false",
                         "HourlyRate" => $timeclock['PayRate'],
                         "Description" => $description
@@ -163,7 +169,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $this->entityManager->persist($integrationQBDTimeTracking);
                     }
                 }
-
             } else {
                 // Time Clock Days
                 $timeclocks = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetTimeTrackingRecordsToSync($customerID);
@@ -192,7 +197,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
-//                        "BillableStatus" => "Billable",
                         "Taxable" => "false",
                         "HourlyRate" => $timeclock['PayRate']
                     );
@@ -206,7 +210,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $this->entityManager->persist($ttid);
                     }
                 }
-
             }
             $this->entityManager->flush();
 
