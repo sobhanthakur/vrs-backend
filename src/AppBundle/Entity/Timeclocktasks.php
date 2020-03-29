@@ -186,7 +186,7 @@ class Timeclocktasks
      */
     public function getClockin()
     {
-        return $this->clockin->format('Y-m-d');
+        return $this->clockin;
     }
 
     /**
