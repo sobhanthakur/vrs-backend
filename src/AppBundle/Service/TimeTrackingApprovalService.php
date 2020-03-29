@@ -473,6 +473,7 @@ class TimeTrackingApprovalService extends BaseService
                 $taskSortByID = [];
                 $clockResponse = [];
                 $taskResponse = [];
+                $timeClockID = [];
 
 
                 // Get Time Clock Days For Drive Time
@@ -511,34 +512,35 @@ class TimeTrackingApprovalService extends BaseService
                         }
                     }
                 }
+                if (!empty($timeClockDays) && !empty($timeClockTasks)) {
+                    // Calculate The Difference
+                    foreach ($clockResponse as $outerKey => $outerValue) {
+                        $timeClockTask = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array('timeclocktaskid'=>$timeClockID[$outerKey]));
+                        foreach ($outerValue as $innerKey => $innerValue) {
+                            if(array_key_exists($innerKey,$taskResponse[$outerKey])) {
+                                $diff = $innerValue - $taskResponse[$outerKey][$innerKey];
+                                $response[$outerKey][$innerKey] = $diff;
 
-                // Calculate The Difference
-                foreach ($clockResponse as $outerKey => $outerValue) {
-                    $timeClockTask = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array('timeclocktaskid'=>$timeClockID[$outerKey]));
-                    foreach ($outerValue as $innerKey => $innerValue) {
-                        if(array_key_exists($innerKey,$taskResponse[$outerKey])) {
-                            $diff = $innerValue - $taskResponse[$outerKey][$innerKey];
-                            $response[$outerKey][$innerKey] = $diff;
+                                // Ignore if duplicate record is already present
+                                $integrationQBDTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array(
+                                    'drivetimeclocktaskid' => $timeClockTask->getTimeclocktaskid(),
+                                    'day' => (new \DateTime($innerKey))
+                                ));
 
-                            // Ignore if duplicate record is already present
-                            $integrationQBDTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array(
-                               'drivetimeclocktaskid' => $timeClockTask->getTimeclocktaskid(),
-                               'day' => (new \DateTime($innerKey))
-                            ));
-
-                            // Else Create New
-                            if(!$integrationQBDTimeTracking) {
-                                $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
-                                $integrationQBDTimeTracking->setStatus(2);
-                                $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
-                                $integrationQBDTimeTracking->setTimetrackedseconds($diff);
-                                $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
-                                $this->entityManager->persist($integrationQBDTimeTracking);
+                                // Else Create New
+                                if(!$integrationQBDTimeTracking) {
+                                    $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
+                                    $integrationQBDTimeTracking->setStatus(2);
+                                    $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
+                                    $integrationQBDTimeTracking->setTimetrackedseconds($diff);
+                                    $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
+                                    $this->entityManager->persist($integrationQBDTimeTracking);
+                                }
                             }
                         }
                     }
+                    $this->entityManager->flush();
                 }
-                $this->entityManager->flush();
                 return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
             }
         } catch (\Exception $exception) {
