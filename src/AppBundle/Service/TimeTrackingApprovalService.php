@@ -151,7 +151,7 @@ class TimeTrackingApprovalService extends BaseService
                 $response[$i]["Status"] = 2;
             } else {
                 // Simply rename Status_6 to Status
-                $response[$i]["Status"] = $response[$i]["Status_6"];
+                $response[$i]["Status"] = (int)$response[$i]["Status_6"];
             }
             unset($response[$i]["Status_6"]);
 
@@ -212,6 +212,7 @@ class TimeTrackingApprovalService extends BaseService
 
             if($response[$i]['DriveTimeClockTaskID']) {
                 $response[$i]['PropertyName'] = null;
+                $response[$i]['IntegrationQBDTimeTrackingRecordID'] = null;
                 $response[$i]['ServiceName'] = null;
                 $response[$i]['TaskName'] = 'Drive / Load Time';
             }
