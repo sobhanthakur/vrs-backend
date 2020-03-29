@@ -132,6 +132,8 @@ class TimeClockTasksRepository extends EntityRepository
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'e1', Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('t1.taskid', 't2')
             ->where('s2.customerid=' . $customerID)
+            ->andWhere('t1.clockin IS NOT NULL')
+            ->andWhere('t1.clockout IS NOT NULL')
             ->andWhere('t1.clockin >= :StartDate')
             ->setParameter('StartDate', $startDate)
             ->getQuery()
