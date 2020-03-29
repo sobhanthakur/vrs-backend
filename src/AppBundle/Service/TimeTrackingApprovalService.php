@@ -187,7 +187,7 @@ class TimeTrackingApprovalService extends BaseService
             unset($response[$i]['IntegrationQBDTimeTrackingRecords_0']);
 
             // Unset Scalar ID
-            $response[$i]['DriveTimeClockTasksID'] = $response[$i]['sclr_1'];
+            $response[$i]['DriveTimeClockTaskID'] = $response[$i]['sclr_1'];
             unset($response[$i]['sclr_1']);
 
             // Unset ServiceName_2
@@ -203,14 +203,14 @@ class TimeTrackingApprovalService extends BaseService
             unset($response[$i]['PropertyName_4']);
 
             // Unset TimeClockTaskID_5
-            $response[$i]['TimeClockTaskID'] = $response[$i]['TimeClockTaskID_5'];
+            $response[$i]['TimeClockTasksID'] = $response[$i]['TimeClockTaskID_5'];
             unset($response[$i]['TimeClockTaskID_5']);
 
             // Unset Name_9
             $response[$i]['StaffName'] = $response[$i]['Name_9'];
             unset($response[$i]['Name_9']);
 
-            if($response[$i]['DriveTimeClockTasksID']) {
+            if($response[$i]['DriveTimeClockTaskID']) {
                 $response[$i]['PropertyName'] = null;
                 $response[$i]['ServiceName'] = null;
                 $response[$i]['TaskName'] = 'Drive / Load Time';
