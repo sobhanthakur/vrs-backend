@@ -214,6 +214,7 @@ class TimeTrackingApprovalService extends BaseService
                 $response[$i]['PropertyName'] = null;
                 $response[$i]['ServiceName'] = null;
                 $response[$i]['TaskName'] = 'Drive / Load Time';
+                $response[$i]['TimeClockTasksID'] = null;
             } else {
                 $response[$i]['IntegrationQBDTimeTrackingRecordID'] = null;
             }
