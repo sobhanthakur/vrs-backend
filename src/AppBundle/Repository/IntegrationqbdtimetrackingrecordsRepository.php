@@ -432,22 +432,18 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         if(!empty($timezones)) {
             $size = count($timezones);
 
-            $query = "t1.clockin >= ".$timezones[0]->format('Y-m-d');
+            $query = "t1.clockin >='".$timezones[0]->format('Y-m-d')."'";
             for ($i=1;$i<$size;$i++) {
-                $query .= " OR t1.clockin >= ".$timezones[$i]->format('Y-m-d');
+                $query .= " OR t1.clockin >='".$timezones[$i]->format('Y-m-d')."'";
             }
             $result->andWhere($query);
         }
 
         if(!empty($completedDate)) {
             $size = count($completedDate);
-            $query = 't1.clockin BETWEEN :CompletedDateFrom0 AND :CompletedDateTo0';
-            $result->setParameter('CompletedDateFrom0',$completedDate[0]['From']);
-            $result->setParameter('CompletedDateTo0', $completedDate[0]['To']);
+            $query = "t1.clockin>='".$completedDate[0]['From']->format('Y-m-d')."' AND t1.clockin<='".$completedDate[0]['To']->format('Y-m-d')."'";
             for ($i=1;$i<$size;$i++) {
-                $query .= ' OR t1.clockin BETWEEN :CompletedDateFrom'.$i.' AND :CompletedDateTo'.$i;
-                $result->setParameter('CompletedDateFrom'.$i,$completedDate[$i]['From']);
-                $result->setParameter('CompletedDateTo'.$i, $completedDate[$i]['To']);
+                $query .= " OR t1.clockin>='".$completedDate[$i]['From']->format('Y-m-d')."' t1.clockin<='".$completedDate[$i]['To']->format('Y-m-d').";";
             }
             $result->andWhere($query);
         }
