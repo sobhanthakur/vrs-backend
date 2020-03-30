@@ -60,8 +60,8 @@ class TimeClockTasksRepository extends EntityRepository
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','e1',Expr\Join::WITH, 'e1.servicerid=t1.servicerid')
             ->innerJoin('AppBundle:Integrationstocustomers','e2',Expr\Join::WITH, 'e2.customerid=s2.customerid')
             ->innerJoin('t1.taskid','taskid')
-            ->innerJoin('AppBundle:Services','serviceid',Expr\Join::WITH, 'taskid.serviceid=serviceid.serviceid')
-            ->innerJoin('taskid.propertyid','propertyid')
+            ->leftJoin('AppBundle:Services','serviceid',Expr\Join::WITH, 'taskid.serviceid=serviceid.serviceid')
+            ->leftJoin('taskid.propertyid','propertyid')
             ->andWhere('propertyid.customerid='.$customerID)
             ->andWhere('t1.clockin IS NOT NULL')
             ->andWhere('t1.clockout IS NOT NULL');
