@@ -81,6 +81,7 @@ class SyncLogsService extends BaseService
 
             // Find BatchType in IntegrationQBBatches Table
             $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
+            $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
             if($integrationQBBatches) {
                 $batchSize = count($integrationQBBatches);
                 for($i=0;$i<$batchSize;$i++) {
@@ -269,8 +270,8 @@ class SyncLogsService extends BaseService
         $toLocal->setTimezone($utcTimeZone);
 
         return array(
-            'From' => $fromLocal->format('Y-m-d'),
-            'To' => $toLocal->format('Y-m-d')
+            'From' => $fromLocal,
+            'To' => $toLocal
         );
     }
 
