@@ -226,7 +226,7 @@ class SyncLogsService extends BaseService
                         $count = (int)$count[0][1];
                     }
                 }
-                $response1 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset,0);
+                $response1 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset,2);
                 $response2 = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset,1);
                 $response = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->BatchWiseLog($batchID,$limit,$offset);
                 $response = array_merge($response,$response1);

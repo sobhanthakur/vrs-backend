@@ -185,7 +185,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     $result->setSentstatus(true);
                     $this->entityManager->persist($result);
                 }
-                $this->entityManager->flush();
 
                 foreach ($timeclocks as $timeclock) {
                     $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));

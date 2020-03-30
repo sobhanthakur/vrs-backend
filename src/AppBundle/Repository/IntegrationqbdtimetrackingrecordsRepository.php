@@ -125,14 +125,22 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('b1')
-            ->select('s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status');
+            ->select('b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,s2.name AS Staff,b1.txnid AS TxnID,(CASE WHEN b1.sentstatus=1 AND b1.txnid IS NULL THEN 0 ELSE 1 END) AS Status');
         if ($timeTrackingType) {
-            if($timeTrackingType === 0) {
+            if($timeTrackingType === 2) {
+                $result->addSelect('serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName');
                 $result->innerJoin('b1.timeclocktasksid', 't2');
             }
             else {
+                $result->addSelect('(CASE WHEN b1.drivetimeclocktaskid IS NOT NULL THEN \'\' ELSE \'\' END) AS PropertyName');
+                $result->addSelect('(CASE WHEN b1.drivetimeclocktaskid IS NOT NULL THEN \'\' ELSE \'\' END) AS ServiceNameName');
+                $result->addSelect('(CASE WHEN b1.drivetimeclocktaskid IS NOT NULL THEN \'Drive / Load Time\' ELSE \'\' END) AS TaskName');
                 $result->innerJoin('b1.drivetimeclocktaskid', 't2');
             }
+
+            $result->innerJoin('t2.taskid', 'taskid')
+                ->leftJoin('AppBundle:Services', 'serviceid', Expr\Join::WITH, 'taskid.serviceid=serviceid.serviceid')
+                ->leftJoin('taskid.propertyid', 'propertyid');
         } else {
             $result->innerJoin('b1.timeclockdaysid', 't2');
         }
