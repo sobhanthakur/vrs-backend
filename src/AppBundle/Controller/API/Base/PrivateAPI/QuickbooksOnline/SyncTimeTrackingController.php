@@ -44,7 +44,7 @@ class SyncTimeTrackingController extends FOSRestController
      * @param Request $request
      * @Get("/qbo/synctimetracking", name="vrs_qbo_synctimetracking")
      */
-    public function SyncBilling(Request $request)
+    public function SyncTimeTracking(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
