@@ -23,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class QuickbooksOnlineSyncTimeTracking extends BaseService
 {
+    private $persistBatch = null;
     /**
      * @param $customerID
      * @param $quickbooksConfig
@@ -58,7 +59,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
             // Create Billing
             $status = $this->CreateTimetracking($dataService,$customerID,$integrationID);
         } catch (ServiceException $exception) {
-
             /*
              * This occurs when authentication fails using the existing access token.
              * Re-connect to QBO using the refresh token to get a new pair of tokens
@@ -69,7 +69,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
             $dataService = $authService->Authenticate($integrationQBOTokens, $quickbooksConfig);
 
             // Create TimeTracking
-            $status = $this->CreateTimeTracking($dataService,$customerID,$integrationID);
+            $status = $this->CreateTimeTracking($dataService,$customerID,$integrationID,2);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -92,7 +92,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
      * @return null
      * @throws \Exception
      */
-    public function CreateTimeTracking($dataService, $customerID, $integrationID)
+    public function CreateTimeTracking($dataService, $customerID, $integrationID, $retry=null)
     {
         try {
             // Initialize variables
@@ -158,6 +158,11 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
 
+                    if (!$this->persistBatch) {
+                        $this->persistBatch = true;
+                        $this->entityManager->persist($batch);
+                    }
+
                     // Update TxnID
                     $integrationQBDTimeTracking = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$timeclock['IntegrationQBDTimeTrackingRecordID']));
                     if($integrationQBDTimeTracking) {
@@ -176,16 +181,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
                 }
 
-                // Set Sent Status to 1
-                $batch = $this->CreateBatch($integrationsToCustomers);
-                $integrationQBDTimetrackingID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetUnsycedTimeTrackingBatch($customerID);
-                foreach ($integrationQBDTimetrackingID as $id) {
-                    $result = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$id['integrationqbdtimetrackingrecords']));
-                    $result->setIntegrationqbbatchid($batch);
-                    $result->setSentstatus(true);
-                    $this->entityManager->persist($result);
-                }
-
                 foreach ($timeclocks as $timeclock) {
                     $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
                     $timeActivity = array(
@@ -196,18 +191,30 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
-                        "Taxable" => "false",
                         "HourlyRate" => $timeclock['PayRate']
                     );
 
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
-                    $timetrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnID($batch->getIntegrationqbbatchid(),$timeclock['Date'],$timeclock['QBDEmployeeListID']);
+
+                    $timetrackingIDs = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->UpdateSuccessTxnIDOnline($timeclock['Date'],$timeclock['QBDEmployeeListID'],$customerID);
                     foreach ($timetrackingIDs as $id) {
                         $ttid = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$id['integrationqbdtimetrackingrecords']));
                         $ttid->setTxnid($result->Id);
                         $this->entityManager->persist($ttid);
                     }
+                }
+                $this->entityManager->flush();
+
+                // Set Sent Status to 1 And BatchID
+                $batch = $this->CreateBatch($integrationsToCustomers);
+                $this->entityManager->persist($batch);
+                $integrationQBDTimetrackingID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->GetUnsycedTimeTrackingBatchOnline($customerID);
+                foreach ($integrationQBDTimetrackingID as $id) {
+                    $result = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->findOneBy(array('integrationqbdtimetrackingrecords'=>$id['integrationqbdtimetrackingrecords']));
+                    $result->setIntegrationqbbatchid($batch);
+                    $result->setSentstatus(true);
+                    $this->entityManager->persist($result);
                 }
             }
             $this->entityManager->flush();
@@ -230,7 +237,6 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
         $batch = new Integrationqbbatches();
         $batch->setBatchtype(true);
         $batch->setIntegrationtocustomer($integrationsToCustomers);
-        $this->entityManager->persist($batch);
         return $batch;
     }
 }
