@@ -409,8 +409,8 @@ class TimeTrackingApprovalService extends BaseService
             $timeZoneUTC = new \DateTimeZone('UTC');
             $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
-            $response[$i]['From'] = $fromUTC;
-            $response[$i]['To'] = $toUTC;
+            $response[$i]['From'] = $fromUTC->setTime(0,0,0);
+            $response[$i]['To'] = $toUTC->setTime(23,59,59);
 
         }
         return $response;
