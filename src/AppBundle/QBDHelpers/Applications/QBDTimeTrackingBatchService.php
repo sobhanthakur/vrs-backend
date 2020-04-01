@@ -44,7 +44,7 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
                     <QBXML>
                     <QBXMLMsgsRq onError="stopOnError">';
                     foreach ($timeClockDays as $timeClockDay) {
-                        $date = explode(":",gmdate('H:i:s',$timeClockDay['TimeTrackedSeconds']));
+                        $date = explode(":",$this->GMDateCalculation($timeClockDay['TimeTrackedSeconds']));
                         $date = ((int)$date[0]/1).'H'.((int)$date[1]/1).'M'.((int)$date[2]/1).'S';
                         $requestId = $this->generateGUID();
                         $xml .= '
@@ -109,5 +109,19 @@ class QBDTimeTrackingBatchService extends AbstractQBWCApplication
             }
         }
         return new ReceiveResponseXML(100);
+    }
+
+    /**
+     * @param $date
+     * @return string
+     */
+    public function GMDateCalculation($date)
+    {
+        $hours = gmdate('H',$date);
+        $days = gmdate('d',$date);
+        $minsec = gmdate("i:s", $date);
+        $hours = ($days-1)*24 + $hours;
+        $result = $hours.':'.$minsec;
+        return $result;
     }
 }
