@@ -69,7 +69,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
             $dataService = $authService->Authenticate($integrationQBOTokens, $quickbooksConfig);
 
             // Create TimeTracking
-            $status = $this->CreateTimeTracking($dataService,$customerID,$integrationID,2);
+            $status = $this->CreateTimeTracking($dataService,$customerID,$integrationID);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -92,7 +92,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
      * @return null
      * @throws \Exception
      */
-    public function CreateTimeTracking($dataService, $customerID, $integrationID, $retry=null)
+    public function CreateTimeTracking($dataService, $customerID, $integrationID)
     {
         try {
             // Initialize variables
@@ -135,7 +135,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         }
                     }
 
-                    $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
+                    $timeTracked = explode(":",$this->GMDateCalculation($timeclock['TimeTrackedSeconds']));
                     $timeActivity = array(
                         "NameOf" => "Employee",
                         "TxnDate" => $timeclock['Date']->format('Y-m-d'),
@@ -182,7 +182,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 }
 
                 foreach ($timeclocks as $timeclock) {
-                    $timeTracked = explode(":",gmdate('H:i',$timeclock['TimeTrackedSeconds']));
+                    $timeTracked = explode(":",$this->GMDateCalculation($timeclock['TimeTrackedSeconds']));
                     $timeActivity = array(
                         "NameOf" => "Employee",
                         "TxnDate" => $timeclock['Date']->format('Y-m-d'),
@@ -238,5 +238,19 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
         $batch->setBatchtype(true);
         $batch->setIntegrationtocustomer($integrationsToCustomers);
         return $batch;
+    }
+
+    /**
+     * @param $date
+     * @return string
+     */
+    public function GMDateCalculation($date)
+    {
+        $hours = gmdate('H',$date);
+        $days = gmdate('d',$date);
+        $minsec = gmdate("i:s", $date);
+        $hours = ($days-1)*24 + $hours;
+        $result = $hours.':'.$minsec;
+        return $result;
     }
 }

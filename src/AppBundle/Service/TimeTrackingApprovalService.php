@@ -157,12 +157,12 @@ class TimeTrackingApprovalService extends BaseService
 
             // Process TimeTracked
             if($response[$i]['TimeTrackedSeconds_8']) {
-                $response[$i]["TimeTracked"] = gmdate('H:i:s',$response[$i]["TimeTrackedSeconds_8"]);
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]);
                 $response[$i]["Date"] = $response[$i]["Day_7"];
             } else {
                 $clockin = (new \DateTime($response[$i]['ClockIn_11']));
                 $clockout = (new \DateTime($response[$i]['ClockOut_12']));
-                $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($clockin->diff($clockout)));
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($this->DateDiffCalculation($clockin->diff($clockout)));
                 $time = $this->TimeZoneCalculation($response[$i]['Region_10'], $clockin);
                 $response[$i]["Date"] = $time->format('Y-m-d');
             }
@@ -263,10 +263,10 @@ class TimeTrackingApprovalService extends BaseService
             }
 
             if($response[$i]['TimeTracked']) {
-                $response[$i]["TimeTracked"] = gmdate('H:i:s',$response[$i]["TimeTracked"]);
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTracked"]);
                 $response[$i]["Date"] = $response[$i]["Date"]->format('Y-m-d');
             } else {
-                $response[$i]["TimeTracked"] = gmdate('H:i:s', $this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
                 $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
                 $response[$i]["Date"] = $time->format('Y-m-d');
             }
@@ -544,12 +544,26 @@ class TimeTrackingApprovalService extends BaseService
                     }
                     $this->entityManager->flush();
                 }
-                return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
             }
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
         } catch (\Exception $exception) {
             $this->logger->error('Failed fetching DriveTime due to : ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $date
+     * @return string
+     */
+    public function GMDateCalculation($date)
+    {
+        $hours = gmdate('H',$date);
+        $days = gmdate('d',$date);
+        $minsec = gmdate("i:s", $date);
+        $hours = ($days-1)*24 + $hours;
+        $result = $hours.':'.$minsec;
+        return $result;
     }
 }
