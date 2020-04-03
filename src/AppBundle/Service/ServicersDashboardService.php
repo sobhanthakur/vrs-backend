@@ -101,7 +101,9 @@ class ServicersDashboardService extends BaseService
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],
                         'Lon' => $tasks[$i]['Lat']
-                    )
+                    ),
+                    'ServiceName' => $tasks[$i]['ServiceName'],
+                    'PropertyName' => $tasks[$i]['PropertyName']
                 );
 
                 // Guest Details

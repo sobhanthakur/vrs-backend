@@ -36,7 +36,7 @@ class AuthenticationService extends BaseService
         $authenticateResult[GeneralConstants::STATUS] = false;
         try {
             // Checking Authorization Key for validating Token.
-            $authorizationParts = explode(" ", $request->headers->get('Authorization'));
+            $authorizationParts = explode(" ", $request->headers->get(GeneralConstants::AUTHORIZATION));
 
             if (
                 count($authorizationParts) !== 2 || 'VRS' !== $authorizationParts[0]
