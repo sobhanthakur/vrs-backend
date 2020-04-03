@@ -270,7 +270,7 @@ class SyncLogsService extends BaseService
         $toLocal->setTimezone($utcTimeZone);
 
         return array(
-            'From' => $fromLocal->setTime(0,0,0),
+            'From' => $fromLocal,
             'To' => $toLocal->setTime(23,59,59)
         );
     }
