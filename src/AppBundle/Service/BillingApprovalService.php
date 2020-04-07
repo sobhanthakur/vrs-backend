@@ -224,7 +224,7 @@ class BillingApprovalService extends BaseService
             $fromUTC = $fromLocal->setTimezone($timeZoneUTC);
             $toUTC = $toLocal->setTimezone($timeZoneUTC);
             $response[$i]['From'] = $fromUTC;
-            $response[$i]['To'] = $toUTC->setTime(23,59,59);
+            $response[$i]['To'] = $toUTC->modify('+1 day');
 
         }
         return $response;

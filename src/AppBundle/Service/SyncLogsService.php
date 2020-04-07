@@ -271,7 +271,7 @@ class SyncLogsService extends BaseService
 
         return array(
             'From' => $fromLocal,
-            'To' => $toLocal->setTime(23,59,59)
+            'To' => $toLocal->modify('+1 day')
         );
     }
 
