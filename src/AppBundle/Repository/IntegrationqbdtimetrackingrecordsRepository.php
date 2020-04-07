@@ -440,9 +440,9 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
 
         if(!empty($completedDate)) {
             $size = count($completedDate);
-            $query = "t1.clockin>='".$completedDate[0]['From']->format('Y-m-d')." ".$completedDate[0]['From']->format('H:i:s')."' AND t1.clockin<='".$completedDate[0]['To']->modify('+1 day')->format('Y-m-d')."'";
+            $query = "t1.clockin>='".$completedDate[0]['From']->format('Y-m-d')." ".$completedDate[0]['From']->format('H:i:s')."' AND t1.clockin<='".$completedDate[0]['To']->format('Y-m-d')." ".$completedDate[0]['To']->format('H:i:s')."'";
             for ($i=1;$i<$size;$i++) {
-                $query .= " OR t1.clockin>='".$completedDate[$i]['From']->format('Y-m-d')." ".$completedDate[$i]['From']->format('H:i:s')."' t1.clockin<='".$completedDate[$i]['To']->modify('+1 day')->format('Y-m-d').";";
+                $query .= " OR t1.clockin>='".$completedDate[$i]['From']->format('Y-m-d')." ".$completedDate[$i]['From']->format('H:i:s')."' t1.clockin<='".$completedDate[$i]['To']->format('Y-m-d')." ".$completedDate[$i]['To']->format('H:i:s')."'";
             }
             $result->andWhere($query);
         }
