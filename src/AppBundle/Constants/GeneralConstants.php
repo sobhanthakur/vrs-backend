@@ -447,4 +447,12 @@ final class GeneralConstants
     const RATE_LIMIT = 100;
     const RATE_LIMIT_TTL = 60;
 
+    const LOCALE = [
+        0 => 'eng',
+        1 => 'spa',
+        2 => 'por',
+        3 => 'fre',
+        4 => 'jap'
+    ];
+
 }

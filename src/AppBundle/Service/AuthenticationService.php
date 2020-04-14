@@ -302,6 +302,7 @@ class AuthenticationService extends BaseService
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
+            $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
             // Create a new token
             $signer = new Sha256();
             $accessToken = (new Builder())
