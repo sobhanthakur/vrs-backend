@@ -168,8 +168,9 @@ class TimeClockTasksRepository extends EntityRepository
             ->createQueryBuilder('tct')
             ->select('IDENTITY(tct.taskid) AS TaskID')
             ->where('tct.servicerid = :ServicerID')
-            ->andWhere('tct.clockin <= '.$today)
-            ->andWhere('tct.clockout <= '.$tomorrow)
+            ->andWhere('tct.clockin >= '.$today)
+            ->andWhere('tct.clockin <= '.$tomorrow)
+            ->andWhere('tct.clockout IS NULL')
             ->setParameter('ServicerID',$servicerID);
 
         return $result->setMaxResults(1)

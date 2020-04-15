@@ -31,6 +31,7 @@ class ServicersDashboardService extends BaseService
                 $pauseTask = 0;
                 $window = null;
                 $isLead = 0;
+                $tabs = null;
 
                 // Check is servicer Is Lead
                 if($tasks[$i]['IsLead']) {
@@ -116,8 +117,50 @@ class ServicersDashboardService extends BaseService
                     );
                 }
                 $response[$i]['GuestDetails'] = $guestDetails;
-            }
 
+                // Check if log tab has to be rendered
+                if ($servicers[0]['ShowIssueLog']) {
+                    $log = 1;
+                } else {
+                    $log = 0;
+                }
+
+                // Check if image tab has to be rendered
+                $image = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
+                if(!empty($image)) {
+                    $image = 1;
+                } else {
+                    $image = 0;
+                }
+
+                // Check if manage tab has to be rendered
+                if( $servicers[0]['AllowManage']) {
+                    $manage = 1;
+                } else {
+                    $manage = 0;
+                }
+
+                // Check if info tab has to be rendered
+                if (trim($tasks[$i]['PropertyFile'] !== '')
+                    || trim($tasks[$i]['TaskDescription'])
+                    || trim($tasks[$i]['DoorCode'])
+                    || trim($tasks[$i]['Address'])
+                ) {
+                    $info = 1;
+                } else {
+                    $info = 0;
+                }
+
+                if ( $manage || $image || $log || $info) {
+                    $tabs = array(
+                        'Manage' => $manage,
+                        'Info' => $info,
+                        'Log' => $log,
+                        'Image' => $image
+                    );
+                }
+                $response[$i]['Tabs'] = $tabs;
+            }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
