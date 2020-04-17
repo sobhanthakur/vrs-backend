@@ -144,16 +144,26 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
-                        "CustomerRef" => [
-                            "Value" => $timeclock['CustomerValue']
-                        ],
+
                         "Taxable" => "false",
                         "HourlyRate" => $timeclock['PayRate'],
                         "Description" => $description
                     );
 
-                    if(!$timeclock['CustomerValue']) {
-                        unset($timeActivity['CustomerRef']);
+                    if($timeclock['CustomerValue']) {
+                        $timeActivity = array_merge($timeActivity,array(
+                            "CustomerRef" => [
+                                "Value" => $timeclock['CustomerValue']
+                            ]
+                        ));
+                    }
+
+                    if($timeclock['ItemListID']) {
+                        $timeActivity = array_merge($timeActivity,array(
+                           "ItemRef" =>  [
+                               "value" => $timeclock['ItemListID']
+                           ]
+                        ));
                     }
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
