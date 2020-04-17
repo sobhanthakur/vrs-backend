@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 class MapTaskRulesService extends BaseService
 {
     private $serviceid = 'serviceid';
+
     /**
      * @param $customerID
      * @param $data
@@ -39,7 +40,6 @@ class MapTaskRulesService extends BaseService
             $integrationID = null;
             $count = null;
             $response = null;
-            $flag = null;
             $matched = 3;
 
             if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $data)) {
@@ -75,7 +75,6 @@ class MapTaskRulesService extends BaseService
                         !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
                         $matched = 1;
-                        $flag = 0;
                     }
 
                     // If status is only set to not yet matched
@@ -83,14 +82,21 @@ class MapTaskRulesService extends BaseService
                         in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
                         $matched = 2;
-                        $flag = 0;
                     }
                 }
             }
 
-
-            // Default Condition
-            if (!$flag) {
+            // Show only labor items
+            if ((int)$integrationToCustomers[0]['qbdsyncbilling'] !== 1 && (int)$integrationToCustomers[0]['timetrackingtype'] === 1) {
+                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
+                if ($offset === 1) {
+                    $sql = $this->getEntityManager()->getConnection()->prepare($result['Result2']);
+                    $sql->execute();
+                    $count = count($sql->fetchAll());
+                }
+                $response = $this->getEntityManager()->getConnection()->prepare($result['Result2'] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+            } else {
+                // Show both labor and material items
                 $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
                 if ($offset === 1) {
                     $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']);
@@ -98,19 +104,21 @@ class MapTaskRulesService extends BaseService
                     $count = count($sql->fetchAll());
                 }
                 $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2'] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
-                $response->execute();
-                $response = $response->fetchAll();
-                $temp = [];
-                foreach ($response as $res) {
-                    $temp[] = array(
-                        GeneralConstants::TASKRULEID => $res['ServiceID_0'],
-                        'TaskRuleName' => $res['ServiceName_1'],
-                        'LaborOrMaterials' => $res['sclr_2'],
-                        'IntegrationQBDItemID' => $res['sclr_3']
-                    );
-                }
-                $response = $temp;
             }
+
+            // Execute the result
+            $response->execute();
+            $response = $response->fetchAll();
+            $temp = [];
+            foreach ($response as $res) {
+                $temp[] = array(
+                    GeneralConstants::TASKRULEID => $res['ServiceID_0'],
+                    'TaskRuleName' => $res['ServiceName_1'],
+                    'LaborOrMaterials' => $res['sclr_2'],
+                    'IntegrationQBDItemID' => $res['sclr_3']
+                );
+            }
+            $response = $temp;
 
             return array(
                 GeneralConstants::REASON_CODE => 0,
@@ -188,7 +196,7 @@ class MapTaskRulesService extends BaseService
                     )
                 );
 
-                if($data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
+                if ($data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
                     $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array(
                             'integrationqbditemid' => $data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]
                         )
@@ -234,9 +242,9 @@ class MapTaskRulesService extends BaseService
                     // Check if !(BillType) is not present in either DB or the payload
                     if (!$itemsToTaskrules1) {
                         $key = $i;
-                        for ($j=0;$j<count($data);$j++) {
-                            if(
-                                ($i!==$j) &&
+                        for ($j = 0; $j < count($data); $j++) {
+                            if (
+                                ($i !== $j) &&
                                 $data[$j][GeneralConstants::TASKRULEID] == $data[$i][GeneralConstants::TASKRULEID] &&
                                 $data[$j]['BillType'] == !($data[$i]['BillType'])
                             ) {
@@ -244,7 +252,7 @@ class MapTaskRulesService extends BaseService
                                 break;
                             }
                         }
-                        if($key !== null) {
+                        if ($key !== null) {
                             $itemsToTaskrules1 = new Integrationqbditemstoservices();
 
                             $itemsToTaskrules1->setIntegrationqbditemid(null);
@@ -258,7 +266,7 @@ class MapTaskRulesService extends BaseService
 
                 } else {
                     // Update the record
-                    if(!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
+                    if (!$data[$i][GeneralConstants::INTEGRATION_QBD_ITEM_ID]) {
                         $itemsToTaskrules->setIntegrationqbditemid(null);
                     } else {
                         $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
