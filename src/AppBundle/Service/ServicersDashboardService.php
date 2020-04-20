@@ -8,6 +8,7 @@
 
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\DatabaseViews\Issues;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -133,7 +134,21 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['GuestDetails'] = $guestDetails;
 
                 // Check if log tab has to be rendered
-                if ($servicers[0]['ShowIssueLog']) {
+                $temp = false;
+                $allIssues = 'SELECT FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.ClosedDate IS NULL AND vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0';
+                $issues = $this->entityManager->getConnection()->prepare($allIssues);
+                $issues->execute();
+                $issues = $issues->fetchAll();
+
+                foreach ($issues as $issue) {
+                    if ($issue['FromTaskID'] === (string)$tasks[$i]['TaskID']) {
+                        $temp = true;
+                        break;
+                    }
+                }
+
+                if ( ((int)$servicers[0]['ShowIssueLog'] === 1  || $temp)
+                ) {
                     $log = 1;
                 } else {
                     $log = 0;

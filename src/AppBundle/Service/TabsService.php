@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\DatabaseViews\Issues;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class TabsService extends BaseService
@@ -20,7 +21,7 @@ class TabsService extends BaseService
             $propertyID = $content['PropertyID'];
 
             $property = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertyNameByID($propertyID);
-            $staffTasks = $this->entityManager->getConnection()->prepare('SELECT CreateDAte,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM  vIssues  WHERE ClosedDate IS NULL AND PropertyID='.$propertyID);
+            $staffTasks = $this->entityManager->getConnection()->prepare('SELECT CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.ClosedDate IS NULL AND SubQuery.PropertyID='.$propertyID);
             $staffTasks->execute();
             $staffTasks = $staffTasks->fetchAll();
             $response = array(
