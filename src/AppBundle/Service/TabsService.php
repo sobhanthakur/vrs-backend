@@ -20,7 +20,7 @@ class TabsService extends BaseService
             $propertyID = $content['PropertyID'];
 
             $property = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertyNameByID($propertyID);
-            $staffTasks = $this->entityManager->getConnection()->prepare('SELECT CreateDAte,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM  vIssues  WHERE ClosedDate IS NULL AND PropertyID=171');
+            $staffTasks = $this->entityManager->getConnection()->prepare('SELECT CreateDAte,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM  vIssues  WHERE ClosedDate IS NULL AND PropertyID='.$propertyID);
             $staffTasks->execute();
             $staffTasks = $staffTasks->fetchAll();
             $response = array(
