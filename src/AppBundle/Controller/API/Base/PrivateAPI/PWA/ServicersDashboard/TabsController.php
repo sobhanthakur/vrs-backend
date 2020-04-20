@@ -24,6 +24,17 @@ class TabsController extends FOSRestController
      * Shows Task Details that needs to be shown in the servicers dashboard
      * @SWG\Tag(name="Tabs")
      * @Get("/tabs/log", name="vrs_pwa_tabs_log")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""PropertyID"":1
+    }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Authenticates the servicer and returns a JWT in return.",
