@@ -404,6 +404,7 @@ class TasksRepository extends EntityRepository
             ->leftJoin('t2.propertyid','p2')
             ->leftJoin('p2.regionid','r2')
             ->leftJoin('t2.propertybookingid','pb2')
+            ->leftJoin('AppBundle:Propertybookings','npb2',Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
             ->leftJoin('p2.customerid','c2')
             ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
             ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
@@ -427,15 +428,18 @@ class TasksRepository extends EntityRepository
 
         // Fetch Guest Details based on conditions
         if($servicers[0]['IncludeGuestNumbers']) {
-            $result->addSelect('pb2.numberofguests AS Number');
+            $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
+            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
         }
 
         if($servicers[0]['IncludeGuestEmailPhone']) {
-            $result->addSelect('pb2.guestemail AS Email,pb2.guestphone AS Phone');
+            $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
+            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
         }
 
         if($servicers[0]['IncludeGuestName']) {
-            $result->addSelect('pb2.guest AS Name');
+            $result->addSelect('pb2.guest AS PrevName');
+            $result->addSelect('npb2.guest AS NextName');
         }
 
         return $result->getQuery()

@@ -110,10 +110,23 @@ class ServicersDashboardService extends BaseService
                 // Guest Details
                 if ($servicers[0]['IncludeGuestNumbers'] && $servicers[0]['IncludeGuestEmailPhone'] && $servicers[0]['IncludeGuestName']) {
                     $guestDetails = array(
-                        'Name' => $tasks[$i]['Name'],
-                        'Email' => $tasks[$i]['Email'],
-                        'Phone' => $tasks[$i]['Phone'],
-                        'Number' => $tasks[$i]['Number']
+                        'Previous' => array(
+                            'Name' => $tasks[$i]['PrevName'],
+                            'Email' => $tasks[$i]['PrevEmail'],
+                            'Phone' => $tasks[$i]['PrevPhone'],
+                            'NumberOfGuests' => $tasks[$i]['PrevNumberOfGuests'],
+                            'NumberOfChildren' => $tasks[$i]['PrevNumberOfChildren'],
+                            'NumberOfPets' => $tasks[$i]['PrevNumberOfPets']
+                        ),
+                        'Next' => array(
+                            'Name' => $tasks[$i]['NextName'],
+                            'Email' => $tasks[$i]['NextEmail'],
+                            'Phone' => $tasks[$i]['NextPhone'],
+                            'NumberOfGuests' => $tasks[$i]['NextNumberOfGuests'],
+                            'NumberOfChildren' => $tasks[$i]['NextNumberOfChildren'],
+                            'NumberOfPets' => $tasks[$i]['NextNumberOfPets']
+                        )
+
                     );
                 }
                 $response[$i]['GuestDetails'] = $guestDetails;
