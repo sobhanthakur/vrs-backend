@@ -31,6 +31,7 @@ class ServicersDashboardService extends BaseService
                 $pauseTask = 0;
                 $window = null;
                 $isLead = 0;
+                $tabs = null;
 
                 // Check is servicer Is Lead
                 if($tasks[$i]['IsLead']) {
@@ -109,15 +110,70 @@ class ServicersDashboardService extends BaseService
                 // Guest Details
                 if ($servicers[0]['IncludeGuestNumbers'] && $servicers[0]['IncludeGuestEmailPhone'] && $servicers[0]['IncludeGuestName']) {
                     $guestDetails = array(
-                        'Name' => $tasks[$i]['Name'],
-                        'Email' => $tasks[$i]['Email'],
-                        'Phone' => $tasks[$i]['Phone'],
-                        'Number' => $tasks[$i]['Number']
+                        'Previous' => array(
+                            'Name' => $tasks[$i]['PrevName'],
+                            'Email' => $tasks[$i]['PrevEmail'],
+                            'Phone' => $tasks[$i]['PrevPhone'],
+                            'NumberOfGuests' => $tasks[$i]['PrevNumberOfGuests'],
+                            'NumberOfChildren' => $tasks[$i]['PrevNumberOfChildren'],
+                            'NumberOfPets' => $tasks[$i]['PrevNumberOfPets']
+                        ),
+                        'Next' => array(
+                            'Name' => $tasks[$i]['NextName'],
+                            'Email' => $tasks[$i]['NextEmail'],
+                            'Phone' => $tasks[$i]['NextPhone'],
+                            'NumberOfGuests' => $tasks[$i]['NextNumberOfGuests'],
+                            'NumberOfChildren' => $tasks[$i]['NextNumberOfChildren'],
+                            'NumberOfPets' => $tasks[$i]['NextNumberOfPets']
+                        )
+
                     );
                 }
                 $response[$i]['GuestDetails'] = $guestDetails;
-            }
 
+                // Check if log tab has to be rendered
+                if ($servicers[0]['ShowIssueLog']) {
+                    $log = 1;
+                } else {
+                    $log = 0;
+                }
+
+                // Check if image tab has to be rendered
+                $image = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
+                if(!empty($image)) {
+                    $image = 1;
+                } else {
+                    $image = 0;
+                }
+
+                // Check if manage tab has to be rendered
+                if( $servicers[0]['AllowManage']) {
+                    $manage = 1;
+                } else {
+                    $manage = 0;
+                }
+
+                // Check if info tab has to be rendered
+                if (trim($tasks[$i]['PropertyFile'] !== '')
+                    || trim($tasks[$i]['TaskDescription'])
+                    || trim($tasks[$i]['DoorCode'])
+                    || trim($tasks[$i]['Address'])
+                ) {
+                    $info = 1;
+                } else {
+                    $info = 0;
+                }
+
+                if ( $manage || $image || $log || $info) {
+                    $tabs = array(
+                        'Manage' => $manage,
+                        'Info' => $info,
+                        'Log' => $log,
+                        'Image' => $image
+                    );
+                }
+                $response[$i]['Tabs'] = $tabs;
+            }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

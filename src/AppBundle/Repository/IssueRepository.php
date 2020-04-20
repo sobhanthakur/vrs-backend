@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
+/**
+ * Class IssueRepository
+ * @package AppBundle\Repository
+ */
 class IssueRepository extends EntityRepository
 {
 
@@ -255,5 +259,4 @@ class IssueRepository extends EntityRepository
         return $this->fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query);
 
     }
-
 }

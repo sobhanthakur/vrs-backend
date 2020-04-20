@@ -400,10 +400,11 @@ class TasksRepository extends EntityRepository
             ->createQueryBuilder('t2');
 
         // Fetch Basic task details
-        $result->select('serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,ts.islead AS IsLead,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+        $result->select('p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,ts.islead AS IsLead,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
             ->leftJoin('t2.propertyid','p2')
             ->leftJoin('p2.regionid','r2')
             ->leftJoin('t2.propertybookingid','pb2')
+            ->leftJoin('AppBundle:Propertybookings','npb2',Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
             ->leftJoin('p2.customerid','c2')
             ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
             ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
@@ -427,15 +428,18 @@ class TasksRepository extends EntityRepository
 
         // Fetch Guest Details based on conditions
         if($servicers[0]['IncludeGuestNumbers']) {
-            $result->addSelect('pb2.numberofguests AS Number');
+            $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
+            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
         }
 
         if($servicers[0]['IncludeGuestEmailPhone']) {
-            $result->addSelect('pb2.guestemail AS Email,pb2.guestphone AS Phone');
+            $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
+            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
         }
 
         if($servicers[0]['IncludeGuestName']) {
-            $result->addSelect('pb2.guest AS Name');
+            $result->addSelect('pb2.guest AS PrevName');
+            $result->addSelect('npb2.guest AS NextName');
         }
 
         return $result->getQuery()
