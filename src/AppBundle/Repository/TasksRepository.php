@@ -13,7 +13,6 @@ use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class TasksRepository

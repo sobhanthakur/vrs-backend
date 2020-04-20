@@ -189,6 +189,7 @@ nelmio_api_doc:
             path_patterns:
                 -  /v1/vrs/pwa/authenticate
                 -  /v1/vrs/pwa/tasks
+                -  /v1/vrs/pwa/tabs/log
 
 monolog:
     handlers:

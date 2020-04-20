@@ -319,4 +319,16 @@ class PropertiesRepository extends EntityRepository
 
     }
 
+    /**
+     * @param $propertyID
+     * @return mixed
+     */
+    public function GetPropertyNameByID($propertyID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyname AS PropertyName')
+            ->where("p.propertyid=".$propertyID)
+            ->getQuery()
+            ->execute();
+    }
 }

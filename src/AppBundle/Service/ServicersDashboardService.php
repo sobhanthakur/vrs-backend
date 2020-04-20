@@ -104,6 +104,7 @@ class ServicersDashboardService extends BaseService
                         'Lon' => $tasks[$i]['Lat']
                     ),
                     'ServiceName' => $tasks[$i]['ServiceName'],
+                    'PropertyID' => $tasks[$i]['PropertyID'],
                     'PropertyName' => $tasks[$i]['PropertyName']
                 );
 

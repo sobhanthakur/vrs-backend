@@ -11,8 +11,6 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\GeneralConstants;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\QueryBuilder;
-
 
 /**
  * Class StaffTasksRepository
@@ -274,5 +272,22 @@ class StaffTasksRepository extends EntityRepository
         $result = $this->getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit);
         return array_column($result, 1);
     }
+//
+//    public function GetIssueLog($servicerID,$taskID)
+//    {
+//        return $this->createQueryBuilder('st')
+//            ->select('propertyid.propertyname AS PropertyName,timezoneid.region AS TimeZoneRegion,issues.issue')
+//            ->leftJoin('st.taskid','taskid')
+//            ->leftJoin('taskid.propertyid','propertyid')
+//            ->leftJoin('st.servicerid','servicerid')
+//            ->leftJoin('propertyid.regionid','region')
+//            ->leftJoin('region.timezoneid','timezoneid')
+//            ->leftJoin('AppBundle:Propertyitems','propertyitems',Expr\Join::WITH, 'propertyid.propertyid = propertyitems.propertyid')
+//            ->leftJoin('AppBundle:Issues','issues',Expr\Join::WITH,'propertyid.propertyid=issues.propertyid')
+//            ->where('st.taskid='.$taskID)
+//            ->andWhere('st.servicerid='.$servicerID)
+//            ->getQuery()
+//            ->execute();
+//    }
 
 }
