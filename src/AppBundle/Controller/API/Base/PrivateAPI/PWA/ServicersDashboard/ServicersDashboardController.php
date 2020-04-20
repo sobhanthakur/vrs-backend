@@ -9,7 +9,6 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\PWA\ServicersDashboard;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -35,7 +34,6 @@ class ServicersDashboardController extends FOSRestController
      *              example=
      *               {
      *                  {
-
      *                      "GuestDetails" : {
      *                        "Name" : "John Smith" ,
      *                        "Email" : "smithjohn@gmail.com",

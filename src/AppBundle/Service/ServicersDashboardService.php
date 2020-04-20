@@ -104,6 +104,7 @@ class ServicersDashboardService extends BaseService
                         'Lon' => $tasks[$i]['Lat']
                     ),
                     'ServiceName' => $tasks[$i]['ServiceName'],
+                    'PropertyID' => $tasks[$i]['PropertyID'],
                     'PropertyName' => $tasks[$i]['PropertyName']
                 );
 
@@ -147,7 +148,13 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Check if manage tab has to be rendered
-                if( $servicers[0]['AllowManage']) {
+                $today = new \DateTime('now',new \DateTimeZone('UTC'));
+                if( !(
+                    (int)$servicers[0]['TimeTracking'] === 1 &&
+                    (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID'])) &&
+                    ($tasks[$i]['TaskStartDate'] <= $today) &&
+                    ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['StartDate'] <= $today)
+                ) {
                     $manage = 1;
                 } else {
                     $manage = 0;
@@ -164,12 +171,23 @@ class ServicersDashboardService extends BaseService
                     $info = 0;
                 }
 
+                // Check if Assignments tab has to be rendered or not
+                if (
+                    (int)$servicers[0]['AllowStartEarly'] === 1 ||
+                    $servicers[0]['Email'] === $tasks[$i]['Email']
+                ) {
+                    $assignments = 1;
+                } else {
+                    $assignments = 0;
+                }
+
                 if ( $manage || $image || $log || $info) {
                     $tabs = array(
                         'Manage' => $manage,
                         'Info' => $info,
                         'Log' => $log,
-                        'Image' => $image
+                        'Imgs' => $image,
+                        'Assgmnts' => $assignments
                     );
                 }
                 $response[$i]['Tabs'] = $tabs;

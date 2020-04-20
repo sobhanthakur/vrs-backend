@@ -318,7 +318,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->select('s.email AS Email,s.allowadminaccess AS AllowAdminAccess,s.allowstartearly AS AllowStartEarly,s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
             ->where('s.servicerid= :ServicerID')
             ->innerJoin('s.timezoneid','t')
             ->setParameter('ServicerID',$servicerID)
