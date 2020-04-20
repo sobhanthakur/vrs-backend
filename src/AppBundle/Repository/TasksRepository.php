@@ -394,7 +394,7 @@ class TasksRepository extends EntityRepository
      */
     public function FetchTasksForDashboard($servicerID, $servicers)
     {
-        $today = (new \DateTime('now'))->format('Y-m-d');
+        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
         $result =  $this
             ->createQueryBuilder('t2');
 
