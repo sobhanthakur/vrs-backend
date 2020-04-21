@@ -445,5 +445,78 @@ class TasksRepository extends EntityRepository
             ->getResult();
     }
 
+    /**
+     * @param $taskID
+     * @return mixed
+     */
+    public function GetTasksForInfoTab($taskID)
+    {
+        return $this->createQueryBuilder('t2')
+            ->select('t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,p2.address AS Address,p2.description AS Description,t2.internalnotes AS InternalNotes,s2.allowadminaccess AS AllowAdminAccess, s2.email AS ServicerEmail,s2.timetracking AS TimeTracking, IDENTITY(s2.customerid) AS S_CustomerID')
+            ->leftJoin('t2.propertyid', 'p2')
+            ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 't2.servicerid=s2.servicerid')
+            ->where('t2.taskid=' . $taskID)
+            ->getQuery()
+            ->execute();
+    }
+
+    public function GetTasksForBookingTab($taskID,$servicers)
+    {
+        $result = $this->createQueryBuilder('t2')
+            ->select('IDENTITY(t2.propertybookingid) AS PropertyBookingID')
+            ->addSelect('t2.nextpropertybookingid AS NextPropertyBookingID')
+            ->addSelect('t2.internalnotes AS InternalNotes')
+            ->addSelect('pb2.backtobackstart AS BackToBackStart')
+            ->addSelect('s2.servicerabbreviation AS QuickChangeAbbreviation')
+            ->addSelect('pb2.checkin AS CheckIn')
+            ->addSelect('pb2.checkintime AS CheckInTime')
+            ->addSelect('pb2.checkout AS CheckOut')
+            ->addSelect('pb2.checkouttime AS CheckOutTime')
+            ->addSelect('pb2.checkouttimeminutes AS CheckOutTimeMinutes')
+            ->addSelect('pb2.backtobackend AS BackToBackEnd')
+            ->addSelect('pb2.importbookingid AS ImportBookingID')
+            ->addSelect('pb2.pmsnote AS PMSHousekeepingNote')
+            ->addSelect('pb2.globalnote AS GlobalNote')
+            ->addSelect('pb2.inglobalnote AS InGlobalNote')
+            ->addSelect('pb2.outglobalnote AS OutGlobalNote')
+            ->addSelect('pb2.ownernote AS OwnerNote')
+            ->addSelect('npb2.backtobackstart AS NextBackToBackStart')
+            ->addSelect('npb2.checkin AS NextCheckIn')
+            ->addSelect('npb2.checkintime AS NextCheckInTime')
+            ->addSelect('npb2.checkout AS NextCheckOut')
+            ->addSelect('npb2.checkouttime AS NextCheckOutTime')
+            ->addSelect('npb2.checkouttimeminutes AS NextCheckOutTimeMinutes')
+            ->addSelect('npb2.backtobackend AS NextBackToBackEnd')
+            ->addSelect('npb2.importbookingid AS NextImportBookingID')
+            ->addSelect('npb2.pmsnote AS NextPMSHousekeepingNote')
+            ->addSelect('npb2.globalnote AS NextGlobalNote')
+            ->addSelect('npb2.inglobalnote AS NextInGlobalNote')
+            ->addSelect('npb2.outglobalnote AS NextOutGlobalNote')
+            ->addSelect('npb2.ownernote AS NextOwnerNote')
+        ;
+        // Fetch Guest Details based on conditions
+        if ($servicers[0]['IncludeGuestNumbers']) {
+            $result->addSelect('pb2.numberofguests AS NumberOfGuests,pb2.numberofchildren AS NumberOfChildren,pb2.numberofpets AS NumberOfPets');
+            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
+        }
+
+        if ($servicers[0]['IncludeGuestEmailPhone']) {
+            $result->addSelect('pb2.guestemail AS Email,pb2.guestphone AS Phone');
+            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
+        }
+
+        if ($servicers[0]['IncludeGuestName']) {
+            $result->addSelect('pb2.guest AS Name');
+            $result->addSelect('npb2.guest AS NextName');
+        }
+        $result->leftJoin('t2.propertyid', 'p2')
+            ->leftJoin('t2.propertybookingid', 'pb2')
+            ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 's2.servicerid=t2.servicerid')
+            ->leftJoin('AppBundle:Propertybookings', 'npb2', Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
+            ->andWhere('p2.active=1')
+            ->andWhere('t2.active=1')
+            ->andWhere('t2.taskid='.$taskID);
+        return $result->getQuery()->execute();
+    }
 
 }

@@ -192,6 +192,8 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/authenticate
                 -  /v1/vrs/pwa/tasks
                 -  /v1/vrs/pwa/tabs/log
+                -  /v1/vrs/pwa/tabs/info
+                -  /v1/vrs/pwa/tabs/booking
 
 monolog:
     handlers:

@@ -21,7 +21,7 @@ use FOS\RestBundle\Controller\Annotations\Get;
 class TabsController extends FOSRestController
 {
     /**
-     * Shows Task Details that needs to be shown in the servicers dashboard
+     * Log Info Details
      * @SWG\Tag(name="Tabs")
      * @Get("/tabs/log", name="vrs_pwa_tabs_log")
      * @SWG\Parameter(
@@ -37,7 +37,7 @@ class TabsController extends FOSRestController
      *  )
      * @SWG\Response(
      *     response=200,
-     *     description="Authenticates the servicer and returns a JWT in return.",
+     *     description="Returns Log details.",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="Tasks",
@@ -75,6 +75,96 @@ class TabsController extends FOSRestController
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetLog($content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Info tab details
+     * @SWG\Tag(name="Tabs")
+     * @Get("/tabs/info", name="vrs_pwa_tabs_info")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""TaskID"":1
+    }"
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Show Info tab details",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    /*public function InfoTab(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $content = json_decode(base64_decode($request->get('data')),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $tabsService->GetInfo($servicerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }*/
+
+    /**
+     * Booking tab details
+     * @SWG\Tag(name="Tabs")
+     * @Get("/tabs/booking", name="vrs_pwa_tabs_booking")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""TaskID"":1
+    }"
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Show Booking tab details",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function BookingTab(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $content = json_decode(base64_decode($request->get('data')),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $tabsService->GetBooking($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
