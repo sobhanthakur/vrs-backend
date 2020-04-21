@@ -147,22 +147,22 @@ class ServicersDashboardService extends BaseService
                     }
                 }
 
-                if ( ((int)$servicers[0]['ShowIssueLog'] === 1  || $temp)
+                $log = 0;
+                if ( count($issues) > 0 &&
+                    ((int)$servicers[0]['ShowIssueLog'] === 1  || $temp)
                 ) {
                     $log = 1;
-                } else {
-                    $log = 0;
                 }
 
                 // Check if image tab has to be rendered
-                $image = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
-                if(!empty($image)) {
+                $image = 0;
+                $img = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
+                if(!empty($img)) {
                     $image = 1;
-                } else {
-                    $image = 0;
                 }
 
                 // Check if manage tab has to be rendered
+                $manage = 0;
                 $today = new \DateTime('now',new \DateTimeZone('UTC'));
                 if( !(
                     (int)$servicers[0]['TimeTracking'] === 1 &&
@@ -171,29 +171,46 @@ class ServicersDashboardService extends BaseService
                     ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['StartDate'] <= $today)
                 ) {
                     $manage = 1;
-                } else {
-                    $manage = 0;
                 }
 
                 // Check if info tab has to be rendered
+                $info =0;
                 if (trim($tasks[$i]['PropertyFile'] !== '')
                     || trim($tasks[$i]['TaskDescription'])
                     || trim($tasks[$i]['DoorCode'])
                     || trim($tasks[$i]['Address'])
                 ) {
                     $info = 1;
-                } else {
-                    $info = 0;
                 }
 
                 // Check if Assignments tab has to be rendered or not
+                $assignments = 0;
+                $temp = false;
+                if((int)$tasks[$i]['TaskType'] !== 3 &&
+                    $tasks[$i]['PropertyBookingID'] !== 0 &&
+                    $tasks[$i]['PropertyBookingID'] !== '' &&
+                    (int)$tasks[$i]['S_CustomerID'] === (int)$tasks[$i]['C_CustomerID']
+                ) {
+                    $temp = true;
+                }
                 if (
-                    (int)$servicers[0]['AllowStartEarly'] === 1 ||
-                    $servicers[0]['Email'] === $tasks[$i]['Email']
+                    ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
+                        $servicers[0]['Email'] === $tasks[$i]['Email']) &&
+                    ($temp)
                 ) {
                     $assignments = 1;
-                } else {
-                    $assignments = 0;
+                }
+
+                // Check if Bookings tab has to be rendered or not
+                $bookings = 0;
+                $propertyAccessList = $this->entityManager->getRepository('AppBundle:Servicerstoproperties')->findOneBy(array(
+                    'propertyid' => $tasks[$i]['PropertyID'],
+                    'servicerid' => $servicerID
+                ));
+                if ($propertyAccessList &&
+                    ((int)$tasks[$i]['PropertyBookingID'] !== 0 || (int)$tasks[$i]['NextPropertyBookingID'] !== 0)
+                ) {
+                    $bookings = 1;
                 }
 
                 if ( $manage || $image || $log || $info) {
@@ -202,7 +219,8 @@ class ServicersDashboardService extends BaseService
                         'Info' => $info,
                         'Log' => $log,
                         'Imgs' => $image,
-                        'Assgmnts' => $assignments
+                        'Assgmnts' => $assignments,
+                        'Bkngs' => $bookings
                     );
                 }
                 $response[$i]['Tabs'] = $tabs;
