@@ -108,7 +108,7 @@ class TabsService extends BaseService
                                 $key => $value
                             ));
                             if ($servicers[0]['IncludeGuestNumbers'] || $servicers[0]['IncludeGuestEmailPhone'] || $servicers[0]['IncludeGuestName']) {
-                                if (strpos($key, 'PrevGuest') !== false) {
+                                if (strpos($key, 'NextGuest') !== false) {
                                     $nextGuest = array_merge($nextGuest ? $nextGuest : [],array(
                                         $key => $value
                                     ));
