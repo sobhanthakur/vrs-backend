@@ -80,9 +80,55 @@ class TabsService extends BaseService
     public function GetBooking($servicerID,$content)
     {
         try {
+            $response = [];
+            $previous = [];
+            $next = [];
+            $common = [];
+            $prevGuest = null;
+            $nextGuest = null;
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForBookingTab($content['TaskID'],$servicers);
-            return $tasks;
+            if ($tasks) {
+                foreach ($tasks as $task) {
+                    foreach ($task as $key => $value) {
+                        if (strpos($key, 'Prev') !== false) {
+                            $previous = array_merge($previous, array(
+                                $key => $value
+                            ));
+                            if ($servicers[0]['IncludeGuestNumbers'] || $servicers[0]['IncludeGuestEmailPhone'] || $servicers[0]['IncludeGuestName']) {
+                                if (strpos($key, 'PrevGuest') !== false) {
+                                    $prevGuest = array_merge($prevGuest ? $prevGuest : [],array(
+                                        $key => $value
+                                    ));
+                                }
+
+                            }
+                        } elseif (strpos($key, 'Next') !== false) {
+                            $next = array_merge($next, array(
+                                $key => $value
+                            ));
+                            if ($servicers[0]['IncludeGuestNumbers'] || $servicers[0]['IncludeGuestEmailPhone'] || $servicers[0]['IncludeGuestName']) {
+                                if (strpos($key, 'PrevGuest') !== false) {
+                                    $nextGuest = array_merge($nextGuest ? $nextGuest : [],array(
+                                        $key => $value
+                                    ));
+                                }
+
+                            }
+                        } else {
+                            $common = array_merge($common, array(
+                                $key => $value
+                            ));
+                        }
+                    }
+                }
+            }
+            $response['Previous'] = $previous;
+            $response['Previous']['GuestDetails'] = $prevGuest;
+            $response['Next'] = $next;
+            $response['Next']['GuestDetails'] = $nextGuest;
+            $response['Common'] = $common;
+            return $response;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

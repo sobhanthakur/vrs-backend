@@ -463,23 +463,23 @@ class TasksRepository extends EntityRepository
     public function GetTasksForBookingTab($taskID,$servicers)
     {
         $result = $this->createQueryBuilder('t2')
-            ->select('IDENTITY(t2.propertybookingid) AS PropertyBookingID')
+            ->select('IDENTITY(t2.propertybookingid) AS PrevPropertyBookingID')
             ->addSelect('t2.nextpropertybookingid AS NextPropertyBookingID')
             ->addSelect('t2.internalnotes AS InternalNotes')
-            ->addSelect('pb2.backtobackstart AS BackToBackStart')
             ->addSelect('s2.servicerabbreviation AS QuickChangeAbbreviation')
-            ->addSelect('pb2.checkin AS CheckIn')
-            ->addSelect('pb2.checkintime AS CheckInTime')
-            ->addSelect('pb2.checkout AS CheckOut')
-            ->addSelect('pb2.checkouttime AS CheckOutTime')
-            ->addSelect('pb2.checkouttimeminutes AS CheckOutTimeMinutes')
-            ->addSelect('pb2.backtobackend AS BackToBackEnd')
-            ->addSelect('pb2.importbookingid AS ImportBookingID')
-            ->addSelect('pb2.pmsnote AS PMSHousekeepingNote')
-            ->addSelect('pb2.globalnote AS GlobalNote')
-            ->addSelect('pb2.inglobalnote AS InGlobalNote')
-            ->addSelect('pb2.outglobalnote AS OutGlobalNote')
-            ->addSelect('pb2.ownernote AS OwnerNote')
+            ->addSelect('pb2.backtobackstart AS PrevBackToBackStart')
+            ->addSelect('pb2.checkin AS PrevCheckIn')
+            ->addSelect('pb2.checkintime AS PrevCheckInTime')
+            ->addSelect('pb2.checkout AS PrevCheckOut')
+            ->addSelect('pb2.checkouttime AS PrevCheckOutTime')
+            ->addSelect('pb2.checkouttimeminutes AS PrevCheckOutTimeMinutes')
+            ->addSelect('pb2.backtobackend AS PrevBackToBackEnd')
+            ->addSelect('pb2.importbookingid AS PrevImportBookingID')
+            ->addSelect('pb2.pmsnote AS PrevPMSHousekeepingNote')
+            ->addSelect('pb2.globalnote AS PrevGlobalNote')
+            ->addSelect('pb2.inglobalnote AS PrevInGlobalNote')
+            ->addSelect('pb2.outglobalnote AS PrevOutGlobalNote')
+            ->addSelect('pb2.ownernote AS PrevOwnerNote')
             ->addSelect('npb2.backtobackstart AS NextBackToBackStart')
             ->addSelect('npb2.checkin AS NextCheckIn')
             ->addSelect('npb2.checkintime AS NextCheckInTime')
@@ -496,18 +496,18 @@ class TasksRepository extends EntityRepository
         ;
         // Fetch Guest Details based on conditions
         if ($servicers[0]['IncludeGuestNumbers']) {
-            $result->addSelect('pb2.numberofguests AS NumberOfGuests,pb2.numberofchildren AS NumberOfChildren,pb2.numberofpets AS NumberOfPets');
-            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
+            $result->addSelect('pb2.numberofguests AS PrevGuestCount,pb2.numberofchildren AS PrevGuestChildren,pb2.numberofpets AS PrevGuestPets');
+            $result->addSelect('npb2.numberofguests AS NextGuestCount,npb2.numberofchildren AS NextGuestChildren,npb2.numberofpets AS NextGuestPets');
         }
 
         if ($servicers[0]['IncludeGuestEmailPhone']) {
-            $result->addSelect('pb2.guestemail AS Email,pb2.guestphone AS Phone');
-            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
+            $result->addSelect('pb2.guestemail AS PrevGuestEmail,pb2.guestphone AS PrevGuestPhone');
+            $result->addSelect('npb2.guestemail AS NextGuestEmail,npb2.guestphone AS NextGuestPhone');
         }
 
         if ($servicers[0]['IncludeGuestName']) {
-            $result->addSelect('pb2.guest AS Name');
-            $result->addSelect('npb2.guest AS NextName');
+            $result->addSelect('pb2.guest AS PrevGuestName');
+            $result->addSelect('npb2.guest AS NextGuestName');
         }
         $result->leftJoin('t2.propertyid', 'p2')
             ->leftJoin('t2.propertybookingid', 'pb2')
