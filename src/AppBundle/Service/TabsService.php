@@ -52,30 +52,53 @@ class TabsService extends BaseService
      * @param $content
      * @return array
      */
-//    public function GetInfo($servicerID, $content)
-//    {
-//        try {
-//            $taskID = $content['TaskID'];
-//            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID);
-////            $query = 'SELECT ChecklistName,ChecklistItemID,ChecklistItem,Description,Options,Required,Image,ChecklistTypeID,ColumnCount,ShowDescription FROM vServicesChecklistItems WHERE ServiceID = '.$tasks[0]['ServiceID'];
-////            $query .= ' UNION ';
-////            $query .= 'SELECT ChecklistName,ChecklistItemID,ChecklistItem,Description,Options,Required,Image,ChecklistTypeID,ColumnCount ,ShowDescription FROM vServicesToPropertiesChecklistItems WHERE ServiceID = '.$tasks[0]['ServiceID'].' AND PropertyID=171';
-//
-//
-////            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
-//            $checkListItems = $this->entityManager->getRepository('AppBundle:Checklistitems')->CheckListItemsForInfo($tasks[0]['PropertyID'],$tasks[0]['ServiceID']);
-////            $checkListItems = $this->entityManager->getConnection()->prepare(CheckLists::AllChecklistItems);
-////            $checkListItems->execute();
-////            $checkListItems = $checkListItems->fetchAll();
-//            print_r($checkListItems);die();
-//        } catch (HttpException $exception) {
-//            throw $exception;
-//        } catch (\Exception $exception) {
-//            $this->logger->error('Failed to fetch Info Details' .
-//                $exception->getMessage());
-//            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
-//        }
-//    }
+    public function GetInfo($servicerID, $content)
+    {
+        try {
+            $checkListItems = [];
+            $taskID = $content['TaskID'];
+            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+            $today = new \DateTime('now',new \DateTimeZone('UTC'));
+            if( $tasks[0]['TaskStartDate'] >= $today ||
+                ((int)$servicers[0]['TimeTracking'] === 1 &&
+                    (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== $tasks[0]['TaskID'])
+
+                )
+            ) {
+                // Fetch Checklist Items
+                $checkListItems = 'SELECT * FROM (';
+                $checkListItems .= 'SELECT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL';
+                $checkListItems .= ' UNION ';
+                $checkListItems .= 'SELECT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'];
+                $checkListItems .= ') AS t order by t.SortOrder';
+
+                $checkListItems = $this->entityManager->getConnection()->prepare($checkListItems);
+                $checkListItems->execute();
+                $checkListItems = $checkListItems->fetchAll();
+            }
+
+            // unset tasks fields that are not required
+            if(!empty($tasks)) {
+                unset($tasks[0]['TaskStartDate']);
+                unset($tasks[0]['ServiceID']);
+                unset($tasks[0]['PropertyID']);
+                unset($tasks[0]['Servicers_CustomerID']);
+                unset($tasks[0]['TimeTracking']);
+            }
+        return array(
+            'TaskDetails' => $tasks[0],
+            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : null
+        );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed to fetch Info Details' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 
     public function GetBooking($servicerID,$content)
     {

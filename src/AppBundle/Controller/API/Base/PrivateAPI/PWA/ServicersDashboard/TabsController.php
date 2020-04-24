@@ -111,7 +111,7 @@ class TabsController extends FOSRestController
      * @return array
      * @param Request $request
      */
-    /*public function InfoTab(Request $request)
+    public function InfoTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
@@ -132,7 +132,7 @@ class TabsController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-    }*/
+    }
 
     /**
      * Booking tab details
