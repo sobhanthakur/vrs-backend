@@ -82,6 +82,7 @@ final class ApiRoutes
         "vrs_pwa_starttask",
         "vrs_pwa_tabs_log",
         "vrs_pwa_tabs_info",
-        "vrs_pwa_tabs_booking"
+        "vrs_pwa_tabs_booking",
+        "vrs_pwa_tabs_images"
     );
 }

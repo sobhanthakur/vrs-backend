@@ -106,6 +106,7 @@ class ServicersDashboardService extends BaseService
                     ),
                     'ServiceName' => $tasks[$i]['ServiceName'],
                     'PropertyID' => $tasks[$i]['PropertyID'],
+                    'ServiceID' => $tasks[$i]['ServiceID'],
                     'PropertyName' => $tasks[$i]['PropertyName']
                 );
 

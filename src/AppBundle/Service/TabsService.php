@@ -106,7 +106,12 @@ class TabsService extends BaseService
         }
     }
 
-    public function GetBooking($servicerID,$content)
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function GetBooking($servicerID, $content)
     {
         try {
             $response = [];
@@ -162,6 +167,29 @@ class TabsService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Failed to fetch Info Details' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function GetImages($content)
+    {
+        try {
+            $propertyID = $content['PropertyID'];
+            $serviceID = $content['ServiceID'];
+
+            $images = $this->entityManager->getRepository('AppBundle:Images')->GetImagesForImageTab($propertyID,$serviceID);
+            return array(
+                'Images' => $images
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed to fetch Log Details' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
