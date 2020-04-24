@@ -67,16 +67,21 @@ class TabsService extends BaseService
 
                 )
             ) {
-                // Fetch Checklist Items
-                $checkListItems = 'SELECT * FROM (';
-                $checkListItems .= 'SELECT Distinct SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL';
-                $checkListItems .= ' UNION ';
-                $checkListItems .= 'SELECT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'];
-                $checkListItems .= ') AS t order by t.SortOrder';
+                // Sub CheckLists
+                $subCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
+                $subCheckListItems->execute();
+                $subCheckListItems = $subCheckListItems->fetchAll();
+                if(!empty($subCheckListItems)) {
+                    $checkListItems = $subCheckListItems;
+                } else {
+                    // Master CheckLists
+                    $masterCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                    $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
+                    $masterCheckListItems->execute();
+                    $checkListItems = $masterCheckListItems->fetchAll();
+                }
 
-                $checkListItems = $this->entityManager->getConnection()->prepare($checkListItems);
-                $checkListItems->execute();
-                $checkListItems = $checkListItems->fetchAll();
             }
 
             // unset tasks fields that are not required
@@ -86,6 +91,7 @@ class TabsService extends BaseService
                 unset($tasks[0]['PropertyID']);
                 unset($tasks[0]['Servicers_CustomerID']);
                 unset($tasks[0]['TimeTracking']);
+                $tasks[0]['AllowAdminAccess'] = $servicers[0]['AllowAdminAccess'] ? 1 : 0;
             }
         return array(
             'TaskDetails' => $tasks[0],
