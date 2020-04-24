@@ -69,7 +69,7 @@ class TabsService extends BaseService
             ) {
                 // Fetch Checklist Items
                 $checkListItems = 'SELECT * FROM (';
-                $checkListItems .= 'SELECT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL';
+                $checkListItems .= 'SELECT Distinct SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL';
                 $checkListItems .= ' UNION ';
                 $checkListItems .= 'SELECT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'];
                 $checkListItems .= ') AS t order by t.SortOrder';
