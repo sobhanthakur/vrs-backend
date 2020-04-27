@@ -224,4 +224,49 @@ class TabsController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Assignments tab details
+     * @SWG\Tag(name="Tabs")
+     * @Get("/tabs/assignments", name="vrs_pwa_tabs_assignments")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""PropertyBookingID"":1
+    }"
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Show Assignments tab details",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function AssignmentsTab(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $content = json_decode(base64_decode($request->get('data')),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $tabsService->GetAssignments($content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

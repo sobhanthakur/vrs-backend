@@ -461,7 +461,12 @@ class TasksRepository extends EntityRepository
             ->execute();
     }
 
-    public function GetTasksForBookingTab($taskID,$servicers)
+    /**
+     * @param $taskID
+     * @param $servicers
+     * @return mixed
+     */
+    public function GetTasksForBookingTab($taskID, $servicers)
     {
         $result = $this->createQueryBuilder('t2')
             ->select('IDENTITY(t2.propertybookingid) AS PrevPropertyBookingID')
@@ -521,6 +526,35 @@ class TasksRepository extends EntityRepository
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
             ->andWhere('t2.taskid='.$taskID);
+        return $result->getQuery()->execute();
+    }
+
+    /**
+     * @param $propertyBookingID
+     * @param null $limit
+     * @return mixed
+     */
+    public function GetTasksForAssignmentsTab($propertyBookingID, $limit=null)
+    {
+        $result = $this->createQueryBuilder('t')
+            ->select('s2.email AS ServicersEmail,s2.name AS ServicersName,s.abbreviation AS Abbreviation,s.servicename AS ServiceName,IDENTITY(ts.servicerid) AS ServicerID,t.completeconfirmeddate AS CompleteConfirmedDate,ts.islead AS IsLead,t.taskid AS TaskID,t.taskdate AS TaskDate')
+            ->leftJoin('t.propertybookingid', 'pb')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 't.taskid = ts.taskid')
+            ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 's2.servicerid=ts.servicerid')
+            ->leftJoin('AppBundle:Services', 's', Expr\Join::WITH, 't.serviceid = s.serviceid')
+            ->where('t.propertybookingid=' . $propertyBookingID)
+            ->andWhere('t.tasktype <> 3')
+            ->andWhere('t.propertybookingid IS NOT NULL OR t.propertybookingid <> 0')
+            ->andWhere('t.active=1');
+
+        if($limit) {
+            $result->setMaxResults($limit);
+        } else {
+            $result->setMaxResults(500);
+        }
+
+        $result->orderBy('t.taskdate');
+
         return $result->getQuery()->execute();
     }
 

@@ -194,4 +194,26 @@ class TabsService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function GetAssignments($content)
+    {
+        try {
+            $propertyBookingID = $content['PropertyBookingID'];
+
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForAssignmentsTab($propertyBookingID);
+            return array(
+                'Assignments' => $tasks
+            );
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed to fetch Log Details' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

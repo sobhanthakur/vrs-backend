@@ -100,6 +100,7 @@ class ServicersDashboardService extends BaseService
                     'Region' => $tasks[$i]['Region'],
                     'RegionColor' => $tasks[$i]['RegionColor'],
                     'TaskDescription' => $tasks[$i]['TaskDescription'],
+                    'PropertyBookingID' => $tasks[$i]['PropertyBookingID'],
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],
                         'Lon' => $tasks[$i]['Lat']
@@ -186,18 +187,12 @@ class ServicersDashboardService extends BaseService
 
                 // Check if Assignments tab has to be rendered or not
                 $assignments = 0;
-                $temp = false;
-                if((int)$tasks[$i]['TaskType'] !== 3 &&
-                    $tasks[$i]['PropertyBookingID'] !== 0 &&
-                    $tasks[$i]['PropertyBookingID'] !== '' &&
-                    (int)$tasks[$i]['S_CustomerID'] === (int)$tasks[$i]['C_CustomerID']
-                ) {
-                    $temp = true;
-                }
+                $temp = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForAssignmentsTab($tasks[$i]['PropertyBookingID'],1);
+
                 if (
                     ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
                         $servicers[0]['Email'] === $tasks[$i]['Email']) &&
-                    ($temp)
+                    (!empty($temp))
                 ) {
                     $assignments = 1;
                 }
