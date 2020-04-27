@@ -39,7 +39,7 @@ class ImagesRepository extends EntityRepository
     public function GetImagesForImageTab($propertyID, $serviceID)
     {
         return $this->createQueryBuilder('i')
-            ->select('i.imagetitle AS ImageTitile,i.image AS Image,i.imagedescription AS ImageDescription')
+            ->select('i.imagetitle AS ImageTitle,i.image AS Image,i.imagedescription AS ImageDescription')
             ->where('i.propertyid='.$propertyID)
             ->andWhere('i.serviceids like :LikeServiceID OR i.serviceids= :Blank OR i.serviceids IS NULL')
             ->setParameter('LikeServiceID','%'.$serviceID.'%')
