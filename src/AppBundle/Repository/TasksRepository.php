@@ -399,7 +399,7 @@ class TasksRepository extends EntityRepository
             ->createQueryBuilder('t2');
 
         // Fetch Basic task details
-        $result->select('t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,ts.islead AS IsLead,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+        $result->select('t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
             // Task Description Details
             ->addSelect('pb2.globalnote AS GlobalNote,pb2.inglobalnote AS InGlobalNote, serviceid.tasktype AS TaskType, pb2.outglobalnote AS OutGlobalNote, ts.instructions AS Instructions, serviceid.showalltagsondashboards AS ShowAllTagsOnDashboards, pb2.bookingtags AS BookingTags, pb2.manualbookingtags AS ManualBookingTags,npb2.bookingtags AS NextBookingTags,npb2.manualbookingtags AS NextManualBookingTags,serviceid.showpmshousekeepingnoteondashboard AS ShowPMSHousekeepingNoteOnDashboards, pb2.pmshousekeepingnote AS PMSHousekeepingNote')
             ->leftJoin('t2.propertyid','p2')
@@ -539,7 +539,7 @@ class TasksRepository extends EntityRepository
     public function GetTasksForAssignmentsTab($propertyBookingID, $limit=null)
     {
         $result = $this->createQueryBuilder('t')
-            ->select('s2.email AS ServicersEmail,s2.name AS ServicersName,s.abbreviation AS Abbreviation,s.servicename AS ServiceName,IDENTITY(ts.servicerid) AS ServicerID,t.completeconfirmeddate AS CompleteConfirmedDate,ts.islead AS IsLead,t.taskid AS TaskID,t.taskdate AS TaskDate')
+            ->select('s2.email AS ServicersEmail,s2.name AS ServicersName,s.abbreviation AS Abbreviation,s.servicename AS ServiceName,IDENTITY(ts.servicerid) AS ServicerID,t.completeconfirmeddate AS CompleteConfirmedDate,t.taskid AS TaskID,t.taskdate AS TaskDate')
             ->leftJoin('t.propertybookingid', 'pb')
             ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 't.taskid = ts.taskid')
             ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 's2.servicerid=ts.servicerid')
@@ -560,4 +560,29 @@ class TasksRepository extends EntityRepository
         return $result->getQuery()->execute();
     }
 
+    public function GetTeamByTask($taskID)
+    {
+        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        return $this->createQueryBuilder('t2')
+            ->select('(CASE WHEN ts.islead=1 THEN 1 ELSE 0 END) AS IsLead,s2.name AS Name')
+            ->leftJoin('t2.propertyid','p2')
+            ->leftJoin('p2.customerid','c2')
+            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
+            ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
+            ->leftJoin('t2.propertyid','propertyid')
+            ->leftJoin('AppBundle:Services', 'serviceid', Expr\Join::WITH, 't2.serviceid=serviceid.serviceid')
+            ->andWhere('p2.active=1')
+            ->andWhere('t2.active=1')
+            ->andWhere('serviceid.active=1 OR serviceid.active IS NULL')
+            ->andWhere('t2.completeconfirmeddate IS NULL')
+            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
+            ->andWhere("t2.taskdate <= :Today")
+            ->andWhere('t2.taskid='.$taskID)
+            ->setParameter('Today',$today)
+            ->addOrderBy('t2.taskid','ASC')
+            ->distinct(true)
+            ->orderBy('s2.name','ASC')
+            ->getQuery()
+            ->execute();
+    }
 }

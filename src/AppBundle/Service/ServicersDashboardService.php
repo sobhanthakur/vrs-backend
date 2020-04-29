@@ -31,14 +31,7 @@ class ServicersDashboardService extends BaseService
                 $startTask = 0;
                 $pauseTask = 0;
                 $window = null;
-                $isLead = 0;
                 $tabs = null;
-
-                // Check is servicer Is Lead
-                if($tasks[$i]['IsLead']) {
-                    $isLead = 1;
-                }
-                $response[$i]['IsLead'] = $isLead;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -237,6 +230,10 @@ class ServicersDashboardService extends BaseService
                 // Scheduling Notes
                 $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i]['AssignedDate']);
                 $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
+
+                // Team for Each Task
+                $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID']);
+                $response[$i]['Team'] = !empty($team) ? $team : null;
             }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
