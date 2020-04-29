@@ -31,6 +31,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->where('n.servicerid='.$servicerID)
             ->andWhere('n.startdate= :Today')
             ->setParameter('Today',$today)
+            ->setMaxResults(1)
             ->getQuery()
             ->execute();
     }

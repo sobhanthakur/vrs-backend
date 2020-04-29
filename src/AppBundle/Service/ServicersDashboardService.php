@@ -223,7 +223,7 @@ class ServicersDashboardService extends BaseService
 
                 // Scheduling Notes
                 $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i]['AssignedDate']);
-                $response[$i]['Notes'] = $schedulingCalenderNotes;
+                $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
             }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
