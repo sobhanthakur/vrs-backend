@@ -21,6 +21,7 @@ class ServicersDashboardService extends BaseService
             $response = [];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             for ($i=0; $i<count($tasks); $i++) {
                 // Initialize local variables
@@ -46,7 +47,6 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Expand'] = $expand;
 
                 // Show or hide Start Task
-                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
                 if(!$acceptDecline
                     && (int)$servicers[0]['TimeTracking'] === 1
                     && (empty($timeClockTasks) || ($timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID']))
