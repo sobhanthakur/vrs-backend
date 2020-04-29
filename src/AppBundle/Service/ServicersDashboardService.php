@@ -220,6 +220,10 @@ class ServicersDashboardService extends BaseService
                     );
                 }
                 $response[$i]['Tabs'] = $tabs;
+
+                // Scheduling Notes
+                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$today);
+                $response[$i]['Notes'] = $schedulingCalenderNotes;
             }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
