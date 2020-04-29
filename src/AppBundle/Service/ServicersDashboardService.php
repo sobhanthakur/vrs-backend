@@ -93,13 +93,26 @@ class ServicersDashboardService extends BaseService
                     'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes']
                 );
 
+                $response[$i]['Description'] = array(
+                    'TaskDescription' => $tasks[$i]['TaskDescription'],
+                    'GlobalNote' => $tasks[$i]['GlobalNote'],
+                    'TaskType' => $tasks[$i]['TaskType'],
+                    'OutGlobalNote' => $tasks[$i]['OutGlobalNote'],
+                    'ShowAllTagsOnDashboards' => $tasks[$i]['ShowAllTagsOnDashboards'],
+                    'BookingTags' => $tasks[$i]['BookingTags'],
+                    'ManualBookingTags' => $tasks[$i]['ManualBookingTags'],
+                    'NextBookingTags' => $tasks[$i]['NextBookingTags'],
+                    'NextManualBookingTags' => $tasks[$i]['NextManualBookingTags'],
+                    'ShowPMSHousekeepingNoteOnDashboards' => $tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
+                    'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote']
+                );
+
                 // Task Details
                 $response[$i]['Details'] = array(
                     'TaskID' => $tasks[$i]['TaskID'],
                     'TaskName' => $tasks[$i]['TaskName'],
                     'Region' => $tasks[$i]['Region'],
                     'RegionColor' => $tasks[$i]['RegionColor'],
-                    'TaskDescription' => $tasks[$i]['TaskDescription'],
                     'PropertyBookingID' => $tasks[$i]['PropertyBookingID'],
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],

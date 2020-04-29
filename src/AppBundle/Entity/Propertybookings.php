@@ -250,6 +250,13 @@ class Propertybookings
     /**
      * @var string|null
      *
+     * @ORM\Column(name="PMSHousekeepingNote", type="string", length=2000, nullable=true)
+     */
+    private $pmshousekeepingnote;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="InGlobalNote", type="string", length=2000, nullable=true)
      */
     private $inglobalnote;
@@ -1481,4 +1488,28 @@ class Propertybookings
         $this->updatedate = new \DateTime();
     }
 
+
+    /**
+     * Set pmshousekeepingnote.
+     *
+     * @param string|null $pmshousekeepingnote
+     *
+     * @return Propertybookings
+     */
+    public function setPmshousekeepingnote($pmshousekeepingnote = null)
+    {
+        $this->pmshousekeepingnote = $pmshousekeepingnote;
+
+        return $this;
+    }
+
+    /**
+     * Get pmshousekeepingnote.
+     *
+     * @return string|null
+     */
+    public function getPmshousekeepingnote()
+    {
+        return $this->pmshousekeepingnote;
+    }
 }
