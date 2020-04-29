@@ -29,8 +29,8 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->addSelect('n.longdescription AS LongDescription')
             ->addSelect('n.shortnote AS Shortnote')
             ->where('n.servicerid='.$servicerID)
-            ->andWhere('n.createdate= :Today')
-            ->setParameter('Today',$today->format('Y-m-d'))
+            ->andWhere('n.startdate= :Today')
+            ->setParameter('Today',$today)
             ->getQuery()
             ->execute();
     }

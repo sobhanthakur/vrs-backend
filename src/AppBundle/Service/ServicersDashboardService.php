@@ -222,7 +222,7 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Tabs'] = $tabs;
 
                 // Scheduling Notes
-                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$today);
+                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i]['AssignedDate']);
                 $response[$i]['Notes'] = $schedulingCalenderNotes;
             }
             return array('Tasks' => $response);
