@@ -475,6 +475,8 @@ class TasksRepository extends EntityRepository
             ->addSelect('t2.nextpropertybookingid AS NextPropertyBookingID')
             ->addSelect('t2.internalnotes AS InternalNotes')
             ->addSelect('s2.servicerabbreviation AS QuickChangeAbbreviation')
+            ->addSelect('c2.linenfields AS LinenFields')
+            ->addSelect('pb2.linencounts AS PrevLinenCounts')
             ->addSelect('pb2.backtobackstart AS PrevBackToBackStart')
             ->addSelect('pb2.checkin AS PrevCheckIn')
             ->addSelect('pb2.checkintime AS PrevCheckInTime')
@@ -490,6 +492,7 @@ class TasksRepository extends EntityRepository
             ->addSelect('pb2.outglobalnote AS PrevOutGlobalNote')
             ->addSelect('pb2.ownernote AS PrevOwnerNote')
             ->addSelect('pb2.isowner AS PrevIsOwner')
+            ->addSelect('npb2.linencounts AS NextLinenCounts')
             ->addSelect('npb2.isowner AS NextIsOwner')
             ->addSelect('npb2.backtobackstart AS NextBackToBackStart')
             ->addSelect('npb2.checkin AS NextCheckIn')
@@ -522,6 +525,7 @@ class TasksRepository extends EntityRepository
             $result->addSelect('npb2.guest AS NextGuestName');
         }
         $result->leftJoin('t2.propertyid', 'p2')
+            ->leftJoin('p2.customerid','c2')
             ->leftJoin('t2.propertybookingid', 'pb2')
             ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 's2.servicerid=t2.servicerid')
             ->leftJoin('AppBundle:Propertybookings', 'npb2', Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')

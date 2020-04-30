@@ -250,6 +250,20 @@ class Propertybookings
     /**
      * @var string|null
      *
+     * @ORM\Column(name="LinenCounts", type="string", length=2000, nullable=true)
+     */
+    private $linencounts;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="NextLinenCounts", type="string", length=2000, nullable=true)
+     */
+    private $nextlinencounts;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="PMSHousekeepingNote", type="string", length=2000, nullable=true)
      */
     private $pmshousekeepingnote;
@@ -1511,5 +1525,29 @@ class Propertybookings
     public function getPmshousekeepingnote()
     {
         return $this->pmshousekeepingnote;
+    }
+
+    /**
+     * Set linencounts.
+     *
+     * @param string|null $linencounts
+     *
+     * @return Propertybookings
+     */
+    public function setLinencounts($linencounts = null)
+    {
+        $this->linencounts = $linencounts;
+
+        return $this;
+    }
+
+    /**
+     * Get linencounts.
+     *
+     * @return string|null
+     */
+    public function getLinencounts()
+    {
+        return $this->linencounts;
     }
 }
