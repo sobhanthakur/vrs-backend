@@ -97,7 +97,9 @@ class ServicersDashboardService extends BaseService
                     'NextBookingTags' => $tasks[$i]['NextBookingTags'],
                     'NextManualBookingTags' => $tasks[$i]['NextManualBookingTags'],
                     'ShowPMSHousekeepingNoteOnDashboards' => $tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
-                    'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote']
+                    'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote'],
+                    'InGlobalNote' => $tasks[$i]['InGlobalNote'],
+                    'Instructions' => $tasks[$i]['Instructions']
                 );
 
                 // Task Details
