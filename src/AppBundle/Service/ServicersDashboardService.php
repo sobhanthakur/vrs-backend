@@ -24,7 +24,9 @@ class ServicersDashboardService extends BaseService
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             for ($i=0; $i<count($tasks); $i++) {
-                // Initialize local variables
+//            for ($i=0; $i<2; $i++) {
+
+                    // Initialize local variables
                 $taskEstimates = null;
                 $guestDetails = null;
                 $acceptDecline = 0;
@@ -33,6 +35,7 @@ class ServicersDashboardService extends BaseService
                 $pauseTask = 0;
                 $window = null;
                 $tabs = null;
+                $description = null;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -86,21 +89,35 @@ class ServicersDashboardService extends BaseService
                     'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes']
                 );
 
-                $response[$i]['Description'] = array(
-                    'TaskDescription' => $tasks[$i]['TaskDescription'],
-                    'GlobalNote' => $tasks[$i]['GlobalNote'],
-                    'TaskType' => $tasks[$i]['TaskType'],
-                    'OutGlobalNote' => $tasks[$i]['OutGlobalNote'],
-                    'ShowAllTagsOnDashboards' => $tasks[$i]['ShowAllTagsOnDashboards'],
-                    'BookingTags' => $tasks[$i]['BookingTags'],
-                    'ManualBookingTags' => $tasks[$i]['ManualBookingTags'],
-                    'NextBookingTags' => $tasks[$i]['NextBookingTags'],
-                    'NextManualBookingTags' => $tasks[$i]['NextManualBookingTags'],
-                    'ShowPMSHousekeepingNoteOnDashboards' => $tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
-                    'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote'],
-                    'InGlobalNote' => $tasks[$i]['InGlobalNote'],
-                    'Instructions' => $tasks[$i]['Instructions']
-                );
+                if (
+                    ($tasks[$i]['TaskDescription'] !== null ? $tasks[$i]['TaskDescription'] !== '' : null) ||
+                    ($tasks[$i]['GlobalNote'] !== null ? $tasks[$i]['GlobalNote'] !== '' : null) ||
+                    ($tasks[$i]['Instructions'] !== null ? $tasks[$i]['Instructions'] !== '' : null) ||
+                    ($tasks[$i]['InGlobalNote'] !== null ? $tasks[$i]['InGlobalNote'] !== '' : null) ||
+                    ($tasks[$i]['OutGlobalNote'] !== null ? $tasks[$i]['OutGlobalNote'] !== '' : null) ||
+                    ($tasks[$i]['BookingTags'] !== null ? $tasks[$i]['BookingTags'] !== '' : null) ||
+                    ($tasks[$i]['ManualBookingTags'] !== null ? $tasks[$i]['ManualBookingTags'] !== '' : null) ||
+                    ($tasks[$i]['NextBookingTags'] !== null ? $tasks[$i]['NextBookingTags'] !== '' : null) ||
+                    ($tasks[$i]['NextManualBookingTags'] !== null ? $tasks[$i]['NextManualBookingTags'] !== '' : null) ||
+                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null)
+                ) {
+                    $description = array(
+                        'TaskDescription' => $tasks[$i]['TaskDescription'],
+                        'GlobalNote' => $tasks[$i]['GlobalNote'],
+                        'TaskType' => $tasks[$i]['TaskType'],
+                        'OutGlobalNote' => $tasks[$i]['OutGlobalNote'],
+                        'ShowAllTagsOnDashboards' => $tasks[$i]['ShowAllTagsOnDashboards'],
+                        'BookingTags' => $tasks[$i]['BookingTags'],
+                        'ManualBookingTags' => $tasks[$i]['ManualBookingTags'],
+                        'NextBookingTags' => $tasks[$i]['NextBookingTags'],
+                        'NextManualBookingTags' => $tasks[$i]['NextManualBookingTags'],
+                        'ShowPMSHousekeepingNoteOnDashboards' => $tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
+                        'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote'],
+                        'InGlobalNote' => $tasks[$i]['InGlobalNote'],
+                        'Instructions' => $tasks[$i]['Instructions']
+                    );
+                }
+                $response[$i]['Description'] = $description;
 
                 // Task Details
                 $response[$i]['Details'] = array(
