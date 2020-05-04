@@ -154,7 +154,8 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $timeActivity = array_merge($timeActivity,array(
                             "CustomerRef" => [
                                 "Value" => $timeclock['CustomerValue']
-                            ]
+                            ],
+                            "BillableStatus" => "Billable"
                         ));
                     }
 
