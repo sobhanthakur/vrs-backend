@@ -9,10 +9,15 @@
 namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\DatabaseViews\TimeClockTasks;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 
+/**
+ * Class TimeClockTasksRepository
+ * @package AppBundle\Repository
+ */
 class TimeClockTasksRepository extends EntityRepository
 {
     /**
@@ -253,23 +258,20 @@ class TimeClockTasksRepository extends EntityRepository
 
     }
 
+    /**
+     * @param $servicerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
     public function CheckOtherStartedTasks($servicerID)
     {
         $timeZoneUTC = new \DateTimeZone('UTC');
         $today = (new \DateTime('now', $timeZoneUTC))->format('Y-m-d');
         $tomorrow = (new \DateTime('tomorrow', $timeZoneUTC))->format('Y-m-d');
-        $result = $this
-            ->createQueryBuilder('tct')
-            ->select('IDENTITY(tct.taskid) AS TaskID')
-            ->where('tct.servicerid = :ServicerID')
-            ->andWhere('tct.clockin >= '.$today)
-            ->andWhere('tct.clockin <= '.$tomorrow)
-            ->andWhere('tct.clockout IS NULL')
-            ->setParameter('ServicerID',$servicerID);
+        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockIn >= '".$today."' AND tct.ClockIn <= '".$tomorrow."' AND tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID);
 
-        return $result->setMaxResults(1)
-        ->getQuery()
-        ->execute();
+        $result->execute();
+        return $result->fetchAll();
     }
 
     /**

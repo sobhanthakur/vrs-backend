@@ -22,6 +22,7 @@ class ServicersDashboardService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+            $today = new \DateTime('now',new \DateTimeZone('UTC')); // Set Current Date
 
             for ($i=0; $i<count($tasks); $i++) {
 //            for ($i=0; $i<2; $i++) {
@@ -48,23 +49,21 @@ class ServicersDashboardService extends BaseService
                     $expand = 1;
                 }
                 $response[$i]['Expand'] = $expand;
-
+                
                 // Show or hide Start Task
-                if(!$acceptDecline
-                    && (int)$servicers[0]['TimeTracking'] === 1
-                    && (empty($timeClockTasks) || ($timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID']))
+                if ( ((int)$servicers[0]['TimeTracking'] === 1) &&
+                     ((int)$servicers[0]['AllowStartEarly']) &&
+                     (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== '')))
                 ) {
-                    $startTask = 1;
-                }
-                $response[$i]['StartTask'] = $startTask;
+                    if (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID']) {
+                        $startTask = 1;
+                    } else {
+                        $pauseTask = 1;
+                    }
 
-                // Show or hide Pause Task
-                if(!$acceptDecline
-                    && (int)$servicers[0]['TimeTracking'] === 1
-                    && (!empty($timeClockTasks) ? ($timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID']) : null)
-                ) {
-                    $pauseTask = 1;
                 }
+
+                $response[$i]['StartTask'] = $startTask;
                 $response[$i]['PauseTask'] = $pauseTask;
 
                 // Task Estimates Response
@@ -190,7 +189,7 @@ class ServicersDashboardService extends BaseService
 
                 // Check if manage tab has to be rendered
                 $manage = 0;
-                $today = new \DateTime('now',new \DateTimeZone('UTC'));
+
                 if( !(
                     (int)$servicers[0]['TimeTracking'] === 1 &&
                     (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID'])) &&
