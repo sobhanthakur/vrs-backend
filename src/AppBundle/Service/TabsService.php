@@ -166,7 +166,7 @@ class TabsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed to fetch Info Details' .
+            $this->logger->error('Failed to fetch Booking Details' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -189,7 +189,7 @@ class TabsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed to fetch Log Details' .
+            $this->logger->error('Failed to fetch Images Details' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -211,7 +211,7 @@ class TabsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed to fetch Log Details' .
+            $this->logger->error('Failed to fetch Assignment Details' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
