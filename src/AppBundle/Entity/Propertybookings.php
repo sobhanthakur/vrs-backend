@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\CustomClasses\DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -9,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="PropertyBookings", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="checkin", columns={"CheckIn"}), @ORM\Index(name="checkintime", columns={"CheckInTime"}), @ORM\Index(name="checkout", columns={"CheckOut"}), @ORM\Index(name="checkouttime", columns={"CheckOutTime"}), @ORM\Index(name="propertyid", columns={"PropertyID"}), @ORM\Index(name="PropertyIDCheckOutDeleteCount", columns={"PropertyID", "CheckOut", "DeleteCount"})})
  *  @ORM\Entity(repositoryClass="AppBundle\Repository\PropertybookingsRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Propertybookings
 {
@@ -248,6 +250,27 @@ class Propertybookings
     /**
      * @var string|null
      *
+     * @ORM\Column(name="LinenCounts", type="string", length=2000, nullable=true)
+     */
+    private $linencounts;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="NextLinenCounts", type="string", length=2000, nullable=true)
+     */
+    private $nextlinencounts;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="PMSHousekeepingNote", type="string", length=2000, nullable=true)
+     */
+    private $pmshousekeepingnote;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="InGlobalNote", type="string", length=2000, nullable=true)
      */
     private $inglobalnote;
@@ -327,14 +350,14 @@ class Propertybookings
      *
      * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="CreateDAte", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Properties
@@ -1460,5 +1483,71 @@ class Propertybookings
     public function getPropertyid()
     {
         return $this->propertyid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function onPrePersist()
+    {
+        $this->createdate = new \DateTime();
+        $this->updatedate = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function onPreUpdate()
+    {
+        $this->updatedate = new \DateTime();
+    }
+
+
+    /**
+     * Set pmshousekeepingnote.
+     *
+     * @param string|null $pmshousekeepingnote
+     *
+     * @return Propertybookings
+     */
+    public function setPmshousekeepingnote($pmshousekeepingnote = null)
+    {
+        $this->pmshousekeepingnote = $pmshousekeepingnote;
+
+        return $this;
+    }
+
+    /**
+     * Get pmshousekeepingnote.
+     *
+     * @return string|null
+     */
+    public function getPmshousekeepingnote()
+    {
+        return $this->pmshousekeepingnote;
+    }
+
+    /**
+     * Set linencounts.
+     *
+     * @param string|null $linencounts
+     *
+     * @return Propertybookings
+     */
+    public function setLinencounts($linencounts = null)
+    {
+        $this->linencounts = $linencounts;
+
+        return $this;
+    }
+
+    /**
+     * Get linencounts.
+     *
+     * @return string|null
+     */
+    public function getLinencounts()
+    {
+        return $this->linencounts;
     }
 }

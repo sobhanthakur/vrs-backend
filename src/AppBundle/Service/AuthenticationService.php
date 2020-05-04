@@ -36,7 +36,7 @@ class AuthenticationService extends BaseService
         $authenticateResult[GeneralConstants::STATUS] = false;
         try {
             // Checking Authorization Key for validating Token.
-            $authorizationParts = explode(" ", $request->headers->get('Authorization'));
+            $authorizationParts = explode(" ", $request->headers->get(GeneralConstants::AUTHORIZATION));
 
             if (
                 count($authorizationParts) !== 2 || 'VRS' !== $authorizationParts[0]
@@ -302,6 +302,7 @@ class AuthenticationService extends BaseService
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
+            $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
             // Create a new token
             $signer = new Sha256();
             $accessToken = (new Builder())

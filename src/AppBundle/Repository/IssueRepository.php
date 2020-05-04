@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
+/**
+ * Class IssueRepository
+ * @package AppBundle\Repository
+ */
 class IssueRepository extends EntityRepository
 {
 
@@ -33,8 +37,71 @@ class IssueRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('i');
 
+        //check for createstartdate and createenddate in query paramter
+        isset($queryParameter['createstartdate']) ? $createdStartDate = $queryParameter['createstartdate'] : $createdStartDate = null;
+        isset($queryParameter['createenddate']) ? $createdEndDate = $queryParameter['createenddate'] : $createdEndDate = null;
+
+        //check for closedstartdate and closedenddate in query paramter
+        isset($queryParameter['closedstartdate']) ? $closedStartDate = $queryParameter['closedstartdate'] : $closedStartDate = null;
+        isset($queryParameter['closedenddate']) ? $closedEndDate = $queryParameter['closedenddate'] : $closedEndDate = null;
+
+        //setting status id
+        if (isset($queryParameter['statusid'])) {
+            switch (strtolower($queryParameter['statusid'])) {
+                case "new":
+                    $statusID = 0;
+                    break;
+                case "inprogress":
+                    $statusID = 1;
+                    break;
+                case "onhold":
+                    $statusID = 2;
+                    break;
+                case "cateloged":
+                    $statusID = 0;
+                    break;
+                default:
+                    $statusID = null;
+            }
+        }
+
+        //setting issue type
+        if (isset($queryParameter['issuetype'])) {
+            switch (strtolower($queryParameter['issuetype'])) {
+                case "damage":
+                    $issueType = 0;
+                    break;
+                case "maintenance":
+                    $issueType = 1;
+                    break;
+                case "lostandfound":
+                    $issueType = 2;
+                    break;
+                case "supplyflag":
+                    $issueType = 3;
+                    break;
+                case "none":
+                    $issueType = -1;
+                    break;
+                default:
+                    $issueType = null;
+            }
+        }
+
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for urgent option in query paramter
+        isset($queryParameter['urgent']) ? $urgent = $queryParameter['urgent'] : $urgent = null;
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for closed option in query paramter
+        isset($queryParameter['closed']) ? $closed = $queryParameter['closed'] : $closed = null;
+
+        //check for billable in query paramter
+        isset($queryParameter['billable']) ? $billable = $queryParameter['billable'] : $billable = null;
 
         //condition to set query for all or some required fields
         $result->select($query);
@@ -46,10 +113,69 @@ class IssueRepository extends EntityRepository
             }
         }
 
+        //Filter for closed Date,
+        if (isset($closed)) {
+            if ($closed == 1) {
+                $result->andWhere('i.closeddate IS NOT NULL');
+            } elseif ($closed == 0) {
+                $result->andWhere('i.closeddate IS NULL');
+            }
+        }
+
+        //condition to filter by  createdStartDate
+        if ($createdStartDate) {
+            $createdStartDate = date("Y-m-d", strtotime($createdStartDate));
+            $result->andWhere('i.createdate >= (:CreatedDate)')
+                ->setParameter('CreatedDate', $createdStartDate);
+        }
+        //condition to filter by  createdEndDate
+        if ($createdEndDate) {
+            $createdEndDate = date("Y-m-d", strtotime($createdEndDate . ' +1 day'));
+            $result->andWhere('i.createdate <= (:CreatedDate)')
+                ->setParameter('CreatedDate', $createdEndDate);
+        }
+
+        //condition to filter by  closedStartDate
+        if ($closedStartDate) {
+            $closedStartDate = date("Y-m-d", strtotime($closedStartDate));
+            $result->andWhere('i.closeddate >= (:ClosedDate)')
+                ->setParameter('ClosedDate', $closedStartDate);
+        }
+        //condition to filter by  closedEndDate
+        if ($closedEndDate) {
+            $closedEndDate = date("Y-m-d", strtotime($closedEndDate . ' +1 day'));
+            $result->andWhere('i.closeddate <= (:ClosedDate)')
+                ->setParameter('ClosedDate', $closedEndDate);
+        }
+
         //condition to filter by issue id
         if ($issueID) {
             $result->andWhere('i.issueid IN (:IssueID)')
                 ->setParameter('IssueID', $issueID);
+        }
+
+        //condition to filter by status id
+        if (isset($statusID)) {
+            $result->andWhere('i.statusid = (:StatusID)')
+                ->setParameter('StatusID', $statusID);
+        }
+
+        //condition to filter by  issueType
+        if (isset($issueType)) {
+            $result->andWhere('i.issuetype = (:IssueType)')
+                ->setParameter('IssueType', $issueType);
+        }
+
+        //condition to filter by  issueType
+        if (isset($urgent)) {
+            $result->andWhere('i.urgent = (:Urgent)')
+                ->setParameter('Urgent', $urgent);
+        }
+
+        //condition to filter by  billable
+        if (isset($billable)) {
+            $result->andWhere('i.billable = (:Billable)')
+                ->setParameter('Billable', $billable);
         }
 
         //condition to filter by customer details
@@ -63,19 +189,17 @@ class IssueRepository extends EntityRepository
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-
         if (strpos($query, 'image2') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
-
         if (strpos($query, 'image3') !== false) {
             $result
                 ->setParameter('image_url', GeneralConstants::IMAGE_URL);
         }
 
         //return issue details
-         return $result
+        return $result
             ->innerJoin('i.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
@@ -135,5 +259,4 @@ class IssueRepository extends EntityRepository
         return $this->fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query);
 
     }
-
 }

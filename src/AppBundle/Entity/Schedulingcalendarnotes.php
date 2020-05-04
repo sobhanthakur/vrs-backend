@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Schedulingcalendarnotes
  *
  * @ORM\Table(name="SchedulingCalendarNotes", indexes={@ORM\Index(name="customerid", columns={"CustomerID"}), @ORM\Index(name="servicerid", columns={"ServicerID"}), @ORM\Index(name="StartDate", columns={"StartDate"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\SchedulingcalendarnotesRepository")
  */
 class Schedulingcalendarnotes
 {

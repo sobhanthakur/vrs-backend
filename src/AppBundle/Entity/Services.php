@@ -113,6 +113,13 @@ class Services
     private $showalltagsondashboards = '0';
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="ShowPMSHousekeepingNoteOnDashboards", type="boolean", nullable=false)
+     */
+    private $showpmshousekeepingnoteondashboard = '0';
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="ChangeOverDays", type="integer", nullable=true)
@@ -3202,5 +3209,29 @@ class Services
     public function getChecklistid()
     {
         return $this->checklistid;
+    }
+
+    /**
+     * Set showpmshousekeepingnoteondashboard.
+     *
+     * @param bool $showpmshousekeepingnoteondashboard
+     *
+     * @return Services
+     */
+    public function setShowpmshousekeepingnoteondashboard($showpmshousekeepingnoteondashboard)
+    {
+        $this->showpmshousekeepingnoteondashboard = $showpmshousekeepingnoteondashboard;
+
+        return $this;
+    }
+
+    /**
+     * Get showpmshousekeepingnoteondashboard.
+     *
+     * @return bool
+     */
+    public function getShowpmshousekeepingnoteondashboard()
+    {
+        return $this->showpmshousekeepingnoteondashboard;
     }
 }

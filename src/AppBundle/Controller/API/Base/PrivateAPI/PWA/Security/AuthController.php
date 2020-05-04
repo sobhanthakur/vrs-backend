@@ -9,7 +9,7 @@
 namespace AppBundle\Controller\API\Base\PrivateAPI\PWA\Security;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
-use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -22,26 +22,22 @@ class AuthController extends FOSRestController
     /**
      * Provide ServicerID and password to authenticate and get a JWT token in return
      * @SWG\Tag(name="Authenticate")
-     * @Post("/authenticate", name="vrs_pwa_authenticate")
+     * @Get("/authenticate", name="vrs_pwa_authenticate")
      * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     *     name="data",
+     *     in="query",
      *     required=true,
-     *     @SWG\Schema(
-     *         @SWG\Property(
-     *              property="ServicerID",
-     *              type="integer",
-     *              example=1920
-     *         ),
-     *         @SWG\Property(
-     *              property="Password",
-     *              type="string",
-     *              example="password"
-     *         )
+     *     type="string",
+     *     description="Base64 the following request format to authenticate the servicer:
+    {
+    ""ServicerID"":1,
+    ""Password"": ""Password""
+    }"
      *     )
      *  )
+
      * @SWG\Response(
-     *     response=201,
+     *     response=200,
      *     description="Authenticates the servicer and returns a JWT in return.",
      *     @SWG\Schema(
      *         @SWG\Property(
@@ -67,19 +63,9 @@ class AuthController extends FOSRestController
      *              example=1
      *          ),
      *          @SWG\Property(
-     *              property="AcceptDecline",
-     *              type="boolean",
-     *              example=1
-     *          ),
-     *          @SWG\Property(
      *              property="Mileage",
      *              type="boolean",
      *              example=0
-     *          ),
-     *          @SWG\Property(
-     *              property="StartEarly",
-     *              type="boolean",
-     *              example=1
      *          ),
      *          @SWG\Property(
      *              property="ChangeDate",
@@ -98,7 +84,7 @@ class AuthController extends FOSRestController
         $response = null;
         try {
             $authenticationService = $this->container->get('vrscheduler.authentication_service');
-            $content = json_decode($request->getContent(),true);
+            $content = json_decode(base64_decode($request->get('data')),true);
             return $authenticationService->PWAAutheticate($content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
