@@ -37,6 +37,7 @@ class ServicersDashboardService extends BaseService
                 $window = null;
                 $tabs = null;
                 $description = null;
+                $manage = 0;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -59,6 +60,7 @@ class ServicersDashboardService extends BaseService
                         $startTask = 1;
                     } else {
                         $pauseTask = 1;
+                        $manage = 1;
                     }
 
                 }
@@ -185,18 +187,6 @@ class ServicersDashboardService extends BaseService
                 $img = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
                 if(!empty($img)) {
                     $image = 1;
-                }
-
-                // Check if manage tab has to be rendered
-                $manage = 0;
-
-                if( !(
-                    (int)$servicers[0]['TimeTracking'] === 1 &&
-                    (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== $tasks[$i]['TaskID'])) &&
-                    ($tasks[$i]['TaskStartDate'] <= $today) &&
-                    ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['StartDate'] <= $today)
-                ) {
-                    $manage = 1;
                 }
 
                 // Check if info tab has to be rendered
