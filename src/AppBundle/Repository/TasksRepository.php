@@ -10,6 +10,7 @@ namespace AppBundle\Repository;
 
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\DatabaseViews\Tasks;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -448,6 +449,24 @@ class TasksRepository extends EntityRepository
     }
 
     /**
+     * @param $servicerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function FetchTasksForDashboard2($servicerID,$taskID=null,$fields="*")
+    {
+        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $query = "SELECT ".$fields."  FROM (".(new Tasks())->TasksQuery($servicerID).") AS t where t.TaskDate < '".$today."'";
+        if ($taskID) {
+            $query .= " AND t.TaskID=".$taskID;
+        }
+        $result = $this->getEntityManager()->getConnection()->prepare($query);
+
+        $result->execute();
+        return $result->fetchAll();
+    }
+
+    /**
      * @param $taskID
      * @return mixed
      */
@@ -564,16 +583,20 @@ class TasksRepository extends EntityRepository
         return $result->getQuery()->execute();
     }
 
-    public function GetTeamByTask($taskID)
+    /**
+     * @param $taskID
+     * @return mixed
+     */
+    public function GetTeamByTask($taskID,$limit=null)
     {
         $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
-        return $this->createQueryBuilder('t2')
+        $result = $this->createQueryBuilder('t2')
             ->select('(CASE WHEN ts.islead=1 THEN 1 ELSE 0 END) AS IsLead,s2.name AS Name')
-            ->leftJoin('t2.propertyid','p2')
-            ->leftJoin('p2.customerid','c2')
-            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
-            ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
-            ->leftJoin('t2.propertyid','propertyid')
+            ->leftJoin('t2.propertyid', 'p2')
+            ->leftJoin('p2.customerid', 'c2')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 't2.taskid=ts.taskid')
+            ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
+            ->leftJoin('t2.propertyid', 'propertyid')
             ->leftJoin('AppBundle:Services', 'serviceid', Expr\Join::WITH, 't2.serviceid=serviceid.serviceid')
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
@@ -581,12 +604,17 @@ class TasksRepository extends EntityRepository
             ->andWhere('t2.completeconfirmeddate IS NULL')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
             ->andWhere("t2.taskdate <= :Today")
-            ->andWhere('t2.taskid='.$taskID)
-            ->setParameter('Today',$today)
-            ->addOrderBy('t2.taskid','ASC')
+            ->andWhere('t2.taskid=' . $taskID)
+            ->setParameter('Today', $today)
+            ->addOrderBy('t2.taskid', 'ASC')
             ->distinct(true)
-            ->orderBy('s2.name','ASC')
-            ->getQuery()
+            ->orderBy('s2.name', 'ASC');
+
+        if($limit) {
+            $result->setMaxResults($limit);
+        }
+
+        return $result->getQuery()
             ->execute();
     }
 }

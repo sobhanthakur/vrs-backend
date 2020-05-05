@@ -22,7 +22,6 @@ class ServicersDashboardService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
-            $today = new \DateTime('now',new \DateTimeZone('UTC')); // Set Current Date
 
             for ($i=0; $i<count($tasks); $i++) {
 //            for ($i=0; $i<2; $i++) {
@@ -62,7 +61,6 @@ class ServicersDashboardService extends BaseService
                         $pauseTask = 1;
                         $manage = 1;
                     }
-
                 }
 
                 $response[$i]['StartTask'] = $startTask;
