@@ -235,7 +235,7 @@ class TabsService extends BaseService
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             // START: TIME TRACKING
-            if ( ((int)$servicers[0]['TimeTracking'] === 1) &&
+            if ( ($tasks[0]['TaskStartDate']<= $today) && ((int)$servicers[0]['TimeTracking'] === 1) &&
                 ((int)$servicers[0]['AllowStartEarly']) &&
                 (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== ''))) &&
                 (!(empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID']))
@@ -287,8 +287,6 @@ class TabsService extends BaseService
                 }
 
                 $response['CheckListInfo']['Details'] = $checkListResponse;
-
-
 
                 // SHOW "END TASK" IF THIS IS THE STARTED TASK
                 if ((int)$servicers[0]['TimeTracking'] === 1 && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID']))
