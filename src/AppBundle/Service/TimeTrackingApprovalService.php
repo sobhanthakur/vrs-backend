@@ -118,6 +118,7 @@ class TimeTrackingApprovalService extends BaseService
                 }
                 $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $completedDate, $timezones, $limit, $offset, $status,$qbo);
                 $response = $this->processResponse($response);
+                return $response;
             }
 
             return array(
@@ -156,7 +157,7 @@ class TimeTrackingApprovalService extends BaseService
             unset($response[$i]["Status_6"]);
 
             // Process TimeTracked
-            if($response[$i]['TimeTrackedSeconds_8']) {
+            if($response[$i]['TimeTrackedSeconds_8'] !== null) {
                 $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]);
                 $response[$i]["Date"] = $response[$i]["Day_7"];
             } else {
