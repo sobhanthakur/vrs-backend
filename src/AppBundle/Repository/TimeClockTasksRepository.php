@@ -93,8 +93,13 @@ class TimeClockTasksRepository extends EntityRepository
 
 
         if ($staff) {
-            $result->andWhere('s2.servicerid IN (:Staffs)')
-                ->setParameter('Staffs', $staff);
+            $condition = 's2.servicerid IN (';
+            $i=0;
+            for (;$i<count($staff)-1;$i++) {
+                $condition .= $staff[$i].',';
+            }
+            $condition .= $staff[$i].')';
+            $result->andWhere($condition);
         }
 
         if (!empty($timezones)) {
