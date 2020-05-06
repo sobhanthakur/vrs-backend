@@ -473,7 +473,7 @@ class TasksRepository extends EntityRepository
     public function GetTasksForInfoTab($taskID)
     {
         return $this->createQueryBuilder('t2')
-            ->select('c2.email AS Customers_Email,s2.email AS Servicers_Email,t2.taskstartdate AS TaskStartDate,t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,p2.address AS Address,p2.description AS Description,p2.internalnotes AS InternalPropertyNotes, s2.timetracking AS TimeTracking, IDENTITY(s2.customerid) AS Servicers_CustomerID')
+            ->select('t2.taskid AS TaskID,c2.email AS Customers_Email,s2.email AS Servicers_Email,t2.taskstartdate AS TaskStartDate,t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,p2.address AS Address,p2.description AS Description,p2.internalnotes AS InternalPropertyNotes, s2.timetracking AS TimeTracking, IDENTITY(s2.customerid) AS Servicers_CustomerID')
             ->leftJoin('t2.propertyid', 'p2')
             ->leftJoin('p2.customerid','c2')
             ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 't2.servicerid=s2.servicerid')

@@ -259,20 +259,36 @@ class TabsService extends BaseService
                     'StandardServices' => $standardServices
                 );
 
-                // Check If checklist is present
-//                $subCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-//                $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
-//                $subCheckListItems->execute();
-//                $subCheckListItems = $subCheckListItems->fetchAll();
-//                if(!empty($subCheckListItems)) {
-//                    $checkListItems = $subCheckListItems;
-//                } else {
-//                    // Master CheckLists
-//                    $masterCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-//                    $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
-//                    $masterCheckListItems->execute();
-//                    $checkListItems = $masterCheckListItems->fetchAll();
-//                }
+                // Get CheckList Items
+                $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
+                $subCheckListItems->execute();
+                $subCheckListItems = $subCheckListItems->fetchAll();
+                if(!empty($subCheckListItems)) {
+                    $rsChecklistItems = $subCheckListItems;
+                } else {
+                    // Master CheckLists
+                    $masterCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                    $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
+                    $masterCheckListItems->execute();
+                    $rsChecklistItems = $masterCheckListItems->fetchAll();
+                }
+                $checkListCount = count($rsChecklistItems);
+                $response['CheckListInfo'] = array(
+                    'CheckListCount' => $checkListCount
+                );
+
+                // CheckList Response
+                foreach ($rsChecklistItems as $rsChecklistItem) {
+                    $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
+                    $checkLists = array('CheckListItem' => $rsChecklistItem);
+                    $checkLists['CheckListItem']['ResponseInfo'] = $rsThisResponse;
+                    $checkListResponse[] = $checkLists;
+                }
+
+                $response['CheckListInfo']['Details'] = $checkListResponse;
+
+
 
                 // SHOW "END TASK" IF THIS IS THE STARTED TASK
                 if ((int)$servicers[0]['TimeTracking'] === 1 && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID']))
