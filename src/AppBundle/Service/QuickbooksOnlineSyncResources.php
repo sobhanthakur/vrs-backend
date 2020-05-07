@@ -146,7 +146,7 @@ class QuickbooksOnlineSyncResources extends BaseService
             $incomingListIDs[] = $employee->Id;
             $integrationQBDEmployees->setCustomerid($customerObj);
             $integrationQBDEmployees->setActive($employee->Active);
-            $integrationQBDEmployees->setQbdemployeefullname($employee->GivenName);
+            $integrationQBDEmployees->setQbdemployeefullname($employee->DisplayName);
             $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
             $this->entityManager->persist($integrationQBDEmployees);
         }
@@ -240,7 +240,7 @@ class QuickbooksOnlineSyncResources extends BaseService
 
         if($integrationsToCustomers->getQbdsyncpayroll()) {
             // Fetch Customers
-            $employees = $dataService->Query('select Active,GivenName,Id from Employee MAXRESULTS 1000');
+            $employees = $dataService->Query('select Active,DisplayName,Id from Employee MAXRESULTS 1000');
             if(!empty($employees)) {
                 $this->StoreEmployees($employees,$customerObj);
             }
