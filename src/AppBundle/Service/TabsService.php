@@ -243,7 +243,7 @@ class TabsService extends BaseService
                 // Initialize Standard Services
                 $standardServices = null;
                 if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
-                    $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
+                    $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
                     $standardServices->execute();
                     $standardServices = $standardServices->fetchAll();
                 }

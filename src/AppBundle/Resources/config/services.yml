@@ -178,4 +178,7 @@ services:
             class: AppBundle\Service\TabsService
             parent: vrscheduler.base_service
             public: true
-
+    vrscheduler.manage_service:
+            class: AppBundle\Service\ManageService
+            parent: vrscheduler.base_service
+            public: true
