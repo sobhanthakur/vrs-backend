@@ -59,10 +59,18 @@ class ManageService extends BaseService
             $this->entityManager->flush();
 
             // If ServiceID is present And Issue IS is present then create a task
-            if ($issues && $content['FormServiceID'] !== null) {
-                return $this->CreateTask($content,$servicerID,$issues);
-            }
-
+//            if ($issues && $content['FormServiceID'] !== null && $content['FormServiceID'] !== '') {
+//                // Services To Properties
+//                $fields = 'MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
+//                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
+//                $rsService = $this->entityManager->getConnection()->prepare($rsService);
+//                $rsService->execute();
+//                $rsService = $rsService->fetchAll();
+//
+//                $task = $this->CreateTask($content,$servicerID,$issues,$rsService);
+//
+//
+//            }
             return array(
                 GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS
             );
@@ -81,19 +89,14 @@ class ManageService extends BaseService
      * @param $content
      * @param $servicerID
      * @param $issues
+     * @param $rsService
+     * @return Tasks
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
-     * @return array
      */
-    public function CreateTask($content, $servicerID, $issues)
+    public function CreateTask($content, $servicerID, $issues, $rsService)
     {
-        $fields = 'MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
-        $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
-        $rsService = $this->entityManager->getConnection()->prepare($rsService);
-        $rsService->execute();
-        $rsService = $rsService->fetchAll();
-
         if ($rsService) {
             $task = new Tasks();
             $task->setPropertybookingid(null);
@@ -147,7 +150,9 @@ class ManageService extends BaseService
 
             $this->entityManager->persist($task);
             $this->entityManager->flush();
-            return array('TaskID' => $task->getTaskid());
+
+            // Return Task Object
+            return $task;
         }
     }
 }
