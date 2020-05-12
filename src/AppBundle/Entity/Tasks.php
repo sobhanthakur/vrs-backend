@@ -403,14 +403,14 @@ class Tasks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
     private $createdate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false)
      */
     private $updatedate;
 
@@ -732,9 +732,9 @@ class Tasks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="ScheduleChangeDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="ScheduleChangeDate", type="datetime", nullable=false)
      */
-    private $schedulechangedate = 'getutcdate()';
+    private $schedulechangedate;
 
     /**
      * @var int|null
@@ -769,7 +769,7 @@ class Tasks
      *
      * @ORM\Column(name="WorkOrderSentDate", type="datetime", nullable=true)
      */
-    private $workordersentdate = '0';
+    private $workordersentdate;
 
     /**
      * @var int|null
@@ -3713,6 +3713,7 @@ class Tasks
         if ($this->getCreatedate() == null) {
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
+            $this->setSchedulechangedate($datetime);
         }
     }
 }

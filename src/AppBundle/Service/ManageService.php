@@ -88,7 +88,8 @@ class ManageService extends BaseService
      */
     public function CreateTask($content, $servicerID, $issues)
     {
-        $rsService = 'Select * from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
+        $fields = 'MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
+        $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
         $rsService = $this->entityManager->getConnection()->prepare($rsService);
         $rsService->execute();
         $rsService = $rsService->fetchAll();
@@ -109,7 +110,7 @@ class ManageService extends BaseService
             $task->setTaskdatetime(new \DateTime('now'));
             $task->setTaskcompletebydate((new \DateTime('now'))->modify('+5 day'));
             $task->setTaskcompletebytime(99);
-            $task->setServiceid($this->entityManager->getRepository('AppBundle:Services')->find($content['FormServiceID']));
+            $task->setServiceid($content['FormServiceID']);
             $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
             $task->setMaxtimetocomplete($rsService[0]['MaxTimeToComplete']);
             $task->setNumberofservicers($rsService[0]['NumberOfServicers']);
@@ -128,7 +129,7 @@ class ManageService extends BaseService
             $task->setNotifycustomeronlostandfound($rsService[0]['NotifyCustomerOnLostAndFound']);
             $task->setNotifycustomeronsupplyflag($rsService[0]['NotifyCustomerOnSupplyFlag']);
             $task->setIncludetoownernote((int)$rsService[0]['IncludeToOwnerNote'] === 1 ? true : false);
-            $task->setDefaulttoownernote($rsService[0]['DefaultToOwnerNote']);
+            $task->setDefaulttoownernote(trim($rsService[0]['DefaultToOwnerNote']));
             $task->setNotifyowneroncompletion($rsService[0]['NotifyOwnerOnCompletion']);
             $task->setAllowshareimageswithowners((int)$rsService[0]['AllowShareImagesWithOwners'] === 1 ? true : false);
             $task->setNotifyserviceronoverdue($rsService[0]['NotifyServicerOnOverdue']);
@@ -136,8 +137,8 @@ class ManageService extends BaseService
             $task->setNotifyserviceronnotyetdone($rsService[0]['NotifyServicerOnNotYetDone']);
             $task->setTaskdescription($content['IssueDescription']);
             $task->setBillable($rsService[0]['Billable']);
-            $task->setAmount($rsService[0]['Amount']);
-            $task->setExpenseamount($rsService[0]['ExpenseAmount']);
+            $task->setAmount($rsService[0]['Amount'] ? $rsService[0]['Amount'] : 0);
+            $task->setExpenseamount($rsService[0]['ExpenseAmount'] ? $rsService[0]['ExpenseAmount'] : 0);
 //            $task->setPropertyitemid();
             $task->setCreatedbyservicerid($servicerID);
             $task->setTaskdescriptionimage1($content['Images'][0]['Image']);
