@@ -91,6 +91,7 @@ final class GeneralConstants
 
     const MESSAGE = 'message';
     const STATUS = 'status';
+    const SUCCESS = 'Success';
 
     const CUSTOMER_NAME = 'CustomerName';
     const LOGGEDINSTAFFID = 'LoggedInStaffID';

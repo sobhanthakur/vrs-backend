@@ -72,6 +72,7 @@ final class ErrorConstants
     const INVALID_REQUEST = 'INVALID_REQUEST';
     const INVALID_CHECKOUT = 'INVALID_CHECKOUT';
     const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
+    const TRY1MINLATER = 'TRY_1_MIN_LATER';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
     const NOTHING_TO_MAP = 'NOTHINGTOMAP';
@@ -136,6 +137,7 @@ final class ErrorConstants
         self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
         self::INVALID_PROPERTY_BOOKING_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_booking'],
         self::INVALID_CHECKOUT  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_checkout'],
-        self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details']
+        self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details'],
+        self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later']
     ];
 }

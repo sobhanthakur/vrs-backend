@@ -259,4 +259,21 @@ class IssueRepository extends EntityRepository
         return $this->fetchIssues($customerDetails, $queryParameter, $issueID, $offset, $query);
 
     }
+
+    public function GetIssuesFromLastOneMinute($issueType,$issue)
+    {
+        $now = (new \DateTime('now'))->modify('-1 minutes');
+        return $this->createQueryBuilder('i')
+            ->select('i.issueid')
+            ->where('i.issuetype = :IssueType')
+            ->andWhere('i.issue = :Issue')
+            ->andWhere('i.createdate > :CreateDate')
+            ->setParameter('IssueType',$issueType)
+            ->setParameter('Issue',$issue)
+            ->setParameter('CreateDate',$now)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+
+    }
 }
