@@ -10,11 +10,13 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\DatabaseViews\AdditionalDefaultServicers;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\DatabaseViews\TaskWithServicers;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Properties;
 use AppBundle\Entity\Tasks;
+use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -31,6 +33,7 @@ class ManageService extends BaseService
      */
     public function SubmitIssue($servicerID, $content)
     {
+        $response = [];
         try {
             $taskID = $content['TaskID'];
             $propertyID = $content['PropertyID'];
@@ -58,21 +61,91 @@ class ManageService extends BaseService
             $this->entityManager->persist($issues);
             $this->entityManager->flush();
 
+            $response['IssueID'] = $issues->getIssueid();
+
             // If ServiceID is present And Issue IS is present then create a task
-//            if ($issues && $content['FormServiceID'] !== null && $content['FormServiceID'] !== '') {
-//                // Services To Properties
-//                $fields = 'MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
-//                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
-//                $rsService = $this->entityManager->getConnection()->prepare($rsService);
-//                $rsService->execute();
-//                $rsService = $rsService->fetchAll();
-//
-//                $task = $this->CreateTask($content,$servicerID,$issues,$rsService);
-//
-//
-//            }
+            if ($issues && $content['FormServiceID'] !== null && $content['FormServiceID'] !== '') {
+                // Services To Properties
+                $fields = 'ServiceToPropertyID,DefaultServicerID,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,BackupServicerID7,WorkDays,MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
+                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
+                $rsService = $this->entityManager->getConnection()->prepare($rsService);
+                $rsService->execute();
+                $rsService = $rsService->fetchAll();
+
+                // Create Task
+                $task = $this->CreateTask($content,$servicerID,$issues,$rsService);
+                $response['TaskID'] = $task->getTaskid();
+
+                $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
+
+                // Assign the default Servicer
+                $thisDefaultServicerID = $rsService[0]['DefaultServicerID'];
+
+                // If the servicer is not working on this day, then assign a backup Servicer
+                if(strpos((string)$rsService[0]['WorkDays'],(string)$thisDayOfWeek) === false) {
+                    $thisDefaultServicerID = $rsService[0]['BackupServicerID'.(string)$thisDayOfWeek];
+                }
+
+                // Get Payrate of that Servicer
+                $payRate = 0;
+                $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                if ($servicerID) {
+                    $payRate = $servicerID->getPayrate();
+                }
+
+                // Insert Lead Employee
+                $tasksToServicers = new Taskstoservicers();
+                $tasksToServicers->setTaskid($task);
+                $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+                $tasksToServicers->setIslead(true);
+                $tasksToServicers->setPiecepay($rsService[0]['PiecePay']);
+                $tasksToServicers->setPayrate($payRate);
+                $tasksToServicers->setPaytype($rsService[0]['PayType']);
+
+                // persist taskstoservicers
+                $this->entityManager->persist($tasksToServicers);
+                $this->entityManager->flush();
+
+                $response['TasksToServicers'] = $tasksToServicers->getTasktoservicerid();
+                $response['DefaultServicerID'] = $thisDefaultServicerID;
+
+                // GET ADDITIONAL EMPLOYEES
+                $rsAdditionalServicers = 'SELECT ServicerID,ServiceToPropertyID,BackupServicerID7,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,WorkDays,PiecePay FROM ('.AdditionalDefaultServicers::vAdditionalDefaultServicers.') as S where S.ServiceToPropertyID='.$rsService[0]['ServiceToPropertyID'].' ORDER BY S.AdditionalDefaultServicerID';
+                $rsAdditionalServicers = $this->entityManager->getConnection()->prepare($rsAdditionalServicers);
+                $rsAdditionalServicers->execute();
+                $rsAdditionalServicers = $rsAdditionalServicers->fetchAll();
+
+                if (!empty($rsAdditionalServicers)) {
+                    foreach ($rsAdditionalServicers as $rsAdditionalServicer) {
+                        // Assign the default Servicer
+                        $thisDefaultServicerID = $rsAdditionalServicer['DefaultServicerID'];
+
+                        // If the servicer is not working on this day, then assign a backup Servicer
+                        if(strpos((string)$rsAdditionalServicer['WorkDays'],(string)$thisDayOfWeek) === false) {
+                            $thisDefaultServicerID = $rsAdditionalServicer['BackupServicerID'.(string)$thisDayOfWeek];
+                        }
+
+                        // Servicer Object
+                        $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+
+                        // INSERT ADDITIONAL EMPLOYEE
+                        $tasksToServicers = new Taskstoservicers();
+                        $tasksToServicers->setTaskid($task);
+                        $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+                        $tasksToServicers->setIslead(false);
+                        $tasksToServicers->setPiecepay($rsAdditionalServicer['PiecePay']);
+
+                        // Persist $tasksToServicers
+                        $this->entityManager->persist($tasksToServicers);
+                        $response['AdditionalEmployees'][] = $tasksToServicers->getTasktoservicerid();
+                    }
+                    $this->entityManager->flush();
+                }
+
+            }
             return array(
-                GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS
+                GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS,
+                'TaskInfo' => $response
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
