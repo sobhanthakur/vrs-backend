@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TasksToServicers", indexes={@ORM\Index(name="IsLead", columns={"IsLead"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="ServicerIDwithTaskID", columns={"TaskID", "ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\StaffTasksRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Taskstoservicers
 {
@@ -157,9 +158,9 @@ class Taskstoservicers
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var string|null
@@ -781,5 +782,17 @@ class Taskstoservicers
     public function getApprovedDate()
     {
         return $this->approvedDate;
+    }
+
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }
