@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="IssueImages")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IssueimagesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Issueimages
 {
@@ -157,5 +158,16 @@ class Issueimages
     public function getIssueID()
     {
         return $this->issueID;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }
