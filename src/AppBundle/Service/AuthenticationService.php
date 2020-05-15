@@ -10,6 +10,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\DatabaseViews\TimeClockDays;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -292,6 +293,9 @@ class AuthenticationService extends BaseService
     public function PWAAutheticate($content)
     {
         try {
+            $today = (new \DateTime('now'));
+            $tomorrow = $today->modify('+1 day');
+
             $servicerID = $content[GeneralConstants::SERVICERID];
             $password = $content[GeneralConstants::PASS];
 
@@ -302,7 +306,17 @@ class AuthenticationService extends BaseService
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
+            // TimeTracking Information from time clock tasks and time clock days
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')." ".$today->format('H:i:s')."' AND T.ClockIn <= '".$tomorrow->format('Y-m-d')." ".$tomorrow->format('H:i:s')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
+            $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
+            $timeClockDays->execute();
+            $timeClockDays = $timeClockDays->fetchAll();
+            $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
+            $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
+
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
+
             // Create a new token
             $signer = new Sha256();
             $accessToken = (new Builder())
