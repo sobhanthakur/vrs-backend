@@ -1136,6 +1136,7 @@ class Issues
 
     /**
      * @ORM\PrePersist
+     * @ORM\PreUpdate
      */
     public function updatedTimestamps()
     {

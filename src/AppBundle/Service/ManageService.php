@@ -13,6 +13,7 @@ use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\AdditionalDefaultServicers;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\DatabaseViews\TaskWithServicers;
+use AppBundle\Entity\Issueimages;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Properties;
 use AppBundle\Entity\Tasks;
@@ -52,19 +53,22 @@ class ManageService extends BaseService
             $issues->setNotes($content['IssueDescription']);
             $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
             $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID)));
-            // Loop over Images once DB is changed
-            $issues->setImage1($content['Images'][0]['Image']);
-            $issues->setImage2($content['Images'][1]['Image']);
-            $issues->setImage3($content['Images'][2]['Image']);
 
             // Persist and flush Issue
             $this->entityManager->persist($issues);
+
+            foreach ($content['Images'] as $image) {
+                $issueImage = new Issueimages();
+                $issueImage->setImageName($image['Image']);
+                $issueImage->setIssueID($issues);
+                $this->entityManager->persist($issueImage);
+            }
             $this->entityManager->flush();
 
             $response['IssueID'] = $issues->getIssueid();
 
             // If ServiceID is present And Issue IS is present then create a task
-            if ($issues && $content['FormServiceID'] !== null && $content['FormServiceID'] !== '') {
+            if ($issues && array_key_exists('FormServiceID',$content) ? $content['FormServiceID'] !== '' : null) {
                 // Services To Properties
                 $fields = 'ServiceToPropertyID,DefaultServicerID,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,BackupServicerID7,WorkDays,MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
                 $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
