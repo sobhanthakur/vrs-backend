@@ -293,11 +293,11 @@ class AuthenticationService extends BaseService
     public function PWAAutheticate($content)
     {
         try {
-            $today = (new \DateTime('now'));
-            $tomorrow = $today->modify('+1 day');
 
             $servicerID = $content[GeneralConstants::SERVICERID];
             $password = $content[GeneralConstants::PASS];
+            $clockedIn = null;
+            $timeZone = null;
 
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
@@ -306,14 +306,28 @@ class AuthenticationService extends BaseService
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
+            // Convert Todays date into local timezone
+            $today = (new \DateTime('now'));
+            if($servicer[0]['Region']) {
+                $timeZone = new \DateTimeZone($servicer[0]['Region']);
+                $today->setTimezone($timeZone);
+            }
+
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
-            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')." ".$today->format('H:i:s')."' AND T.ClockIn <= '".$tomorrow->format('Y-m-d')." ".$tomorrow->format('H:i:s')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
             $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
             $timeClockDays->execute();
             $timeClockDays = $timeClockDays->fetchAll();
+
+            // Convert Clock In to the local timezone
+            if(!empty($timeClockDays) && $timeClockDays[0]['ClockIn']) {
+                $clockedIn = (new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone);
+            }
+
             $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
+            $servicer[0]['ClockedIn'] = $clockedIn->format('H:i A');
 
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
 
