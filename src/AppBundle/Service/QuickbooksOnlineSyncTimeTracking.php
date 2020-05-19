@@ -150,7 +150,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         "Description" => $description
                     );
 
-                    if($timeclock['CustomerValue']) {
+                    if(array_key_exists('CustomerValue',$timeclock) && $timeclock['CustomerValue']) {
                         $timeActivity = array_merge($timeActivity,array(
                             "CustomerRef" => [
                                 "Value" => $timeclock['CustomerValue']
@@ -159,7 +159,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ));
                     }
 
-                    if($timeclock['ItemListID']) {
+                    if(array_key_exists('ItemListID',$timeclock) && $timeclock['ItemListID']) {
                         $timeActivity = array_merge($timeActivity,array(
                            "ItemRef" =>  [
                                "value" => $timeclock['ItemListID']
