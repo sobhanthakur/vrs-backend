@@ -617,4 +617,19 @@ class TasksRepository extends EntityRepository
         return $result->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $taskID
+     * @return mixed
+     */
+    public function GetCompleteConfirmedDateForStartTask($taskID)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.completeconfirmeddate')
+            ->where('t.taskid='.$taskID)
+            ->andWhere('t.completeconfirmeddate IS NULL')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }
