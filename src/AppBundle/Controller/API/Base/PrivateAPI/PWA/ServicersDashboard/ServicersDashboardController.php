@@ -100,7 +100,31 @@ class ServicersDashboardController extends FOSRestController
     }
 
     /**
-     * Shows Task Details that needs to be shown in the servicers dashboard
+     * Starts the task
+     * @SWG\Tag(name="Servicers Dashboard")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="TaskID",
+     *              type="integer",
+     *              example=1801
+     *         )
+     *    )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Starts the task.",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="Started",
+     *              type="string",
+     *              example="12:57AM"
+     *          )
+     *     )
+     * )
      * @Post("/starttask", name="vrs_pwa_starttask")
      * @return array
      * @param Request $request
@@ -110,8 +134,10 @@ class ServicersDashboardController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
-            return $servicersDashboard->StartTask();
+            $servicersDashboard = $this->container->get('vrscheduler.starttask_service');
+            $content = json_decode($request->getContent(),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $servicersDashboard->StartTask($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
