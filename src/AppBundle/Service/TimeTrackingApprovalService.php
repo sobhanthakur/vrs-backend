@@ -104,7 +104,7 @@ class TimeTrackingApprovalService extends BaseService
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2 . ' ORDER BY Name_9 OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2 . ' ORDER BY Name_9,TimeClockTaskID_5,Clockin_11 OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
                 $response->execute();
                 $response = $response->fetchAll();
                 $response = $this->ProcessTimeClockTasksResponse($response);
