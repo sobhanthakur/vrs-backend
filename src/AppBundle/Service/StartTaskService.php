@@ -23,9 +23,9 @@ class StartTaskService extends BaseService
     public function StartTask($servicerID, $content)
     {
         try {
-            $response = [];
             $startPause = $content['StartPause'];
             $taskID = $content['TaskID'];
+            $dateTime = $content['DateTime'];
 
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
 
@@ -37,13 +37,13 @@ class StartTaskService extends BaseService
                     'taskid' => $taskID
                 ));
                 if($timeClockTasks) {
-                    $timeClockTasks->setClockout(new \DateTime('now'));
+                    $timeClockTasks->setClockout(new \DateTime($dateTime));
                     $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
                 }
 
                 // Get time clock days
-                $today = (new \DateTime('now'));
+                $today = (new \DateTime($dateTime));
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
                 $today->setTimezone($timeZone);
                 $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
