@@ -237,8 +237,8 @@ class TabsService extends BaseService
             // START: TIME TRACKING
             if ( ($tasks[0]['TaskStartDate']<= $today) && ((int)$servicers[0]['TimeTracking'] === 1) &&
                 ((int)$servicers[0]['AllowStartEarly']) &&
-                (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== ''))) &&
-                (!(empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID']))
+                (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== '')))
+
             ) {
                 // Initialize Standard Services
                 $standardServices = null;
@@ -289,14 +289,13 @@ class TabsService extends BaseService
                 $response['CheckListInfo']['Details'] = $checkListResponse;
 
                 // SHOW "END TASK" IF THIS IS THE STARTED TASK
-                if ((int)$servicers[0]['TimeTracking'] === 1 && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID']))
-                {
+//                if (!empty($timeClockTasks) && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID'])) {
                     // Team Details
-                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],2);
-                    if (count($team) > 1) {
+                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],1);
+                    if (!empty($team)) {
                         $team = 1;
                     }
-                }
+//                }
 
                 //TaskInfo
                 $response['TaskInfo'] = array(
@@ -321,7 +320,7 @@ class TabsService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Failed to fetch Assignment Details' .
+            $this->logger->error('Failed to fetch Manage Details' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
