@@ -71,6 +71,7 @@ class StartTaskService extends BaseService
                 if(!empty($task)) {
                     $timeClockTasks = new Timeclocktasks();
                     $timeClockTasks->setServicerid($servicer);
+                    $timeClockTasks->setClockin((new \DateTime($dateTime)));
                     $timeClockTasks->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
                     $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
