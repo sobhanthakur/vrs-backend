@@ -281,7 +281,7 @@ class TabsController extends FOSRestController
      *     type="string",
      *     description="Base64 the following request format:
     {
-    ""PropertyBookingID"":1
+    ""TaskID"":1
     }"
      *     )
      *  )

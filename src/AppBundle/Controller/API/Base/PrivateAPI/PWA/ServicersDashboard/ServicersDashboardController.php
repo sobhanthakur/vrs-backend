@@ -111,7 +111,17 @@ class ServicersDashboardController extends FOSRestController
      *              property="TaskID",
      *              type="integer",
      *              example=1801
-     *         )
+     *         ),
+     *         @SWG\Property(
+     *              property="StartPause",
+     *              type="integer",
+     *              example=1
+     *          ),
+     *         @SWG\Property(
+     *              property="DateTime",
+     *              type="string",
+     *              example="2020-05-20 11:54:00"
+     *          )
      *    )
      *  )
      * @SWG\Response(
