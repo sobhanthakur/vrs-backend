@@ -120,7 +120,7 @@ class ServicersDashboardController extends FOSRestController
      *         @SWG\Property(
      *              property="DateTime",
      *              type="string",
-     *              example="2020-05-20 11:54:00"
+     *              example="2020/05/20 11:54:00"
      *          )
      *    )
      *  )
@@ -148,6 +148,70 @@ class ServicersDashboardController extends FOSRestController
             $content = json_decode($request->getContent(),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->StartTask($servicerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Clocks In/Out
+     * @SWG\Tag(name="Servicers Dashboard")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="1=ClockIn, 0=ClockOut",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ClockInOut",
+     *              type="integer",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="Mileage",
+     *              type="integer",
+     *              example=1000
+     *          ),
+     *         @SWG\Property(
+     *              property="DateTime",
+     *              type="string",
+     *              example="2020/05/20 11:54:00"
+     *          )
+     *    )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Clocks In/Out",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="Status",
+     *              type="string",
+     *              example="Success"
+     *          )
+     *     )
+     * )
+     * @Post("/clockinout", name="vrs_pwa_clockinout")
+     * @return array
+     * @param Request $request
+     */
+    public function ClockInOut(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
+            $content = json_decode($request->getContent(),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $servicersDashboard->ClockInOut($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

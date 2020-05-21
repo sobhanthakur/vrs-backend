@@ -9,12 +9,22 @@
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
+use AppBundle\DatabaseViews\TimeClockDays;
+use AppBundle\Entity\Timeclockdays as TimeClock;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 
+/**
+ * Class ServicersDashboardService
+ * @package AppBundle\Service
+ */
 class ServicersDashboardService extends BaseService
 {
+    /**
+     * @param $servicerID
+     * @return array
+     */
     public function GetTasks($servicerID)
     {
         try {
@@ -253,11 +263,71 @@ class ServicersDashboardService extends BaseService
         }
     }
 
-    public function StartTask()
+    public function ClockInOut($servicerID,$content)
     {
-        return array(
-            "ReasonCode" => 0,
-            "ReasonText" => "Success"
-        );
+        try {
+            $dateTime = $content['DateTime'] ? (new \DateTime($content['DateTime'])) : null;
+            $clockInOut = $content['ClockInOut'];
+            $mileage = $content['Mileage'] ? $content['Mileage'] : null;
+
+            // ServicerObject
+            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+
+            $today = $dateTime->setTimezone((new \DateTimeZone($servicer->getTimezoneid()->getRegion())));
+
+            // Query TimeClockDays
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
+            $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
+            $timeClockDays->execute();
+            $timeClockDays = $timeClockDays->fetchAll();
+
+            if($clockInOut) {
+                // Clock In
+                if(empty($timeClockDays)) {
+                    $timeClock = new Timeclock();
+                    $timeClock->setServicerid($servicer);
+                    $timeClock->setMileagein($mileage);
+                    $this->entityManager->persist($timeClock);
+                    $this->entityManager->flush();
+                }
+            } else {
+                // Clock Out
+                if(!empty($timeClockDays)) {
+                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
+                       'servicerid' => $servicerID,
+                       'clockout' => null
+                    ));
+
+                    // Set TimeClock Tasks to Current UTC DateTime
+                    if ($timeClockTasks) {
+                        $timeClockTasks->setClockout($dateTime);
+                        $this->entityManager->persist($timeClockTasks);
+                    }
+
+                    $timeClock = $this->entityManager->getRepository('AppBundle:Timeclockdays')->findOneBy(array(
+                        'clockout' => null,
+                        'servicerid' => $servicerID
+                    ));
+                    if($timeClock) {
+                        $timeClock->setClockout($dateTime);
+                        $this->entityManager->persist($timeClock);
+                    }
+                    $this->entityManager->flush();
+                }
+            }
+
+            return array(
+                'Status' => 'Success'
+            );
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to Clock In/Out due to: ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }
