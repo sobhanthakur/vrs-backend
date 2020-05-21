@@ -608,7 +608,6 @@ class Timeclocktasks
         if ($this->getCreatedate() == null && $this->getClockin() == null) {
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
-            $this->setClockin($datetime);
         }
     }
 }
