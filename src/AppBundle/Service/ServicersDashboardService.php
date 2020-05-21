@@ -49,13 +49,13 @@ class ServicersDashboardService extends BaseService
                     $expand = 1;
                 }
                 $response[$i]['Expand'] = $expand;
-                
+
                 // Show or hide Start Task
                 if ( ((int)$servicers[0]['TimeTracking'] === 1) &&
                      ((int)$servicers[0]['AllowStartEarly']) &&
-                     (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== '')))
+                     (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
                 ) {
-                    if (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID']) {
+                    if (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']) {
                         $startTask = 1;
                     } else {
                         $pauseTask = 1;
@@ -241,6 +241,7 @@ class ServicersDashboardService extends BaseService
                 $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID']);
                 $response[$i]['Team'] = !empty($team) ? $team : null;
             }
+            die();
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
