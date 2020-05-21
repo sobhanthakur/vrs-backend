@@ -31,6 +31,7 @@ class StartTaskService extends BaseService
             $startPause = $content['StartPause'];
             $taskID = $content['TaskID'];
             $dateTime = $content['DateTime'];
+            $response = [];
 
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
 
@@ -45,6 +46,7 @@ class StartTaskService extends BaseService
                     $timeClockTasks->setClockout(new \DateTime($dateTime));
                     $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
+                    $response['PrevTimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                 }
 
                 // Get time clock days
@@ -62,6 +64,7 @@ class StartTaskService extends BaseService
                     $timeClockDays->setServicerid($servicer);
                     $this->entityManager->persist($timeClockDays);
                     $this->entityManager->flush($timeClockDays);
+                    $response['TimeClockDaysID'] = $timeClockDays->getTimeclockdayid();
                 }
 
                 $task = $this->entityManager->getRepository('AppBundle:Tasks')->GetCompleteConfirmedDateForStartTask($taskID);
@@ -71,6 +74,7 @@ class StartTaskService extends BaseService
                     $timeClockTasks->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
                     $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
+                    $response['TimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                 }
                 $response['Started'] = $today->format('h:i A');
             } else {
