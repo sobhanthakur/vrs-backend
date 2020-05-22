@@ -47,6 +47,7 @@ class ServicersDashboardService extends BaseService
                 $tabs = null;
                 $description = null;
                 $manage = 0;
+                $started = null;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -70,6 +71,9 @@ class ServicersDashboardService extends BaseService
                     } else {
                         $pauseTask = 1;
                         $manage = 1;
+                        $started = new \DateTime($timeClockTasks[0]['ClockIn']);
+                        $started->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+                        $started = $started->format('h:i A');
                     }
                 }
 
@@ -142,7 +146,8 @@ class ServicersDashboardService extends BaseService
                     'ServiceName' => $tasks[$i]['ServiceName'],
                     'PropertyID' => $tasks[$i]['PropertyID'],
                     'ServiceID' => $tasks[$i]['ServiceID'],
-                    'PropertyName' => $tasks[$i]['PropertyName']
+                    'PropertyName' => $tasks[$i]['PropertyName'],
+                    'Started' => $started
                 );
 
                 // Guest Details
