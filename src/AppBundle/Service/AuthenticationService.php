@@ -310,7 +310,7 @@ class AuthenticationService extends BaseService
             $today = (new \DateTime('now'));
             if($servicer[0]['Region']) {
                 $timeZone = new \DateTimeZone($servicer[0]['Region']);
-                $today->setTimezone($timeZone);
+//                $today->setTimezone($timeZone);
             }
 
             // TimeTracking Information from time clock tasks and time clock days
