@@ -322,7 +322,7 @@ class AuthenticationService extends BaseService
 
             // Convert Clock In to the local timezone
             if(!empty($timeClockDays) && $timeClockDays[0]['ClockIn']) {
-                $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('H:i A');
+                $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('h:i A');
             }
 
             $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
