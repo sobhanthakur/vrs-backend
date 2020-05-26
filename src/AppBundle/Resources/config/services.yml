@@ -186,3 +186,7 @@ services:
             class: AppBundle\Service\StartTaskService
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.manage_save:
+            class: AppBundle\Service\ManageSave
+            parent: vrscheduler.base_service
+            public: true

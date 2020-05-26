@@ -632,4 +632,22 @@ class TasksRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $taskID
+     * @param $servicerID
+     * @return mixed
+     */
+    public function TaskToSaveManage($taskID, $servicerID)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('IDENTITY(t.propertyid) AS PropertyID,t.serviceid AS ServiceID,t.taskid AS TaskID')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
+            ->where('t.taskid='.$taskID)
+            ->andWhere('ts.servicerid='.$servicerID)
+            ->andWhere('t.completeconfirmeddate IS NULL')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TasksToChecklistItems", indexes={@ORM\Index(name="ChecklistItemID", columns={"ChecklistItemID"}), @ORM\Index(name="ChecklistTypeID", columns={"ChecklistTypeID"}), @ORM\Index(name="dedup", columns={"deduped"}), @ORM\Index(name="optionid", columns={"OptionID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\TasksToChecklistItemsRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Taskstochecklistitems
 {
@@ -129,9 +130,9 @@ class Taskstochecklistitems
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="Createdate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="Createdate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Tasks
@@ -595,5 +596,16 @@ class Taskstochecklistitems
     public function getEnteredvalueamount()
     {
         return $this->enteredvalueamount;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }
