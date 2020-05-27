@@ -115,7 +115,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 if (empty($timeclocks)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
                 }
-
+                
                 $batch = $this->CreateBatch($integrationsToCustomers);
 
                 // Create time activity object for Quickbooks Online
@@ -146,10 +146,14 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         "Hours" => $timeTracked[0],
 
                         "Taxable" => "false",
-                        "HourlyRate" => $timeclock['PayRate'],
                         "Description" => $description
                     );
 
+                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock)) {
+                        $timeActivity = array_merge($timeActivity,array(
+                            "HourlyRate" =>$timeclock['UnitPrice']
+                        ));
+                    }
                     if(array_key_exists('CustomerValue',$timeclock) && $timeclock['CustomerValue']) {
                         $timeActivity = array_merge($timeActivity,array(
                             "CustomerRef" => [
@@ -166,6 +170,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                            ]
                         ));
                     }
+
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
 
