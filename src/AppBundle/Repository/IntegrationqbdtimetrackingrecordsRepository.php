@@ -359,7 +359,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('ii.qbditemlistid AS ItemListID,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
+            ->select('ii.qbditemlistid AS ItemListID,ii.unitprice AS UnitPrice,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
             ->innerJoin('b1.timeclocktasksid', 't2')
             ->innerJoin('t2.servicerid', 's2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
