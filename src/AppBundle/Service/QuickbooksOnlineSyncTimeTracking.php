@@ -149,7 +149,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         "Description" => $description
                     );
 
-                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock)) {
+                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock) && $timeclock['UnitPrice']) {
                         $timeActivity = array_merge($timeActivity,array(
                             "HourlyRate" =>$timeclock['UnitPrice']
                         ));
