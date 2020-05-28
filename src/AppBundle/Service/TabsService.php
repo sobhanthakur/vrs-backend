@@ -232,7 +232,7 @@ class TabsService extends BaseService
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$taskID);
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+//            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             // START: TIME TRACKING
             if ( ($tasks[0]['TaskStartDate']<= $today) && ((int)$servicers[0]['TimeTracking'] === 1) &&
