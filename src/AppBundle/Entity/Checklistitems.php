@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Checklistitems
  *
  * @ORM\Table(name="ChecklistItems", indexes={@ORM\Index(name="IDX_366ECB6D854CF4BD", columns={"CustomerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ChecklistitemsRepository")
  */
 class Checklistitems
 {
