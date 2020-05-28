@@ -137,6 +137,11 @@ class ManageSave extends BaseService
      */
     public function ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs, $option = 7)
     {
+        // Initialise Results
+        $res2 = [];
+        $res = [];
+        $diff = [];
+
         $subCheckListItems = 'SELECT DISTINCT ColumnCount,Options,ShowOnOwnerReport,SortOrder,Description,Image,required,ChecklistItem FROM (' . CheckLists::vServicesToPropertiesChecklistItems . ') AS SubQuery WHERE SubQuery.ServiceID=' . $rsThisTask[0]['ServiceID'] . ' AND SubQuery.PropertyID=' . $rsThisTask[0]['PropertyID'] . ' AND SubQUery.ChecklistItemID=' . $checkListItem['ChecklistItemID'] . ' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
         $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
         $subCheckListItems->execute();
@@ -169,8 +174,6 @@ class ManageSave extends BaseService
                     }
                 }
                 $diff = array_diff_key($res, $res2);
-            } else {
-                $diff = [];
             }
         } else {
             $diff = array_diff_key($res1, $res2);
