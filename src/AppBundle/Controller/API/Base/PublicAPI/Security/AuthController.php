@@ -40,7 +40,7 @@ class AuthController extends FOSRestController
      *              example="2A55E772-8005-44CE-85FEF957FCEC152F"
      *         ),
      *         @SWG\Property(
-     *              property="Value",
+     *              property="API_Value",
      *              type="string",
      *              example= "BDBB88ED-1801-4418-B84AEF251A35C88E"
      *         )

@@ -114,7 +114,7 @@ class PropertiesController extends FOSRestController
             //Get auth service
             $authService = $this->container->get('vrscheduler.public_authentication_service');
 
-            //check resteiction for the user
+            //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             if (!$restriction->accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);

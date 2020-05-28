@@ -253,8 +253,8 @@ class PropertiesRepository extends EntityRepository
 
         //return property details
         return $result
-            ->innerJoin('p.ownerid', 'o')
-            ->innerJoin('p.regionid', 'r')
+            ->leftJoin('p.ownerid', 'o')
+            ->leftJoin('p.regionid', 'r')
             ->andWhere('p.active=1')
             ->setFirstResult(($offset - 1) * $limit)
             ->getQuery()
