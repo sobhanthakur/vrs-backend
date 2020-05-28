@@ -197,10 +197,10 @@ class ManageSave extends BaseService
                 } else {
                     $taskToCheckListItems->setOptionselected('');
                     $taskToCheckListItems->setColumnvalue((int)$key+1);
-                    $taskToCheckListItems->setEnteredvalueamount(0);
                     $taskToCheckListItems->setOptionid((int)($key + 1));
                 }
 
+                $taskToCheckListItems->setEnteredvalueamount(0);
                 $taskToCheckListItems->setChecklisttypeid((int)$checkListItem['ChecklistTypeID']);
                 $taskToCheckListItems->setChecklistitem($checkListResponse[0]['ChecklistItem']);
                 $taskToCheckListItems->setDescription($checkListResponse[0]['Description']);
