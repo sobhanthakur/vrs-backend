@@ -127,6 +127,36 @@ class ManageController extends FOSRestController
      *              property="TaskID",
      *              type="integer",
      *              example=1801
+     *         ),
+     *     @SWG\Property(
+     *              property="TaskNote",
+     *              type="string",
+     *              example="Some Task Note"
+     *         ),
+     *     @SWG\Property(
+     *              property="NoteToOwner",
+     *              type="string",
+     *              example="Some note to owner"
+     *         ),
+     *     @SWG\Property(
+     *              property="CheckListDetails",
+     *              type="string",
+     *              example={
+     *              {
+                        "ChecklistTypeID" : 10,
+                        "ChecklistItemID" : 2995,
+                        "Input" : {
+     *                      {
+                                "TaskToChecklistItemID" : 1716941,
+                                "Checked" : 0,
+                                "ImageUploaded" : "",
+                                "OptionSelected" : "1",
+                                "EnteredValue" : "",
+                                "EnteredValueAmount" : ""
+                            }
+     *                     }
+                        }
+     *              }
      *         )
      *    )
      *  )
