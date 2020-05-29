@@ -80,7 +80,7 @@ class StartTaskService extends BaseService
                 $response['Started'] = $today->format('h:i A');
             } else {
                 // Clock Out/Pause Task
-                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer->getTimezoneid()->getRegion());
                 if(!empty($timeClockTasks)) {
                     $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
                       'clockout' => null,

@@ -60,7 +60,7 @@ class TabsService extends BaseService
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID);
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
             $today = new \DateTime('now',new \DateTimeZone('UTC'));
             if( $tasks[0]['TaskStartDate'] >= $today ||
                 ((int)$servicers[0]['TimeTracking'] === 1 &&

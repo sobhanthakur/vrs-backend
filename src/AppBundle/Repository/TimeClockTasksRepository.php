@@ -9,6 +9,7 @@
 namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockTasks;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityRepository;
@@ -268,15 +269,25 @@ class TimeClockTasksRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function CheckOtherStartedTasks($servicerID)
+    public function CheckOtherStartedTasks($servicerID,$region)
     {
-        $timeZoneUTC = new \DateTimeZone('UTC');
-        $today = (new \DateTime('now', $timeZoneUTC))->format('Y-m-d');
-        $tomorrow = (new \DateTime('tomorrow', $timeZoneUTC))->format('Y-m-d');
-        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockIn >= '".$today."' AND tct.ClockIn <= '".$tomorrow."' AND tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID);
+        $timeClockTasks = null;
+        $timeZone = new \DateTimeZone($region);
+        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." ORDER BY tct.ClockIn DESC");
 
         $result->execute();
-        return $result->fetchAll();
+        $result = $result->fetchAll();
+
+        if (!empty($result)) {
+            // Check if the clock in time falls in 24 hours range
+            $timeClockTasks = (new TimeZoneConverter())->RangeCalculation($result[0]['ClockIn'],$timeZone);
+        }
+
+        if ($timeClockTasks) {
+            return $result;
+        }
+
+        return [];
     }
 
     /**
