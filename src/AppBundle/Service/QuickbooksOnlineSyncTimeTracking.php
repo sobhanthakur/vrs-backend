@@ -188,6 +188,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $integrationQBDTimeTracking->setSentstatus(true);
                         $integrationQBDTimeTracking->setIntegrationqbbatchid($batch);
                         $this->entityManager->persist($integrationQBDTimeTracking);
+                        $this->entityManager->flush();
                     }
                 }
             } else {
@@ -232,8 +233,8 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     $result->setSentstatus(true);
                     $this->entityManager->persist($result);
                 }
+                $this->entityManager->flush();
             }
-            $this->entityManager->flush();
 
             return true;
         } catch (UnprocessableEntityHttpException $exception) {

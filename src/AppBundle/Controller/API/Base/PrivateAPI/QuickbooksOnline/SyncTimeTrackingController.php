@@ -47,6 +47,7 @@ class SyncTimeTrackingController extends FOSRestController
     public function SyncTimeTracking(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $qbLogger = $this->container->get(GeneralConstants::MONOLOG_QB);
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
@@ -54,6 +55,11 @@ class SyncTimeTrackingController extends FOSRestController
             $qbService = $this->container->get('vrscheduler.quickbooksonline_timetracking');
             return $qbService->SyncTimeTracking($customerID,$this->container->getParameter('QuickBooksConfiguration'),$integrationID);
         } catch (ServiceException $exception) {
+            $qbLogger->debug('API Request: ', [
+                'Error' => [
+                    'TimeTracking' => $exception->getMessage()
+                ]
+            ]);
             throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
