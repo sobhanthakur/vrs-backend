@@ -29,6 +29,7 @@ class RegionGroupController extends FOSRestController
     /**
      * Region Group to fetch region group details
      *
+     *
      * @SWG\Tag(name="Region Group")
      * @SWG\Response(
      *     response=200,

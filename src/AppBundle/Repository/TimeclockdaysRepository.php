@@ -193,4 +193,133 @@ class TimeclockdaysRepository extends EntityRepository
             ->execute();
         return $result;
     }
+
+    /**
+     * Function to fetch all staff day time details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffTaskTimeID
+     * @param $offset
+     * @param $query
+     * @param $limit
+     *
+     * @return array
+     */
+    public function fetchTimeClockDays($customerDetails, $queryParameter, $staffTaskTimeID, $offset, $query, $limit = null)
+    {
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('tcd');
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //check for staffid option in query paramter
+        isset($queryParameter['staffid']) ? $staffID = $queryParameter['staffid'] : $staffID = null;
+
+        //check for  option in query paramter
+        isset($queryParameter['startdate']) ? $startDate = $queryParameter['startdate'] : $startDate = null;
+
+        //check for  option in query paramter
+        isset($queryParameter['enddate']) ? $endDate =  $queryParameter['enddate']: $endDate = null;
+
+        //condition to set query for all or some required fields
+        $result->select($query);
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('tcd.' . $field);
+            }
+        }
+
+        //condition to check for customer specific data
+        if ($customerDetails) {
+            $result->andWhere('sr.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //condition to check for staff id data
+        if ($staffID) {
+            $result->andWhere('sr.servicerid IN (:StaffID)')
+                ->setParameter('StaffID', $staffID);
+        }
+
+        //condition to check for data after this date
+        if (isset($startDate)) {
+            $startDate = date("Y-m-d", strtotime($startDate));
+            $result->andWhere('tcd.clockin >= (:StartDate)')
+                ->setParameter('StartDate', $startDate);
+        }
+
+        if (isset($endDate)) {
+            $endDate = date("Y-m-d", strtotime($endDate . ' +1 day'));
+            $result->andWhere('tcd.clockout <= (:EndDate)')
+                ->setParameter('EndDate', $endDate);
+        }
+
+        //return staff day times details
+         return $result
+            ->innerJoin('tcd.servicerid', 'sr')
+            ->setFirstResult(($offset - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * Function to fetch staff day time details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffTaskTimeID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $staffTaskTimeID, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all staff day time field
+        $taskFields = GeneralConstants::STAFF_DAY_TIMES_MAPPING;
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : $fields;
+
+        //condition to set query for all or some required fields according to resquest
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $taskFields[$field];
+            }
+        } else {
+            $query .= implode(',', $taskFields);
+        }
+        $query = trim($query, ',');
+
+        //return staff day time results
+        return $this->fetchTimeClockDays($customerDetails, $queryParameter, $staffTaskTimeID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to get no. of Items of the staff day time
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $staffTaskTimeID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $staffTaskTimeID, $offset)
+    {
+        $query = "count(tcd.timeclockdayid)";
+        return $this->fetchTimeClockDays($customerDetails, $queryParameter, $staffTaskTimeID, $offset, $query);
+
+    }
 }

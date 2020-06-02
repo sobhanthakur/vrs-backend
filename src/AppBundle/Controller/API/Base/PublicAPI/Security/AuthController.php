@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use Swagger\Annotations as SWG;
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;

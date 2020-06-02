@@ -262,6 +262,13 @@ class Customers
     /**
      * @var string|null
      *
+     * @ORM\Column(name="LinenFields", type="string", length=2000, nullable=true)
+     */
+    private $linenfields;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="Password", type="string", length=50, nullable=true, options={"fixed"=true})
      */
     private $password;
@@ -2734,5 +2741,29 @@ class Customers
     public function getCountryid()
     {
         return $this->countryid;
+    }
+
+    /**
+     * Set linenfields.
+     *
+     * @param string|null $linenfields
+     *
+     * @return Customers
+     */
+    public function setLinenfields($linenfields = null)
+    {
+        $this->linenfields = $linenfields;
+
+        return $this;
+    }
+
+    /**
+     * Get linenfields.
+     *
+     * @return string|null
+     */
+    public function getLinenfields()
+    {
+        return $this->linenfields;
     }
 }

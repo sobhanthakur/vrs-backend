@@ -122,6 +122,37 @@ services:
         parent: vrscheduler.base_service
         public: true
 
+    vrscheduler.public_task_rules_service:
+        class: AppBundle\Service\TaskRulesService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_staff_service:
+        class: AppBundle\Service\StaffService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_tasks_service:
+        class: AppBundle\Service\TasksService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_staff_tasks_service:
+        class: AppBundle\Service\StaffTasksService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_staff_task_times_service:
+        class: AppBundle\Service\StaffTaskTimeService
+        parent: vrscheduler.base_service
+        public: true
+
+    vrscheduler.public_staff_day_times_service:
+        class: AppBundle\Service\StaffDayTimesService
+        parent: vrscheduler.base_service
+        public: true
+
+
     vrscheduler.servicers_dashboard:
         class: AppBundle\Service\ServicersDashboardService
         parent: vrscheduler.base_service
@@ -143,4 +174,19 @@ services:
         parent: vrscheduler.base_service
         public: true
 
-
+    vrscheduler.tabs_service:
+            class: AppBundle\Service\TabsService
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.manage_service:
+            class: AppBundle\Service\ManageService
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.starttask_service:
+            class: AppBundle\Service\StartTaskService
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.manage_save:
+            class: AppBundle\Service\ManageSave
+            parent: vrscheduler.base_service
+            public: true

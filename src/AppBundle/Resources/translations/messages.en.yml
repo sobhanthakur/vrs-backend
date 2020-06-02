@@ -50,6 +50,7 @@ api:
             unable_to_delete: "Unable to delete the mappings"
             invalid_auth_body: "Invalid Authentication Content"
             unable_to_reset_batch: "Unable to Reset/Nothing to Reset"
+            try_1_min_later: "Try After One Minute"
 
             invalid_auth_fields: "Authentication failed due to invalid access key or secret access key or signature hash."
             incomplete_req: "Incomplete Request."
@@ -69,6 +70,9 @@ api:
             oauth_failed: "Login Failed. Connect to Quickbooks first"
             nothing_to_map: "Nothing to sync"
             qbo_connection_error: "Unable to Connect to Quickbooks Online"
+            invalid_property_booking: "Invalid Property ID"
+            invalid_checkout: "Checkout Date cannot be Same or Before Date of Checkin"
+            invalid_timelogin_details: "Bookings are not allowed with checkout 2 days or earlier than today."
         success:
             message: success
             password_reset: The password was reset successfully.

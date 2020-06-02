@@ -10,6 +10,8 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\CustomClasses\TimeZoneConverter;
+use AppBundle\DatabaseViews\TimeClockDays;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -36,7 +38,7 @@ class AuthenticationService extends BaseService
         $authenticateResult[GeneralConstants::STATUS] = false;
         try {
             // Checking Authorization Key for validating Token.
-            $authorizationParts = explode(" ", $request->headers->get('Authorization'));
+            $authorizationParts = explode(" ", $request->headers->get(GeneralConstants::AUTHORIZATION));
 
             if (
                 count($authorizationParts) !== 2 || 'VRS' !== $authorizationParts[0]
@@ -292,15 +294,45 @@ class AuthenticationService extends BaseService
     public function PWAAutheticate($content)
     {
         try {
+
             $servicerID = $content[GeneralConstants::SERVICERID];
             $password = $content[GeneralConstants::PASS];
+            $clockedIn = null;
+            $timeZone = null;
+            $timeClockResponse = null;
+            $timeTaskResponse = null;
 
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
 
+            // Set TimeZone
+            $timeZone = new \DateTimeZone($servicer[0]['Region']);
+
             if(empty($servicer)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
+
+            // TimeTracking Information from time clock tasks and time clock days
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID.' ORDER BY T.ClockIn DESC';
+            $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
+            $timeClockDays->execute();
+            $timeClockDays = $timeClockDays->fetchAll();
+
+            if (!empty($timeClockDays)) {
+                $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
+            }
+
+            // Convert Clock In to the local timezone
+            if($timeClockResponse) {
+                $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('h:i A');
+            }
+
+            $servicer[0]['TimeClockDays'] = $timeClockResponse ? 1 : 0;
+            $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
+            $servicer[0]['ClockedIn'] = $clockedIn;
+
+            $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
 
             // Create a new token
             $signer = new Sha256();

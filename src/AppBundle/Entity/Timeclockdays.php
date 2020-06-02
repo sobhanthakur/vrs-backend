@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TimeClockDays", indexes={@ORM\Index(name="ClockIn", columns={"ClockIn"}), @ORM\Index(name="ServicerID", columns={"ServicerID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\TimeclockdaysRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Timeclockdays
 {
@@ -24,9 +25,9 @@ class Timeclockdays
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="ClockIn", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="ClockIn", type="datetime", nullable=false)
      */
-    private $clockin = 'getutcdate()';
+    private $clockin;
 
     /**
      * @var \DateTime|null
@@ -115,16 +116,16 @@ class Timeclockdays
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="UpdateDate", type="datetime", nullable=true, options={"default"="getutcdate()"})
+     * @ORM\Column(name="UpdateDate", type="datetime", nullable=true)
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="CreateDAte", type="datetime", nullable=true, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDAte", type="datetime", nullable=true)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Servicers
@@ -530,5 +531,19 @@ class Timeclockdays
     public function getServicerid()
     {
         return $this->servicerid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null && $this->getClockin() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+            $this->setClockin($datetime);
+        }
     }
 }

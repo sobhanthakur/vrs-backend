@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Taskstoservicers
  *
  * @ORM\Table(name="TasksToServicers", indexes={@ORM\Index(name="IsLead", columns={"IsLead"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="ServicerIDwithTaskID", columns={"TaskID", "ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\StaffTasksRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Taskstoservicers
 {
@@ -157,9 +158,9 @@ class Taskstoservicers
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var string|null
@@ -167,6 +168,13 @@ class Taskstoservicers
      * @ORM\Column(name="TroubleshootingNote", type="text", length=-1, nullable=true)
      */
     private $troubleshootingnote;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ApprovedDate", type="datetime", nullable=true)
+     */
+    private $approvedDate;
 
     /**
      * @var \Tasks
@@ -750,5 +758,41 @@ class Taskstoservicers
     public function getServicerid()
     {
         return $this->servicerid;
+    }
+
+    /**
+     * Set approvedDate.
+     *
+     * @param \DateTime|null $approvedDate
+     *
+     * @return Taskstoservicers
+     */
+    public function setApprovedDate($approvedDate = null)
+    {
+        $this->approvedDate = $approvedDate;
+
+        return $this;
+    }
+
+    /**
+     * Get approvedDate.
+     *
+     * @return \DateTime|null
+     */
+    public function getApprovedDate()
+    {
+        return $this->approvedDate;
+    }
+
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

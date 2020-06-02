@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TimeClockTasks", indexes={@ORM\Index(name="AutoLogOutFlag", columns={"AutoLogOutFlag"}), @ORM\Index(name="ClockIn", columns={"ClockIn"}), @ORM\Index(name="Clockout", columns={"ClockOut"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\TimeClockTasksRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Timeclocktasks
 {
@@ -24,9 +25,9 @@ class Timeclocktasks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="ClockIn", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="ClockIn", type="datetime", nullable=false)
      */
-    private $clockin = 'getutcdate()';
+    private $clockin;
 
     /**
      * @var \DateTime|null
@@ -122,16 +123,16 @@ class Timeclocktasks
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="UpdateDate", type="datetime", nullable=true, options={"default"="getutcdate()"})
+     * @ORM\Column(name="UpdateDate", type="datetime", nullable=true)
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="CreateDAte", type="datetime", nullable=true, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDAte", type="datetime", nullable=true)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Servicers
@@ -595,5 +596,18 @@ class Timeclocktasks
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null && $this->getClockin() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

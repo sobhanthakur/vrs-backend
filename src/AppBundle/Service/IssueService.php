@@ -64,7 +64,7 @@ class IssueService extends BaseService
             $totalItems = count($issueRepo->getItemsCount($authDetails['customerID'], $queryParameter, $issueID, $offset));
 
             //setting page count
-            $totalPage = (int) ceil($totalItems/$limit);
+            $totalPage = (int)ceil($totalItems / $limit);
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($issuesData); $i++) {
@@ -75,11 +75,54 @@ class IssueService extends BaseService
                 if (isset($issuesData[$i]['ClosedDate'])) {
                     $issuesData[$i]['ClosedDate'] = $issuesData[$i]['ClosedDate']->format('Ymd');
                 }
+
+                //IssueType formating for response
+                if (isset($issuesData[$i]['IssueType'])) {
+                    switch ($issuesData[$i]['IssueType']) {
+                        case 0:
+                            $issuesData[$i]['IssueType'] = "Damage";
+                            break;
+                        case 1:
+                            $issuesData[$i]['IssueType'] = "Maintenance";
+                            break;
+                        case 2:
+                            $issuesData[$i]['IssueType'] = "Lost and Found";
+                            break;
+                        case 3:
+                            $issuesData[$i]['IssueType'] = "Supply Flag";
+                            break;
+                        case -1:
+                            $issuesData[$i]['IssueType'] = "None";
+                            break;
+                        default:
+                            $issuesData[$i]['IssueType'] = null;
+                    }
+                }
+
+                //StatusID formating for response
+                if (isset($issuesData[$i]['StatusID'])) {
+                    switch ($issuesData[$i]['StatusID']) {
+                        case 0:
+                            $issuesData[$i]['StatusID'] = "New";
+                            break;
+                        case 1:
+                            $issuesData[$i]['StatusID'] = " In Progress";
+                            break;
+                        case 2:
+                            $issuesData[$i]['StatusID'] = "On Hold";
+                            break;
+                        case 3:
+                            $issuesData[$i]['StatusID'] = "Cataloged";
+                            break;
+                        default:
+                            $issuesData[$i]['StatusID'] = null;
+                    }
+                }
             }
 
             //Setting return Data
             $returnData['url'] = $pathInfo;
-            ($totalItems <= $offset * $limit)  ? $returnData['has_more'] = false : $returnData['has_more'] = true;
+            ($totalItems <= $offset * $limit) ? $returnData['has_more'] = false : $returnData['has_more'] = true;
             $returnData['data'] = $issuesData;
             $returnData['page_count'] = $totalPage;
             $returnData['page_size'] = $limit;

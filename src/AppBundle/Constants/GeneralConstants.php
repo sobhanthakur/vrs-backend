@@ -91,6 +91,7 @@ final class GeneralConstants
 
     const MESSAGE = 'message';
     const STATUS = 'status';
+    const SUCCESS = 'Success';
 
     const CUSTOMER_NAME = 'CustomerName';
     const LOGGEDINSTAFFID = 'LoggedInStaffID';
@@ -117,6 +118,10 @@ final class GeneralConstants
     const REGION_GROUPS_API = 'Region groups API error ';
     const PROPERTY_BOOKING_API = 'property booking API error ';
     const ISSUES_API = 'Issues API error ';
+    const STAFF_API = 'staff API error ';
+    const TASKS_API = 'tasks API error ';
+    const STAFF_DAY_TIMES_API = 'staff day times API error ';
+    const STAFF_TASK_API = 'staff Task API error ';
 
     const START_DATE = 'StartDate';
     const QBDSYNCBILLING = 'QBDSyncBilling';
@@ -184,8 +189,8 @@ final class GeneralConstants
     const SUCCESS_TRANSLATION = 'api.response.success.message';
 
     /*constants used in API request limiting*/
-    const LIMIT = 1000;
-    const PERIOD = 3600;
+    const LIMIT = 500;
+    const PERIOD = 60;
 
     /*constants used in login api*/
     const ACCESS_TOKEN = "Access_Token";
@@ -203,6 +208,13 @@ final class GeneralConstants
     const IMAGE_URL = "https://images.vrscheduler.com/70/";
     const USER_AGENT = "user_agent";
     const PROPERTIES = "properties";
+
+    const PROPERTIES_BOOKING_MESSEGE = [
+        'INSERT' => 'Data is succesfully inserted',
+        'UPDATE' => 'Data is succesfully updated',
+        'DELETED' => 'Data is succesfully deleted'
+    ];
+
     const PAYLOAD = [
         'CUSTOMER_ID' => 'customerID',
         'CUSTOMER_NAME' => 'customerName',
@@ -297,13 +309,107 @@ final class GeneralConstants
         'createdate' => 'i.createdate as CreateDate'
     ];
 
+    const TASK_RULES_MAPPING = [
+        'serviceid' => 's.serviceid as TaskRuleID',
+        'active' => 's.active as Active',
+        'servicename' => 's.servicename as TaskRule',
+        'abbreviation' => 's.abbreviation as Abbreviation',
+        'createdate' => 's.createdate as CreateDate'
+    ];
+
+    const STAFF_MAPPING = [
+        'servicerid' => 's.servicerid as StaffID',
+        'name' => 's.name as Name',
+        'servicerabbreviation' => 's.servicerabbreviation as Abbreviation',
+        'email' => 's.email as Email',
+        'phone' => 's.phone as Phone',
+        'countryid' => 's.countryid as CountryID',
+        'active' => 's.active as Active',
+        'createdate' => 's.createdate as CreateDate'
+    ];
+
+    const TASKS_MAPPING = [
+        'taskid' => 't.taskid as TaskID',
+        'serviceid' => 't.serviceid as TaskRuleID',
+        'propertybookingid' => 'pb.propertybookingid as PropertyBookingID',
+        'propertyid' => 'p.propertyid as PropertyID',
+        'taskname' => 't.taskname as TaskName',
+        'taskdescription' => 't.taskdescription as TaskDescription',
+        'approved' => 't.approved as Approved',
+        'approveddate' => 't.approveddate as ApprovedDate',
+        'completed' => '(CASE WHEN t.completeconfirmeddate IS NOT NULL THEN 1 ELSE 0 END) as Completed',
+        'billable' => 't.billable as Billable',
+        'amount' => 't.amount as LaborAmount',
+        'expenseamount' => 't.expenseamount as MaterialsAmount',
+        'taskdate' => 't.taskdate as TaskDate',
+        'completeconfirmeddate' => 't.completeconfirmeddate as CompleteConfirmedDate',
+        'created' => 't.createdate as CreateDate'
+    ];
+
+    const STAFF_TASKS_MAPPING = [
+        'tasktoservicerid' => 'st.tasktoservicerid as StaffTaskID',
+        'taskid' => 't.taskid as TaskID',
+        'task' => '\'\' as TaskName',
+        'serviceid' => 't.serviceid as TaskRuleID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'staffname' => 'sr.name as StaffName',
+        'paytype' => 'st.paytype as PayType',
+        'payrate' => 'st.payrate as PayRate',
+        'piecepay' => 'st.piecepay as PiecePay',
+        'TimeTracked' => '\'\' as TimeTracked',
+        'completed' => '(CASE WHEN st.completeconfirmeddate IS NOT NULL THEN 1 ELSE 0 END) as Completed',
+        'completeconfirmeddate' => 'st.completeconfirmeddate as CompleteConfirmedDate',
+        'Pay' => '\'\' as Pay',
+        'servicerpayrate' => 'sr.payrate as ServicerPayRate',
+        'clockin' => 'tct.clockin as ClockIn',
+        'clockout' => 'tct.clockout as ClockOut',
+        'taskshortname' => 't.taskname as TaskShortName',
+        'servicename' => 's.servicename as ServiceName',
+        'approved' => 'CASE WHEN st.piecepaystatus != 0 THEN 1 ELSE 0 END as Approved',
+        'approvedDate' => 'st.approvedDate as ApprovedDate',
+    ];
+
+    const STAFF_TASKS_TIMES_MAPPING = [
+        'timeclocktaskid' => 'tct.timeclocktaskid as StaffTaskTimeID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'taskid' => 't.taskid as TaskID',
+        'clockin' => 'tct.clockin as ClockIn',
+        'clockout' => 'tct.clockout as ClockOut',
+        'inlat' => 'tct.inlat as InLat',
+        'InLon' => 'tct.inlon as InLon',
+        'OutLat' => 'tct.outlat as OutLat',
+        'OutLon' => 'tct.outlon as OutLon',
+        'note' => 'tct.note as Note',
+        'autologoutflag' => 'tct.autologoutflag as AutoLogOutFlag'
+    ];
+
+    const STAFF_DAY_TIMES_MAPPING = [
+        'timeclockdayid' => 'tcd.timeclockdayid as StaffDayTimeID',
+        'servicerid' => 'sr.servicerid as StaffID',
+        'clockin' => 'tcd.clockin as ClockIn',
+        'clockout' => 'tcd.clockout as ClockOut',
+        'inlat' => 'tcd.inlat as InLat',
+        'inlon' => 'tcd.inlon as InLon',
+        'outlat' => 'tcd.outlat as OutLat',
+        'outlon' => 'tcd.outlon as OutLon',
+        'mileagein' => 'tcd.mileagein as MileageIn',
+        'mileageout' => 'tcd.mileageout as MileageOut',
+        'autologoutflag' => 'tcd.autologoutflag as AutoLogOutFlag'
+    ];
+
     const CHECK_API_RESTRICTION = [
         'PROPERTIES' => 'properties',
         'OWNERS' => 'owners',
         'REGION_GROUPS' => 'regiongroups',
         'REGIONS' => 'regions',
         'ISSUES' => 'issues',
-        'PROPERTY_BOOKINGS' => 'propertybookings'
+        'PROPERTY_BOOKINGS' => 'propertybookings',
+        'TASK_RULES' => 'taskrules',
+        'STAFF' => 'staff',
+        'TASKS' => 'tasks',
+        'STAFF_TASKS' => 'stafftasks',
+        'STAFF_TASK_TIMES' => 'stafftasktimes',
+        'STAFF_DAY_TIMES' => 'staffdaytimes'
     ];
 
     const PARAMS = [
@@ -313,7 +419,58 @@ final class GeneralConstants
         'FIELDS' => 'fields',
         'SORT' => 'sort',
         'PER_PAGE' => 'per_page',
-        'PAGE' => 'page'
+        'PAGE' => 'page',
+        'PROPERTYID' => 'propertyid',
+        'CHECKINSTARTDATE' => 'checkinstartdate',
+        'CHECKINENDDATE' => 'checkinenddate',
+        'CHECKOUTSTARTDATE' => 'checkoutstartdate',
+        'CHECKOUTENDDATE' => 'checkoutenddate',
+        'CLOSED' => 'closed',
+        'APPROVED' => 'approved',
+        'APPROVEDSTARTDATE' => 'approvedstartdate',
+        'APPROVEDENDDATE' => 'approvedenddate',
+        'COMPLETEDSTARTDATE' => 'completedstartdate',
+        'COMPLETEDENDDATE' => 'completedenddate',
+        'TASKSTARTDATE' => 'taskstartdate',
+        'TASKENDDATE' => 'taskenddate',
+        'BILLABLE' => 'billable',
+        'COMPLETED' => 'completed',
+        'STATUSID' => 'statusid',
+        'ISSUETYPE' => 'issuetype',
+        'URGENT' => 'urgent',
+        'CREATESTARTDATE' => 'createstartdate',
+        'CREATEENDDATE' => 'createenddate',
+        'CLOSEDSTARTDATE' => 'closedstartdate',
+        'CLOSEDENDDATE' => 'closedenddate',
+        'TASDRULEID' => 'taskruleid',
+        'PROPERTYBOOKINGID' => 'propertybookingid',
+        'TASKID' => 'taskid',
+        'PAYTYPE' => 'paytype',
+        'STAFFID' => 'staffid',
+        'STARTDATE' => 'startdate',
+        'ENDDATE' => 'enddate',
+        'TASKRULEID' => 'taskruleid'
+    ];
+
+    const RATE_LIMIT = 300;
+    const RATE_LIMIT_TTL = 60;
+
+    const LOCALE = [
+        0 => 'eng',
+        1 => 'spa',
+        2 => 'por',
+        3 => 'fre',
+        4 => 'jap'
+    ];
+
+    const DAYOFWEEK = [
+        1 => 2,
+        2 => 3,
+        3 => 4,
+        4 => 5,
+        5 => 6,
+        6 => 7,
+        7 => 1
     ];
 
 }

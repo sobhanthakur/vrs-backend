@@ -70,10 +70,14 @@ final class ErrorConstants
     const INVALID_INTEGRATION = 'INVALIDINTEGRATION';
     const INVALID_JSON = 'INVALID_JSON';
     const INVALID_REQUEST = 'INVALID_REQUEST';
+    const INVALID_CHECKOUT = 'INVALID_CHECKOUT';
     const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
+    const TRY1MINLATER = 'TRY_1_MIN_LATER';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
     const NOTHING_TO_MAP = 'NOTHINGTOMAP';
+    const INVALID_PROPERTY_BOOKING_ID = 'INVALID_PROPERTY_BOOKING_ID';
+    const INVALID_TIMELOGIN_DETAILS = 'INVALID_TIMELOGIN_DETAILS';
 
 
 
@@ -120,6 +124,7 @@ final class ErrorConstants
         self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
         self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
         self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential'],
+        self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust'],
         self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],
         self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
         self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],
@@ -127,6 +132,12 @@ final class ErrorConstants
         self::INVALID_AUTHENTICATION_BODY => ['code' => 401, self::MESSAGE => 'api.response.error.invalid_auth_body'],
         self::OAUTH_FAILED => ['code' => 1002, self::MESSAGE => 'api.response.error.oauth_failed'],
         self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
-        self::QBO_CONNECTION_ERROR => ['code' => 1002, self::MESSAGE => 'api.response.error.qbo_connection_error']
+        self::QBO_CONNECTION_ERROR => ['code' => 1002, self::MESSAGE => 'api.response.error.qbo_connection_error'],
+        self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
+        self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
+        self::INVALID_PROPERTY_BOOKING_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_booking'],
+        self::INVALID_CHECKOUT  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_checkout'],
+        self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details'],
+        self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later']
     ];
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Issues", indexes={@ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="ClosedDate", columns={"CreateDate"}), @ORM\Index(name="CreateDAte", columns={"CreateDate"}), @ORM\Index(name="fromtaskID", columns={"FromTaskID"}), @ORM\Index(name="issuetype", columns={"IssueType"}), @ORM\Index(name="propertyid", columns={"PropertyID"}), @ORM\Index(name="PropertyITemID", columns={"PropertyItemID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="SubmittedByServicerID", columns={"SubmittedByServicerID"}), @ORM\Index(name="taskid", columns={"TaskID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IssueRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Issues
 {
@@ -180,14 +181,14 @@ class Issues
      *
      * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var bool
@@ -1131,5 +1132,18 @@ class Issues
     public function getSubmittedbyservicerid()
     {
         return $this->submittedbyservicerid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Tasks", indexes={@ORM\Index(name="Active", columns={"Active"}), @ORM\Index(name="backtobakck", columns={"BackToBack"}), @ORM\Index(name="Billable", columns={"Billable"}), @ORM\Index(name="Closed", columns={"Closed"}), @ORM\Index(name="completeconfirmeddate", columns={"CompleteConfirmedDate"}), @ORM\Index(name="CompleteConfirmedDAte_Active", columns={"CompleteConfirmedDate", "Active"}), @ORM\Index(name="CompletedByServicerID", columns={"CompletedByServicerID"}), @ORM\Index(name="IssueID", columns={"IssueID"}), @ORM\Index(name="NextPropertyBOokingID", columns={"NextPropertyBookingID"}), @ORM\Index(name="ParentTaskID", columns={"ParentTaskID"}), @ORM\Index(name="propertyBOokingID", columns={"PropertyBookingID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="PropertyItemID", columns={"PropertyItemID"}), @ORM\Index(name="ServiceID", columns={"ServiceID"}), @ORM\Index(name="ServicerID", columns={"ServicerID"}), @ORM\Index(name="TaskDate", columns={"TaskDate"}), @ORM\Index(name="TaskTime", columns={"TaskTime"}), @ORM\Index(name="TaskTimeMinutes", columns={"TaskTimeMinutes"}), @ORM\Index(name="TaskType", columns={"TaskType"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\TasksRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Tasks
 {
@@ -402,16 +403,16 @@ class Tasks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false)
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var \DateTime|null
@@ -731,9 +732,9 @@ class Tasks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="ScheduleChangeDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="ScheduleChangeDate", type="datetime", nullable=false)
      */
-    private $schedulechangedate = 'getutcdate()';
+    private $schedulechangedate;
 
     /**
      * @var int|null
@@ -768,7 +769,7 @@ class Tasks
      *
      * @ORM\Column(name="WorkOrderSentDate", type="datetime", nullable=true)
      */
-    private $workordersentdate = '0';
+    private $workordersentdate;
 
     /**
      * @var int|null
@@ -844,6 +845,20 @@ class Tasks
      * })
      */
     private $propertyid;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="Approved", type="boolean", nullable=false, options={"default"="0"})
+     */
+    private $approved = '0';
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="ApprovedDate", type="datetime", nullable=true)
+     */
+    private $approveddate;
 
 
 
@@ -3639,5 +3654,66 @@ class Tasks
     public function getPropertyid()
     {
         return $this->propertyid;
+    }
+
+    /**
+     * Set approved.
+     *
+     * @param bool $approved
+     *
+     * @return Tasks
+     */
+    public function setApproved($approved)
+    {
+        $this->approved = $approved;
+
+        return $this;
+    }
+
+    /**
+     * Get approved.
+     *
+     * @return bool
+     */
+    public function getApproved()
+    {
+        return $this->approved;
+    }
+
+    /**
+     * Set approveddate.
+     *
+     * @param \DateTime|null $approveddate
+     *
+     * @return Tasks
+     */
+    public function setApproveddate($approveddate = null)
+    {
+        $this->approveddate = $approveddate;
+
+        return $this;
+    }
+
+    /**
+     * Get approveddate.
+     *
+     * @return \DateTime|null
+     */
+    public function getApproveddate()
+    {
+        return $this->approveddate;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+            $this->setSchedulechangedate($datetime);
+        }
     }
 }
