@@ -144,16 +144,11 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
-
+                        "HourlyRate" =>$timeclock['PayRate'],
                         "Taxable" => "false",
                         "Description" => $description
                     );
 
-                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock) && $timeclock['UnitPrice']) {
-                        $timeActivity = array_merge($timeActivity,array(
-                            "HourlyRate" =>$timeclock['UnitPrice']
-                        ));
-                    }
                     if(array_key_exists('CustomerValue',$timeclock) && $timeclock['CustomerValue']) {
                         $timeActivity = array_merge($timeActivity,array(
                             "CustomerRef" => [
@@ -161,6 +156,10 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                             ],
                             "BillableStatus" => "Billable"
                         ));
+                    }
+
+                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock) && $timeclock['UnitPrice']) {
+                        $timeActivity['HourlyRate'] = $timeclock['UnitPrice'];
                     }
 
                     if(array_key_exists('ItemListID',$timeclock) && $timeclock['ItemListID']) {
