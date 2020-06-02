@@ -443,7 +443,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
             $size = count($timezones);
             $query = "t1.clockin>='".$timezones[0]->format('Y-m-d')." ".$timezones[0]->format('H:i:s')."'";
             for ($i=1;$i<$size;$i++) {
-                $query .= " OR t1.clockin>='".$timezones[$i]->format('Y-m-d')." ".$timezones->format('H:i:s')."'";
+                $query .= " OR t1.clockin>='".$timezones[$i]->format('Y-m-d')." ".$timezones[$i]->format('H:i:s')."'";
             }
             $result->andWhere($query);
         }
