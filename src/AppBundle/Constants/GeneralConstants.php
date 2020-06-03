@@ -331,6 +331,7 @@ final class GeneralConstants
     const TASKS_MAPPING = [
         'taskid' => 't.taskid as TaskID',
         'serviceid' => 't.serviceid as TaskRuleID',
+        'servicename' => 's.servicename as ServiceName',
         'propertybookingid' => 'pb.propertybookingid as PropertyBookingID',
         'propertyid' => 'p.propertyid as PropertyID',
         'taskname' => 't.taskname as TaskName',
@@ -343,7 +344,12 @@ final class GeneralConstants
         'expenseamount' => 't.expenseamount as MaterialsAmount',
         'taskdate' => 't.taskdate as TaskDate',
         'completeconfirmeddate' => 't.completeconfirmeddate as CompleteConfirmedDate',
-        'created' => 't.createdate as CreateDate'
+        'created' => 't.createdate as CreateDate',
+        'taskstartdate' => 't.taskstartdate AS TaskStartDate',
+        'taskstarttime' => 't.taskstarttime AS TaskStartTime',
+        'taskcompletebydate' => 't.taskcompletebydate AS TaskCompleteByDate',
+        'taskcompletebytime' => 't.taskcompletebytime AS TaskCompleteByTime',
+        'taskdatetime' => 't.taskdatetime AS TaskTime'
     ];
 
     const STAFF_TASKS_MAPPING = [

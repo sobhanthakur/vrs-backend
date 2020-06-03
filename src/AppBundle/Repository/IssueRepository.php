@@ -200,7 +200,7 @@ class IssueRepository extends EntityRepository
 
         //return issue details
         return $result
-            ->innerJoin('i.propertyid', 'p')
+            ->leftJoin('i.propertyid', 'p')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)

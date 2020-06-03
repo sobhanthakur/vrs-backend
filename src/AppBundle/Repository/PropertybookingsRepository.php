@@ -115,7 +115,7 @@ class PropertybookingsRepository extends EntityRepository
 
         //return property booking details
         return $result
-            ->innerJoin('pb.propertyid', 'p')
+            ->leftJoin('pb.propertyid', 'p')
             ->andWhere('pb.deleted = 0')
             ->getQuery()
             ->setFirstResult(($offset - 1) * $limit)

@@ -94,8 +94,8 @@ class RegionsRepository extends EntityRepository
 
         //return region details
         return $result
-            ->innerJoin('r.regiongroupid', 'rg')
-            ->innerJoin('r.timezoneid', 't')
+            ->leftJoin('r.regiongroupid', 'rg')
+            ->leftJoin('r.timezoneid', 't')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
