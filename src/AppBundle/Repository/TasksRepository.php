@@ -327,8 +327,9 @@ class TasksRepository extends EntityRepository
 
         //return task details
         return $result
-            ->innerJoin('t.propertybookingid', 'pb')
-            ->innerJoin('t.propertyid', 'p')
+            ->leftJoin('t.propertybookingid', 'pb')
+            ->leftJoin('t.propertyid', 'p')
+            ->leftJoin('AppBundle:Services','s',Expr\Join::WITH, 't.serviceid=s.serviceid')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()

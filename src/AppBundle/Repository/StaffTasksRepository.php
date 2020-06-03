@@ -64,10 +64,10 @@ class StaffTasksRepository extends EntityRepository
 
         //return task details
         return $result
-            ->innerJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
-            ->innerJoin('st.taskid', 't')
+            ->leftJoin('AppBundle:Timeclocktasks', 'tct', Expr\Join::WITH, 'st.servicerid = tct.servicerid')
+            ->leftJoin('st.taskid', 't')
             ->leftJoin('AppBundle:Services', 's', Expr\Join::WITH, 't.serviceid = s.serviceid')
-            ->innerJoin('st.servicerid', 'sr')
+            ->leftJoin('st.servicerid', 'sr')
             ->andWhere('st.taskid=tct.taskid')
             ->andWhere('st.taskid IN (:TaskID)')
             ->setParameter('TaskID', $ids)

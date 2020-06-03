@@ -200,9 +200,9 @@ class TimeClockTasksRepository extends EntityRepository
         }
 
         //return staff task times details
-         return $result
-            ->innerJoin('tct.servicerid', 'sr')
-             ->innerJoin('tct.taskid', 't')
+        return $result
+            ->leftJoin('tct.servicerid', 'sr')
+            ->leftJoin('tct.taskid', 't')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()

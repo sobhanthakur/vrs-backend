@@ -262,7 +262,7 @@ class TimeclockdaysRepository extends EntityRepository
 
         //return staff day times details
          return $result
-            ->innerJoin('tcd.servicerid', 'sr')
+            ->leftJoin('tcd.servicerid', 'sr')
             ->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()

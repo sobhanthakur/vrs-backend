@@ -84,6 +84,22 @@ class TasksService extends BaseService
                 if (isset($taskRulesData[$i]['ApprovedDate'])) {
                     $taskRulesData[$i]['ApprovedDate'] = $taskRulesData[$i]['ApprovedDate']->format('Ymd');
                 }
+
+                if (isset($taskRulesData[$i]['TaskStartDate'])) {
+                    $taskRulesData[$i]['TaskStartDate'] = $taskRulesData[$i]['TaskStartDate']->format('Ymd');
+                }
+
+                if (isset($taskRulesData[$i]['TaskCompleteByDate'])) {
+                    $taskRulesData[$i]['TaskCompleteByDate'] = $taskRulesData[$i]['TaskCompleteByDate']->format('Ymd');
+                }
+
+                if (isset($taskRulesData[$i]['TaskTime'])) {
+                    $taskRulesData[$i]['TaskTime'] = $taskRulesData[$i]['TaskTime']->format('H:i:s');
+                }
+
+                // Set Task Name as ServiceName-TaskName
+                $taskRulesData[$i]['TaskName'] = $taskRulesData[$i]['ServiceName'].' '.$taskRulesData[$i]['TaskName'];
+                unset($taskRulesData[$i]['ServiceName']);
             }
 
             //Setting return Data
