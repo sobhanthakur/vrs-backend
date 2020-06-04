@@ -68,7 +68,7 @@ class TasksService extends BaseService
             $totalPage = (int)ceil($totalItems / $limit);
 
             //Formating Date to utc ymd format
-            for ($i = 0; $i < count($taskRulesData); $i++) {
+            for ($i=0; $i<count($taskRulesData); $i++) {
                 if (isset($taskRulesData[$i]['CreateDate'])) {
                     $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Ymd');
                 }
@@ -100,6 +100,39 @@ class TasksService extends BaseService
                 // Set Task Name as ServiceName-TaskName
                 $taskRulesData[$i]['TaskName'] = $taskRulesData[$i]['ServiceName'].' '.$taskRulesData[$i]['TaskName'];
                 unset($taskRulesData[$i]['ServiceName']);
+
+                // Add Property Details in a separate Object
+                $properties = [];
+                $nextPropertyBooking = [];
+
+                // Preg Replace Key Containing Properties_, npb_
+                foreach ($taskRulesData[$i] as $key => $value) {
+                    if (strpos($key, 'Properties_') !== false) {
+                        if (strpos($key,'Date') && $taskRulesData[$i][$key]) {
+                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Ymd');
+                        }
+                        $trimmedKey = explode('Properties_',$key);
+                        $properties[$trimmedKey[1]] = $taskRulesData[$i][$key];
+                        unset($taskRulesData[$i][$key]);
+                    }
+                    if (strpos($key, 'npb_') !== false) {
+                        if (($key === 'npb_CheckIn' || $key === 'npb_CheckOut' || $key === 'npb_CreateDate') && $taskRulesData[$i][$key]) {
+                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Ymd');
+                        }
+                        $trimmedKey = explode('npb_',$key);
+                        $nextPropertyBooking[$trimmedKey[1]] = $taskRulesData[$i][$key];
+                        unset($taskRulesData[$i][$key]);
+                    }
+                }
+
+                $staffs = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->StaffDetailsInTasks($taskRulesData[$i]['TaskID']);
+                foreach ($staffs as $key => $value) {
+                    $staffs[$key]['CreateDate'] = $staffs[$key]['CreateDate'] ? $staffs[$key]['CreateDate']->format('Ymd') : null;
+                }
+
+                $taskRulesData[$i]['Property'] = $properties;
+                $taskRulesData[$i]['Staff'] = $staffs;
+                $taskRulesData[$i]['NextPropertyBooking'] = $nextPropertyBooking;
             }
 
             //Setting return Data

@@ -272,22 +272,18 @@ class StaffTasksRepository extends EntityRepository
         $result = $this->getData($customerDetails, $queryParameter, $staffTaskID, $offset, $query, $limit);
         return array_column($result, 1);
     }
-//
-//    public function GetIssueLog($servicerID,$taskID)
-//    {
-//        return $this->createQueryBuilder('st')
-//            ->select('propertyid.propertyname AS PropertyName,timezoneid.region AS TimeZoneRegion,issues.issue')
-//            ->leftJoin('st.taskid','taskid')
-//            ->leftJoin('taskid.propertyid','propertyid')
-//            ->leftJoin('st.servicerid','servicerid')
-//            ->leftJoin('propertyid.regionid','region')
-//            ->leftJoin('region.timezoneid','timezoneid')
-//            ->leftJoin('AppBundle:Propertyitems','propertyitems',Expr\Join::WITH, 'propertyid.propertyid = propertyitems.propertyid')
-//            ->leftJoin('AppBundle:Issues','issues',Expr\Join::WITH,'propertyid.propertyid=issues.propertyid')
-//            ->where('st.taskid='.$taskID)
-//            ->andWhere('st.servicerid='.$servicerID)
-//            ->getQuery()
-//            ->execute();
-//    }
 
+    /**
+     * @param $taskID
+     * @return mixed
+     */
+    public function StaffDetailsInTasks($taskID)
+    {
+        return $this->createQueryBuilder('ts')
+            ->select('s.servicerid AS StaffID, s.name AS Name, s.servicerabbreviation AS Abbreviation, s.email AS Email, s.phone AS Phone, s.countryid AS CountryID, s.active AS Active, s.createdate AS CreateDate')
+            ->leftJoin('ts.servicerid','s')
+            ->where('ts.taskid='.$taskID)
+            ->getQuery()
+            ->execute();
+    }
 }
