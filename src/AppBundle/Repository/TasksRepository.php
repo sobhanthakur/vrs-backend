@@ -237,7 +237,19 @@ class TasksRepository extends EntityRepository
         //condition to set sortorder
         if (sizeof($sortOrder) > 0) {
             foreach ($sortOrder as $field) {
-                $result->orderBy('t.' . $field);
+                if ($field !== 'taskdateasc' && $field !== 'taskdatedesc') {
+                    $result->addOrderBy('t.' . $field);
+                }
+
+                // If TaskDateAsc is present
+                if ($field === 'taskdateasc') {
+                    $result->addOrderBy('t.taskdatetime');
+                }
+
+                // If TaskDateDesc is present
+                if ($field === 'taskdatedesc') {
+                    $result->addOrderBy('t.taskdatetime','desc');
+                }
             }
         }
 
@@ -387,6 +399,11 @@ class TasksRepository extends EntityRepository
     public function getItemsCount($customerDetails, $queryParameter, $taskID, $offset)
     {
         $query = "count(t.taskid)";
+
+        // Unset Sort Order IF Exists
+        if(array_key_exists('sort',$queryParameter)) {
+            unset($queryParameter['sort']);
+        }
         return $this->fetchTasks($customerDetails, $queryParameter, $taskID, $offset, $query);
 
     }
