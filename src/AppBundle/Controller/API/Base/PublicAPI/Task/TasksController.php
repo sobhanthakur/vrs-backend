@@ -44,40 +44,80 @@ class TasksController extends FOSRestController
      *              property="data",
      *              example=
      *               {
-     *                  {
-     *                  "TaskID": 12049,
-     *                   "TaskRuleID": 1,
-     *                   "PropertyBookingID": 1204,
-     *                   "PropertyID": 13,
-     *                   "TaskName": null,
-     *                   "TaskDescription": null,
-     *                   "Approved": null,
-     *                   "ApprovedDate": null,
-     *                   "Completed": "1",
-     *                   "Billable": true,
-     *                   "LaborAmount": 0,
-     *                   "MaterialsAmount": 0,
-     *                   "TaskDate": "20170427",
-     *                   "CompleteConfirmedDate": "20170705",
-     *                   "CreateDate": "20170414"
-     *                   },
-     *                  {
-     *                  "TaskID": 12040,
-     *                   "TaskRuleID": 4,
-     *                   "PropertyBookingID": 1200,
-     *                   "PropertyID": 10,
-     *                   "TaskName": null,
-     *                   "TaskDescription": null,
-     *                   "Approved": null,
-     *                   "ApprovedDate": null,
-     *                   "Completed": "1",
-     *                   "Billable": true,
-     *                   "LaborAmount": 0,
-     *                   "MaterialsAmount": 0,
-     *                   "TaskDate": "20170427",
-     *                   "CompleteConfirmedDate": "20170705",
-     *                   "CreateDate": "20170414"
-     *                   }
+                        {
+                        "TaskID": 1,
+                        "TaskRuleID": 0,
+                        "PropertyBookingID": null,
+                        "PropertyID": 6803,
+                        "TaskName": " 9:30-12:30",
+                        "TaskDescription": "",
+                        "Approved": null,
+                        "ApprovedDate": null,
+                        "Completed": "1",
+                        "Billable": true,
+                        "LaborAmount": 0,
+                        "MaterialsAmount": 0,
+                        "TaskDate": "20181205",
+                        "CompleteConfirmedDate": "20181205",
+                        "CreateDate": "20181204",
+                        "TaskStartDate": "20181205",
+                        "TaskStartTime": 9,
+                        "TaskCompleteByDate": "20181205",
+                        "TaskCompleteByTime": 13,
+                        "TaskTime": "09:30:00",
+                        "Property": {
+                        "PropertyID": 1,
+                        "Active": true,
+                        "PropertyName": "P_Name",
+                        "PropertyAbbreviation": "PN",
+                        "PropertyNotes": null,
+                        "InternalNotes": "",
+                        "Address": "Address",
+                        "Lat": 10.163195,
+                        "Lon": -80.653259,
+                        "DoorCode": "See Notes",
+                        "DefaultCheckInTime": 16,
+                        "DefaultCheckInTimeMinutes": 0,
+                        "DefaultCheckOutTime": 10,
+                        "DefaultCheckOutTimeMinutes": 0,
+                        "OwnerID": "1",
+                        "RegionID": "1",
+                        "CreateDate": "20181204"
+                        },
+                        "Staff": {
+                        {
+                        "StaffID": 1609,
+                        "Name": "StaffName",
+                        "Abbreviation": "Staff Abbreviation",
+                        "Email": "staffemail",
+                        "Phone": "1234",
+                        "CountryID": 1,
+                        "Active": true,
+                        "CreateDate": "20181129"
+                        }
+                        },
+                        "NextPropertyBooking": {
+                        "PropertyBookingID": 274085,
+                        "PropertyID": "6949",
+                        "CheckIn": "20190620",
+                        "CheckInTime": 16,
+                        "CheckInTimeMinutes": 0,
+                        "CheckOut": "20190621",
+                        "CheckOutTime": 10,
+                        "CheckOutTimeMinutes": 0,
+                        "Guest": "Jennifer Yung",
+                        "GuestEmail": "guestemail",
+                        "GuestPhone": "0987",
+                        "NumberOfGuests": 10,
+                        "NumberOfPets": 0,
+                        "NumberOfChildren": 0,
+                        "IsOwner": 0,
+                        "BookingTags": "",
+                        "ManualBookingTags": null,
+                        "CreateDate": "20181210",
+                        "Active": true
+                        }
+                        }
      *              }
      *         )
      *     )
@@ -157,23 +197,80 @@ class TasksController extends FOSRestController
      *              property="data",
      *              example=
      *                {
-     *                  {
-     *                  "TaskID": 12049,
-     *                   "TaskRuleID": 1,
-     *                   "PropertyBookingID": 1204,
-     *                   "PropertyID": 13,
-     *                   "TaskName": null,
-     *                   "TaskDescription": null,
-     *                   "Approved": null,
-     *                   "ApprovedDate": null,
-     *                   "Completed": "1",
-     *                   "Billable": true,
-     *                   "LaborAmount": 0,
-     *                   "MaterialsAmount": 0,
-     *                   "TaskDate": "20170427",
-     *                   "CompleteConfirmedDate": "20170705",
-     *                   "CreateDate": "20170414"
-     *                   }
+                        {
+                        "TaskID": 1,
+                        "TaskRuleID": 0,
+                        "PropertyBookingID": null,
+                        "PropertyID": 6803,
+                        "TaskName": " 9:30-12:30",
+                        "TaskDescription": "",
+                        "Approved": null,
+                        "ApprovedDate": null,
+                        "Completed": "1",
+                        "Billable": true,
+                        "LaborAmount": 0,
+                        "MaterialsAmount": 0,
+                        "TaskDate": "20181205",
+                        "CompleteConfirmedDate": "20181205",
+                        "CreateDate": "20181204",
+                        "TaskStartDate": "20181205",
+                        "TaskStartTime": 9,
+                        "TaskCompleteByDate": "20181205",
+                        "TaskCompleteByTime": 13,
+                        "TaskTime": "09:30:00",
+                        "Property": {
+                        "PropertyID": 1,
+                        "Active": true,
+                        "PropertyName": "P_Name",
+                        "PropertyAbbreviation": "PN",
+                        "PropertyNotes": null,
+                        "InternalNotes": "",
+                        "Address": "Address",
+                        "Lat": 10.163195,
+                        "Lon": -80.653259,
+                        "DoorCode": "See Notes",
+                        "DefaultCheckInTime": 16,
+                        "DefaultCheckInTimeMinutes": 0,
+                        "DefaultCheckOutTime": 10,
+                        "DefaultCheckOutTimeMinutes": 0,
+                        "OwnerID": "1",
+                        "RegionID": "1",
+                        "CreateDate": "20181204"
+                        },
+                        "Staff": {
+                        {
+                        "StaffID": 1609,
+                        "Name": "StaffName",
+                        "Abbreviation": "Staff Abbreviation",
+                        "Email": "staffemail",
+                        "Phone": "1234",
+                        "CountryID": 1,
+                        "Active": true,
+                        "CreateDate": "20181129"
+                        }
+                        },
+                        "NextPropertyBooking": {
+                        "PropertyBookingID": 274085,
+                        "PropertyID": "6949",
+                        "CheckIn": "20190620",
+                        "CheckInTime": 16,
+                        "CheckInTimeMinutes": 0,
+                        "CheckOut": "20190621",
+                        "CheckOutTime": 10,
+                        "CheckOutTimeMinutes": 0,
+                        "Guest": "Jennifer Yung",
+                        "GuestEmail": "guestemail",
+                        "GuestPhone": "0987",
+                        "NumberOfGuests": 10,
+                        "NumberOfPets": 0,
+                        "NumberOfChildren": 0,
+                        "IsOwner": 0,
+                        "BookingTags": "",
+                        "ManualBookingTags": null,
+                        "CreateDate": "20181210",
+                        "Active": true
+                        }
+                        }
      *              }
      *         )
      *     )
