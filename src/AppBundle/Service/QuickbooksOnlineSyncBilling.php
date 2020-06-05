@@ -108,15 +108,41 @@ class QuickbooksOnlineSyncBilling extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
             }
 
+             /*
+              * Property Count for the customer
+              * If the property count of the customer is 1,
+              * then do not mention property name in the description
+             */
+             $propertyCount = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesForInvoiceDescription($customerID);
+             if (!empty($propertyCount)) {
+                 $propertyCount = (int)$propertyCount[0]['Count'];
+             }
+
+            // Check if syncbilling=1,active=1
             $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID,'active'=>true,'qbdsyncbilling'=>true));
             if(!$integrationsToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
             foreach ($tasks as $task) {
+                // Check If Both Labor & Material are mapped.
+                // If only either of them is mapped, then do not mention labor/material in the description
+                $itemMap = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(array(
+                    'serviceid' => $task['ServiceID'],
+                    'laborormaterials' => !$task['LaborOrMaterial']
+                ));
+
                 $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                 $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
-                $description[$task['QBDCustomerListID']][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . ($task['LaborOrMaterial'] === true ? "Material" : "Labor");
+
+                // Add "-" only if previous field is not empty
+                $des = $propertyCount ? $task['PropertyName'] : '';
+                $des .= $propertyCount && $task['PropertyName'] ? ' - '.$task['TaskName'] : $task['TaskName'];
+                $des .= $task['TaskName'] ?  ' - '.$task['ServiceName'] : $task['ServiceName'];
+                $des .= $task['ServiceName'] && $itemMap ? ' - ' : '';
+                $des .= $itemMap ? ($task['LaborOrMaterial'] === true ? "Material" : "Labor") : '';
+
+                $description[$task['QBDCustomerListID']][] =  $des;
                 $taskDate[$task['QBDCustomerListID']][] = $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']);
                 $amount[$task['QBDCustomerListID']][] = $task['Amount'];
             }

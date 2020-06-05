@@ -320,4 +320,15 @@ class PropertiesRepository extends EntityRepository
 
     }
 
+    public function CountPropertiesForInvoiceDescription($customerID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('COUNT(p.propertyid) AS Count')
+            ->leftJoin('p.customerid','c')
+            ->where('c.customerid='.$customerID)
+            ->andWhere('p.active=1')
+            ->getQuery()
+            ->execute();
+    }
+
 }
