@@ -350,6 +350,10 @@ final class GeneralConstants
         'taskcompletebydate' => 't.taskcompletebydate AS TaskCompleteByDate',
         'taskcompletebytime' => 't.taskcompletebytime AS TaskCompleteByTime',
         'taskdatetime' => 't.taskdatetime AS TaskTime',
+        'internalnotes' => 't.internalnotes AS InternalNotes',
+        'packlinen' => 't.packlinen AS PackLinen',
+        'retrievelinen' => 't.retrievelinen AS RetrieveLinen',
+        'linencounts' => 'pb.linencounts AS LinenCounts',
         'p.PropertyID' => 'p.propertyid AS Properties_PropertyID',
         'p.Active' => 'p.active AS Properties_Active',
         'p.PropertyName' => 'p.propertyname AS Properties_PropertyName',
@@ -367,7 +371,7 @@ final class GeneralConstants
         'p.OwnerID' => 'IDENTITY(p.ownerid) AS Properties_OwnerID',
         'p.RegionID' => 'IDENTITY(p.regionid) AS Properties_RegionID',
         'p.CreateDate' => 'p.createdate AS Properties_CreateDate',
-        'npb.PropertyBookingID' => 'npb.propertybookingid AS npb_PropertyBookingID',
+        /*'npb.PropertyBookingID' => 'npb.propertybookingid AS npb_PropertyBookingID',
         'npb.PropertyID' => 'IDENTITY(npb.propertyid) AS npb_PropertyID',
         'npb.CheckIn' => 'npb.checkin AS npb_CheckIn',
         'npb.CheckInTime' => 'npb.checkintime AS npb_CheckInTime',
@@ -385,7 +389,7 @@ final class GeneralConstants
         'npb.BookingTags' => 'npb.bookingtags AS npb_BookingTags',
         'npb.ManualBookingTags' => 'npb.manualbookingtags AS npb_ManualBookingTags',
         'npb.CreateDate' => 'npb.createdate AS npb_CreateDate',
-        'npb.Active' => 'npb.active AS npb_Active'
+        'npb.Active' => 'npb.active AS npb_Active'*/
     ];
 
     const STAFF_TASKS_MAPPING = [

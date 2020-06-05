@@ -201,6 +201,9 @@ class TasksRepository extends EntityRepository
         //check for sort option in query paramter
         isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
 
+        //check if active is set
+        isset($queryParameter['active']) ? $active = $queryParameter['active'] : null;
+
         //check for task rule id in query paramter
         isset($queryParameter['taskruleid']) ? $taskRuleID = $queryParameter['taskruleid'] : $taskRuleID = null;
 
@@ -335,6 +338,12 @@ class TasksRepository extends EntityRepository
             $taskEndDate = date("Y-m-d", strtotime($taskEndDate));
             $result->andWhere('t.taskdate <= (:TaskEndDate)')
                 ->setParameter('TaskEndDate', $taskEndDate);
+        }
+
+        //condition to filter by  Active
+        if (isset($active)) {
+            $result->andWhere('t.active =  (:Active)')
+                ->setParameter('Active', $active);
         }
 
         //return task details
