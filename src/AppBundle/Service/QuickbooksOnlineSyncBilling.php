@@ -100,6 +100,7 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $description = [];
             $amount = [];
             $result = null;
+            $taskDate = [];
 
             // Get Tasks that are ready for Billing
             $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID,true);
@@ -107,15 +108,42 @@ class QuickbooksOnlineSyncBilling extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
             }
 
+             /*
+              * Property Count for the customer
+              * If the property count of the customer is 1,
+              * then do not mention property name in the description
+             */
+             $propertyCount = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesForInvoiceDescription($customerID);
+             if (!empty($propertyCount)) {
+                 $propertyCount = (int)$propertyCount[0]['Count'];
+             }
+
+            // Check if syncbilling=1,active=1
             $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID,'active'=>true,'qbdsyncbilling'=>true));
             if(!$integrationsToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
             foreach ($tasks as $task) {
+                // Check If Both Labor & Material are mapped.
+                // If only either of them is mapped, then do not mention labor/material in the description
+                $itemMap = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(array(
+                    'serviceid' => $task['ServiceID'],
+                    'laborormaterials' => !$task['LaborOrMaterial']
+                ));
+
                 $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                 $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
-                $description[$task['QBDCustomerListID']][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
+
+                // Add "-" only if previous field is not empty
+                $des = $propertyCount ? $task['PropertyName'] : '';
+                $des .= $propertyCount && $task['PropertyName'] ? ' - '.$task['TaskName'] : $task['TaskName'];
+                $des .= $task['TaskName'] ?  ' - '.$task['ServiceName'] : $task['ServiceName'];
+                $des .= $task['ServiceName'] && $itemMap ? ' - ' : '';
+                $des .= $itemMap ? ($task['LaborOrMaterial'] === true ? "Material" : "Labor") : '';
+
+                $description[$task['QBDCustomerListID']][] =  $des;
+                $taskDate[$task['QBDCustomerListID']][] = $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']);
                 $amount[$task['QBDCustomerListID']][] = $task['Amount'];
             }
 
@@ -125,21 +153,34 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $batch->setIntegrationtocustomer($integrationsToCustomers);
             $this->entityManager->persist($batch);
 
+            // Get Version and Qb type
+            $version = $integrationsToCustomers->getVersion();
+            $type = $integrationsToCustomers->getType();
+
             // Create the billing array
             foreach ($response as $key => $value) {
                 $line = [];
                 foreach ($value as $key1=>$value1) {
-                    $line[] = array(
+                    $lineDetails = array(
+                        "ItemRef" => array(
+                            "value" => $value1
+                        ),
+                        "Qty" => 1
+                    );
+
+                    if ($version === 2 && $type === 2) {
+                        $lineDetails = array_merge($lineDetails,array(
+                            "ServiceDate" =>  $taskDate[$key][$key1]
+                        ));
+                    }
+                    $lineItems = array(
                         "DetailType" => "SalesItemLineDetail",
                         "Amount" => number_format((float)$amount[$key][$key1],2,'.',''),
                         "Description" => $description[$key][$key1],
-                        "SalesItemLineDetail" => array(
-                            "ItemRef" => array(
-                                "value" => $value1
-                            ),
-                            "Qty" => 1
-                        )
+                        "SalesItemLineDetail" => $lineDetails
                     );
+
+                    $line[] = $lineItems;
                 }
                 $billing = array(
                     "CustomerRef" => array(
@@ -147,10 +188,6 @@ class QuickbooksOnlineSyncBilling extends BaseService
                     ),
                     "Line" => $line
                 );
-
-                // Get Version and Qb type
-                $version = $integrationsToCustomers->getVersion();
-                $type = $integrationsToCustomers->getType();
 
                 if($version === 2 && $type === 1) {
                     // Create Estimates
