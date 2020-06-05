@@ -72,6 +72,20 @@ class Tasks
     private $backtoback = '0';
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="PackLinen", type="boolean", nullable=false)
+     */
+    private $packlinen = '0';
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="RetrieveLinen", type="boolean", nullable=false)
+     */
+    private $retrievelinen = '0';
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="TaskDate", type="date", nullable=false)
@@ -3715,5 +3729,53 @@ class Tasks
             $this->setCreatedate($datetime);
             $this->setSchedulechangedate($datetime);
         }
+    }
+
+    /**
+     * Set packlinen.
+     *
+     * @param bool $packlinen
+     *
+     * @return Tasks
+     */
+    public function setPacklinen($packlinen)
+    {
+        $this->packlinen = $packlinen;
+
+        return $this;
+    }
+
+    /**
+     * Get packlinen.
+     *
+     * @return bool
+     */
+    public function getPacklinen()
+    {
+        return $this->packlinen;
+    }
+
+    /**
+     * Set retrievelinen.
+     *
+     * @param bool $retrievelinen
+     *
+     * @return Tasks
+     */
+    public function setRetrievelinen($retrievelinen)
+    {
+        $this->retrievelinen = $retrievelinen;
+
+        return $this;
+    }
+
+    /**
+     * Get retrievelinen.
+     *
+     * @return bool
+     */
+    public function getRetrievelinen()
+    {
+        return $this->retrievelinen;
     }
 }

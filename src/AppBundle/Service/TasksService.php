@@ -97,13 +97,21 @@ class TasksService extends BaseService
                     $taskRulesData[$i]['TaskTime'] = $taskRulesData[$i]['TaskTime']->format('H:i:s');
                 }
 
+                if (isset($taskRulesData[$i]['TaskStartTime'])) {
+                    $taskRulesData[$i]['TaskStartTime'] = $taskRulesData[$i]['TaskStartTime'] !== 99 ? $taskRulesData[$i]['TaskStartTime'] : null;
+                }
+
+                if (isset($taskRulesData[$i]['TaskCompleteByTime'])) {
+                    $taskRulesData[$i]['TaskCompleteByTime'] = $taskRulesData[$i]['TaskCompleteByTime'] !== 99 ? $taskRulesData[$i]['TaskCompleteByTime'] : null;
+                }
+
                 // Set Task Name as ServiceName-TaskName
                 $taskRulesData[$i]['TaskName'] = $taskRulesData[$i]['ServiceName'].' '.$taskRulesData[$i]['TaskName'];
                 unset($taskRulesData[$i]['ServiceName']);
 
                 // Add Property Details in a separate Object
                 $properties = [];
-                $nextPropertyBooking = [];
+//                $nextPropertyBooking = [];
 
                 // Preg Replace Key Containing Properties_, npb_
                 foreach ($taskRulesData[$i] as $key => $value) {
@@ -115,24 +123,26 @@ class TasksService extends BaseService
                         $properties[$trimmedKey[1]] = $taskRulesData[$i][$key];
                         unset($taskRulesData[$i][$key]);
                     }
-                    if (strpos($key, 'npb_') !== false) {
+                    // Next PropertyBooking
+                    /*if (strpos($key, 'npb_') !== false) {
                         if (($key === 'npb_CheckIn' || $key === 'npb_CheckOut' || $key === 'npb_CreateDate') && $taskRulesData[$i][$key]) {
                             $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Ymd');
                         }
                         $trimmedKey = explode('npb_',$key);
                         $nextPropertyBooking[$trimmedKey[1]] = $taskRulesData[$i][$key];
                         unset($taskRulesData[$i][$key]);
-                    }
+                    }*/
                 }
 
                 $staffs = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->StaffDetailsInTasks($taskRulesData[$i]['TaskID']);
                 foreach ($staffs as $key => $value) {
                     $staffs[$key]['CreateDate'] = $staffs[$key]['CreateDate'] ? $staffs[$key]['CreateDate']->format('Ymd') : null;
+                    $staffs[$key]['Phone'] = trim($staffs[$key]['Phone']);
                 }
 
                 $taskRulesData[$i]['Property'] = $properties;
                 $taskRulesData[$i]['Staff'] = $staffs;
-                $taskRulesData[$i]['NextPropertyBooking'] = $nextPropertyBooking;
+//                $taskRulesData[$i]['NextPropertyBooking'] = $nextPropertyBooking;
             }
 
             //Setting return Data
