@@ -22,6 +22,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  */
 class QuickbooksOnlineSyncBilling extends BaseService
 {
+    private $persistBatch = null;
+
     /**
      * @param $customerID
      * @param $quickbooksConfig
@@ -151,7 +153,6 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $batch = new Integrationqbbatches();
             $batch->setBatchtype(false);
             $batch->setIntegrationtocustomer($integrationsToCustomers);
-            $this->entityManager->persist($batch);
 
             // Get Version and Qb type
             $version = $integrationsToCustomers->getVersion();
@@ -208,8 +209,15 @@ class QuickbooksOnlineSyncBilling extends BaseService
                         if($result) {
                             $billingID->setTxnid($result->Id);
                         }
+
+                        // Persist Billing Batch
+                        if(!$this->persistBatch) {
+                            $this->persistBatch = true;
+                            $this->entityManager->persist($batch);
+                        }
                         $billingID->setSentstatus(true);
                         $billingID->setIntegrationqbbatchid($batch);
+
                         $this->entityManager->persist($billingID);
                     }
                 }
