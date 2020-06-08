@@ -499,6 +499,13 @@ class Properties
      */
     private $customerid;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="StaffDashboardNote", type="string", length=50, nullable=true)
+     */
+    private $staffdashboardnote;
+
 
 
     /**
@@ -2117,5 +2124,29 @@ class Properties
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * Set staffdashboardnote.
+     *
+     * @param string|null $staffdashboardnote
+     *
+     * @return Properties
+     */
+    public function setStaffdashboardnote($staffdashboardnote = null)
+    {
+        $this->staffdashboardnote = $staffdashboardnote;
+
+        return $this;
+    }
+
+    /**
+     * Get staffdashboardnote.
+     *
+     * @return string|null
+     */
+    public function getStaffdashboardnote()
+    {
+        return $this->staffdashboardnote;
     }
 }
