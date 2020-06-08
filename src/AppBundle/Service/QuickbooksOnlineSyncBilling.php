@@ -103,6 +103,7 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $amount = [];
             $result = null;
             $taskDate = [];
+            $emails = [];
 
             // Get Tasks that are ready for Billing
             $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID,true);
@@ -136,6 +137,8 @@ class QuickbooksOnlineSyncBilling extends BaseService
 
                 $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                 $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
+
+                $emails[$task['QBDCustomerListID']] = $task['OwnerEmail'];
 
                 // Add "-" only if previous field is not empty
                 $des = $propertyCount ? $task['PropertyName'] : '';
@@ -189,6 +192,15 @@ class QuickbooksOnlineSyncBilling extends BaseService
                     ),
                     "Line" => $line
                 );
+
+                if ($emails[$key] && $emails[$key] !== 'REMOVED') {
+                    $billing = array_merge($billing,array(
+                        'EmailStatus' => 'NeedToSend',
+                        'BillEmail' => array(
+                            'Address' => $emails[$key]
+                        )
+                    ));
+                }
 
                 if($version === 2 && $type === 1) {
                     // Create Estimates
