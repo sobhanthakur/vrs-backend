@@ -153,12 +153,12 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('b1.txnid AS TxnID,(CASE WHEN iis.laborormaterials=1 THEN 1 ELSE 0 END) AS LaborOrMaterial,(CASE WHEN b1.txnid IS NULL AND b1.sentstatus=1 THEN 0 ELSE 1 END) AS Status,p2.propertyname AS PropertyName,t2.taskname AS TaskName,(CASE WHEN iis.laborormaterials=1 THEN t2.expenseamount ELSE t2.amount END) AS Amount,s2.servicename AS ServiceName,t2.completeconfirmeddate AS CompleteConfirmedDate')
-            ->innerJoin($this->taskid, 't2')
-            ->innerJoin($this->propertyid,'p2')
-            ->innerJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
-            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->leftJoin($this->taskid, 't2')
+            ->leftJoin($this->propertyid,'p2')
+            ->leftJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
+            ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
-            ->innerJoin('iis.integrationqbditemid','ii')
+            ->leftJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.integrationqbbatchid='.$batchID)
             ->setFirstResult(($offset - 1) * $limit)
@@ -176,11 +176,11 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
         $result = $this
             ->createQueryBuilder('b1')
             ->select('count(b1.taskid)')
-            ->innerJoin($this->taskid, 't2')
-            ->innerJoin($this->propertyid,'p2')
-            ->innerJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
+            ->leftJoin($this->taskid, 't2')
+            ->leftJoin($this->propertyid,'p2')
+            ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
-            ->innerJoin('iis.integrationqbditemid','ii')
+            ->leftJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.integrationqbbatchid='.$batchID);
         return $result->getQuery()->getResult();
