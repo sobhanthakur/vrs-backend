@@ -80,7 +80,7 @@ class SyncLogsService extends BaseService
             }
 
             // Find BatchType in IntegrationQBBatches Table
-            $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
+//            $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
             $integrationQBBatches = $this->entityManager->getRepository('AppBundle:Integrationqbbatches')->FetchBatches($integrationToCustomers->getIntegrationtocustomerid(), $completedDate, $batchType,$limit,$offset);
             if($integrationQBBatches) {
                 $batchSize = count($integrationQBBatches);
