@@ -158,7 +158,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin('AppBundle:Services','s2',Expr\Join::WITH, 't2.serviceid=s2.serviceid')
             ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
-            ->leftJoin('iis.integrationqbditemid','ii')
+            ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.integrationqbbatchid='.$batchID)
             ->setFirstResult(($offset - 1) * $limit)
@@ -180,7 +180,7 @@ class IntegrationqbdbillingrecordsRepository extends EntityRepository
             ->leftJoin($this->propertyid,'p2')
             ->leftJoin('AppBundle:Integrationqbdcustomerstoproperties','icp',Expr\Join::WITH, 't2.propertyid=icp.propertyid')
             ->leftJoin('AppBundle:Integrationqbditemstoservices','iis',Expr\Join::WITH, 'iis.serviceid=t2.serviceid')
-            ->leftJoin('iis.integrationqbditemid','ii')
+            ->innerJoin('iis.integrationqbditemid','ii')
             ->andWhere('b1.sentstatus=1')
             ->andWhere('b1.integrationqbbatchid='.$batchID);
         return $result->getQuery()->getResult();
