@@ -305,12 +305,13 @@ class AuthenticationService extends BaseService
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
 
-            // Set TimeZone
-            $timeZone = new \DateTimeZone($servicer[0]['Region']);
 
             if(empty($servicer)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
+
+            // Set TimeZone
+            $timeZone = new \DateTimeZone($servicer[0]['Region']);
 
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
