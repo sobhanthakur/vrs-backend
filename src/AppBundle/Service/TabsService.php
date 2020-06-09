@@ -206,28 +206,37 @@ class TabsService extends BaseService
         try {
             $propertyID = $content['PropertyID'];
             $propertyBookings = '';
-            $properties = '';
+            $properties = [];
+            $propertiesCondition = '';
 
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
 
             // Get all PropertyBookings
             $pb = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicerID);
+
+            // Get all Properties
+
+
             if (!empty($pb)) {
                 foreach ($pb as $value) {
                     $propertyBookings .= $value['PropertyBookingID'].',';
-                    $properties .= $value['PropertyID'].',';
+                    $properties[] = $value['PropertyID'].',';
                 }
                 $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
-                $properties = preg_replace("/,$/", '', $properties);
-
             }
 
+            if(!empty($properties)) {
+                foreach (array_unique($properties) as $property) {
+                    $propertiesCondition .= $property;
+                }
+                $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+            }
 
             $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
                         T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
 
             $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T2.PropertyID IN (' . $properties . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY TaskDate DESC';
+                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY TaskDate DESC';
 
             $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
             $response = 'SELECT TOP 5 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
@@ -236,15 +245,18 @@ class TabsService extends BaseService
             $response = $response->fetchAll();
 
             for ($i=0; $i<count($response); $i++) {
-                $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
-                if (!empty($staff)) {
-                    $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
-                    $response[$i]['ServicersDetails'] = $staff[0];
+                if ($response[$i]['ServicerID']) {
+                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
+                    if (!empty($staff)) {
+                        $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
+                        $response[$i]['ServicersDetails'] = $staff[0];
+                    } else {
+                        $response[$i]['ServicersDetails'] = null;
+                    }
+                    $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
                 } else {
-                    $response[$i]['ServicersDetails'] = null;
+                    unset($response[$i]);
                 }
-                $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
-
             }
 
         return array(

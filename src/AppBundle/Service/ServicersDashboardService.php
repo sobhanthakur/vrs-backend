@@ -115,7 +115,6 @@ class ServicersDashboardService extends BaseService
                     ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null)
                 ) {
                     $description = array(
-                        'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
                         'TaskDescription' => $tasks[$i]['TaskDescription'],
                         'GlobalNote' => $tasks[$i]['GlobalNote'],
                         'TaskType' => $tasks[$i]['TaskType'],
@@ -135,6 +134,7 @@ class ServicersDashboardService extends BaseService
 
                 // Task Details
                 $response[$i]['Details'] = array(
+                    'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
                     'TaskID' => $tasks[$i]['TaskID'],
                     'TaskName' => $tasks[$i]['TaskName'],
                     'Region' => $tasks[$i]['Region'],
