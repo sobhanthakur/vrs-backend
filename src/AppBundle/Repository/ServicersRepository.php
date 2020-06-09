@@ -335,7 +335,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     public function GetStaffContactInfo($servicerID)
     {
         return $this->createQueryBuilder('s')
-            ->select('s.phone AS StaffPhone,s.email AS StaffEmail,s.name AS StaffName')
+            ->select('s.phone AS ServicersPhone,s.email AS ServicersEmail,s.name AS ServicersName')
             ->where('s.servicerid='.$servicerID)
             ->getQuery()
             ->execute();

@@ -238,16 +238,18 @@ class TabsService extends BaseService
             for ($i=0; $i<count($response); $i++) {
                 $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
                 if (!empty($staff)) {
-                    $staff[0]['StaffPhone'] = trim($staff[0]['StaffPhone']);
-                    $response[$i]['StaffDetails'] = $staff[0];
+                    $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
+                    $response[$i]['ServicersDetails'] = $staff[0];
                 } else {
-                    $response[$i]['StaffDetails'] = null;
+                    $response[$i]['ServicersDetails'] = null;
                 }
                 $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
 
             }
 
-        return $response;
+        return array(
+            'Assignments' => $response
+        );
 
         } catch (HttpException $exception) {
             throw $exception;
