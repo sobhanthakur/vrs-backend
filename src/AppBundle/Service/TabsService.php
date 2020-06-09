@@ -13,6 +13,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\CheckLists;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\ServicesToProperties;
+use AppBundle\DatabaseViews\TaskWithServicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
@@ -200,15 +201,54 @@ class TabsService extends BaseService
      * @param $content
      * @return array
      */
-    public function GetAssignments($content)
+    public function GetAssignments($servicerID,$content)
     {
         try {
-            $propertyBookingID = $content['PropertyBookingID'];
+            $propertyID = $content['PropertyID'];
+            $propertyBookings = '';
+            $properties = '';
 
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForAssignmentsTab($propertyBookingID);
-            return array(
-                'Assignments' => $tasks
-            );
+            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+
+            // Get all PropertyBookings
+            $pb = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicerID);
+            if (!empty($pb)) {
+                foreach ($pb as $value) {
+                    $propertyBookings .= $value['PropertyBookingID'].',';
+                    $properties .= $value['PropertyID'].',';
+                }
+                $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                $properties = preg_replace("/,$/", '', $properties);
+
+            }
+
+
+            $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                        T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
+
+            $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                        T2.PropertyID IN (' . $properties . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY TaskDate DESC';
+
+            $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
+            $response = 'SELECT TOP 5 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
+            $response = $this->entityManager->getConnection()->prepare($response);
+            $response->execute();
+            $response = $response->fetchAll();
+
+            for ($i=0; $i<count($response); $i++) {
+                $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
+                if (!empty($staff)) {
+                    $staff[0]['StaffPhone'] = trim($staff[0]['StaffPhone']);
+                    $response[$i]['StaffDetails'] = $staff[0];
+                } else {
+                    $response[$i]['StaffDetails'] = null;
+                }
+                $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
+
+            }
+
+        return $response;
+
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

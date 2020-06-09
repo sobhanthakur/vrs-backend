@@ -444,7 +444,7 @@ class TasksRepository extends EntityRepository
             $result->addSelect('npb2.guest AS NextName');
         }
 
-        return $result->distinct(true)->setMaxResults(65)->getQuery()
+        return $result->distinct(true)->setMaxResults(61)->getQuery()
             ->getResult();
     }
 
@@ -649,5 +649,45 @@ class TasksRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function AssignmentsTask($servicerID)
+    {
+        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $result =  $this
+            ->createQueryBuilder('t2');
+
+        // Fetch Basic task details
+        $result->select('IDENTITY(t2.propertyid) AS PropertyID,pb2.propertybookingid AS PropertyBookingID, t2.taskid AS TaskID')
+            // Task Description Details
+            ->leftJoin('t2.propertyid','p2')
+            ->leftJoin('p2.regionid','r2')
+            ->leftJoin('t2.propertybookingid','pb2')
+            ->leftJoin('AppBundle:Propertybookings','npb2',Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
+            ->leftJoin('p2.customerid','c2')
+            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
+            ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
+            ->leftJoin('t2.propertyid','propertyid')
+            ->leftJoin('AppBundle:Services', 'serviceid', Expr\Join::WITH, 't2.serviceid=serviceid.serviceid')
+            ->where('s2.servicerid='.$servicerID)
+            ->andWhere('p2.active=1')
+            ->andWhere('t2.active=1')
+            ->andWhere('t2.completeconfirmeddate IS NULL')
+            ->andWhere('t2.propertybookingid IS NOT NULL OR t2.propertybookingid != :Blank OR t2.propertybookingid <> 0')
+            ->andWhere('p2.customerid=s2.customerid')
+            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
+            ->andWhere("t2.taskdate < :Today")
+            ->setParameter('Today',$today)
+            ->setParameter('Blank','')
+            ->orderBy('t2.taskdate','ASC')
+        ;
+
+
+        return $result->setMaxResults(61)->getQuery()
+            ->getResult();
     }
 }

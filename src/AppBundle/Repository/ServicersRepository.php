@@ -327,4 +327,17 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function GetStaffContactInfo($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.phone AS StaffPhone,s.email AS StaffEmail,s.name AS StaffName')
+            ->where('s.servicerid='.$servicerID)
+            ->getQuery()
+            ->execute();
+    }
 }

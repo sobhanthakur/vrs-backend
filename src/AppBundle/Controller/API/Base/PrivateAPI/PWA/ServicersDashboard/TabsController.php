@@ -236,7 +236,7 @@ class TabsController extends FOSRestController
      *     type="string",
      *     description="Base64 the following request format:
     {
-    ""PropertyBookingID"":1
+    ""PropertyID"":1
     }"
      *     )
      *  )
@@ -255,7 +255,7 @@ class TabsController extends FOSRestController
             $tabsService = $this->container->get('vrscheduler.tabs_service');
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $tabsService->GetAssignments($content);
+            return $tabsService->GetAssignments($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
