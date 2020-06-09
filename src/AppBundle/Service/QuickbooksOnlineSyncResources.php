@@ -99,7 +99,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($customers as $customer) {
-            $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id));
+            $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id,'customerid' => $customerObj->getCustomerid()));
             if(!$integrationQBDCustomers) {
                 $integrationQBDCustomers = new Integrationqbdcustomers();
             }
@@ -139,7 +139,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($employees as $employee) {
-            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id));
+            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
             if (!$integrationQBDEmployees) {
                 $integrationQBDEmployees = new Integrationqbdemployees();
             }
@@ -179,7 +179,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingItemListIDs = [];
         foreach ($items as $item) {
-            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id));
+            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
             if(!$integrationQBDItems) {
                 $integrationQBDItems = new Integrationqbditems();
             }
