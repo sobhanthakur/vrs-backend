@@ -231,6 +231,7 @@ class MapTaskRulesService extends BaseService
                         $data[$i][GeneralConstants::BILLTYPE]
                     );
                     $this->entityManager->persist($itemsToTaskrules);
+                    $this->entityManager->flush();
 
                     $itemsToTaskrules1 = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(
                         array(
@@ -241,7 +242,7 @@ class MapTaskRulesService extends BaseService
 
                     // Check if !(BillType) is not present in either DB or the payload
                     if (!$itemsToTaskrules1) {
-                        $key = $i;
+                        $key = true;
                         for ($j = 0; $j < count($data); $j++) {
                             if (
                                 ($i !== $j) &&
@@ -252,7 +253,7 @@ class MapTaskRulesService extends BaseService
                                 break;
                             }
                         }
-                        if ($key !== null) {
+                        if ($key) {
                             $itemsToTaskrules1 = new Integrationqbditemstoservices();
 
                             $itemsToTaskrules1->setIntegrationqbditemid(null);
@@ -261,6 +262,7 @@ class MapTaskRulesService extends BaseService
                                 !$data[$i][GeneralConstants::BILLTYPE]
                             );
                             $this->entityManager->persist($itemsToTaskrules1);
+                            $this->entityManager->flush();
                         }
                     }
 
@@ -272,9 +274,9 @@ class MapTaskRulesService extends BaseService
                         $itemsToTaskrules->setIntegrationqbditemid($integrationQBDItems);
                     }
                     $this->entityManager->persist($itemsToTaskrules);
+                    $this->entityManager->flush();
                 }
             }
-            $this->entityManager->flush();
 
             return array(
                 GeneralConstants::REASON_CODE => 0,
