@@ -3,6 +3,7 @@
 namespace AppBundle\QBDHelpers\Applications;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Customers;
 use AppBundle\Entity\Integrationqbdcustomers;
 use AppBundle\Entity\Integrationqbdemployees;
 use AppBundle\Entity\Integrationqbditems;
@@ -93,7 +94,7 @@ class QBDResourcesService extends AbstractQBWCApplication
 
             for ($i = 0; $i < count($customers); $i++) {
                 $incomingListIDs[] = (string)$customers[$i]->ListID;
-                $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $customers[$i]->ListID));
+                $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $customers[$i]->ListID,'customerid'=>$customerID->getCustomerid()));
 
                 // If the customer is not present then create a new record or else update the customer
                 if (!$qbdCustomers) {
@@ -113,7 +114,7 @@ class QBDResourcesService extends AbstractQBWCApplication
             // Check if any record is deleted or not.
             $diffArray = array_diff($qbdListIDs, $incomingListIDs);
             foreach ($diffArray as $key => $value) {
-                $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value));
+                $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value,'customerid'=>$customerID->getCustomerid()));
                 $qbdCustomers->setActive(false);
             }
             $this->entityManager->flush();
@@ -178,7 +179,7 @@ class QBDResourcesService extends AbstractQBWCApplication
             }
             $diffArray = array_diff($qbdListIDs, $this->incomingItemListIDs);
             foreach ($diffArray as $key => $value) {
-                $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value));
+                $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value,'customerid'=>$customerID->getCustomerid()));
                 $qbdItems->setActive(false);
             }
             $this->entityManager->flush();
@@ -191,7 +192,7 @@ class QBDResourcesService extends AbstractQBWCApplication
 
             for ($i = 0; $i < count($employees); $i++) {
                 $incomingListIDs[] = (string)$employees[$i]->ListID;
-                $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employees[$i]->ListID));
+                $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employees[$i]->ListID,'customerid'=>$customerID->getCustomerid()));
                 if (!$qbdEmployees) {
                     $qbdEmployees = new Integrationqbdemployees();
                 }
@@ -207,7 +208,7 @@ class QBDResourcesService extends AbstractQBWCApplication
             }
             $diffArray = array_diff($qbdListIDs, $incomingListIDs);
             foreach ($diffArray as $key => $value) {
-                $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $value));
+                $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $value,'customerid'=>$customerID->getCustomerid()));
                 $qbdEmployees->setActive(false);
             }
             $this->entityManager->flush();
@@ -220,7 +221,7 @@ class QBDResourcesService extends AbstractQBWCApplication
 
             for ($i = 0; $i < count($payrollItems); $i++) {
                 $incomingListIDs[] = (string)$payrollItems[$i]->ListID;
-                $qbdPayrollItems = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(array('qbdpayrollitemwagelistid' => $payrollItems[$i]->ListID));
+                $qbdPayrollItems = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(array('qbdpayrollitemwagelistid' => $payrollItems[$i]->ListID,'customerid'=>$customerID->getCustomerid()));
                 if (!$qbdPayrollItems) {
                     $qbdPayrollItems = new Integrationqbdpayrollitemwages();
                 }
@@ -238,7 +239,7 @@ class QBDResourcesService extends AbstractQBWCApplication
             // Check if any record is deleted or not.
             $diffArray = array_diff($qbdListIDs, $incomingListIDs);
             foreach ($diffArray as $key => $value) {
-                $qbdPayrollItems = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(array('qbdpayrollitemwagelistid' => $value));
+                $qbdPayrollItems = $this->entityManager->getRepository('AppBundle:Integrationqbdpayrollitemwages')->findOneBy(array('qbdpayrollitemwagelistid' => $value,'customerid'=>$customerID->getCustomerid()));
                 $qbdPayrollItems->setActive(false);
             }
             $this->entityManager->flush();
@@ -249,7 +250,7 @@ class QBDResourcesService extends AbstractQBWCApplication
 
     /**
      * @param $items
-     * @param $customerID
+     * @param Customers $customerID
      * @param Session $session
      * @return bool
      * @throws \Doctrine\ORM\ORMException
@@ -259,7 +260,7 @@ class QBDResourcesService extends AbstractQBWCApplication
     {
         for ($i = 0; $i < count($items); $i++) {
             $this->incomingItemListIDs[] = (string)$items[$i]->ListID;
-            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $items[$i]->ListID));
+            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $items[$i]->ListID,'customerid'=>$customerID->getCustomerid()));
             if (!$qbdItems) {
                 $qbdItems = new Integrationqbditems();
             }
