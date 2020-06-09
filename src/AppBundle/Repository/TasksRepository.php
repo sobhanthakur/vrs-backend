@@ -690,4 +690,33 @@ class TasksRepository extends EntityRepository
         return $result->setMaxResults(61)->getQuery()
             ->getResult();
     }
+
+    public function GetTaskServicers($taskIDs,$customerID)
+    {
+        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $query = "SELECT
+              Distinct Tasks.PropertyID
+              FROM Tasks 
+              LEFT JOIN PropertyBookings ON Tasks.PropertyBookingID = PropertyBookings.PropertyBookingID
+              LEFT JOIN Properties ON Tasks.PropertyID = Properties.PropertyID
+              LEFT JOIN Customers ON Properties.CustomerID = Customers.CustomerID
+              LEFT JOIN Regions ON Properties.RegionID = Regions.RegionID
+              LEFT JOIN TimeZones ON Regions.TimeZoneID = TimeZones.TimeZoneID
+              LEFT JOIN TasksToServicers ON Tasks.TaskID = TasksToServicers.TaskID
+              LEFT JOIN Servicers ON TasksToServicers.ServicerID = Servicers.ServicerID
+              LEFT JOIN Services ON Tasks.ServiceID = Services.ServiceID
+        
+              WHERE TAsks.Active = 1
+              AND Properties.Active =1 
+              anD Properties.CustomerID = " . $customerID . "
+              AND Tasks.CompleteConfirmedDAte is NULL
+              AND Tasks.TaskDAte <=   '".$today."'   
+              AND Tasks.TaskID IN (" . $taskIDs . ")
+              AND (Services.Active = 1 OR Services.Active IS NULL)
+              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is null)
+              ";
+        $tasks = $this->getEntityManager()->getConnection()->prepare($query);
+        $tasks->execute();
+        return $tasks->fetchAll();
+    }
 }

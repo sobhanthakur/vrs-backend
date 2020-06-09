@@ -207,9 +207,9 @@ class TabsService extends BaseService
         try {
             $propertyID = $content['PropertyID'];
             $propertyBookings = '';
-            $properties = [];
             $propertiesCondition = '';
             $region = null;
+            $taskIDs = '';
 
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             if (empty($servicers)) {
@@ -222,20 +222,21 @@ class TabsService extends BaseService
             // Get all PropertyBookings
             $pb = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicerID);
 
-            // Get all Properties
-
-
             if (!empty($pb)) {
                 foreach ($pb as $value) {
                     $propertyBookings .= $value['PropertyBookingID'].',';
+                    $taskIDs .= $value['TaskID'].',';
                     $properties[] = $value['PropertyID'].',';
                 }
                 $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                $taskIDs = preg_replace("/,$/", '', $taskIDs);
             }
 
-            if(!empty($properties)) {
-                foreach (array_unique($properties) as $property) {
-                    $propertiesCondition .= $property;
+            // Get All Properties
+            $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers($taskIDs,$servicers[0]['CustomerID']);
+            if (!empty($rsCurrentTaskServicers)) {
+                foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
+                    $propertiesCondition .= $currentTaskServicer['PropertyID'];
                 }
                 $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
             }
@@ -264,12 +265,8 @@ class TabsService extends BaseService
                             $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
                         }
 
-                    } else {
-                        $response[$i]['ServicersDetails'] = null;
                     }
                     $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
-                } else {
-                    unset($response[$i]);
                 }
             }
 
