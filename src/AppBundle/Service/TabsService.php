@@ -15,6 +15,7 @@ use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\DatabaseViews\TaskWithServicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * Class TabsService
@@ -208,8 +209,15 @@ class TabsService extends BaseService
             $propertyBookings = '';
             $properties = [];
             $propertiesCondition = '';
+            $region = null;
 
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+            if (empty($servicers)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
+            }
+
+            $region = $servicers[0]['Region'];
+            $timeZoneRegion = new \DateTimeZone($region);
 
             // Get all PropertyBookings
             $pb = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicerID);
@@ -250,6 +258,12 @@ class TabsService extends BaseService
                     if (!empty($staff)) {
                         $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
                         $response[$i]['ServicersDetails'] = $staff[0];
+                        if ($response[$i]['CompleteConfirmedDate']) {
+                            $dateTime = new \DateTime($response[$i]['CompleteConfirmedDate']);
+                            $dateTime->setTimezone($timeZoneRegion);
+                            $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
+                        }
+
                     } else {
                         $response[$i]['ServicersDetails'] = null;
                     }
@@ -263,6 +277,8 @@ class TabsService extends BaseService
             'Assignments' => $response
         );
 
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
