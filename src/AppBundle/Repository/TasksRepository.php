@@ -204,6 +204,10 @@ class TasksRepository extends EntityRepository
         //check if active is set
         isset($queryParameter['active']) ? $active = $queryParameter['active'] : null;
 
+        // Check if flag1 and flag2 is set
+        isset($queryParameter['flag1']) ? $flag1 = $queryParameter['flag1'] : null;
+        isset($queryParameter['flag2']) ? $flag2 = $queryParameter['flag2'] : null;
+
         //check for task rule id in query paramter
         isset($queryParameter['taskruleid']) ? $taskRuleID = $queryParameter['taskruleid'] : $taskRuleID = null;
 
@@ -344,6 +348,16 @@ class TasksRepository extends EntityRepository
         if (isset($active)) {
             $result->andWhere('t.active =  (:Active)')
                 ->setParameter('Active', $active);
+        }
+
+        if (isset($flag1)) {
+            $result->andWhere('s.flag1 =  (:Flag1)')
+                ->setParameter('Flag1', $flag1);
+        }
+
+        if (isset($flag2)) {
+            $result->andWhere('s.flag2 =  (:Flag2)')
+                ->setParameter('Flag2', $flag2);
         }
 
         //return task details

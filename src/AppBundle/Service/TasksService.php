@@ -98,11 +98,21 @@ class TasksService extends BaseService
                 }
 
                 if (isset($taskRulesData[$i]['TaskStartTime'])) {
-                    $taskRulesData[$i]['TaskStartTime'] = $taskRulesData[$i]['TaskStartTime'] !== 99 ? $taskRulesData[$i]['TaskStartTime'] : null;
+                    if ($taskRulesData[$i]['TaskStartTime'] !== 99 && $taskRulesData[$i]['TaskStartTimeMinutes'] !== 99) {
+                        $taskRulesData[$i]['TaskStartTime'] = $taskRulesData[$i]['TaskStartTime'].':'.$taskRulesData[$i]['TaskStartTimeMinutes'];
+                    } else {
+                        $taskRulesData[$i]['TaskStartTime'] = null;
+                    }
+                    unset($taskRulesData[$i]['TaskStartTimeMinutes']);
                 }
 
                 if (isset($taskRulesData[$i]['TaskCompleteByTime'])) {
-                    $taskRulesData[$i]['TaskCompleteByTime'] = $taskRulesData[$i]['TaskCompleteByTime'] !== 99 ? $taskRulesData[$i]['TaskCompleteByTime'] : null;
+                    if ($taskRulesData[$i]['TaskCompleteByTime'] !== 99 && $taskRulesData[$i]['TaskCompleteByTimeMinutes'] !== 99) {
+                        $taskRulesData[$i]['TaskCompleteByTime'] = $taskRulesData[$i]['TaskCompleteByTime'] .':' . $taskRulesData[$i]['TaskCompleteByTimeMinutes'];
+                    } else {
+                        $taskRulesData[$i]['TaskCompleteByTime'] = null;
+                    }
+                    unset($taskRulesData[$i]['TaskCompleteByTimeMinutes']);
                 }
 
                 // Set Task Name as ServiceName-TaskName
@@ -138,6 +148,9 @@ class TasksService extends BaseService
                 foreach ($staffs as $key => $value) {
                     $staffs[$key]['CreateDate'] = $staffs[$key]['CreateDate'] ? $staffs[$key]['CreateDate']->format('Ymd') : null;
                     $staffs[$key]['Phone'] = trim($staffs[$key]['Phone']);
+                    if (!$staffs[$key]['StaffID']) {
+                        unset($staffs[$key]);
+                    }
                 }
 
                 $taskRulesData[$i]['Property'] = $properties;
