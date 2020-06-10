@@ -751,6 +751,20 @@ class Services
      */
     private $checklistid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="Flag1", type="boolean", nullable=false)
+     */
+    private $flag1 = '0';
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="Flag2", type="boolean", nullable=false)
+     */
+    private $flag2 = '0';
+
 
 
     /**
@@ -3233,5 +3247,53 @@ class Services
     public function getShowpmshousekeepingnoteondashboard()
     {
         return $this->showpmshousekeepingnoteondashboard;
+    }
+
+    /**
+     * Set flag1.
+     *
+     * @param bool $flag1
+     *
+     * @return Services
+     */
+    public function setFlag1($flag1)
+    {
+        $this->flag1 = $flag1;
+
+        return $this;
+    }
+
+    /**
+     * Get flag1.
+     *
+     * @return bool
+     */
+    public function getFlag1()
+    {
+        return $this->flag1;
+    }
+
+    /**
+     * Set flag2.
+     *
+     * @param bool $flag2
+     *
+     * @return Services
+     */
+    public function setFlag2($flag2)
+    {
+        $this->flag2 = $flag2;
+
+        return $this;
+    }
+
+    /**
+     * Get flag2.
+     *
+     * @return bool
+     */
+    public function getFlag2()
+    {
+        return $this->flag2;
     }
 }

@@ -345,14 +345,20 @@ final class GeneralConstants
         'taskdate' => 't.taskdate as TaskDate',
         'completeconfirmeddate' => 't.completeconfirmeddate as CompleteConfirmedDate',
         'created' => 't.createdate as CreateDate',
+        'mintimetocomplete' => 't.mintimetocomplete AS MinTimeToComplete',
+        'maxtimetocomplete' => 't.maxtimetocomplete AS MaxTimeToComplete',
         'taskstartdate' => 't.taskstartdate AS TaskStartDate',
         'taskstarttime' => 't.taskstarttime AS TaskStartTime',
-        'taskcompletebydate' => 't.taskcompletebydate AS TaskCompleteByDate',
         'taskcompletebytime' => 't.taskcompletebytime AS TaskCompleteByTime',
+        'taskstarttimeminutes' => 't.taskstarttime AS TaskStartTimeMinutes',
+        'taskcompletebydate' => 't.taskcompletebydate AS TaskCompleteByDate',
+        'taskcompletebytimeminutes' => 't.taskcompletebytime AS TaskCompleteByTimeMinutes',
         'taskdatetime' => 't.taskdatetime AS TaskTime',
         'internalnotes' => 't.internalnotes AS InternalNotes',
         'packlinen' => 't.packlinen AS PackLinen',
         'retrievelinen' => 't.retrievelinen AS RetrieveLinen',
+        'flag1' => 's.flag1 as Flag1',
+        'flag2' => 's.flag2 as Flag2',
         'linencounts' => 'pb.linencounts AS LinenCounts',
         'p.PropertyID' => 'p.propertyid AS Properties_PropertyID',
         'p.Active' => 'p.active AS Properties_Active',
@@ -495,7 +501,9 @@ final class GeneralConstants
         'STAFFID' => 'staffid',
         'STARTDATE' => 'startdate',
         'ENDDATE' => 'enddate',
-        'TASKRULEID' => 'taskruleid'
+        'TASKRULEID' => 'taskruleid',
+        'FLAG1' => 'flag1',
+        'FLAG2' => 'flag2'
     ];
 
     const RATE_LIMIT = 300;
