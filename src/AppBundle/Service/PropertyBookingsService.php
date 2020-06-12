@@ -72,15 +72,15 @@ class PropertyBookingsService extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {
                 if (isset($propertyBookingData[$i]['CreateDate'])) {
-                    $propertyBookingData[$i]['CreateDate'] = $propertyBookingData[$i]['CreateDate']->format('Ymd');
+                    $propertyBookingData[$i]['CreateDate'] = $propertyBookingData[$i]['CreateDate']->format('Y-m-d');
                 }
 
                 if (isset($propertyBookingData[$i]['CheckIn'])) {
-                    $propertyBookingData[$i]['CheckIn'] = $propertyBookingData[$i]['CheckIn']->format('Ymd');
+                    $propertyBookingData[$i]['CheckIn'] = $propertyBookingData[$i]['CheckIn']->format('Y-m-d');
                 }
 
                 if (isset($propertyBookingData[$i]['CheckOut'])) {
-                    $propertyBookingData[$i]['CheckOut'] = $propertyBookingData[$i]['CheckOut']->format('Ymd');
+                    $propertyBookingData[$i]['CheckOut'] = $propertyBookingData[$i]['CheckOut']->format('Y-m-d');
                 }
             }
 

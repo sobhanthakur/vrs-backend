@@ -94,11 +94,11 @@ class StaffTasksService extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($result); $i++) {
                 if (isset($result[$i]['ApprovedDate'])) {
-                    $result[$i]['ApprovedDate'] = $result[$i]['ApprovedDate']->format('Ymd');
+                    $result[$i]['ApprovedDate'] = $result[$i]['ApprovedDate']->format('Y-m-d');
                 }
 
                 if (isset($result[$i]['CompleteConfirmedDate'])) {
-                    $result[$i]['CompleteConfirmedDate'] = $result[$i]['CompleteConfirmedDate']->format('Ymd');
+                    $result[$i]['CompleteConfirmedDate'] = $result[$i]['CompleteConfirmedDate']->format('Y-m-d');
                 }
 
                 //Time worked by staff per task in hour format
