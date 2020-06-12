@@ -71,7 +71,7 @@ class StaffService extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($staffData); $i++) {
                 if (isset($staffData[$i]['CreateDate'])) {
-                    $staffData[$i]['CreateDate'] = $staffData[$i]['CreateDate']->format('Ymd');
+                    $staffData[$i]['CreateDate'] = $staffData[$i]['CreateDate']->format('Y-m-d');
                 }
             }
 

@@ -70,27 +70,27 @@ class TasksService extends BaseService
             //Formating Date to utc ymd format
             for ($i=0; $i<count($taskRulesData); $i++) {
                 if (isset($taskRulesData[$i]['CreateDate'])) {
-                    $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Ymd');
+                    $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['TaskDate'])) {
-                    $taskRulesData[$i]['TaskDate'] = $taskRulesData[$i]['TaskDate']->format('Ymd');
+                    $taskRulesData[$i]['TaskDate'] = $taskRulesData[$i]['TaskDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['CompleteConfirmedDate'])) {
-                    $taskRulesData[$i]['CompleteConfirmedDate'] = $taskRulesData[$i]['CompleteConfirmedDate']->format('Ymd');
+                    $taskRulesData[$i]['CompleteConfirmedDate'] = $taskRulesData[$i]['CompleteConfirmedDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['ApprovedDate'])) {
-                    $taskRulesData[$i]['ApprovedDate'] = $taskRulesData[$i]['ApprovedDate']->format('Ymd');
+                    $taskRulesData[$i]['ApprovedDate'] = $taskRulesData[$i]['ApprovedDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['TaskStartDate'])) {
-                    $taskRulesData[$i]['TaskStartDate'] = $taskRulesData[$i]['TaskStartDate']->format('Ymd');
+                    $taskRulesData[$i]['TaskStartDate'] = $taskRulesData[$i]['TaskStartDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['TaskCompleteByDate'])) {
-                    $taskRulesData[$i]['TaskCompleteByDate'] = $taskRulesData[$i]['TaskCompleteByDate']->format('Ymd');
+                    $taskRulesData[$i]['TaskCompleteByDate'] = $taskRulesData[$i]['TaskCompleteByDate']->format('Y-m-d');
                 }
 
                 if (isset($taskRulesData[$i]['TaskTime'])) {
@@ -127,7 +127,7 @@ class TasksService extends BaseService
                 foreach ($taskRulesData[$i] as $key => $value) {
                     if (strpos($key, 'Properties_') !== false) {
                         if (strpos($key,'Date') && $taskRulesData[$i][$key]) {
-                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Ymd');
+                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Y-m-d');
                         }
                         $trimmedKey = explode('Properties_',$key);
                         $properties[$trimmedKey[1]] = $taskRulesData[$i][$key];
@@ -136,7 +136,7 @@ class TasksService extends BaseService
                     // Next PropertyBooking
                     /*if (strpos($key, 'npb_') !== false) {
                         if (($key === 'npb_CheckIn' || $key === 'npb_CheckOut' || $key === 'npb_CreateDate') && $taskRulesData[$i][$key]) {
-                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Ymd');
+                            $taskRulesData[$i][$key] = $taskRulesData[$i][$key]->format('Y-m-d');
                         }
                         $trimmedKey = explode('npb_',$key);
                         $nextPropertyBooking[$trimmedKey[1]] = $taskRulesData[$i][$key];
@@ -144,17 +144,18 @@ class TasksService extends BaseService
                     }*/
                 }
 
+                $staff = [];
                 $staffs = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->StaffDetailsInTasks($taskRulesData[$i]['TaskID']);
                 foreach ($staffs as $key => $value) {
-                    $staffs[$key]['CreateDate'] = $staffs[$key]['CreateDate'] ? $staffs[$key]['CreateDate']->format('Ymd') : null;
-                    $staffs[$key]['Phone'] = trim($staffs[$key]['Phone']);
-                    if (!$staffs[$key]['StaffID']) {
-                        unset($staffs[$key]);
+                    if ($staffs[$key]['StaffID']) {
+                        $staffs[$key]['CreateDate'] = $staffs[$key]['CreateDate'] ? $staffs[$key]['CreateDate']->format('Y-m-d') : null;
+                        $staffs[$key]['Phone'] = trim($staffs[$key]['Phone']);
+                        $staff[] = $staffs[$key];
                     }
                 }
 
                 $taskRulesData[$i]['Property'] = $properties;
-                $taskRulesData[$i]['Staff'] = $staffs;
+                $taskRulesData[$i]['Staff'] = $staff;
 //                $taskRulesData[$i]['NextPropertyBooking'] = $nextPropertyBooking;
             }
 

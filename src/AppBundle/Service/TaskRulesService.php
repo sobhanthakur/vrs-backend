@@ -70,7 +70,7 @@ class TaskRulesService extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($taskRulesData); $i++) {
                 if (isset($taskRulesData[$i]['CreateDate'])) {
-                    $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Ymd');
+                    $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Y-m-d');
                 }
             }
 

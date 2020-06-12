@@ -71,11 +71,11 @@ class StaffTaskTimeService  extends BaseService
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($staffTaskTimeData); $i++) {
                 if (isset($staffTaskTimeData[$i]['ClockIn'])) {
-                    $staffTaskTimeData[$i]['ClockIn'] = $staffTaskTimeData[$i]['ClockIn']->format('Ymdhis');
+                    $staffTaskTimeData[$i]['ClockIn'] = $staffTaskTimeData[$i]['ClockIn']->format('Y-m-d H:i:s');
                 }
 
                 if (isset($staffTaskTimeData[$i]['ClockOut'])) {
-                    $staffTaskTimeData[$i]['ClockOut'] = $staffTaskTimeData[$i]['ClockOut']->format('Ymdhis');
+                    $staffTaskTimeData[$i]['ClockOut'] = $staffTaskTimeData[$i]['ClockOut']->format('Y-m-d H:i:s');
                 }
             }
 
