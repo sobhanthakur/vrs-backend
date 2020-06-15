@@ -233,11 +233,17 @@ class ServicersDashboardController extends FOSRestController
      *     name="body",
      *     in="body",
      *     required=true,
+     *     description="1=Accept, 0=Decline",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="TaskID",
      *              type="integer",
      *              example=100
+     *         ),
+     *     @SWG\Property(
+     *              property="AcceptDecline",
+     *              type="integer",
+     *              example=1
      *         )
      *    )
      *  )
@@ -256,7 +262,7 @@ class ServicersDashboardController extends FOSRestController
      * @return array
      * @param Request $request
      */
-    public function AcceptTask(Request $request)
+    public function AcceptDeclineTask(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
@@ -264,7 +270,7 @@ class ServicersDashboardController extends FOSRestController
             $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
             $content = json_decode($request->getContent(),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $servicersDashboard->AcceptTask($servicerID,$content);
+            return $servicersDashboard->AcceptDeclineTask($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

@@ -348,18 +348,54 @@ class ServicersDashboardService extends BaseService
      * @param $content
      * @return array
      */
-    public function AcceptTask($servicerID, $content)
+    public function AcceptDeclineTask($servicerID, $content)
     {
         try {
             $taskID = $content['TaskID'];
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptTask($servicerID,$taskID);
+            $acceptDecline = $content['AcceptDecline'];
+            $dateTime = $content['DateTime'];
+            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptDeclineTask($servicerID,$taskID);
+            $response = [];
 
             if (empty($rsThisTask)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
+            switch ($acceptDecline) {
+                case 0:
+                    $response = $this->DeclineTask($servicerID,$taskID,$rsThisTask);
+                    break;
+                case 1:
+                    $response = $this->AcceptTask($servicerID,$taskID,$dateTime);
+                    break;
+            }
+
+
+            return $response;
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to accept task due to: ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @return array
+     * @param $servicerID
+     * @param $taskID
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function AcceptTask($servicerID, $taskID,$dateTime)
+    {
+        try {
             $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
-               'taskid' => $taskID,
+                'taskid' => $taskID,
                 'servicerid' => $servicerID
             ));
 
@@ -367,13 +403,14 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            $tasksToServicers->setAccepteddate(new \DateTime('now', new \DateTimeZone('UTC')));
+            $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
             $this->entityManager->persist($tasksToServicers);
 
             $taskAcceptDeclines = new Taskacceptdeclines();
             $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
             $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
             $taskAcceptDeclines->setAcceptordecline(true);
+            $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
             $this->entityManager->persist($taskAcceptDeclines);
 
             $this->entityManager->flush();
@@ -385,12 +422,27 @@ class ServicersDashboardService extends BaseService
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
-        } catch (HttpException $exception) {
+        }
+    }
+
+    /**
+     * @param $servicerID
+     * @param $taskID
+     * @param $rsThisTask
+     * @return array
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function DeclineTask($servicerID, $taskID, $rsThisTask)
+    {
+        try {
+
+            return array(
+                'Status' => 'Success',
+            );
+
+        } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
-        } catch (\Exception $exception) {
-            $this->logger->error('Unable to accept task due to: ' .
-                $exception->getMessage());
-            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
 }
