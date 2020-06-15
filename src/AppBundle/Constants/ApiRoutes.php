@@ -89,6 +89,7 @@ final class ApiRoutes
         "vrs_pwa_issue_post",
         "vrs_pwa_starttask",
         "vrs_pwa_clockinout",
-        "vrs_pwa_manage_save"
+        "vrs_pwa_manage_save",
+        "vrs_pwa_task_accept"
     );
 }

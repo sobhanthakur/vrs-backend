@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\TimeClockDays;
+use AppBundle\Entity\Taskacceptdeclines;
 use AppBundle\Entity\Timeclockdays as TimeClock;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -269,7 +270,12 @@ class ServicersDashboardService extends BaseService
         }
     }
 
-    public function ClockInOut($servicerID,$content)
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function ClockInOut($servicerID, $content)
     {
         try {
             $dateTime = $content['DateTime'] ? (new \DateTime($content['DateTime'])) : null;
@@ -332,6 +338,57 @@ class ServicersDashboardService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to Clock In/Out due to: ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function AcceptTask($servicerID, $content)
+    {
+        try {
+            $taskID = $content['TaskID'];
+            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptTask($servicerID,$taskID);
+
+            if (empty($rsThisTask)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
+
+            $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
+               'taskid' => $taskID,
+                'servicerid' => $servicerID
+            ));
+
+            if (!$tasksToServicers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
+            }
+
+            $tasksToServicers->setAccepteddate(new \DateTime('now', new \DateTimeZone('UTC')));
+            $this->entityManager->persist($tasksToServicers);
+
+            $taskAcceptDeclines = new Taskacceptdeclines();
+            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+            $taskAcceptDeclines->setAcceptordecline(true);
+            $this->entityManager->persist($taskAcceptDeclines);
+
+            $this->entityManager->flush();
+
+            return array(
+                'Status' => 'Success',
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
+            );
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to accept task due to: ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }

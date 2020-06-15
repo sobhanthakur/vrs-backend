@@ -3706,6 +3706,7 @@ class Tasks
 
     /**
      * @ORM\PrePersist
+     * @ORM\PreUpdate
      */
     public function updatedTimestamps()
     {

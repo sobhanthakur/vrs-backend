@@ -691,7 +691,13 @@ class TasksRepository extends EntityRepository
             ->getResult();
     }
 
-    public function GetTaskServicers($taskIDs,$customerID)
+    /**
+     * @param $taskIDs
+     * @param $customerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function GetTaskServicers($taskIDs, $customerID)
     {
         $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
         $query = "SELECT
@@ -718,5 +724,23 @@ class TasksRepository extends EntityRepository
         $tasks = $this->getEntityManager()->getConnection()->prepare($query);
         $tasks->execute();
         return $tasks->fetchAll();
+    }
+
+    /**
+     * @param $servicerID
+     * @param $taskID
+     * @return mixed
+     */
+    public function AcceptTask($servicerID, $taskID)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.taskname AS TaskName,s2.servicename AS ServiceName,p.propertyname AS PropertyName, t.taskid AS TaskID')
+            ->leftJoin('t.propertyid','p')
+            ->leftJoin('AppBundle:Services','s2',Expr\Join::WITH, 't.serviceid=s2.serviceid')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
+            ->where('t.taskid='.$taskID)
+            ->andWhere('ts.servicerid='.$servicerID)
+            ->getQuery()
+            ->execute();
     }
 }

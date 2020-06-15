@@ -73,6 +73,7 @@ api:
             invalid_property_booking: "Invalid Property ID"
             invalid_checkout: "Checkout Date cannot be Same or Before Date of Checkin"
             invalid_timelogin_details: "Bookings are not allowed with checkout 2 days or earlier than today."
+            invalid_taskstoservicers: "Invalid Tasks To Servicer"
         success:
             message: success
             password_reset: The password was reset successfully.
