@@ -258,7 +258,7 @@ class ServicersDashboardController extends FOSRestController
      *          )
      *     )
      * )
-     * @Post("/task/accept", name="vrs_pwa_task_accept")
+     * @Post("/task/acceptdecline", name="vrs_pwa_task_accept_decline")
      * @return array
      * @param Request $request
      */
