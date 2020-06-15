@@ -363,7 +363,7 @@ class ServicersDashboardService extends BaseService
 
             switch ($acceptDecline) {
                 case 0:
-                    $response = $this->DeclineTask($servicerID,$taskID,$rsThisTask);
+                    $response = $this->DeclineTask($servicerID,$taskID,$dateTime);
                     break;
                 case 1:
                     $response = $this->AcceptTask($servicerID,$taskID,$dateTime);
@@ -428,17 +428,45 @@ class ServicersDashboardService extends BaseService
     /**
      * @param $servicerID
      * @param $taskID
-     * @param $rsThisTask
+     * @param $dateTime
      * @return array
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function DeclineTask($servicerID, $taskID, $rsThisTask)
+    public function DeclineTask($servicerID, $taskID, $dateTime)
     {
         try {
+//            $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
+
+            // Manage Notification
+//            if(!empty($rsBackup)) {
+//
+//            }
+
+            $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
+                'taskid' => $taskID,
+                'servicerid' => $servicerID
+            ));
+
+            if (!$tasksToServicers) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
+            }
+
+            $tasksToServicers->setDeclineddate(new \DateTime($dateTime));
+            $this->entityManager->persist($tasksToServicers);
+
+            $taskAcceptDeclines = new Taskacceptdeclines();
+            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+            $taskAcceptDeclines->setAcceptordecline(false);
+            $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
+            $this->entityManager->persist($taskAcceptDeclines);
+
+            $this->entityManager->flush();
 
             return array(
                 'Status' => 'Success',
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
             );
 
         } catch (UnprocessableEntityHttpException $exception) {

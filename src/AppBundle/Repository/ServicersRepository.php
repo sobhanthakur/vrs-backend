@@ -340,4 +340,19 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function DeclineBackup($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.requestaccepttasks AS RequestAcceptTasks,s.viewtaskswithindays AS ViewTasksWithinDays,s.declinebackupservicerid AS DeclineBackupServicerID')
+            ->where('s.servicerid='.$servicerID)
+            ->andWhere('s.declinebackupservicerid <> 0')
+            ->andWhere('s.active=1')
+            ->getQuery()
+            ->execute();
+    }
 }

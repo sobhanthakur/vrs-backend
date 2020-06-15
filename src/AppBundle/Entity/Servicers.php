@@ -902,6 +902,13 @@ class Servicers
      */
     private $timezoneid;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="DeclineBackupServicerID", type="integer", nullable=false)
+     */
+    private $declinebackupservicerid;
+
 
 
     /**
@@ -3912,5 +3919,29 @@ class Servicers
     public function getTimezoneid()
     {
         return $this->timezoneid;
+    }
+
+    /**
+     * Set declinebackupservicerid.
+     *
+     * @param int $declinebackupservicerid
+     *
+     * @return Servicers
+     */
+    public function setDeclinebackupservicerid($declinebackupservicerid)
+    {
+        $this->declinebackupservicerid = $declinebackupservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get declinebackupservicerid.
+     *
+     * @return int
+     */
+    public function getDeclinebackupservicerid()
+    {
+        return $this->declinebackupservicerid;
     }
 }
