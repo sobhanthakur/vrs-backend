@@ -227,7 +227,7 @@ class ServicersDashboardController extends FOSRestController
     }
 
     /**
-     * Accepts a task
+     * Accepts/Declines a task
      * @SWG\Tag(name="Servicers Dashboard")
      * @SWG\Parameter(
      *     name="body",
@@ -248,13 +248,13 @@ class ServicersDashboardController extends FOSRestController
      *     @SWG\Property(
      *              property="DateTime",
      *              type="string",
-     *              example="2020-06-06 08:00:00
+     *              example="2020-06-06 08:00:00"
      *         )
      *    )
      *  )
      * @SWG\Response(
      *     response=200,
-     *     description="Accepts a task",
+     *     description="Accepts/Declines a task",
      *     @SWG\Schema(
      *         @SWG\Property(
      *              property="Status",
