@@ -244,6 +244,11 @@ class ServicersDashboardController extends FOSRestController
      *              property="AcceptDecline",
      *              type="integer",
      *              example=1
+     *         ),
+     *     @SWG\Property(
+     *              property="DateTime",
+     *              type="string",
+     *              example="2020-06-06 08:00:00
      *         )
      *    )
      *  )
