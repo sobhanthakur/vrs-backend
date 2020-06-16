@@ -350,7 +350,7 @@ final class GeneralConstants
         'taskstartdate' => 't.taskstartdate AS TaskStartDate',
         'taskstarttime' => 't.taskstarttime AS TaskStartTime',
         'taskcompletebytime' => 't.taskcompletebytime AS TaskCompleteByTime',
-        'taskstarttimeminutes' => 't.taskstarttime AS TaskStartTimeMinutes',
+        'taskstarttimeminutes' => 't.taskstarttimeminutes AS TaskStartTimeMinutes',
         'taskcompletebydate' => 't.taskcompletebydate AS TaskCompleteByDate',
         'taskcompletebytimeminutes' => 't.taskcompletebytime AS TaskCompleteByTimeMinutes',
         'taskdatetime' => 't.taskdatetime AS TaskTime',
