@@ -14,6 +14,8 @@ use AppBundle\DatabaseViews\AdditionalDefaultServicers;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\Entity\Issueimages;
 use AppBundle\Entity\Issues;
+use AppBundle\Entity\Notifications;
+use AppBundle\Entity\Properties;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -36,6 +38,7 @@ class ManageService extends BaseService
         try {
             $taskID = $content['TaskID'];
             $propertyID = $content['PropertyID'];
+            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
             // get all issues submitted from this task in the last one minute
             $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
@@ -47,7 +50,7 @@ class ManageService extends BaseService
             $issues->setIssuetype($content['IssueType']);
             $issues->setIssue($content['Issue']);
             $issues->setUrgent((int)$content['Urgent'] === 1 ? true : false);
-            $issues->setPropertyid($this->entityManager->getRepository('AppBundle:Properties')->findOneBy(array('propertyid'=>$propertyID)));
+            $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
             $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
             $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID)));
@@ -75,7 +78,7 @@ class ManageService extends BaseService
                 $rsService = $rsService->fetchAll();
 
                 // Create Task
-                $task = $this->CreateTask($content,$servicerID,$issues,$rsService);
+                $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj);
                 $response['TaskID'] = $task->getTaskid();
 
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
@@ -165,17 +168,18 @@ class ManageService extends BaseService
      * @param $servicerID
      * @param $issues
      * @param $rsService
+     * @param Properties $propertyObj
      * @return Tasks
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateTask($content, $servicerID, $issues, $rsService)
+    public function CreateTask($content, $servicerID, $issues, $rsService,$propertyObj)
     {
         if ($rsService) {
             $task = new Tasks();
             $task->setPropertybookingid(null);
-            $task->setPropertyid($this->entityManager->getRepository('AppBundle:Properties')->find($content['PropertyID']));
+            $task->setPropertyid($propertyObj);
             $task->setIssueid($issues);
 //            $task->setNextpropertybookingid();
 //            $task->setParenttaskid(0);
@@ -225,6 +229,15 @@ class ManageService extends BaseService
 
             $this->entityManager->persist($task);
             $this->entityManager->flush();
+
+            $notification = array(
+                'MessageID' => 24,
+                'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
+                'TaskID' => $task
+            );
+
+            // Send Notification
+            $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification);
 
             // Return Task Object
             return $task;

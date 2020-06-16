@@ -33,6 +33,16 @@ class Issueimages
     private $issueID;
 
     /**
+     * @var \Tasks
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Tasks")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="TaskID", referencedColumnName="TaskID")
+     * })
+     */
+    private $taskID;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="ShowOwner", type="boolean")
@@ -169,5 +179,29 @@ class Issueimages
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set taskID.
+     *
+     * @param \AppBundle\Entity\Tasks|null $taskID
+     *
+     * @return Issueimages
+     */
+    public function setTaskID(\AppBundle\Entity\Tasks $taskID = null)
+    {
+        $this->taskID = $taskID;
+
+        return $this;
+    }
+
+    /**
+     * Get taskID.
+     *
+     * @return \AppBundle\Entity\Tasks|null
+     */
+    public function getTaskID()
+    {
+        return $this->taskID;
     }
 }

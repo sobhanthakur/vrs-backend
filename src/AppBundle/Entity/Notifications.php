@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Notifications", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="TypeID", columns={"TypeID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks
  */
 class Notifications
 {
@@ -108,9 +109,9 @@ class Notifications
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Tasks
@@ -638,5 +639,16 @@ class Notifications
     public function getFromservicerid()
     {
         return $this->fromservicerid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

@@ -190,3 +190,7 @@ services:
             class: AppBundle\Service\ManageSave
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.notification_service:
+            class: AppBundle\Service\NotificationService
+            parent: vrscheduler.base_service
+            public: true
