@@ -79,6 +79,7 @@ final class ErrorConstants
     const INVALID_PROPERTY_BOOKING_ID = 'INVALID_PROPERTY_BOOKING_ID';
     const INVALID_TIMELOGIN_DETAILS = 'INVALID_TIMELOGIN_DETAILS';
     const INVALID_TASKSTOSERVICERS = 'INVALID_TASKSTOSERVICERS';
+    const TASK_NOT_CREATED = 'TASK_NOT_CREATED';
 
 
 
@@ -140,6 +141,7 @@ final class ErrorConstants
         self::INVALID_CHECKOUT  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_checkout'],
         self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details'],
         self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later'],
-        self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers']
+        self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers'],
+        self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated']
     ];
 }

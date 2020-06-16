@@ -19,6 +19,7 @@ class NotificationService extends BaseService
 {
     /**
      * @param $result
+     * @return integer
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -32,5 +33,6 @@ class NotificationService extends BaseService
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
+        return $notification->getNotificationid();
     }
 }

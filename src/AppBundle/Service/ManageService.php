@@ -39,6 +39,7 @@ class ManageService extends BaseService
             $taskID = $content['TaskID'];
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
+            $notification = [];
 
             // get all issues submitted from this task in the last one minute
             $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
@@ -79,7 +80,13 @@ class ManageService extends BaseService
 
                 // Create Task
                 $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj);
+                if (!$task) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::TASK_NOT_CREATED);
+                }
+
+                $task = $task['Task'];
                 $response['TaskID'] = $task->getTaskid();
+                $notification['TaskNotificationID'] = $task['TaskNotification'];
 
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
 
@@ -150,7 +157,8 @@ class ManageService extends BaseService
             }
             return array(
                 GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS,
-                'TaskInfo' => $response
+                'TaskInfo' => $response,
+                'Notification' => $notification
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -169,7 +177,7 @@ class ManageService extends BaseService
      * @param $issues
      * @param $rsService
      * @param Properties $propertyObj
-     * @return Tasks
+     * @return array
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -237,10 +245,13 @@ class ManageService extends BaseService
             );
 
             // Send Notification
-            $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification);
+            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification);
 
             // Return Task Object
-            return $task;
+            return array(
+                'Task' => $task,
+                'TaskNotification' => $notificationResult
+            );
         }
     }
 }
