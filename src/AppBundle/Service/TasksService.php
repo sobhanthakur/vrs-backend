@@ -99,7 +99,7 @@ class TasksService extends BaseService
 
                 if (isset($taskRulesData[$i]['TaskStartTime'])) {
                     if ($taskRulesData[$i]['TaskStartTime'] !== 99 && $taskRulesData[$i]['TaskStartTimeMinutes'] !== 99) {
-                        $taskRulesData[$i]['TaskStartTime'] = $taskRulesData[$i]['TaskStartTime'].':'.$taskRulesData[$i]['TaskStartTimeMinutes'];
+                        $taskRulesData[$i]['TaskStartTime'] = sprintf("%02d",$taskRulesData[$i]['TaskStartTime']).':'.sprintf("%02d",$taskRulesData[$i]['TaskStartTimeMinutes']);
                     } else {
                         $taskRulesData[$i]['TaskStartTime'] = null;
                     }
@@ -108,7 +108,7 @@ class TasksService extends BaseService
 
                 if (isset($taskRulesData[$i]['TaskCompleteByTime'])) {
                     if ($taskRulesData[$i]['TaskCompleteByTime'] !== 99 && $taskRulesData[$i]['TaskCompleteByTimeMinutes'] !== 99) {
-                        $taskRulesData[$i]['TaskCompleteByTime'] = $taskRulesData[$i]['TaskCompleteByTime'] .':' . $taskRulesData[$i]['TaskCompleteByTimeMinutes'];
+                        $taskRulesData[$i]['TaskCompleteByTime'] = sprintf("%02d",$taskRulesData[$i]['TaskCompleteByTime']) .':' . sprintf("%02d",$taskRulesData[$i]['TaskCompleteByTimeMinutes']);
                     } else {
                         $taskRulesData[$i]['TaskCompleteByTime'] = null;
                     }
