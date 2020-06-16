@@ -27,6 +27,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 class ManageService extends BaseService
 {
+    private $notification = [];
     /**
      * @param $servicerID
      * @param $content
@@ -39,7 +40,6 @@ class ManageService extends BaseService
             $taskID = $content['TaskID'];
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
-            $notification = [];
 
             // get all issues submitted from this task in the last one minute
             $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
@@ -80,13 +80,7 @@ class ManageService extends BaseService
 
                 // Create Task
                 $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj);
-                if (!$task) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::TASK_NOT_CREATED);
-                }
-
-                $task = $task['Task'];
                 $response['TaskID'] = $task->getTaskid();
-                $notification['TaskNotificationID'] = $task['TaskNotification'];
 
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
 
@@ -155,10 +149,26 @@ class ManageService extends BaseService
                 }
 
             }
+
+            // Send notification for the issue created
+            $issueNotification = array(
+                'MessageID' => 22,
+                'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
+                'TaskID' => $taskID,
+                'IssueID' => $issues->getIssueid(),
+                'OwnerID' => 0,
+                'SendToMaintenanceStaff' => 1,
+                'SendToManagers' => 1,
+                'ServicerID' => $servicerID,
+                'TypeID' => 0
+            );
+            $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification);
+            $this->notification['IssueNotificationID'] = $result;
+
             return array(
                 GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS,
                 'TaskInfo' => $response,
-                'Notification' => $notification
+                'Notification' => $this->notification
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -177,7 +187,7 @@ class ManageService extends BaseService
      * @param $issues
      * @param $rsService
      * @param Properties $propertyObj
-     * @return array
+     * @return Tasks
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -241,17 +251,17 @@ class ManageService extends BaseService
             $notification = array(
                 'MessageID' => 24,
                 'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
-                'TaskID' => $task
+                'TaskID' => $task,
+                'TypeID' => 0
             );
 
             // Send Notification
             $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification);
 
             // Return Task Object
-            return array(
-                'Task' => $task,
-                'TaskNotification' => $notificationResult
-            );
+            $this->notification['TaskNotification'] = $notificationResult;
+
+            return $task;
         }
     }
 }

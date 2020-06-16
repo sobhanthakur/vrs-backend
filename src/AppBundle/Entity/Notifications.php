@@ -32,6 +32,20 @@ class Notifications
     /**
      * @var int|null
      *
+     * @ORM\Column(name="SendToMaintenanceStaff", type="integer", nullable=true)
+     */
+    private $sendtomaintenancestaff;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="SendToManagers", type="integer", nullable=true)
+     */
+    private $sendtomanagers;
+
+    /**
+     * @var int|null
+     *
      * @ORM\Column(name="CustomerNotificationID", type="integer", nullable=true)
      */
     private $customernotificationid;
@@ -650,5 +664,53 @@ class Notifications
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set sendtomaintenancestaff.
+     *
+     * @param int|null $sendtomaintenancestaff
+     *
+     * @return Notifications
+     */
+    public function setSendtomaintenancestaff($sendtomaintenancestaff = null)
+    {
+        $this->sendtomaintenancestaff = $sendtomaintenancestaff;
+
+        return $this;
+    }
+
+    /**
+     * Get sendtomaintenancestaff.
+     *
+     * @return int|null
+     */
+    public function getSendtomaintenancestaff()
+    {
+        return $this->sendtomaintenancestaff;
+    }
+
+    /**
+     * Set sendtomanagers.
+     *
+     * @param int|null $sendtomanagers
+     *
+     * @return Notifications
+     */
+    public function setSendtomanagers($sendtomanagers = null)
+    {
+        $this->sendtomanagers = $sendtomanagers;
+
+        return $this;
+    }
+
+    /**
+     * Get sendtomanagers.
+     *
+     * @return int|null
+     */
+    public function getSendtomanagers()
+    {
+        return $this->sendtomanagers;
     }
 }
