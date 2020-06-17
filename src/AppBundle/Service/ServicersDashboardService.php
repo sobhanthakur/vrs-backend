@@ -363,7 +363,7 @@ class ServicersDashboardService extends BaseService
 
             switch ($acceptDecline) {
                 case 0:
-                    $response = $this->DeclineTask($servicerID,$taskID,$dateTime,$rsThisTask[0]['CustomerID']);
+                    $response = $this->DeclineTask($servicerID,$taskID,$dateTime,$rsThisTask);
                     break;
                 case 1:
                     $response = $this->AcceptTask($servicerID,$taskID,$dateTime);
@@ -435,7 +435,7 @@ class ServicersDashboardService extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function DeclineTask($servicerID, $taskID, $dateTime,$customerID)
+    public function DeclineTask($servicerID, $taskID, $dateTime,$rsThisTask)
     {
         try {
             $notification = [];
@@ -471,19 +471,36 @@ class ServicersDashboardService extends BaseService
             $this->entityManager->flush();
 
             // Manage Notifications for the task ID in last one minute
-            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$customerID);
+            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID']);
             if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
                     'MessageID' => 27,
-                    'CustomerID' => $customerID,
+                    'CustomerID' => $rsThisTask[0]['CustomerID'],
                     'TaskID' => $taskID,
                     'SendToManagers' => 1,
-                    'ServicerID' => $servicerID,
+                    'SubmittedByServicerID' => $servicerID,
                     'TypeID' => 0
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskDeclineNotification($result);
                 $notification['TaskNotification'] = $taskNotification;
 
+            }
+
+            if (!empty($rsBackup)) {
+                $viewTaskDate = (new \DateTime('now'))->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
+                if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
+                    $result = array(
+                        'MessageID' => 34,
+                        'CustomerID' => $rsThisTask[0]['CustomerID'],
+                        'TaskID' => $taskID,
+                        'SendToManagers' => 1,
+                        'BackupServicerID' => $backupServicer,
+                        'SubmittedByServicerID' => $servicerID,
+                        'TypeID' => 0
+                    );
+                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskDeclineNotification($result,true);
+                    $notification['BackupServicerNotification'] = $taskNotification;
+                }
             }
 
             return array(

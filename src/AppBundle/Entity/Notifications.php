@@ -74,6 +74,13 @@ class Notifications
     /**
      * @var int|null
      *
+     * @ORM\Column(name="SubmittedByServicerID", type="integer", nullable=true)
+     */
+    private $submittedbyservicerid;
+
+    /**
+     * @var int|null
+     *
      * @ORM\Column(name="IssueID", type="integer", nullable=true)
      */
     private $issueid;
@@ -712,5 +719,29 @@ class Notifications
     public function getSendtomanagers()
     {
         return $this->sendtomanagers;
+    }
+
+    /**
+     * Set submittedbyservicerid.
+     *
+     * @param int|null $submittedbyservicerid
+     *
+     * @return Notifications
+     */
+    public function setSubmittedbyservicerid($submittedbyservicerid = null)
+    {
+        $this->submittedbyservicerid = $submittedbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get submittedbyservicerid.
+     *
+     * @return int|null
+     */
+    public function getSubmittedbyservicerid()
+    {
+        return $this->submittedbyservicerid;
     }
 }
