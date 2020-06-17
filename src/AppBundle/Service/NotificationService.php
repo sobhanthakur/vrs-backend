@@ -66,7 +66,7 @@ class NotificationService extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateTaskDeclineNotification($result,$servicerID=null)
+    public function CreateTaskAcceptDeclineNotification($result,$servicerID=null,$additionalTextMessage = null,$additionalMessage = null)
     {
         $notification = new Notifications();
         $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
@@ -78,6 +78,14 @@ class NotificationService extends BaseService
 
         if ($servicerID) {
             $notification->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($result['BackupServicerID']));
+        }
+
+        if ($additionalMessage) {
+            $notification->setAdditionalmessage($result['AdditionalMessage']);
+        }
+
+        if ($additionalTextMessage) {
+            $notification->setAdditionaltextmessage($result['AdditionalTextMessage']);
         }
 
         $this->entityManager->persist($notification);

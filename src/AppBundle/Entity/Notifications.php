@@ -109,6 +109,20 @@ class Notifications
     /**
      * @var string|null
      *
+     * @ORM\Column(name="AdditionalTextMessage", type="text", nullable=true)
+     */
+    private $additionaltextmessage;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="AdditionalMessage", type="text", nullable=true)
+     */
+    private $additionalmessage;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="Email", type="text", length=-1, nullable=true)
      */
     private $email;
@@ -743,5 +757,53 @@ class Notifications
     public function getSubmittedbyservicerid()
     {
         return $this->submittedbyservicerid;
+    }
+
+    /**
+     * Set additionaltextmessage.
+     *
+     * @param string|null $additionaltextmessage
+     *
+     * @return Notifications
+     */
+    public function setAdditionaltextmessage($additionaltextmessage = null)
+    {
+        $this->additionaltextmessage = $additionaltextmessage;
+
+        return $this;
+    }
+
+    /**
+     * Get additionaltextmessage.
+     *
+     * @return string|null
+     */
+    public function getAdditionaltextmessage()
+    {
+        return $this->additionaltextmessage;
+    }
+
+    /**
+     * Set additionalmessage.
+     *
+     * @param string|null $additionalmessage
+     *
+     * @return Notifications
+     */
+    public function setAdditionalmessage($additionalmessage = null)
+    {
+        $this->additionalmessage = $additionalmessage;
+
+        return $this;
+    }
+
+    /**
+     * Get additionalmessage.
+     *
+     * @return string|null
+     */
+    public function getAdditionalmessage()
+    {
+        return $this->additionalmessage;
     }
 }

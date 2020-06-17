@@ -22,7 +22,7 @@ class NotificationsRepository extends EntityRepository
      * @param $customerID
      * @return mixed
      */
-    public function TaskNotificationInLastOneMinute($taskID, $customerID)
+    public function TaskNotificationInLastOneMinute($taskID, $customerID, $messageID)
     {
         $now = (new \DateTime('now'))->modify('-1 minutes');
         return $this->createQueryBuilder('n')
@@ -30,7 +30,7 @@ class NotificationsRepository extends EntityRepository
             ->where('n.taskid='.$taskID)
             ->andWhere('n.customerid='.$customerID)
             ->andWhere('n.createdate > :CreateDate')
-            ->andWhere('n.messageid=27')
+            ->andWhere('n.messageid='.$messageID)
             ->setParameter('CreateDate',$now)
             ->setMaxResults(1)
             ->getQuery()

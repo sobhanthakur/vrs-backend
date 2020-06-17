@@ -366,7 +366,7 @@ class ServicersDashboardService extends BaseService
                     $response = $this->DeclineTask($servicerID,$taskID,$dateTime,$rsThisTask);
                     break;
                 case 1:
-                    $response = $this->AcceptTask($servicerID,$taskID,$dateTime);
+                    $response = $this->AcceptTask($servicerID,$taskID,$dateTime,$rsThisTask);
                     break;
             }
 
@@ -391,9 +391,10 @@ class ServicersDashboardService extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function AcceptTask($servicerID, $taskID,$dateTime)
+    public function AcceptTask($servicerID, $taskID,$dateTime, $rsThisTask)
     {
         try {
+            $notification = [];
             $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
                 'taskid' => $taskID,
                 'servicerid' => $servicerID
@@ -415,10 +416,26 @@ class ServicersDashboardService extends BaseService
 
             $this->entityManager->flush();
 
+            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
+            if ((int)$taskNotification[0]['Count'] === 0) {
+                $result = array(
+                    'MessageID' => 26,
+                    'CustomerID' => $rsThisTask[0]['CustomerID'],
+                    'TaskID' => $taskID,
+                    'SendToManagers' => 1,
+                    'SubmittedByServicerID' => $servicerID,
+                    'TypeID' => 0
+                );
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
+                $notification['TaskNotification'] = $taskNotification;
+
+            }
+
             return array(
                 'Status' => 'Success',
                 'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                'Notification' => $notification
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
@@ -431,6 +448,7 @@ class ServicersDashboardService extends BaseService
      * @param $taskID
      * @param $dateTime
      * @param $customerID
+     * @param $rsThisTask
      * @return array
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -441,6 +459,8 @@ class ServicersDashboardService extends BaseService
             $notification = [];
             $backupServicer = 0;
             $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
+            $thisAdditionalMessage = '';
+            $thisAdditionalTextMessage = '';
 
             // Manage Backup Servicer.
             // If Backup Servicer ID is present then assign the servicer ID to that task
@@ -471,7 +491,7 @@ class ServicersDashboardService extends BaseService
             $this->entityManager->flush();
 
             // Manage Notifications for the task ID in last one minute
-            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID']);
+            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
             if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
                     'MessageID' => 27,
@@ -481,14 +501,20 @@ class ServicersDashboardService extends BaseService
                     'SubmittedByServicerID' => $servicerID,
                     'TypeID' => 0
                 );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskDeclineNotification($result);
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
                 $notification['TaskNotification'] = $taskNotification;
 
             }
 
+            // Deal with backup servicer notification
             if (!empty($rsBackup)) {
                 $viewTaskDate = (new \DateTime('now'))->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
                 if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
+                    if ($rsBackup[0]['RequestAcceptTasks']) {
+                        $thisAdditionalTextMessage = 'Please Accept or Decline';
+                        $thisAdditionalMessage = 'Please Accept or Decline';
+                    }
+
                     $result = array(
                         'MessageID' => 34,
                         'CustomerID' => $rsThisTask[0]['CustomerID'],
@@ -496,9 +522,11 @@ class ServicersDashboardService extends BaseService
                         'SendToManagers' => 1,
                         'BackupServicerID' => $backupServicer,
                         'SubmittedByServicerID' => $servicerID,
-                        'TypeID' => 0
+                        'TypeID' => 0,
+                        'AdditionalTextMessage' => $thisAdditionalTextMessage,
+                        'AdditionalMessage' => $thisAdditionalMessage
                     );
-                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskDeclineNotification($result,true);
+                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
                     $notification['BackupServicerNotification'] = $taskNotification;
                 }
             }
@@ -516,7 +544,12 @@ class ServicersDashboardService extends BaseService
         }
     }
 
-    public function ChangeTaskDate($servicerID,$content)
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function ChangeTaskDate($servicerID, $content)
     {
         try {
             $taskID = $content['TaskID'];
