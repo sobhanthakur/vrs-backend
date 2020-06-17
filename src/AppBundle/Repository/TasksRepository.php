@@ -743,4 +743,28 @@ class TasksRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $taskID
+     * @param $servicerID
+     * @return mixed
+     */
+    public function ChangeTaskDate($taskID, $servicerID)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.taskid AS TaskID')
+            ->addSelect('t.taskdate AS TaskDate')
+            ->addSelect('t.taskstartdate AS TaskStartDate')
+            ->addSelect('t.taskstarttime AS TaskStartTime')
+            ->addSelect('t.taskcompletebydate AS TaskCompleteByDate')
+            ->addSelect('t.taskcompletebytime AS TaskCompleteByTime')
+            ->addSelect('t.maxtimetocomplete AS MaxTimeToComplete')
+            ->leftJoin('AppBundle:Services','s2',Expr\Join::WITH, 't.serviceid=s2.serviceid')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
+            ->where('t.taskid='.$taskID)
+            ->andWhere('ts.servicerid='.$servicerID)
+            ->getQuery()
+            ->execute();
+
+    }
 }

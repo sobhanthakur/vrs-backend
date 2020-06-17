@@ -11,6 +11,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\TimeClockDays;
 use AppBundle\Entity\Taskacceptdeclines;
+use AppBundle\Entity\Taskchanges;
 use AppBundle\Entity\Timeclockdays as TimeClock;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -471,6 +472,74 @@ class ServicersDashboardService extends BaseService
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
+        }
+    }
+
+    public function ChangeTaskDate($servicerID,$content)
+    {
+        try {
+            $taskID = $content['TaskID'];
+            $taskDate = new \DateTime($content['TaskDate']);
+            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->ChangeTaskDate($taskID,$servicerID);
+            $thisTime = 8;
+            $response = [];
+
+            if(empty($rsThisTask)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
+
+            $taskDateTime = (new \DateTime($content['TaskDate']))->setTime($thisTime,0);
+
+            // make sure entered date falls within the window
+            if ($taskDate >= $rsThisTask[0]['TaskStartDate'] && $taskDate <= $rsThisTask[0]['TaskCompleteByDate']) {
+                if ($taskDate === $rsThisTask[0]['TaskStartDate'] && (int)$rsThisTask[0]['TaskStartTime'] !== 99) {
+                    $thisTime = max((int)$rsThisTask[0]['TaskStartTime'],$thisTime);
+                    $taskDateTime = $taskDateTime->setTime($thisTime,0);
+                }
+
+                if ($taskDate === $rsThisTask[0]['TaskCompleteByDate'] && (int)$rsThisTask[0]['TaskStartTime'] !== 99) {
+                    if ($thisTime > ($rsThisTask[0]['TaskCompleteByTime'] - $rsThisTask[0]['MaxTimeToComplete'])) {
+                        $thisTime = $rsThisTask[0]['TaskCompleteByTime'] - $rsThisTask[0]['MaxTimeToComplete'];
+                        $taskDateTime = $taskDateTime->setTime($thisTime,0);
+                    }
+                }
+
+                // Update Datetime
+                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+                $task->setTaskdatetime($taskDateTime);
+                $task->setTaskdate($taskDate);
+                $task->setTasktime($thisTime);
+
+                $this->entityManager->persist($task);
+
+                // Track the change
+                $taskChanges = new Taskchanges();
+                $taskChanges->setTaskid($task);
+                $taskChanges->setTodate($taskDateTime->setTime(0,0));
+                $taskChanges->setByservicer($servicerID);
+                $taskChanges->setBycustomer(0);
+                $taskChanges->setDescription('Emp Dashboard');
+                $this->entityManager->persist($taskChanges);
+
+                $this->entityManager->flush();
+
+                $response['TaskID'] = $task->getTaskid();
+                $response['TaskChangesID'] = $taskChanges->getTaskchangeid();
+            }
+
+            return array(
+                'Status' => 'Success',
+                'Details' => $response
+            );
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to change task date due to: ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
 }
