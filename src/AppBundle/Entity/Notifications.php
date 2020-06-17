@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Notifications
  *
  * @ORM\Table(name="Notifications", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="TypeID", columns={"TypeID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\NotificationsRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Notifications

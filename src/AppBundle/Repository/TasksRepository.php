@@ -734,7 +734,7 @@ class TasksRepository extends EntityRepository
     public function AcceptDeclineTask($servicerID, $taskID)
     {
         return $this->createQueryBuilder('t')
-            ->select('t.taskdate AS TaskDate,t.taskname AS TaskName,s2.servicename AS ServiceName,p.propertyname AS PropertyName, t.taskid AS TaskID')
+            ->select('t.taskdate AS TaskDate,t.taskname AS TaskName,s2.servicename AS ServiceName,p.propertyname AS PropertyName, t.taskid AS TaskID, IDENTITY(p.customerid) AS CustomerID')
             ->leftJoin('t.propertyid','p')
             ->leftJoin('AppBundle:Services','s2',Expr\Join::WITH, 't.serviceid=s2.serviceid')
             ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')

@@ -356,7 +356,6 @@ class ServicersDashboardService extends BaseService
             $acceptDecline = $content['AcceptDecline'];
             $dateTime = $content['DateTime'];
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptDeclineTask($servicerID,$taskID);
-            $response = [];
 
             if (empty($rsThisTask)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
@@ -364,7 +363,7 @@ class ServicersDashboardService extends BaseService
 
             switch ($acceptDecline) {
                 case 0:
-                    $response = $this->DeclineTask($servicerID,$taskID,$dateTime);
+                    $response = $this->DeclineTask($servicerID,$taskID,$dateTime,$rsThisTask[0]['CustomerID']);
                     break;
                 case 1:
                     $response = $this->AcceptTask($servicerID,$taskID,$dateTime);
@@ -431,17 +430,20 @@ class ServicersDashboardService extends BaseService
      * @param $servicerID
      * @param $taskID
      * @param $dateTime
+     * @param $customerID
      * @return array
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function DeclineTask($servicerID, $taskID, $dateTime)
+    public function DeclineTask($servicerID, $taskID, $dateTime,$customerID)
     {
         try {
+            $notification = [];
             $backupServicer = 0;
             $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
 
-            // Manage Notification
+            // Manage Backup Servicer.
+            // If Backup Servicer ID is present then assign the servicer ID to that task
             if (!empty($rsBackup)) {
                 $backupServicer = $rsBackup[0]['DeclineBackupServicerID'];
             }
@@ -468,11 +470,28 @@ class ServicersDashboardService extends BaseService
 
             $this->entityManager->flush();
 
+            // Manage Notifications for the task ID in last one minute
+            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$customerID);
+            if ((int)$taskNotification[0]['Count'] === 0) {
+                $result = array(
+                    'MessageID' => 27,
+                    'CustomerID' => $customerID,
+                    'TaskID' => $taskID,
+                    'SendToManagers' => 1,
+                    'ServicerID' => $servicerID,
+                    'TypeID' => 0
+                );
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskDeclineNotification($result);
+                $notification['TaskNotification'] = $taskNotification;
+
+            }
+
             return array(
                 'Status' => 'Success',
                 'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
                 'BackupServicerID' => $backupServicer,
-                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                'Notification' => $notification
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
