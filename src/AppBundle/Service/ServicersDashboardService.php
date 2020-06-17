@@ -418,6 +418,7 @@ class ServicersDashboardService extends BaseService
 
             return array(
                 'Status' => 'Success',
+                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
                 'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
             );
 
@@ -437,12 +438,13 @@ class ServicersDashboardService extends BaseService
     public function DeclineTask($servicerID, $taskID, $dateTime)
     {
         try {
-//            $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
+            $backupServicer = 0;
+            $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
 
             // Manage Notification
-//            if(!empty($rsBackup)) {
-//
-//            }
+            if (!empty($rsBackup)) {
+                $backupServicer = $rsBackup[0]['DeclineBackupServicerID'];
+            }
 
             $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
                 'taskid' => $taskID,
@@ -454,6 +456,7 @@ class ServicersDashboardService extends BaseService
             }
 
             $tasksToServicers->setDeclineddate(new \DateTime($dateTime));
+            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
             $this->entityManager->persist($tasksToServicers);
 
             $taskAcceptDeclines = new Taskacceptdeclines();
@@ -467,6 +470,8 @@ class ServicersDashboardService extends BaseService
 
             return array(
                 'Status' => 'Success',
+                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
+                'BackupServicerID' => $backupServicer,
                 'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid()
             );
 
