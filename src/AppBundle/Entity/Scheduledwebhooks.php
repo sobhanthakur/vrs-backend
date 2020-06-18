@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="ScheduledWebHooks")
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks()
  */
 class Scheduledwebhooks
 {
@@ -122,9 +123,9 @@ class Scheduledwebhooks
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
 
 
@@ -496,5 +497,16 @@ class Scheduledwebhooks
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

@@ -26,7 +26,7 @@ class ManageSave extends BaseService
      * @param $content
      * @return array
      */
-    public function SaveManageDetails($servicerID, $content)
+    public function SaveManageDetails($servicerID, $content, $complete=null)
     {
         try {
             $taskID = $content['TaskID'];
@@ -40,9 +40,18 @@ class ManageSave extends BaseService
                  * Note To Owner: = To Owner Note
                  */
                 $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
-                $task->setServicernotes(substr($content['TaskNote'], 0, 5000));
+                $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
                 if (array_key_exists('NoteToOwner', $content) && $content['NoteToOwner'] !== '') {
-                    $task->setToownernote(substr($content['NoteToOwner'], 0, 5000));
+                    $task->setToownernote(trim(substr($content['NoteToOwner'], 0, 5000)));
+                }
+
+                // Update Completed Time if the task is completed.
+                if ($complete) {
+                    $now = new \DateTime('now',new \DateTimeZone('UTC'));
+                    $task->setCloseddate($now);
+                    $task->setCompleteconfirmeddate($now);
+                    $task->setCompletedbyservicerid($servicerID);
+                    $task->setCompleted(true);
                 }
 
                 // Save and commit Task

@@ -93,4 +93,29 @@ class NotificationService extends BaseService
         return $notification->getNotificationid();
 
     }
+
+    /**
+     * @param $result
+     * @return int
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function CreateManageCompleteNotification($result)
+    {
+        $notification = new Notifications();
+        $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
+        $notification->setMessageid($result['MessageID']);
+        $notification->setCustomerid($result['CustomerID']);
+        $notification->setTocustomerid($result['ToCustomerID']);
+        $notification->setServicerid($result['ServicerID']);
+        $notification->setOwnerid($result['OwnerID']);
+        $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
+        $notification->setSendtomanagers($result['SendToManagers']);
+        $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
+        $notification->setTypeid($result['TypeID']);
+
+        $this->entityManager->persist($notification);
+        $this->entityManager->flush();
+        return $notification->getNotificationid();
+    }
 }

@@ -203,6 +203,7 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/manage/save
                 -  /v1/vrs/pwa/task/acceptdecline
                 -  /v1/vrs/pwa/task/changedate
+                -  /v1/vrs/pwa/manage/submit
 
 monolog:
     handlers:

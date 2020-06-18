@@ -194,3 +194,7 @@ services:
             class: AppBundle\Service\NotificationService
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.manage_submit:
+            class: AppBundle\Service\ManageSubmit
+            parent: vrscheduler.base_service
+            public: true

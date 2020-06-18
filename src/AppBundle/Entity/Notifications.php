@@ -67,6 +67,13 @@ class Notifications
     /**
      * @var int|null
      *
+     * @ORM\Column(name="ToCustomerID", type="integer", nullable=true)
+     */
+    private $tocustomerid;
+
+    /**
+     * @var int|null
+     *
      * @ORM\Column(name="FromCustomerID", type="integer", nullable=true)
      */
     private $fromcustomerid;
@@ -805,5 +812,29 @@ class Notifications
     public function getAdditionalmessage()
     {
         return $this->additionalmessage;
+    }
+
+    /**
+     * Set tocustomerid.
+     *
+     * @param int|null $tocustomerid
+     *
+     * @return Notifications
+     */
+    public function setTocustomerid($tocustomerid = null)
+    {
+        $this->tocustomerid = $tocustomerid;
+
+        return $this;
+    }
+
+    /**
+     * Get tocustomerid.
+     *
+     * @return int|null
+     */
+    public function getTocustomerid()
+    {
+        return $this->tocustomerid;
     }
 }

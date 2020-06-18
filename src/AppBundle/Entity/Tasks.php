@@ -487,6 +487,13 @@ class Tasks
     /**
      * @var bool|null
      *
+     * @ORM\Column(name="Completed", type="boolean", nullable=true)
+     */
+    private $completed;
+
+    /**
+     * @var bool|null
+     *
      * @ORM\Column(name="IncludeMaintenance", type="boolean", nullable=true)
      */
     private $includemaintenance;
@@ -3716,5 +3723,29 @@ class Tasks
             $this->setCreatedate($datetime);
             $this->setSchedulechangedate($datetime);
         }
+    }
+
+    /**
+     * Set completed.
+     *
+     * @param bool|null $completed
+     *
+     * @return Tasks
+     */
+    public function setCompleted($completed = null)
+    {
+        $this->completed = $completed;
+
+        return $this;
+    }
+
+    /**
+     * Get completed.
+     *
+     * @return bool|null
+     */
+    public function getCompleted()
+    {
+        return $this->completed;
     }
 }

@@ -7,6 +7,7 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\DatabaseViews\Servicers;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use AppBundle\Constants\GeneralConstants;
@@ -354,5 +355,21 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->andWhere('s.active=1')
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function SubmitManageTab($servicerID)
+    {
+        $query = 'SELECT ServicerID,Name,ServicerAbbreviation,Email,SendEmails,Phone,SendTexts,TimeZone,TimeZoneRegion,CustomerID,ViewBookingsWithinDays,ViewTasksWithinDays,IncludeGuestName,IncludeGuestNumbers,TimeTracking,TimeTrackingMileage,TimeTrackingGPS,CustomerEmail,AllowAdminAccess,GoLiveDate,AlertOnMaintenance,AlertOnDamage,QuickChangeAbbreviation,PlanType,CreateDAte,ShowTaskTimeEstimates,RequestAcceptTasks,ShowStartTimeOnDashboard,AllowCreateCompletedTask,INCLUDESERVICERNOTE,IncludeToOwnerNote,DefaultToOwnerNote,INCLUDEMAINTENANCE,INCLUDEDAMAGE,IncludeLostAndFound,IncludeSupplyFlag,ALLOWIMAGEUPLOAD,TASKNAME,NOTIFYOWNERONCOMPLETION,active,UseBeHome247,BeHome247Key,BeHome247Secret,ScheduleNote1,ScheduleNote2,ScheduleNote3,ScheduleNote4,ScheduleNote5,ScheduleNote6,ScheduleNote7,ScheduleNote1Show,ScheduleNote2Show,ScheduleNote3Show,ScheduleNote4Show,ScheduleNote5Show,ScheduleNote6Show,ScheduleNote7Show,ShowPiecePayAmountsOnEmployeeDashboards,INCLUDEURGENTFLAG,ShowIssuesLog,AllowStartEarly,AllowChangeTaskDAte,SortQuickChangeToTop,LanguageID,AllowAddStandardTask,PayRate,Password,IncludeGuestEmailPhone FROM ('.Servicers::vServicers.') AS S
+        WHERE  S.ServicerID = '.$servicerID.'
+        AND S.CustomerActive = 1 and S.Active = 1';
+
+        $servicer = $this->getEntityManager()->getConnection()->prepare($query);
+        $servicer->execute();
+        return $servicer->fetchAll();
     }
 }

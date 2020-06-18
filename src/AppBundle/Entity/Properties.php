@@ -71,6 +71,13 @@ class Properties
     private $pointcentralid;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyStatusID", type="integer", nullable=true)
+     */
+    private $propertystatusid;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="PointCentralConnected", type="boolean", nullable=false)
@@ -2148,5 +2155,29 @@ class Properties
     public function getStaffdashboardnote()
     {
         return $this->staffdashboardnote;
+    }
+
+    /**
+     * Set propertystatusid.
+     *
+     * @param int|null $propertystatusid
+     *
+     * @return Properties
+     */
+    public function setPropertystatusid($propertystatusid = null)
+    {
+        $this->propertystatusid = $propertystatusid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertystatusid.
+     *
+     * @return int|null
+     */
+    public function getPropertystatusid()
+    {
+        return $this->propertystatusid;
     }
 }

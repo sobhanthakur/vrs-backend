@@ -767,4 +767,23 @@ class TasksRepository extends EntityRepository
             ->execute();
 
     }
+
+    /**
+     * @param $servicerID
+     * @param $taskID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function SubmitManage($servicerID, $taskID)
+    {
+        $query = 'SELECT Tasks.TaskID,Properties.OwnerID,Properties.CustomerID,Tasks.NotifyOwnerOnCompletion,Tasks.NotifyCustomerOnCompletion,Properties.BeHome247ID,Services.BH247CleaningState,Services.BH247QAState,Services.BH247MaintenanceState,Services.BH247Custom_1State,Services.BH247Custom_2State,Tasks.ManagerServicerID,Tasks.PropertyID,Tasks.ServiceID,Tasks.INCLUDETOOWNERNOTE,Tasks.PropertyBookingID,Services.EscapiaHousekeepingStatus,Services.CloudbedsHousekeepingStatus,Services.MewsStatus,Services.OpertoStatus,Services.StreamlineHousekeepingSTatus,Services.TrackHSCleanTypeID,Services.PropertyStatusID FROM Tasks 
+                  LEFT JOIN Properties ON Tasks.PropertyID = Properties.PropertyID
+                  LEFT JOIN Services ON Tasks.ServiceID = Services.ServiceID
+                  LEFT JOIN TasksToServicers ON Tasks.TaskID = TasksToServicers.TaskID
+                  WHERE Tasks.TaskID = ' . $taskID . ' AND TasksToServicers.ServicerID = ' . $servicerID . ' and Tasks.CompleteConfirmedDate IS NULL';
+        $tasks = $this->getEntityManager()->getConnection()->prepare($query);
+        $tasks->execute();
+        return $tasks->fetchAll();
+
+    }
 }
