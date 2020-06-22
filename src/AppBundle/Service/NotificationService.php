@@ -108,7 +108,7 @@ class NotificationService extends BaseService
         $notification->setCustomerid($result['CustomerID']);
         $notification->setTocustomerid($result['ToCustomerID']);
         $notification->setServicerid($result['ServicerID']);
-        $notification->setOwnerid($result['OwnerID']);
+        $notification->setOwnerid($this->entityManager->getRepository('AppBundle:Owners')->find($result['OwnerID']));
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);

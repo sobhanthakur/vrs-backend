@@ -200,7 +200,7 @@ class ManageController extends FOSRestController
     /**
      * Submits issue form
      * @SWG\Tag(name="Manage Tab")
-     * @Post("/manage/submit", name="vrs_pwa_manage_submit")
+     * @Post("/manage/complete", name="vrs_pwa_manage_submit")
      * @SWG\Parameter(
      *     name="body",
      *     in="body",

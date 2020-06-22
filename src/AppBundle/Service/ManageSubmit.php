@@ -14,8 +14,18 @@ use AppBundle\Entity\Scheduledwebhooks;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+/**
+ * Class ManageSubmit
+ * Complete Manage Tab
+ * @package AppBundle\Service
+ */
 class ManageSubmit extends BaseService
 {
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
     public function SubmitManageForm($servicerID, $content)
     {
         try {
@@ -41,7 +51,7 @@ class ManageSubmit extends BaseService
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($rsThisTask[0]['TaskID']);
 
             // Save the manage form first
-            $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,true);
+            $save = $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,true);
 
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0]['PropertyID']);
 
@@ -64,7 +74,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['CloudbedsHousekeepingStatus']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['CloudBeds'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to Mews
             $schedulingWebHooks = new Scheduledwebhooks();
@@ -77,7 +86,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['MewsStatus']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['Mews'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to Operto
             $schedulingWebHooks = new Scheduledwebhooks();
@@ -90,7 +98,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['OpertoStatus']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['Operto'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to Trackhs
             $schedulingWebHooks = new Scheduledwebhooks();
@@ -103,7 +110,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['TrackHSCleanTypeID']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['Trackhs'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to ESCAPIA
             $schedulingWebHooks = new Scheduledwebhooks();
@@ -116,7 +122,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['EscapiaHousekeepingStatus']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['Escapia'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to STREAMLINE
             $schedulingWebHooks = new Scheduledwebhooks();
@@ -129,7 +134,6 @@ class ManageSubmit extends BaseService
             $schedulingWebHooks->setEventid(1);
             $schedulingWebHooks->setValue($rsThisTask[0]['StreamlineHousekeepingStatus']);
             $this->entityManager->persist($schedulingWebHooks);
-            $details['Streamline'] = $schedulingWebHooks->getScheduledwebhookid();
 
             // Submit to BH247
             if ((int)$rsServicers[0]['UseBeHome247'] !== 0 &&
@@ -150,7 +154,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setEventid(1);
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247CleaningState']);
                     $this->entityManager->persist($schedulingWebHooks);
-                    $details['BH247CleaningState'] = $schedulingWebHooks->getScheduledwebhookid();
                 }
 
                 if (trim($rsThisTask[0]['BH247QAState']) !== '') {
@@ -164,7 +167,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setEventid(2);
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247QAState']);
                     $this->entityManager->persist($schedulingWebHooks);
-                    $details['BH247QAState'] = $schedulingWebHooks->getScheduledwebhookid();
                 }
 
                 if (trim($rsThisTask[0]['BH247MaintenanceState']) !== '') {
@@ -178,7 +180,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setEventid(3);
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247MaintenanceState']);
                     $this->entityManager->persist($schedulingWebHooks);
-                    $details['BH247MaintenanceState'] = $schedulingWebHooks->getScheduledwebhookid();
                 }
 
                 if (trim($rsThisTask[0]['BH247Custom_1State']) !== '') {
@@ -192,7 +193,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setEventid(4);
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247Custom_1State']);
                     $this->entityManager->persist($schedulingWebHooks);
-                    $details['BH247Custom_1State'] = $schedulingWebHooks->getScheduledwebhookid();
                 }
 
                 if (trim($rsThisTask[0]['BH247Custom_2State']) !== '') {
@@ -206,7 +206,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setEventid(5);
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247Custom_2State']);
                     $this->entityManager->persist($schedulingWebHooks);
-                    $details['BH247Custom_2State'] = $schedulingWebHooks->getScheduledwebhookid();
                 }
             }
 
@@ -222,6 +221,8 @@ class ManageSubmit extends BaseService
 
                     if (strlen($content['TaskNote']) > 150) {
                         $issues->setNotes($content['TaskNote']);
+                    } else {
+                        $issues->setNotes('');
                     }
 
                     $issues->setFromtaskid($taskObj);
@@ -237,10 +238,11 @@ class ManageSubmit extends BaseService
             ));
 
             $now = new \DateTime('now',new \DateTimeZone('UTC'));
-            $timeClockTasks->setClockout($now);
-
-            $this->entityManager->persist($timeClockTasks);
-            $details['TimeClockTasks'] = $timeClockTasks->getTimeclocktaskid();
+            if ($timeClockTasks) {
+                $timeClockTasks->setClockout($now);
+                $this->entityManager->persist($timeClockTasks);
+                $details['TimeClockTasks'] = $timeClockTasks->getTimeclocktaskid();
+            }
 
             // Get Owner ID
             $thisOwnerID = 0;
@@ -274,7 +276,9 @@ class ManageSubmit extends BaseService
 
             return array(
                 'Status' => 'Success',
-                'Notification' => $notification
+                'Notification' => $notification,
+                'Details' => $details,
+                'SaveDetails' => $save
             );
 
         } catch (UnprocessableEntityHttpException $exception) {

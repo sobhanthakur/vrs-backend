@@ -346,5 +346,6 @@ class ManageSave extends BaseService
         $taskToCheckListItems->setChecked(false);
         $taskToCheckListItems->setSortorder((int)$checkListResponse[0]['SortOrder']);
         $this->entityManager->persist($taskToCheckListItems);
+        $this->entityManager->flush();
     }
 }
