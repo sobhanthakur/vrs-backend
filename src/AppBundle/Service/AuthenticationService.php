@@ -332,6 +332,7 @@ class AuthenticationService extends BaseService
             $servicer[0]['TimeClockDays'] = $timeClockResponse ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;
+            $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
 
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
 
