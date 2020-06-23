@@ -332,4 +332,20 @@ class PropertiesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function GetPropertiesForUnscheduledTask($servicerID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyname AS PropertyName,p.propertyid AS PropertyID')
+            ->leftJoin('AppBundle:Servicerstoproperties', 'sp', Expr\Join::WITH, 'sp.propertyid=p.propertyid')
+            ->where('sp.servicerid='.$servicerID)
+            ->andWhere('p.active=1')
+            ->orderBy('p.propertyname')
+            ->getQuery()
+            ->execute();
+    }
 }

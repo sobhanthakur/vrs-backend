@@ -92,6 +92,7 @@ final class ApiRoutes
         "vrs_pwa_manage_save",
         "vrs_pwa_task_accept_decline",
         "vrs_pwa_task_changedate",
-        "vrs_pwa_manage_submit"
+        "vrs_pwa_manage_submit",
+        "vrs_pwa_unscheduled_properties"
     );
 }

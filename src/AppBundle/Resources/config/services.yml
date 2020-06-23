@@ -198,3 +198,7 @@ services:
             class: AppBundle\Service\ManageSubmit
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.unscheduled_task:
+            class: AppBundle\Service\UnscheduledTask
+            parent: vrscheduler.base_service
+            public: true
