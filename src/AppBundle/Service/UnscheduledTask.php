@@ -11,8 +11,16 @@ use AppBundle\Constants\ErrorConstants;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+/**
+ * Class UnscheduledTask
+ * @package AppBundle\Service
+ */
 class UnscheduledTask extends BaseService
 {
+    /**
+     * @param $servicerID
+     * @return array
+     */
     public function GetProperties($servicerID)
     {
         try {
@@ -35,6 +43,11 @@ class UnscheduledTask extends BaseService
 
     }
 
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
     public function PropertyTab($servicerID, $content)
     {
         try {

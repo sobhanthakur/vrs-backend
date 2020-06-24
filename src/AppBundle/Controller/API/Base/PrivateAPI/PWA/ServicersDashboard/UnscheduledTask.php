@@ -76,12 +76,23 @@ class UnscheduledTask extends FOSRestController
      *              property="PropertyDetails",
      *              type="string",
      *              example=
-     *               {
-     *                  {
-     *     "PropertyID":123,
-     *     "Propertyname":"ABCD"
-     *                  }
-     *              }
+    {
+    "PropertyDetails": {
+    "PropertyID": 171,
+    "PropertyFile": null,
+    "Description": "Please enter through the back door.",
+    "Address": "3523 Chapel Hill Dr",
+    "DoorCode": "1234",
+    "PropertyName": "Chapel Hill",
+    "InternalPropertyNotes": "Internal Property Notes",
+    "StaffDashboardNote": "This is the Staff Dashboard Note"
+    },
+    "ServicerDetails": {
+    "AllowAdminAccess": 1,
+    "Servicers_Email": "",
+    "Customers_Email": "jill@vrscheduler.com"
+    }
+    }
      *          )
      *     )
      * )
