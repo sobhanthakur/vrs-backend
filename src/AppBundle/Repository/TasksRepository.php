@@ -776,7 +776,7 @@ class TasksRepository extends EntityRepository
      */
     public function SubmitManage($servicerID, $taskID)
     {
-        $query = 'SELECT Tasks.TaskID,Properties.OwnerID,Properties.CustomerID,Tasks.NotifyOwnerOnCompletion,Tasks.NotifyCustomerOnCompletion,Properties.BeHome247ID,Services.BH247CleaningState,Services.BH247QAState,Services.BH247MaintenanceState,Services.BH247Custom_1State,Services.BH247Custom_2State,Tasks.ManagerServicerID,Tasks.PropertyID,Tasks.ServiceID,Tasks.INCLUDETOOWNERNOTE,Tasks.PropertyBookingID,Services.EscapiaHousekeepingStatus,Services.CloudbedsHousekeepingStatus,Services.MewsStatus,Services.OpertoStatus,Services.StreamlineHousekeepingStatus,Services.TrackHSCleanTypeID,Services.PropertyStatusID FROM Tasks 
+        $query = 'SELECT Tasks.TaskID,Properties.OwnerID,Properties.CustomerID,Tasks.NotifyOwnerOnCompletion,Tasks.NotifyCustomerOnCompletion,Properties.BeHome247ID,Services.BH247CleaningState,Services.BH247QAState,Services.BH247MaintenanceState,Services.BH247Custom_1State,Services.BH247Custom_2State,Tasks.ManagerServicerID,Tasks.PropertyID,Tasks.ServiceID,Tasks.IncludeToOwnerNote,Tasks.PropertyBookingID,Services.EscapiaHousekeepingStatus,Services.CloudbedsHousekeepingStatus,Services.MewsStatus,Services.OpertoStatus,Services.StreamlineHousekeepingStatus,Services.TrackHSCleanTypeID,Services.PropertyStatusID FROM Tasks 
                   LEFT JOIN Properties ON Tasks.PropertyID = Properties.PropertyID
                   LEFT JOIN Services ON Tasks.ServiceID = Services.ServiceID
                   LEFT JOIN TasksToServicers ON Tasks.TaskID = TasksToServicers.TaskID
