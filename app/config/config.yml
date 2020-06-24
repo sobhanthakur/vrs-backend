@@ -205,6 +205,7 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/task/changedate
                 -  /v1/vrs/pwa/manage/submit
                 -  /v1/vrs/pwa/unscheduled/properties
+                -  /v1/vrs/pwa/unscheduled/tabs/property
 
 monolog:
     handlers:

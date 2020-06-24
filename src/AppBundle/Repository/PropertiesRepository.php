@@ -348,4 +348,25 @@ class PropertiesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $propertyID
+     * @return mixed
+     */
+    public function PropertyTabUnscheduledTasks($propertyID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyid AS PropertyID')
+            ->addSelect('p.propertyfile AS PropertyFile')
+            ->addSelect('p.description AS Description')
+            ->addSelect('p.address AS Address')
+            ->addSelect('p.doorcode AS DoorCode')
+            ->addSelect('p.propertyname AS PropertyName')
+            ->addSelect('p.internalnotes AS InternalPropertyNotes')
+            ->addSelect('p.staffdashboardnote AS StaffDashboardNote')
+            ->where('p.propertyid='.$propertyID)
+            ->getQuery()
+            ->execute();
+
+    }
 }
