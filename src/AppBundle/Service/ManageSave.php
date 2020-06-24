@@ -46,8 +46,8 @@ class ManageSave extends BaseService
                 }
 
                 // Update Completed Time if the task is completed.
-                if ($complete) {
-                    $now = new \DateTime('now',new \DateTimeZone('UTC'));
+                if ($complete && $complete !== '') {
+                    $now = new \DateTime($complete);
                     $task->setCloseddate($now);
                     $task->setCompleteconfirmeddate($now);
                     $task->setCompletedbyservicerid($servicerID);

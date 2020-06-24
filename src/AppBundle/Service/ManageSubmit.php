@@ -30,6 +30,7 @@ class ManageSubmit extends BaseService
     {
         try {
             $taskID = $content['TaskID'];
+            $dateTime = $content['DateTime'];
             $taskObj = null;
             $propertyObj = null;
             $notification = [];
@@ -51,7 +52,7 @@ class ManageSubmit extends BaseService
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($rsThisTask[0]['TaskID']);
 
             // Save the manage form first
-            $save = $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,true);
+            $save = $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,$dateTime);
 
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0]['PropertyID']);
 
@@ -237,7 +238,7 @@ class ManageSubmit extends BaseService
                'taskid' => $rsThisTask[0]['TaskID']
             ));
 
-            $now = new \DateTime('now',new \DateTimeZone('UTC'));
+            $now = new \DateTime($dateTime);
             if ($timeClockTasks) {
                 $timeClockTasks->setClockout($now);
                 $this->entityManager->persist($timeClockTasks);

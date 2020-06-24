@@ -212,6 +212,11 @@ class ManageController extends FOSRestController
      *              example=1801
      *         ),
      *     @SWG\Property(
+     *              property="DateTime",
+     *              type="string",
+     *              example="2020-06-06 08:30:00"
+     *         ),
+     *     @SWG\Property(
      *              property="TaskNote",
      *              type="string",
      *              example="Some Task Note"
