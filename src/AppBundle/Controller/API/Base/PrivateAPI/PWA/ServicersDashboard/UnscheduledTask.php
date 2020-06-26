@@ -131,12 +131,19 @@ class UnscheduledTask extends FOSRestController
      *     description="Image tab details for unscheduled tasks",
      *     @SWG\Schema(
      *         @SWG\Property(
-     *              property="PropertyDetails",
+     *              property="Images",
      *              type="string",
      *              example=
                         {
 
-                        }
+     *     {
+                    "SortOrder": 1,
+                    "ImageID": 15,
+                    "ImageTitle": "Kitchen Layout",
+                    "Image": "abcd.jpg",
+                    "ImageDescription": ""
+                    }
+     *                      }
      *          )
      *     )
      * )
