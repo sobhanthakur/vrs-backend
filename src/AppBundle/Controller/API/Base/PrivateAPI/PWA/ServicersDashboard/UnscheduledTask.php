@@ -122,4 +122,48 @@ class UnscheduledTask extends FOSRestController
         }
     }
 
+    /**
+     * Image Tab Details
+     * @SWG\Tag(name="Unscheduled Task")
+     * @Get("/unscheduled/tabs/image", name="vrs_pwa_unscheduled_tabs_Image")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Image tab details for unscheduled tasks",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="PropertyDetails",
+     *              type="string",
+     *              example=
+                        {
+
+                        }
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function ImagesTab(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $content = json_decode(base64_decode($request->get('data')),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $servicersDashboard->ImageTab($servicerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
 }

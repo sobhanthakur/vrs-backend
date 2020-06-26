@@ -79,6 +79,30 @@ class UnscheduledTask extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function ImageTab($servicerID, $content)
+    {
+        try {
+            $propertyID = $content['PropertyID'];
+            $images = $this->entityManager->getRepository('AppBundle:Images')->GetImagesForImageTab($propertyID);
+            return array(
+                'Images' => $images
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to fetch properties ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
 
     }
 }
