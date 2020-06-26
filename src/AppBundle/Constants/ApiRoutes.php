@@ -95,6 +95,7 @@ final class ApiRoutes
         "vrs_pwa_manage_submit",
         "vrs_pwa_unscheduled_properties",
         "vrs_pwa_unscheduled_tabs_property",
-        "vrs_pwa_unscheduled_tabs_Image"
+        "vrs_pwa_unscheduled_tabs_Image",
+        "vrs_pwa_unscheduled_tasks",
     );
 }

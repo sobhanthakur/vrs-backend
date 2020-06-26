@@ -369,4 +369,18 @@ class PropertiesRepository extends EntityRepository
             ->execute();
 
     }
+
+    /**
+     * @param $propertyID
+     * @return mixed
+     */
+    public function PropertyDetailsForUnscheduledTasks($propertyID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.staffdashboardnote AS StaffDashboardNote')
+            ->addSelect('p.propertyname AS PropertyName')
+            ->where('p.propertyid='.$propertyID)
+            ->getQuery()
+            ->execute();
+    }
 }
