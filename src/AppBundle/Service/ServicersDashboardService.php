@@ -64,8 +64,9 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Expand'] = $expand;
 
                 // Show or hide Start Task
-                if ( ((int)$servicers[0]['TimeTracking'] === 1) &&
-                     ((int)$servicers[0]['AllowStartEarly']) &&
+                $now = new \DateTime('now');
+                if ( ((int)$servicers[0]['TimeTracking'] === 1 && $tasks[$i]['TaskStartDate'] <= $now) &&
+                     ((int)$servicers[0]['AllowStartEarly'] || $tasks[$i]['TaskStartDate'] <= $now) &&
                      (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
                 ) {
                     if (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']) {
