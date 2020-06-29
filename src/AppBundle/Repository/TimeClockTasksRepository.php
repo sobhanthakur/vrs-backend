@@ -268,7 +268,7 @@ class TimeClockTasksRepository extends EntityRepository
     {
         $timeClockTasks = null;
         $timeZone = new \DateTimeZone($region);
-        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." ORDER BY tct.ClockIn DESC");
+        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." ORDER BY tct.ClockIn DESC");
 
         $result->execute();
         $result = $result->fetchAll();

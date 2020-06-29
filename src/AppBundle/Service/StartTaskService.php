@@ -82,16 +82,20 @@ class StartTaskService extends BaseService
                 // Clock Out/Pause Task
                 $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer->getTimezoneid()->getRegion());
                 if(!empty($timeClockTasks)) {
-                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
+                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findBy(array(
                       'clockout' => null,
                       'servicerid' => $servicerID,
                       'taskid' => $taskID
-                    ));
-                    $timeClockTasks->setClockout(new \DateTime('now'));
-                    $this->entityManager->persist($timeClockTasks);
-                    $this->entityManager->flush();
+                    ),array('timeclocktaskid' => 'desc'),1);
+                    if (!empty($timeClockTasks)) {
+                        $timeClockTasks[0]->setClockout(new \DateTime($dateTime));
+                        $this->entityManager->persist($timeClockTasks[0]);
+                        $this->entityManager->flush();
+                        $response['TimeClockTasksID'] = $timeClockTasks[0]->getTimeclocktaskid();
+                    }
                 }
                 $response['Started'] = null;
+
             }
             return $response;
         } catch (UnprocessableEntityHttpException $exception) {
