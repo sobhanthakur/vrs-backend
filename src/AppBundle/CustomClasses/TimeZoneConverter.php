@@ -22,12 +22,19 @@ class TimeZoneConverter
      */
     final public function RangeCalculation($clockIn, $timeZone)
     {
-        $today = (new \DateTime('now'));
+        $now = (new \DateTime('now'));
+
+        // Set today as 00:00 midnight in servicer's timezone
+        $today = (new \DateTime($now->format('Y-m-d'),$timeZone))->setTimezone(new \DateTimeZone('UTC'));
         $clockInToday = new \DateTime($clockIn);
+
+        // Set tomorrow as 00:00 midnight (Next Day) in servicer's timezone
         $clockInTomorrow = (new \DateTime($clockInToday->format('Y-m-d'),$timeZone))->modify('+1 day');
         $clockInTomorrow->setTimezone(new \DateTimeZone('UTC'));
 
-        if ($today >= $clockInToday && $today <= $clockInTomorrow) {
+        // Check if clock in time falls within one day - range
+
+        if ($clockInToday >= $today && $clockInToday <= $clockInTomorrow) {
             return true;
         }
         return false;
