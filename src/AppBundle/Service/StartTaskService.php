@@ -8,6 +8,7 @@
 
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockDays;
 use AppBundle\Entity\Timeclocktasks;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -32,34 +33,39 @@ class StartTaskService extends BaseService
             $taskID = $content['TaskID'];
             $dateTime = $content['DateTime'];
             $response = [];
+            $timeClockResponse = null;
 
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
 
             // Start/Pause a Task
             if($startPause) {
                 // Start a Task
-                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
+                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findBy(array(
                     'servicerid' => $servicerID,
                     'taskid' => $taskID
-                ));
-                if($timeClockTasks) {
-                    $timeClockTasks->setClockout(new \DateTime($dateTime));
-                    $this->entityManager->persist($timeClockTasks);
+                ),array('timeclocktaskid' => 'desc'),1);
+                if(!empty($timeClockTasks)) {
+                    $timeClockTasks[0]->setClockout(new \DateTime($dateTime));
+                    $this->entityManager->persist($timeClockTasks[0]);
                     $this->entityManager->flush();
-                    $response['PrevTimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
+                    $response['PrevTimeClockTasksID'] = $timeClockTasks[0]->getTimeclocktaskid();
                 }
 
                 // Get time clock days
                 $today = (new \DateTime($dateTime));
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
                 $today->setTimezone($timeZone);
-                $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
+                $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID.' ORDER BY T.ClockIn DESC';
                 $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
                 $timeClockDays->execute();
                 $timeClockDays = $timeClockDays->fetchAll();
 
+                if (!empty($timeClockDays)) {
+                    $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
+                }
+
                 // Insert new Time Clock Days if empty
-                if (empty($timeClockDays)) {
+                if ($timeClockResponse) {
                     $timeClockDays = new TimeClock();
                     $timeClockDays->setServicerid($servicer);
                     $this->entityManager->persist($timeClockDays);
