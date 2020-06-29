@@ -567,7 +567,8 @@ class TasksRepository extends EntityRepository
             ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 't.taskid = ts.taskid')
             ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 's2.servicerid=ts.servicerid')
             ->leftJoin('AppBundle:Services', 's', Expr\Join::WITH, 't.serviceid = s.serviceid')
-            ->where('t.propertybookingid=' . $propertyBookingID)
+            ->where('t.propertybookingid= :PropertyBookingID')
+            ->setParameter('PropertyBookingID',$propertyBookingID)
             ->andWhere('t.tasktype <> 3')
             ->andWhere('t.propertybookingid IS NOT NULL OR t.propertybookingid <> 0')
             ->andWhere('t.active=1');
