@@ -312,6 +312,7 @@ class AuthenticationService extends BaseService
 
             // Set TimeZone
             $timeZone = new \DateTimeZone($servicer[0]['Region']);
+            $today = new \DateTime('now');
 
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
