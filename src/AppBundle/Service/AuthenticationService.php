@@ -315,23 +315,19 @@ class AuthenticationService extends BaseService
 
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
-            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID.' ORDER BY T.ClockIn DESC';
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
             $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
             $timeClockDays->execute();
             $timeClockDays = $timeClockDays->fetchAll();
 
-            if (!empty($timeClockDays)) {
-                $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
-            }
-
             // Convert Clock In to the local timezone
-            if($timeClockResponse) {
+            if(!empty($timeClockDays) && $timeClockDays[0]['ClockIn']) {
                 $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('h:i A');
             }
 
-            $servicer[0]['TimeClockDays'] = $timeClockResponse ? 1 : 0;
-            $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
+            $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;
+            $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
 
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
