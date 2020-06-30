@@ -9,6 +9,7 @@
 namespace AppBundle\Repository;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\DatabaseViews\TimeClockDays;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -321,5 +322,28 @@ class TimeclockdaysRepository extends EntityRepository
         $query = "count(tcd.timeclockdayid)";
         return $this->fetchTimeClockDays($customerDetails, $queryParameter, $staffTaskTimeID, $offset, $query);
 
+    }
+
+    /**
+     * @param $servicerID
+     * @param $timeZone
+     * @param null $dateTime
+     * @throws \Doctrine\DBAL\DBALException
+     * @return array
+     */
+    public function CheckTimeClockForCurrentDay($servicerID, $timeZone, $dateTime = null)
+    {
+        if (!$dateTime) {
+            $dateTime = 'now';
+        }
+
+        $today = (new \DateTime($dateTime,$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $todayEOD = (new \DateTime($dateTime,$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID." AND T.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND T.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'";
+        $timeClockDays = $this->getEntityManager()->getConnection()->prepare($timeClockDays);
+        $timeClockDays->execute();
+        $timeClockDays = $timeClockDays->fetchAll();
+
+        return $timeClockDays;
     }
 }

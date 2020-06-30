@@ -55,12 +55,8 @@ class StartTaskService extends BaseService
                 // Get time clock days
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
 
-                $today = (new \DateTime($content['DateTime'],$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
-                $todayEOD = (new \DateTime($content['DateTime'],$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
-                $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID." AND T.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND T.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'";
-                $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
-                $timeClockDays->execute();
-                $timeClockDays = $timeClockDays->fetchAll();
+                // Check If Any TimeClockDay is present for current day
+                $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone,$dateTime);
 
                 // Insert new Time Clock Days if empty
                 if (!empty($timeClockDays)) {
