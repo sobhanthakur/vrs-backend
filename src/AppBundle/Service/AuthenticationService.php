@@ -312,11 +312,12 @@ class AuthenticationService extends BaseService
 
             // Set TimeZone
             $timeZone = new \DateTimeZone($servicer[0]['Region']);
-            $today = new \DateTime('now');
+            $today = (new \DateTime('now',$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+            $todayEOD = (new \DateTime('now',$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
 
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
-            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
+            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID." AND T.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND T.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'";
             $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
             $timeClockDays->execute();
             $timeClockDays = $timeClockDays->fetchAll();
