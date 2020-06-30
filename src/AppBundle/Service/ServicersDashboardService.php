@@ -304,27 +304,13 @@ class ServicersDashboardService extends BaseService
             } else {
                 // Clock Out
                 if(!empty($timeClockDays)) {
-                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
-                       'servicerid' => $servicerID,
-                       'clockout' => null
-                    ));
-
                     $dateTime = new \DateTime($dateTime);
 
                     // Set TimeClock Tasks to Current UTC DateTime
-                    if ($timeClockTasks) {
-                        $timeClockTasks->setClockout($dateTime);
-                        $this->entityManager->persist($timeClockTasks);
-                    }
+                    $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
 
-                    $timeClock = $this->entityManager->getRepository('AppBundle:Timeclockdays')->findOneBy(array(
-                        'clockout' => null,
-                        'servicerid' => $servicerID
-                    ));
-                    if($timeClock) {
-                        $timeClock->setClockout($dateTime);
-                        $this->entityManager->persist($timeClock);
-                    }
+                    // Set TimeClock Tasks to Current UTC DateTime
+                    $timeClock = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockDays SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."', MileageOut=".$mileage." WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
                     $this->entityManager->flush();
                 }
             }
