@@ -268,21 +268,14 @@ class TimeClockTasksRepository extends EntityRepository
     {
         $timeClockTasks = null;
         $timeZone = new \DateTimeZone($region);
-        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." ORDER BY tct.ClockIn DESC");
+
+        $today = (new \DateTime('now',$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $todayEOD = (new \DateTime('now',$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+
+        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
 
         $result->execute();
-        $result = $result->fetchAll();
-
-        if (!empty($result)) {
-            // Check if the clock in time falls in 24 hours range
-            $timeClockTasks = (new TimeZoneConverter())->RangeCalculation($result[0]['ClockIn'],$timeZone);
-        }
-
-        if ($timeClockTasks) {
-            return $result;
-        }
-
-        return [];
+        return $result->fetchAll();
     }
 
     /**
