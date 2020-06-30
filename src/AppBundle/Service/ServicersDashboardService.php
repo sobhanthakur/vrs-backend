@@ -306,6 +306,10 @@ class ServicersDashboardService extends BaseService
                 if(!empty($timeClockDays)) {
                     $dateTime = new \DateTime($dateTime);
 
+                    if (!$mileage) {
+                        $mileage = 'NULL';
+                    }
+
                     // Set TimeClock Tasks to Current UTC DateTime
                     $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
 
