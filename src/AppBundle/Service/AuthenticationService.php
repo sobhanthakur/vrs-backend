@@ -322,16 +322,7 @@ class AuthenticationService extends BaseService
             $timeClockDays->execute();
             $timeClockDays = $timeClockDays->fetchAll();
 
-            if (!empty($timeClockDays)) {
-                $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
-            }
-
-            // Convert Clock In to the local timezone
-            if($timeClockResponse) {
-                $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('h:i A');
-            }
-
-            $servicer[0]['TimeClockDays'] = $timeClockResponse ? 1 : 0;
+            $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;
             $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
