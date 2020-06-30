@@ -319,6 +319,12 @@ class AuthenticationService extends BaseService
             // Check If Any TimeClockDay is present for current day
             $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone);
 
+            if(!empty($timeClockDays)) {
+                $clockedIn = new \DateTime($timeClockDays[0]['ClockIn']);
+                $clockedIn->setTimezone($timeZone);
+                $clockedIn = $clockedIn->format('h:i A');
+            }
+
             $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;

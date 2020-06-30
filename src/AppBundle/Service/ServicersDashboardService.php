@@ -280,20 +280,17 @@ class ServicersDashboardService extends BaseService
     public function ClockInOut($servicerID, $content)
     {
         try {
-            $dateTime = $content['DateTime'] ? (new \DateTime($content['DateTime'])) : null;
+            $dateTime = $content['DateTime'];
             $clockInOut = $content['ClockInOut'];
             $mileage = $content['Mileage'] ? $content['Mileage'] : null;
 
             // ServicerObject
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
 
-            $today = $dateTime->setTimezone((new \DateTimeZone($servicer->getTimezoneid()->getRegion())));
+            $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
 
             // Query TimeClockDays
-            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockIn >= '".$today->format('Y-m-d')."' AND T.ClockIn <= '".$today->modify('+1 day')->format('Y-m-d')."' AND T.ClockOut IS NULL And T.ServicerID=".$servicerID;
-            $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
-            $timeClockDays->execute();
-            $timeClockDays = $timeClockDays->fetchAll();
+            $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone,$dateTime);
 
             if($clockInOut) {
                 // Clock In
@@ -311,6 +308,8 @@ class ServicersDashboardService extends BaseService
                        'servicerid' => $servicerID,
                        'clockout' => null
                     ));
+
+                    $dateTime = new \DateTime($dateTime);
 
                     // Set TimeClock Tasks to Current UTC DateTime
                     if ($timeClockTasks) {
