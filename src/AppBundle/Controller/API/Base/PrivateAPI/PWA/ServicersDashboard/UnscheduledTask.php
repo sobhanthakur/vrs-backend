@@ -68,6 +68,17 @@ class UnscheduledTask extends FOSRestController
      * Property Tab Details
      * @SWG\Tag(name="Unscheduled Task")
      * @Get("/unscheduled/tabs/property", name="vrs_pwa_unscheduled_tabs_property")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""PropertyID"":1
+    }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Property tab details for unscheduled tasks",
@@ -126,6 +137,17 @@ class UnscheduledTask extends FOSRestController
      * Image Tab Details
      * @SWG\Tag(name="Unscheduled Task")
      * @Get("/unscheduled/tabs/image", name="vrs_pwa_unscheduled_tabs_Image")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""PropertyID"":1
+    }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Image tab details for unscheduled tasks",
@@ -177,6 +199,17 @@ class UnscheduledTask extends FOSRestController
      * Details for Unscheduled tasks
      * @SWG\Tag(name="Unscheduled Task")
      * @Get("/unscheduled/tasks", name="vrs_pwa_unscheduled_tasks")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+    {
+    ""PropertyID"":1
+    }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Details for the unscheduled task",
