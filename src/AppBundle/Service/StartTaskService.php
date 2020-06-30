@@ -39,18 +39,8 @@ class StartTaskService extends BaseService
 
             // Start/Pause a Task
             if($startPause) {
-                // Start a Task
-                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
-                    'servicerid' => $servicerID,
-                    'clockout' => null
-                ));
 
-                if($timeClockTasks) {
-                    $timeClockTasks->setClockout(new \DateTime($dateTime));
-                    $this->entityManager->persist($timeClockTasks);
-                    $this->entityManager->flush();
-                    $response['PrevTimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
-                }
+                $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".(new \DateTime($dateTime))->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
 
                 // Get time clock days
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
@@ -85,17 +75,7 @@ class StartTaskService extends BaseService
                 // Clock Out/Pause Task
                 $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer->getTimezoneid()->getRegion());
                 if(!empty($timeClockTasks)) {
-                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
-                      'clockout' => null,
-                      'servicerid' => $servicerID,
-                      'taskid' => $taskID
-                    ));
-                    if ($timeClockTasks) {
-                        $timeClockTasks->setClockout(new \DateTime($dateTime));
-                        $this->entityManager->persist($timeClockTasks);
-                        $this->entityManager->flush();
-                        $response['TimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
-                    }
+                    $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".(new \DateTime($dateTime))->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID." AND TaskID=".$taskID)->execute();
                 }
                 $response['Started'] = null;
 
