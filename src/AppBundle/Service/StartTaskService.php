@@ -40,32 +40,30 @@ class StartTaskService extends BaseService
             // Start/Pause a Task
             if($startPause) {
                 // Start a Task
-                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findBy(array(
+                $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
                     'servicerid' => $servicerID,
-                    'taskid' => $taskID
-                ),array('timeclocktaskid' => 'desc'),1);
-                if(!empty($timeClockTasks)) {
-                    $timeClockTasks[0]->setClockout(new \DateTime($dateTime));
-                    $this->entityManager->persist($timeClockTasks[0]);
+                    'clockout' => null
+                ));
+
+                if($timeClockTasks) {
+                    $timeClockTasks->setClockout(new \DateTime($dateTime));
+                    $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
-                    $response['PrevTimeClockTasksID'] = $timeClockTasks[0]->getTimeclocktaskid();
+                    $response['PrevTimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                 }
 
                 // Get time clock days
-                $today = (new \DateTime($dateTime));
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
-                $today->setTimezone($timeZone);
-                $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID.' ORDER BY T.ClockIn DESC';
+
+                $today = (new \DateTime($content['DateTime'],$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+                $todayEOD = (new \DateTime($content['DateTime'],$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+                $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID." AND T.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND T.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'";
                 $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
                 $timeClockDays->execute();
                 $timeClockDays = $timeClockDays->fetchAll();
 
-                if (!empty($timeClockDays)) {
-                    $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
-                }
-
                 // Insert new Time Clock Days if empty
-                if ($timeClockResponse) {
+                if (!empty($timeClockDays)) {
                     $timeClockDays = new TimeClock();
                     $timeClockDays->setServicerid($servicer);
                     $this->entityManager->persist($timeClockDays);
@@ -83,21 +81,24 @@ class StartTaskService extends BaseService
                     $this->entityManager->flush();
                     $response['TimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                 }
-                $response['Started'] = $today->format('h:i A');
+
+                $dateTime = (new \DateTime($dateTime));
+                $dateTime->setTimezone($timeZone);
+                $response['Started'] = $dateTime->format('h:i A');
             } else {
                 // Clock Out/Pause Task
                 $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer->getTimezoneid()->getRegion());
                 if(!empty($timeClockTasks)) {
-                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findBy(array(
+                    $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
                       'clockout' => null,
                       'servicerid' => $servicerID,
                       'taskid' => $taskID
-                    ),array('timeclocktaskid' => 'desc'),1);
-                    if (!empty($timeClockTasks)) {
-                        $timeClockTasks[0]->setClockout(new \DateTime($dateTime));
-                        $this->entityManager->persist($timeClockTasks[0]);
+                    ));
+                    if ($timeClockTasks) {
+                        $timeClockTasks->setClockout(new \DateTime($dateTime));
+                        $this->entityManager->persist($timeClockTasks);
                         $this->entityManager->flush();
-                        $response['TimeClockTasksID'] = $timeClockTasks[0]->getTimeclocktaskid();
+                        $response['TimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                     }
                 }
                 $response['Started'] = null;
