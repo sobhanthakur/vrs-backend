@@ -22,10 +22,8 @@ class TimeZoneConverter
      */
     final public function RangeCalculation($clockIn, $timeZone)
     {
-        $now = (new \DateTime('now'));
 
-        // Set today as 00:00 midnight in servicer's timezone
-        $today = (new \DateTime($now->format('Y-m-d'),$timeZone))->setTimezone(new \DateTimeZone('UTC'));
+        $today = new \DateTime('now');
         $clockInToday = new \DateTime($clockIn);
 
         // Set tomorrow as 00:00 midnight (Next Day) in servicer's timezone
@@ -33,10 +31,10 @@ class TimeZoneConverter
         $clockInTomorrow->setTimezone(new \DateTimeZone('UTC'));
 
         // Check if clock in time falls within one day - range
-
-        if ($clockInToday >= $today && $clockInToday <= $clockInTomorrow) {
+        if ($today >= $clockInToday && $clockInToday <= $clockInTomorrow) {
             return true;
         }
+
         return false;
     }
 }
