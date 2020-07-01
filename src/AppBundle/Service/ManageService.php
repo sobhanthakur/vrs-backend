@@ -38,6 +38,7 @@ class ManageService extends BaseService
         $response = [];
         try {
             $taskID = $content['TaskID'];
+            $task = null;
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
@@ -58,16 +59,7 @@ class ManageService extends BaseService
 
             // Persist and flush Issue
             $this->entityManager->persist($issues);
-
-            foreach ($content['Images'] as $image) {
-                $issueImage = new Issueimages();
-                $issueImage->setImageName($image['Image']);
-                $issueImage->setIssueID($issues);
-                $this->entityManager->persist($issueImage);
-            }
             $this->entityManager->flush();
-
-            $response['IssueID'] = $issues->getIssueid();
 
             // If ServiceID is present And Issue IS is present then create a task
             if ($issues && array_key_exists('FormServiceID',$content) ? $content['FormServiceID'] !== '' : null) {
@@ -149,6 +141,21 @@ class ManageService extends BaseService
                 }
 
             }
+
+            // Save Images
+            foreach ($content['Images'] as $image) {
+                $issueImage = new Issueimages();
+                $issueImage->setImageName($image['Image']);
+                $issueImage->setIssueID($issues);
+                if ($task) {
+                    $issueImage->setTaskID($task);
+                }
+                $this->entityManager->persist($issueImage);
+            }
+            $this->entityManager->flush();
+
+            $response['IssueID'] = $issues->getIssueid();
+
 
             // Send notification for the issue created
             $issueNotification = array(
@@ -241,9 +248,9 @@ class ManageService extends BaseService
             $task->setExpenseamount($rsService[0]['ExpenseAmount'] ? $rsService[0]['ExpenseAmount'] : 0);
 //            $task->setPropertyitemid();
             $task->setCreatedbyservicerid($servicerID);
-            $task->setTaskdescriptionimage1($content['Images'][0]['Image']);
-            $task->setTaskdescriptionimage2($content['Images'][1]['Image']);
-            $task->setTaskdescriptionimage3($content['Images'][2]['Image']);
+//            $task->setTaskdescriptionimage1($content['Images'][0]['Image']);
+//            $task->setTaskdescriptionimage2($content['Images'][1]['Image']);
+//            $task->setTaskdescriptionimage3($content['Images'][2]['Image']);
 
             $this->entityManager->persist($task);
             $this->entityManager->flush();
