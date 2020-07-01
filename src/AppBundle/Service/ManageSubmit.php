@@ -233,17 +233,8 @@ class ManageSubmit extends BaseService
             }
 
             // Update the time Tracking
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->findOneBy(array(
-               'clockout' => null,
-               'taskid' => $rsThisTask[0]['TaskID']
-            ));
-
             $now = new \DateTime($dateTime);
-            if ($timeClockTasks) {
-                $timeClockTasks->setClockout($now);
-                $this->entityManager->persist($timeClockTasks);
-                $details['TimeClockTasks'] = $timeClockTasks->getTimeclocktaskid();
-            }
+            $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$now->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND TaskID=".$taskID)->execute();
 
             // Get Owner ID
             $thisOwnerID = 0;
