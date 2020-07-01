@@ -489,7 +489,7 @@ class Tasks
      *
      * @ORM\Column(name="Completed", type="boolean", nullable=true)
      */
-    private $completed;
+    private $completed = false;
 
     /**
      * @var bool|null
