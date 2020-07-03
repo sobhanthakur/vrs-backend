@@ -355,6 +355,7 @@ class TabsService extends BaseService
                 // CheckList Response
                 foreach ($rsChecklistItems as $rsChecklistItem) {
                     $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
+                    $result = [];
 
                     // Create check Lists if empty
                     switch ((int)$rsChecklistItem['ChecklistTypeID']) {
@@ -378,17 +379,20 @@ class TabsService extends BaseService
                             }
                             break;
                         case 7:
+                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
                             break;
                         case 10:
                             // ColumnCount
+                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
                             break;
                         case 11:
                             // ColumnCount
+                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                             break;
                     }
 
                     $checkLists = array('CheckListItem' => $rsChecklistItem);
-                    $checkLists['CheckListItem']['ResponseInfo'] = $rsThisResponse;
+                    $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                     $checkListResponse[] = $checkLists;
                 }
 
@@ -473,5 +477,101 @@ class TabsService extends BaseService
                 'ChecklistItemID' => $checkListItem['ChecklistItemID']
             )
         );
+    }
+
+    /**
+     * @param $task
+     * @param $checkListItem
+     * @param $rsThisResponse
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @return array
+     */
+    public function ProcessOption7and10and11($task,$checkListItem, $rsThisResponse, $option = 7)
+    {
+        // Initialise Results
+        $res2 = [];
+        $res = [];
+        $diff = [];
+
+        // Get All options
+        $res1 = explode("\n", $checkListItem['Options']);
+        foreach ($rsThisResponse as $value) {
+            if ($value['EnteredValue'] !== '') {
+                $res2[] = $value['EnteredValue'];
+            }
+        }
+
+        // Create entries if the option selected are not present in the DB
+        if ($option === 7) {
+            $diff = array_diff($res1, $res2);
+        } elseif ($option === 10) {
+            if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
+                $res = [];
+                for ($i = 0; $i < count($res1); $i++) {
+                    for ($j = 0; $j < (int)$checkListItem['ColumnCount']; $j++) {
+                        $res[] = $res1[$i];
+                    }
+                }
+                $diff = array_diff_key($res, $res2);
+            }
+        } else {
+            $diff = array_diff_key($res1, $res2);
+        }
+
+        //
+        if (!empty($diff)) {
+            foreach ($diff as $key => $value) {
+                // Initialize variables
+                $columnValue = 0;
+                $optionSelected = 0;
+                $taskToCheckListItems = new Taskstochecklistitems();
+                $taskToCheckListItems->setTaskid($task);
+                $taskToCheckListItems->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find($checkListItem['ChecklistItemID']));
+                if ($option === 7) {
+                    $taskToCheckListItems->setOptionid((int)($key + 1));
+                    $taskToCheckListItems->setOptionselected($optionSelected);
+                } elseif ($option === 10) {
+                    $optionID = ceil((int)($key + 1) / (int)$checkListItem['ColumnCount']);
+                    $columnValue = (int)($key + 1) % (int)$checkListItem['ColumnCount'];
+                    $taskToCheckListItems->setOptionid($optionID);
+                    $taskToCheckListItems->setColumnvalue($columnValue === 0 ? (int)$checkListItem['ColumnCount'] : $columnValue);
+                    $taskToCheckListItems->setOptionselected($optionSelected);
+                } else {
+                    $columnValue = (int)$key+1;
+                    $optionSelected = '';
+                    $taskToCheckListItems->setOptionselected($optionSelected);
+                    $taskToCheckListItems->setColumnvalue($columnValue);
+                    $taskToCheckListItems->setOptionid((int)($key + 1));
+                }
+
+                $taskToCheckListItems->setEnteredvalueamount(0);
+                $taskToCheckListItems->setChecklisttypeid((int)$checkListItem['ChecklistTypeID']);
+                $taskToCheckListItems->setChecklistitem($checkListItem['ChecklistItem']);
+                $taskToCheckListItems->setDescription($checkListItem['Description']);
+                $taskToCheckListItems->setImage($checkListItem['Image']);
+                $taskToCheckListItems->setEnteredvalue($value);
+                $taskToCheckListItems->setImageuploaded('');
+                $taskToCheckListItems->setShowonownerreport((int)$checkListItem['ShowOnOwnerReport'] ? true : false);
+                $taskToCheckListItems->setChecked(0);
+                $taskToCheckListItems->setSortorder($checkListItem['SortOrder']);
+                $this->entityManager->persist($taskToCheckListItems);
+                $this->entityManager->flush();
+
+                $res[] = array(
+                    'EnteredValueAmount' => 0,
+                    'ColumnValue' => $columnValue,
+                    'TaskToChecklistItemID' => $taskToCheckListItems->getTasktochecklistitemid(),
+                    'OptionSelected' => $optionSelected,
+                    'ImageUploaded' => "",
+                    'EnteredValue' => $value,
+                    'Checked' => "0",
+                    'ChecklistItemID' => $checkListItem['ChecklistItemID']
+                );
+            }
+        }
+
+        return $res;
     }
 }
