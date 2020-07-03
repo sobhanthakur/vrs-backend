@@ -86,15 +86,15 @@ class ManageService extends BaseService
 
                 // Get Payrate of that Servicer
                 $payRate = 0;
-                $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
-                if ($servicerID) {
-                    $payRate = $servicerID->getPayrate();
+                $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                if ($servicerObj) {
+                    $payRate = $servicerObj->getPayrate();
                 }
 
                 // Insert Lead Employee
                 $tasksToServicers = new Taskstoservicers();
                 $tasksToServicers->setTaskid($task);
-                $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+                $tasksToServicers->setServicerid($servicerObj ? $servicerObj : null);
                 $tasksToServicers->setIslead(true);
                 $tasksToServicers->setPiecepay($rsService[0]['PiecePay']);
                 $tasksToServicers->setPayrate($payRate);
@@ -124,12 +124,12 @@ class ManageService extends BaseService
                         }
 
                         // Servicer Object
-                        $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                        $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
 
                         // INSERT ADDITIONAL EMPLOYEE
                         $tasksToServicers = new Taskstoservicers();
                         $tasksToServicers->setTaskid($task);
-                        $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+                        $tasksToServicers->setServicerid($servicerObj ? $servicerObj : null);
                         $tasksToServicers->setIslead(false);
                         $tasksToServicers->setPiecepay($rsAdditionalServicer['PiecePay']);
 
