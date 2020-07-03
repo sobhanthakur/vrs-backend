@@ -62,8 +62,6 @@ class ManageSave extends BaseService
                 foreach ($checkListItems as $checkListItem) {
                     $inputs = $checkListItem['Input'];
                     if ((int)$checkListItem['ChecklistItemID'] !== 0) {
-                        $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($taskID, $checkListItem['ChecklistItemID']);
-
                         switch ((int)$checkListItem['ChecklistTypeID']) {
                             case 0:
                                 // CheckBox
@@ -89,15 +87,15 @@ class ManageSave extends BaseService
                                 $this->ProcessImageUpload($inputs);
                                 break;
                             case 7:
-                                $this->ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs);
+                                $this->ProcessOption7and10and11($inputs);
                                 break;
                             case 10:
                                 // ColumnCount
-                                $this->ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs, 10);
+                                $this->ProcessOption7and10and11($inputs, 10);
                                 break;
                             case 11:
                                 // ColumnCount
-                                $this->ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs, 11);
+                                $this->ProcessOption7and10and11($inputs, 11);
                                 break;
                         }
                     }
@@ -128,86 +126,8 @@ class ManageSave extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs, $option = 7)
+    public function ProcessOption7and10and11($inputs, $option = 7)
     {
-        // Initialise Results
-        $res2 = [];
-        $res = [];
-        $diff = [];
-
-        $subCheckListItems = 'SELECT DISTINCT ColumnCount,Options,ShowOnOwnerReport,SortOrder,Description,Image,required,ChecklistItem FROM (' . CheckLists::vServicesToPropertiesChecklistItems . ') AS SubQuery WHERE SubQuery.ServiceID=' . $rsThisTask[0]['ServiceID'] . ' AND SubQuery.PropertyID=' . $rsThisTask[0]['PropertyID'] . ' AND SubQUery.ChecklistItemID=' . $checkListItem['ChecklistItemID'] . ' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-        $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
-        $subCheckListItems->execute();
-        $subCheckListItems = $subCheckListItems->fetchAll();
-        if (!empty($subCheckListItems)) {
-            $checkListResponse = $subCheckListItems;
-        } else {
-            // Master CheckLists
-            $masterCheckListItems = 'SELECT DISTINCT ColumnCount,Options,ShowOnOwnerReport,SortOrder,Description,Image,required,ChecklistItem FROM (' . CheckLists::vServicesChecklistItems . ') AS SubQuery WHERE SubQuery.ServiceID=' . $rsThisTask[0]['ServiceID'] . ' AND SubQUery.ChecklistItemID=' . $checkListItem['ChecklistItemID'] . ' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-            $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
-            $masterCheckListItems->execute();
-            $checkListResponse = $masterCheckListItems->fetchAll();
-        }
-
-        $res1 = explode("\n", $checkListResponse[0]['Options']);
-        foreach ($rsThisResponse as $value) {
-            if ($value['EnteredValue'] !== '') {
-                $res2[] = $value['EnteredValue'];
-            }
-        }
-
-        // Create entries if the option selected are not present in the DB
-        if ($option === 7) {
-            $diff = array_diff($res1, $res2);
-        } elseif ($option === 10) {
-            if (count($res2) !== count($res1) * (int)$checkListResponse[0]['ColumnCount']) {
-                $res = [];
-                for ($i = 0; $i < count($res1); $i++) {
-                    for ($j = 0; $j < (int)$checkListResponse[0]['ColumnCount']; $j++) {
-                        $res[] = $res1[$i];
-                    }
-                }
-                $diff = array_diff_key($res, $res2);
-            }
-        } else {
-            $diff = array_diff_key($res1, $res2);
-        }
-
-        //
-        if (!empty($diff)) {
-            foreach ($diff as $key => $value) {
-                $taskToCheckListItems = new Taskstochecklistitems();
-                $taskToCheckListItems->setTaskid($task);
-                $taskToCheckListItems->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find($checkListItem['ChecklistItemID']));
-                if ($option === 7) {
-                    $taskToCheckListItems->setOptionid((int)($key + 1));
-                    $taskToCheckListItems->setOptionselected(0);
-                } elseif ($option === 10) {
-                    $optionID = ceil((int)($key + 1) / (int)$checkListResponse[0]['ColumnCount']);
-                    $columnValue = (int)($key + 1) % (int)$checkListResponse[0]['ColumnCount'];
-                    $taskToCheckListItems->setOptionid($optionID);
-                    $taskToCheckListItems->setColumnvalue($columnValue === 0 ? (int)$checkListResponse[0]['ColumnCount'] : $columnValue);
-                    $taskToCheckListItems->setOptionselected(0);
-                } else {
-                    $taskToCheckListItems->setOptionselected('');
-                    $taskToCheckListItems->setColumnvalue((int)$key+1);
-                    $taskToCheckListItems->setOptionid((int)($key + 1));
-                }
-
-                $taskToCheckListItems->setEnteredvalueamount(0);
-                $taskToCheckListItems->setChecklisttypeid((int)$checkListItem['ChecklistTypeID']);
-                $taskToCheckListItems->setChecklistitem($checkListResponse[0]['ChecklistItem']);
-                $taskToCheckListItems->setDescription($checkListResponse[0]['Description']);
-                $taskToCheckListItems->setImage($checkListResponse[0]['Image']);
-                $taskToCheckListItems->setEnteredvalue($value);
-                $taskToCheckListItems->setImageuploaded('');
-                $taskToCheckListItems->setShowonownerreport($checkListResponse[0]['ShowOnOwnerReport']);
-                $taskToCheckListItems->setChecked(0);
-                $taskToCheckListItems->setSortorder($checkListResponse[0]['SortOrder']);
-                $this->entityManager->persist($taskToCheckListItems);
-            }
-            $this->entityManager->flush();
-        }
         // Checked/See Notes/NA grid
         foreach ($inputs as $input) {
             // Update the record
