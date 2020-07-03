@@ -67,20 +67,12 @@ class ManageSave extends BaseService
                         switch ((int)$checkListItem['ChecklistTypeID']) {
                             case 0:
                                 // CheckBox
-                                if (empty($rsThisResponse)) {
-                                    $this->InsertNewTaskToCheckList($task, $checkListItem, $rsThisTask);
-                                } else {
-                                    $this->ProcessChecked($inputs);
-                                }
+                                $this->ProcessChecked($inputs);
                                 break;
                             case 1:
                             case 9:
                                 // Radio With Other
-                                if (empty($rsThisResponse)) {
-                                    $this->InsertNewTaskToCheckList($task, $checkListItem, $rsThisTask);
-                                } else {
-                                    $this->ProcessEnteredValue($inputs);
-                                }
+                                $this->ProcessEnteredValue($inputs);
                                 break;
                             case 2:
                                 // Radio buttons
@@ -88,21 +80,13 @@ class ManageSave extends BaseService
                                 // Dropdown
                             case 8:
                                 // Radio With Other
-                                if (empty($rsThisResponse)) {
-                                    $this->InsertNewTaskToCheckList($task, $checkListItem, $rsThisTask);
-                                } else {
-                                    $this->ProcessOptionSelected($inputs);
-                                }
+                                $this->ProcessOptionSelected($inputs);
                                 break;
                             case 4:
                                 // Image Upload
                             case 5:
                                 // Image Verification
-                                if (empty($rsThisResponse)) {
-                                    $this->InsertNewTaskToCheckList($task, $checkListItem, $rsThisTask);
-                                } else {
-                                    $this->ProcessImageUpload($inputs);
-                                }
+                                $this->ProcessImageUpload($inputs);
                                 break;
                             case 7:
                                 $this->ProcessOption7and10and11($task, $rsThisTask, $checkListItem, $rsThisResponse, $inputs);
@@ -172,6 +156,7 @@ class ManageSave extends BaseService
             }
         }
 
+        // Create entries if the option selected are not present in the DB
         if ($option === 7) {
             $diff = array_diff($res1, $res2);
         } elseif ($option === 10) {
@@ -302,50 +287,6 @@ class ManageSave extends BaseService
             $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
             $this->entityManager->persist($taskToCheckListItem);
         }
-        $this->entityManager->flush();
-    }
-
-
-    /**
-     * @param $task
-     * @param $checkListItem
-     * @param $rsThisTask
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Doctrine\ORM\ORMException
-     */
-    public function InsertNewTaskToCheckList($task, $checkListItem, $rsThisTask)
-    {
-        // Get CheckList Details
-        $subCheckListItems = 'SELECT DISTINCT ColumnCount,Options,ShowOnOwnerReport,SortOrder,Description,Image,required,ChecklistItem FROM (' . CheckLists::vServicesToPropertiesChecklistItems . ') AS SubQuery WHERE SubQuery.ServiceID=' . $rsThisTask[0]['ServiceID'] . ' AND SubQuery.PropertyID=' . $rsThisTask[0]['PropertyID'] . ' AND SubQUery.ChecklistItemID=' . $checkListItem['ChecklistItemID'] . ' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-        $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
-        $subCheckListItems->execute();
-        $subCheckListItems = $subCheckListItems->fetchAll();
-        if (!empty($subCheckListItems)) {
-            $checkListResponse = $subCheckListItems;
-        } else {
-            // Master CheckLists
-            $masterCheckListItems = 'SELECT DISTINCT ColumnCount,Options,ShowOnOwnerReport,SortOrder,Description,Image,required,ChecklistItem FROM (' . CheckLists::vServicesChecklistItems . ') AS SubQuery WHERE SubQuery.ServiceID=' . $rsThisTask[0]['ServiceID'] . ' AND SubQUery.ChecklistItemID=' . $checkListItem['ChecklistItemID'] . ' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-            $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
-            $masterCheckListItems->execute();
-            $checkListResponse = $masterCheckListItems->fetchAll();
-        }
-
-        // Create new TasksToCheckList
-        $taskToCheckListItems = new Taskstochecklistitems();
-        $taskToCheckListItems->setTaskid($task);
-        $taskToCheckListItems->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find($checkListItem['ChecklistItemID']));
-        $taskToCheckListItems->setOptionid(0);
-        $taskToCheckListItems->setOptionselected('');
-        $taskToCheckListItems->setChecklisttypeid((int)$checkListItem['ChecklistTypeID']);
-        $taskToCheckListItems->setChecklistitem($checkListResponse[0]['ChecklistItem']);
-        $taskToCheckListItems->setDescription($checkListResponse[0]['Description']);
-        $taskToCheckListItems->setImage($checkListResponse[0]['Image']);
-        $taskToCheckListItems->setEnteredvalue('');
-        $taskToCheckListItems->setImageuploaded('');
-        $taskToCheckListItems->setShowonownerreport($checkListResponse[0]['ShowOnOwnerReport']);
-        $taskToCheckListItems->setChecked(false);
-        $taskToCheckListItems->setSortorder((int)$checkListResponse[0]['SortOrder']);
-        $this->entityManager->persist($taskToCheckListItems);
         $this->entityManager->flush();
     }
 }

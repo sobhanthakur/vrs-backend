@@ -14,6 +14,7 @@ use AppBundle\DatabaseViews\CheckLists;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\DatabaseViews\TaskWithServicers;
+use AppBundle\Entity\Taskstochecklistitems;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -299,6 +300,12 @@ class TabsService extends BaseService
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$taskID);
+
+            if (empty($tasks)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
+
+            $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($tasks[0]['TaskID']);
 //            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             // START: TIME TRACKING
@@ -348,6 +355,38 @@ class TabsService extends BaseService
                 // CheckList Response
                 foreach ($rsChecklistItems as $rsChecklistItem) {
                     $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
+
+                    // Create check Lists if empty
+                    switch ((int)$rsChecklistItem['ChecklistTypeID']) {
+                        case 0:
+                            // CheckBox
+                        case 1:
+                        case 9:
+                            // Radio With Other
+                        case 2:
+                            // Radio buttons
+                        case 3:
+                            // Dropdown
+                        case 8:
+                            // Radio With Other
+                        case 4:
+                            // Image Upload
+                        case 5:
+                            // Image Verification
+                            if (empty($rsThisResponse)) {
+                                $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
+                            }
+                            break;
+                        case 7:
+                            break;
+                        case 10:
+                            // ColumnCount
+                            break;
+                        case 11:
+                            // ColumnCount
+                            break;
+                    }
+
                     $checkLists = array('CheckListItem' => $rsChecklistItem);
                     $checkLists['CheckListItem']['ResponseInfo'] = $rsThisResponse;
                     $checkListResponse[] = $checkLists;
@@ -384,6 +423,8 @@ class TabsService extends BaseService
 
             return $response;
 
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
@@ -391,5 +432,46 @@ class TabsService extends BaseService
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
+    }
+
+    /**
+     * @param $task
+     * @param $checkListItem
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\ORMException
+     * @return array
+     */
+    public function InsertNewTaskToCheckList($task, $checkListItem)
+    {
+        // Create new TasksToCheckList
+        $taskToCheckListItems = new Taskstochecklistitems();
+        $taskToCheckListItems->setTaskid($task);
+        $taskToCheckListItems->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find($checkListItem['ChecklistItemID']));
+        $taskToCheckListItems->setOptionid(0);
+        $taskToCheckListItems->setOptionselected('');
+        $taskToCheckListItems->setChecklisttypeid((int)$checkListItem['ChecklistTypeID']);
+        $taskToCheckListItems->setChecklistitem($checkListItem['ChecklistItem']);
+        $taskToCheckListItems->setDescription($checkListItem['Description']);
+        $taskToCheckListItems->setImage($checkListItem['Image']);
+        $taskToCheckListItems->setEnteredvalue('');
+        $taskToCheckListItems->setImageuploaded('');
+        $taskToCheckListItems->setShowonownerreport((int)$checkListItem['ShowOnOwnerReport'] ? true : false);
+        $taskToCheckListItems->setChecked(false);
+        $taskToCheckListItems->setSortorder((int)$checkListItem['SortOrder']);
+        $this->entityManager->persist($taskToCheckListItems);
+        $this->entityManager->flush();
+
+        return array(
+            array(
+                'EnteredValueAmount' => null,
+                'ColumnValue' => 0,
+                'TaskToChecklistItemID' => $taskToCheckListItems->getTasktochecklistitemid(),
+                'OptionSelected' => "0",
+                'ImageUploaded' => "",
+                'EnteredValue' => "",
+                'Checked' => "0",
+                'ChecklistItemID' => $checkListItem['ChecklistItemID']
+            )
+        );
     }
 }
