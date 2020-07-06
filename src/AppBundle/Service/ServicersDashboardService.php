@@ -243,10 +243,10 @@ class ServicersDashboardService extends BaseService
                 if ( $manage || $image || $log || $info) {
                     $tabs = array(
                         'Manage' => $manage,
-                        'Info' => $info,
+                        'Assgmnts' => $assignments,
                         'Log' => $log,
                         'Imgs' => $image,
-                        'Assgmnts' => $assignments,
+                        'Info' => $info,
                         'Bkngs' => $bookings
                     );
                 }

@@ -168,10 +168,10 @@ class UnscheduledTask extends BaseService
 
             // Create Tab Response
             $response['Tabs'] = array(
+                'Manage' => $manage,
                 'Log' => $log,
-                'Property' => $property,
                 'Image' => $image,
-                'Manage' => $manage
+                'Property' => $property
             );
 
             return $response;
