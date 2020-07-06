@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 class UnscheduledTask extends FOSRestController
 {
     /**
@@ -254,6 +255,80 @@ class UnscheduledTask extends FOSRestController
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->UnscheduledTaskDetails($servicerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Marks Complete/Incomplete and assign task
+     * @SWG\Tag(name="Unscheduled Task")
+     * @Post("/unscheduled/tasks/complete", name="vrs_pwa_unscheduled_tasks_complete")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="CompleteStatus: 1 = Mark Task Complete, 0 = Add Incomplete Task and Start",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="PropertyID",
+     *              type="integer",
+     *              example=1801
+     *         ),
+     *       @SWG\Property(
+     *              property="CompleteStatus",
+     *              type="boolean",
+     *              example=1
+     *         ),
+     *      @SWG\Property(
+     *              property="DateTime",
+     *              type="string",
+     *              example="2020/07/06 08:53:00"
+     *         ),
+     *       @SWG\Property(
+     *              property="Details",
+     *              type="string",
+     *              example={
+                        "NoteToOwner" : "This is note to Owner",
+                        "UnscheduledTaskNote" : "This is Unscheduled Task note",
+                        "SendToOwnerNote" : 1,
+                        "TaskName" : "TaskName"
+                        }
+     *         )
+     *    )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Marks Complete/Incomplete and assign a task",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function UnscheduledAssignTask(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $content = json_decode($request->getContent(),true);
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $servicersDashboard->CompleteUnscheduledTask($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
