@@ -787,4 +787,23 @@ class TasksRepository extends EntityRepository
         return $tasks->fetchAll();
 
     }
+
+    /**
+     * @param $servicerID
+     * @param $propertyID
+     * @return mixed
+     */
+    public function TaskSubmittedInLast5Seconds($servicerID, $propertyID)
+    {
+        $now = (new \DateTime('now'))->modify('-5 second');
+        return $this->createQueryBuilder('t')
+            ->select('t.taskid')
+            ->where('t.propertyid='.$propertyID)
+            ->andWhere('t.servicerid='.$servicerID)
+            ->andWhere('t.createdate > :Last5Seconds')
+            ->setParameter('Last5Seconds',$now)
+            ->getQuery()
+            ->execute();
+
+    }
 }

@@ -73,6 +73,7 @@ final class ErrorConstants
     const INVALID_CHECKOUT = 'INVALID_CHECKOUT';
     const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
     const TRY1MINLATER = 'TRY_1_MIN_LATER';
+    const TRYAFTERSOMETIME = 'TRYAFTERSOMETIME';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
     const NOTHING_TO_MAP = 'NOTHINGTOMAP';
@@ -142,6 +143,7 @@ final class ErrorConstants
         self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details'],
         self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later'],
         self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers'],
-        self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated']
+        self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated'],
+        self::TRYAFTERSOMETIME  => ['code' => 422, self::MESSAGE => 'api.response.error.tryaftersometime']
     ];
 }

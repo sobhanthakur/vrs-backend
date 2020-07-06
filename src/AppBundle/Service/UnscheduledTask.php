@@ -10,6 +10,8 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\Servicers;
+use AppBundle\Entity\Tasks;
+use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -182,6 +184,123 @@ class UnscheduledTask extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error('Unable to fetch Unscheduled task details ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function CompleteUnscheduledTask($servicerID, $content)
+    {
+        try {
+            $propertyID = $content['PropertyID'];
+            $completeStatus = $content['CompleteStatus'];
+            $details = $content['Details'];
+            $dateTime = $content['DateTime'];
+            $response = [];
+
+            $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+
+            if (!$servicerObj) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
+            }
+
+            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
+            if (!$propertyObj) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
+            }
+
+            // MAKE SURE THIS TASK HAS NOT BEEN SUBMITTED IN THE LAST xx seconds to AVOID ACCIDENTAL DUPLICATES
+            $lastTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskSubmittedInLast5Seconds($servicerID, $propertyID);
+            if (!empty($lastTask)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::TRYAFTERSOMETIME);
+            }
+
+            // INSERTING A COMPLETED TASKS FOR THEMSELVES
+
+            $today = new \DateTime($dateTime);
+
+            $task = new Tasks();
+            $task->setPropertybookingid(null);
+            $task->setPropertyid($propertyObj);
+            $task->setTaskname(trim($details['TaskName']));
+            $task->setTasktype(6);
+            $task->setTaskdate($today);
+            $task->setTasktime((int)ltrim($today->format('H'), '0'));
+            $task->setTaskdatetime($today);
+            $task->setTaskcompletebydate($today);
+            $task->setTaskcompletebytime(99);
+            $task->setServiceid(null);
+            $task->setServicerid($servicerID);
+            $task->setServicernotes(trim($details['UnscheduledTaskNote']));
+            $task->setToownernote(trim($details['NoteToOwner']));
+            $task->setMarked(true);
+            $task->setEdited(true);
+            $task->setCompleteconfirmeddate($completeStatus ? $today : null);
+            $task->setCloseddate($completeStatus ? $today : null);
+            $task->setCompletedbyservicerid($completeStatus ? $servicerID : null);
+            $task->setCompleted($completeStatus ? true : false);
+            $task->setTaskstartdate($today);
+            $task->setTaskstarttime(99);
+            $task->setIncludedamage(true);
+            $task->setIncludemaintenance(true);
+            $task->setIncludelostandfound(true);
+            $task->setIncludesupplyflag(true);
+            $task->setIncludeurgentflag(true);
+            $task->setIncludeservicernote(true);
+
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
+
+            $response['TaskID'] = $task->getTaskid();
+
+
+            $tasksToServicers = new Taskstoservicers();
+            $tasksToServicers->setTaskid($task);
+            $tasksToServicers->setServicerid($servicerObj);
+            $tasksToServicers->setIslead(true);
+            $tasksToServicers->setPayrate($servicerObj->getPayrate());
+            $tasksToServicers->setAccepteddate($today);
+
+            $this->entityManager->persist($tasksToServicers);
+            $this->entityManager->flush();
+
+            $response['TasksToServicers'] = $tasksToServicers->getTasktoservicerid();
+
+            // Manage Notification
+            if ($completeStatus) {
+                $thisOwnerID = 0;
+                if ($propertyObj->getOwnerid() && (int)$details['SendToOwnerNote'] !== 1 && (int)$servicerObj->getNotifyowneroncompletion() > 0) {
+                    $thisOwnerID = $propertyObj->getOwnerid()->getOwnerid();
+                }
+                $result = array(
+                    'MessageID' => 5,
+                    'CustomerID' => $servicerObj->getCustomerid()->getCustomerid(),
+                    'TaskID' => $task->getTaskid(),
+                    'ToCustomerID' => $servicerObj->getCustomerid()->getCustomerid(),
+                    'OwnerID' => $thisOwnerID,
+                    'SendToMaintenanceStaff' => 1,
+                    'SendToManagers' => 1,
+                    'SubmittedByServicerID' => $servicerID,
+                    'TypeID' => 0
+                );
+
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result);
+                $response['TaskNotification'] = $taskNotification;
+            }
+
+            return $response;
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to mark Unscheduled task as complete/incomplete ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
