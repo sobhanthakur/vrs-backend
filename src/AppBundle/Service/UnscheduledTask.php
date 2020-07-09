@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\Servicers;
+use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -126,7 +127,7 @@ class UnscheduledTask extends BaseService
             $manage = 1;
 
             // Get Servicers Details
-            $servicers = 'Select ShowIssuesLog,TaskName,IncludeServicerNote,IncludeToOwnerNote,DefaultToOwnerNote FROM ('.Servicers::vServicers.') AS S WHERE  S.ServicerID = '.$servicerID.'
+            $servicers = 'Select IncludeMaintenance,IncludeDamage,IncludeLostAndFound,IncludeSupplyFlag,IncludeUrgentFlag,AllowShareImagesWithOwners,CustomerID,AllowAddStandardTask,ShowIssuesLog,TaskName,IncludeServicerNote,IncludeToOwnerNote,DefaultToOwnerNote FROM ('.Servicers::vServicers.') AS S WHERE  S.ServicerID = '.$servicerID.'
              AND S.CustomerActive = 1 and S.Active = 1';
             $servicers = $this->entityManager->getConnection()->prepare($servicers);
             $servicers->execute();
@@ -167,6 +168,24 @@ class UnscheduledTask extends BaseService
                 $image = 1;
             }
 
+            // Standard Tasks
+            $standardServices = null;
+            if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
+                $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$propertyID.' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
+                $standardServices->execute();
+                $standardServices = $standardServices->fetchAll();
+            }
+
+            // Issue Form Details
+            $response['IssueForm'] = array(
+                'IncludeMaintenance' => (int)$servicers[0]['IncludeMaintenance'],
+                'IncludeDamage' => (int)$servicers[0]['IncludeDamage'],
+                'IncludeLostAndFound' => (int)$servicers[0]['IncludeLostAndFound'],
+                'IncludeSupplyFlag' => (int)$servicers[0]['IncludeSupplyFlag'],
+                'IncludeUrgentFlag' => (int)$servicers[0]['IncludeUrgentFlag'],
+                'AllowShareImagesWithOwners' => (int)$servicers[0]['AllowShareImagesWithOwners'],
+                'StandardServices' => $standardServices
+            );
 
             // Create Tab Response
             $response['Tabs'] = array(
