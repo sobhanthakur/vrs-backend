@@ -54,7 +54,9 @@ class ManageService extends BaseService
             $issues->setUrgent((int)$content['Urgent'] === 1 ? true : false);
             $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
-            $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
+            if ($taskID) {
+                $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
+            }
             $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID)));
 
             // Persist and flush Issue
