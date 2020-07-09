@@ -45,7 +45,9 @@ class NotificationService extends BaseService
     public function CreateIssueNotification($result)
     {
         $notification = new Notifications();
-        $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
+        if ($result['TaskID']) {
+            $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
+        }
         $notification->setMessageid($result['MessageID']);
         $notification->setCustomerid($result['CustomerID']);
         $notification->setIssueid($result['IssueID']);
