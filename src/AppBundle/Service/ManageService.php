@@ -37,16 +37,20 @@ class ManageService extends BaseService
     {
         $response = [];
         try {
-            $taskID = $content['TaskID'];
+            $taskID = null;
+
+            if (array_key_exists('TaskID',$content) && $content['TaskID']) {
+                $taskID = $content['TaskID'];
+            }
             $task = null;
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
             // get all issues submitted from this task in the last one minute
-//            $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
-//            if (!empty($issues)) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
-//            }
+            $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
+            if (!empty($issues)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
+            }
 
             $issues = new Issues();
             $issues->setIssuetype($content['IssueType']);
