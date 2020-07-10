@@ -11,7 +11,7 @@ namespace AppBundle\DatabaseViews;
 
 class Tasks
 {
-    final function TasksQuery($servicerID)
+    final function TasksQuery($servicerID,$customerID)
     {
         return 'SELECT
       Distinct TOP 61 TasksToServicers.IsLead,Tasks.PropertyID,Tasks.ServiceID,Tasks.TaskCompleteByDate,Tasks.TaskCompleteByTime,Tasks.TaskDAte,Tasks.TaskTime,Tasks.TaskTimeMinutes,PropertyBookings.Color as BookingColor,Services.Color as ServiceColor,Regions.Color,Properties.PropertyFile,Properties.Description,Properties.Address,Tasks.TaskStartDate,Tasks.TaskID,TasksToServicers.AcceptedDate,Regions.Region,PropertyBookings.BackToBackStart,PropertyBookings.BackToBackEnd,Services.TaskType,Properties.PropertyName,Servicers.IncludeGuestName,IncludeGuestEmailPhone,PropertyBookings.Guest,PropertyBookings.GuestEmail,PropertyBookings.GuestPhone,PropertyBookings.IsOwner,SErvicers.IncludeGuestNumbers,Services.ShowAllTagsOnDashboards,Services.ShowPMSHousekeepingNoteOnDashboards,
@@ -57,6 +57,6 @@ class Tasks
       AND (Services.Active = 1 OR Services.Active IS NULL)
       AND Tasks.CompleteConfirmedDAte is NULL
       AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is null)
-      AND Servicers.ServicerID=' . $servicerID;
+      AND Servicers.ServicerID=' . $servicerID.' AND Properties.CustomerID='.$customerID;
     }
 }

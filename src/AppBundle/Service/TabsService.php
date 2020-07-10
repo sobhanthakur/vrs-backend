@@ -299,7 +299,7 @@ class TabsService extends BaseService
             $team = 0;
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$taskID);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers[0]['CustomerID'],$taskID);
 
             if (empty($tasks)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
@@ -309,96 +309,95 @@ class TabsService extends BaseService
 //            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             // START: TIME TRACKING
-            if ( ($tasks[0]['TaskStartDate']<= $today) && ((int)$servicers[0]['TimeTracking'] === 1) &&
-                ((int)$servicers[0]['AllowStartEarly']) &&
-                (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[0]['AcceptedDate'] !== '')))
-
-            ) {
-                // Initialize Standard Services
-                $standardServices = null;
-                if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
-                    $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
-                    $standardServices->execute();
-                    $standardServices = $standardServices->fetchAll();
-                }
-
-                // Check Conditions for Issue Form
-                $response['IssueForm'] = array(
-                    'IncludeMaintenance' => (int)$tasks[0]['IncludeMaintenance'],
-                    'IncludeDamage' => (int)$tasks[0]['IncludeDamage'],
-                    'IncludeLostAndFound' => (int)$tasks[0]['IncludeLostAndFound'],
-                    'IncludeSupplyFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
-                    'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
-                    'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
-                    'StandardServices' => $standardServices
-                );
-
-                // Get CheckList Items
-                $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-                $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
-                $subCheckListItems->execute();
-                $subCheckListItems = $subCheckListItems->fetchAll();
-                if(!empty($subCheckListItems)) {
-                    $rsChecklistItems = $subCheckListItems;
-                } else {
-                    // Master CheckLists
-                    $masterCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
-                    $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
-                    $masterCheckListItems->execute();
-                    $rsChecklistItems = $masterCheckListItems->fetchAll();
-                }
-                $checkListCount = count($rsChecklistItems);
-                $response['CheckListInfo'] = array(
-                    'CheckListCount' => $checkListCount
-                );
-
-                // CheckList Response
-                foreach ($rsChecklistItems as $rsChecklistItem) {
-                    $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
-                    $result = [];
-
-                    // Create check Lists if empty
-                    switch ((int)$rsChecklistItem['ChecklistTypeID']) {
-                        case 0:
-                            // CheckBox
-                        case 1:
-                        case 9:
-                            // Radio With Other
-                        case 2:
-                            // Radio buttons
-                        case 3:
-                            // Dropdown
-                        case 8:
-                            // Radio With Other
-                        case 4:
-                            // Image Upload
-                        case 5:
-                            // Image Verification
-                            if (empty($rsThisResponse)) {
-                                $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
-                            }
-                            break;
-                        case 7:
-                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
-                            break;
-                        case 10:
-                            // ColumnCount
-                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
-                            break;
-                        case 11:
-                            // ColumnCount
-                            $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
-                            break;
+            if ($tasks[0]['TaskStartDate']<= $today) {
+                if (((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[0]['TaskStartDate']<= $today) &&
+                    (((int)$servicers[0]['RequestAcceptTasks'] === 1 && $tasks[0]['AcceptedDate']) || (int)$servicers[0]['RequestAcceptTasks'] !== 1)
+                ) {
+                    // Initialize Standard Services
+                    $standardServices = null;
+                    if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
+                        $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
+                        $standardServices->execute();
+                        $standardServices = $standardServices->fetchAll();
                     }
 
-                    $checkLists = array('CheckListItem' => $rsChecklistItem);
-                    $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
-                    $checkListResponse[] = $checkLists;
-                }
+                    // Check Conditions for Issue Form
+                    $response['IssueForm'] = array(
+                        'IncludeMaintenance' => (int)$tasks[0]['IncludeMaintenance'],
+                        'IncludeDamage' => (int)$tasks[0]['IncludeDamage'],
+                        'IncludeLostAndFound' => (int)$tasks[0]['IncludeLostAndFound'],
+                        'IncludeSupplyFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
+                        'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
+                        'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
+                        'StandardServices' => $standardServices
+                    );
 
-                $response['CheckListInfo']['Details'] = $checkListResponse;
+                    // Get CheckList Items
+                    $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                    $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
+                    $subCheckListItems->execute();
+                    $subCheckListItems = $subCheckListItems->fetchAll();
+                    if(!empty($subCheckListItems)) {
+                        $rsChecklistItems = $subCheckListItems;
+                    } else {
+                        // Master CheckLists
+                        $masterCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                        $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
+                        $masterCheckListItems->execute();
+                        $rsChecklistItems = $masterCheckListItems->fetchAll();
+                    }
+                    $checkListCount = count($rsChecklistItems);
+                    $response['CheckListInfo'] = array(
+                        'CheckListCount' => $checkListCount
+                    );
 
-                // SHOW "END TASK" IF THIS IS THE STARTED TASK
+                    // CheckList Response
+                    foreach ($rsChecklistItems as $rsChecklistItem) {
+                        $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
+                        $result = [];
+
+                        // Create check Lists if empty
+                        switch ((int)$rsChecklistItem['ChecklistTypeID']) {
+                            case 0:
+                                // CheckBox
+                            case 1:
+                            case 9:
+                                // Radio With Other
+                            case 2:
+                                // Radio buttons
+                            case 3:
+                                // Dropdown
+                            case 8:
+                                // Radio With Other
+                            case 4:
+                                // Image Upload
+                            case 5:
+                                // Image Verification
+                                if (empty($rsThisResponse)) {
+                                    $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
+                                }
+                                break;
+                            case 7:
+                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
+                                break;
+                            case 10:
+                                // ColumnCount
+                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
+                                break;
+                            case 11:
+                                // ColumnCount
+                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
+                                break;
+                        }
+
+                        $checkLists = array('CheckListItem' => $rsChecklistItem);
+                        $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
+                        $checkListResponse[] = $checkLists;
+                    }
+
+                    $response['CheckListInfo']['Details'] = $checkListResponse;
+
+                    // SHOW "END TASK" IF THIS IS THE STARTED TASK
 //                if (!empty($timeClockTasks) && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID'])) {
                     // Team Details
                     $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],1);
@@ -407,22 +406,23 @@ class TabsService extends BaseService
                     }
 //                }
 
-                //TaskInfo
-                $response['TaskInfo'] = array(
-                    'TaskDescriptionImage1' => $tasks[0]['TaskDescriptionImage1'],
-                    'TaskDescriptionImage2' => $tasks[0]['TaskDescriptionImage2'],
-                    'TaskDescriptionImage3' => $tasks[0]['TaskDescriptionImage3'],
-                    'IncludeToOwnerNote' => (int)$tasks[0]['IncludeToOwnerNote'],
-                    'ToOwnerNote' => $tasks[0]['ToOwnerNote'],
-                    'DefaultToOwnerNote' => $tasks[0]['DefaultToOwnerNote'],
-                    'IncludeServicerNote' => $tasks[0]['IncludeServicerNote'],
-                    'ServicerNotes' => $tasks[0]['ServicerNotes'],
-                    'PropertyName' => $tasks[0]['PropertyName'],
-                    'ServiceName' => $tasks[0]['ServiceName'],
-                    'TaskName' => $tasks[0]['TaskName'],
-                    'Team' => $team,
-                    'TimeTracking' => (int)$servicers[0]['TimeTracking']
-                );
+                    //TaskInfo
+                    $response['TaskInfo'] = array(
+                        'TaskDescriptionImage1' => $tasks[0]['TaskDescriptionImage1'],
+                        'TaskDescriptionImage2' => $tasks[0]['TaskDescriptionImage2'],
+                        'TaskDescriptionImage3' => $tasks[0]['TaskDescriptionImage3'],
+                        'IncludeToOwnerNote' => (int)$tasks[0]['IncludeToOwnerNote'],
+                        'ToOwnerNote' => $tasks[0]['ToOwnerNote'],
+                        'DefaultToOwnerNote' => $tasks[0]['DefaultToOwnerNote'],
+                        'IncludeServicerNote' => $tasks[0]['IncludeServicerNote'],
+                        'ServicerNotes' => $tasks[0]['ServicerNotes'],
+                        'PropertyName' => $tasks[0]['PropertyName'],
+                        'ServiceName' => $tasks[0]['ServiceName'],
+                        'TaskName' => $tasks[0]['TaskName'],
+                        'Team' => $team,
+                        'TimeTracking' => (int)$servicers[0]['TimeTracking']
+                    );
+                }
             }
 
             return $response;
