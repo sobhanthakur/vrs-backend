@@ -453,13 +453,14 @@ class TasksRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function FetchTasksForDashboard2($servicerID,$taskID=null,$fields="*")
+    public function FetchTasksForDashboard2($servicerID,$customerID,$taskID=null,$fields="*")
     {
         $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
-        $query = "SELECT ".$fields."  FROM (".(new Tasks())->TasksQuery($servicerID).") AS t where t.TaskDate < '".$today."'";
+        $query = "SELECT ".$fields."  FROM (".(new Tasks())->TasksQuery($servicerID,$customerID).") AS t where t.TaskDate < '".$today."'";
         if ($taskID) {
             $query .= " AND t.TaskID=".$taskID;
         }
+
         $result = $this->getEntityManager()->getConnection()->prepare($query);
 
         $result->execute();
