@@ -237,7 +237,7 @@ class TabsService extends BaseService
             $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers($taskIDs,$servicers[0]['CustomerID']);
             if (!empty($rsCurrentTaskServicers)) {
                 foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
-                    $propertiesCondition .= $currentTaskServicer['PropertyID'];
+                    $propertiesCondition .= $currentTaskServicer['PropertyID'].',';
                 }
                 $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
             }
