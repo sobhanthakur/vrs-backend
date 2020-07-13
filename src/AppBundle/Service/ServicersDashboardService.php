@@ -8,6 +8,7 @@
 
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\TimeClockDays;
 use AppBundle\Entity\Taskacceptdeclines;
@@ -149,7 +150,15 @@ class ServicersDashboardService extends BaseService
                 }
                 $servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] ? $piecePay = $tasks[$i]['PiecePay'] : $piecePay = null;
 
+                // Check Scheduling Notes
+                $schedulingNote = null;
+                $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i]['AssignedDate']->format('N')];
+                if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
+                    $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
+                }
+
                 $response[$i]['Details'] = array(
+                    'SchedulingNote' => $schedulingNote,
                     'ShowStartTimeOnDashboard' => (int)$servicers[0]['ShowStartTimeOnDashboard'] === 1 ? 1 : 0,
                     'PiecePay' => $piecePay,
                     'QuickChangeAbbreviation' => $quickChangeAbbreviation,
