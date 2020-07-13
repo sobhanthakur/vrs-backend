@@ -494,7 +494,7 @@ class TasksRepository extends EntityRepository
             ->select('IDENTITY(t2.propertybookingid) AS PrevPropertyBookingID')
             ->addSelect('t2.nextpropertybookingid AS NextPropertyBookingID')
             ->addSelect('t2.internalnotes AS InternalNotes')
-            ->addSelect('s2.servicerabbreviation AS QuickChangeAbbreviation')
+            ->addSelect('c2.quickchangeabbreviation AS QuickChangeAbbreviation')
             ->addSelect('c2.linenfields AS LinenFields')
             ->addSelect('pb2.linencounts AS PrevLinenCounts')
             ->addSelect('pb2.backtobackstart AS PrevBackToBackStart')
