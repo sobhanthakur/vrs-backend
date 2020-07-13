@@ -180,27 +180,30 @@ class ServicersDashboardService extends BaseService
                 );
 
                 // Guest Details
-                if ($servicers[0]['IncludeGuestNumbers'] && $servicers[0]['IncludeGuestEmailPhone'] && $servicers[0]['IncludeGuestName']) {
-                    $guestDetails = array(
-                        'Previous' => array(
-                            'Name' => $tasks[$i]['PrevName'],
-                            'Email' => $tasks[$i]['PrevEmail'],
-                            'Phone' => $tasks[$i]['PrevPhone'],
-                            'NumberOfGuests' => $tasks[$i]['PrevNumberOfGuests'],
-                            'NumberOfChildren' => $tasks[$i]['PrevNumberOfChildren'],
-                            'NumberOfPets' => $tasks[$i]['PrevNumberOfPets']
-                        ),
-                        'Next' => array(
-                            'Name' => $tasks[$i]['NextName'],
-                            'Email' => $tasks[$i]['NextEmail'],
-                            'Phone' => $tasks[$i]['NextPhone'],
-                            'NumberOfGuests' => $tasks[$i]['NextNumberOfGuests'],
-                            'NumberOfChildren' => $tasks[$i]['NextNumberOfChildren'],
-                            'NumberOfPets' => $tasks[$i]['NextNumberOfPets']
-                        )
+                if ((int)$servicers[0]['IncludeGuestNumbers']) {
+                    $guestDetails['Previous']['NumberOfGuests'] = $tasks[$i]['PrevNumberOfGuests'];
+                    $guestDetails['Previous']['NumberOfChildren'] = $tasks[$i]['PrevNumberOfChildren'];
+                    $guestDetails['Previous']['NumberOfPets'] = $tasks[$i]['PrevNumberOfPets'];
 
-                    );
+                    $guestDetails['Next']['NumberOfGuests'] = $tasks[$i]['NextNumberOfGuests'];
+                    $guestDetails['Next']['NumberOfChildren'] = $tasks[$i]['NextNumberOfChildren'];
+                    $guestDetails['Next']['NumberOfPets'] = $tasks[$i]['NextNumberOfPets'];
                 }
+
+                if((int)$servicers[0]['IncludeGuestEmailPhone']) {
+                    $guestDetails['Previous']['Email'] = $tasks[$i]['PrevEmail'];
+                    $guestDetails['Previous']['Phone'] = $tasks[$i]['PrevPhone'];
+
+                    $guestDetails['Next']['Email'] = $tasks[$i]['NextEmail'];
+                    $guestDetails['Next']['Phone'] = $tasks[$i]['NextPhone'];
+                }
+
+                if((int)$servicers[0]['IncludeGuestName']) {
+                    $guestDetails['Previous']['Name'] = $tasks[$i]['PrevEmail'];
+
+                    $guestDetails['Previous']['Next'] = $tasks[$i]['NextEmail'];
+                }
+
                 $response[$i]['GuestDetails'] = $guestDetails;
 
                 // Check if log tab has to be rendered
