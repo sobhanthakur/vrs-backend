@@ -141,7 +141,7 @@ class ServicersDashboardService extends BaseService
                     $quickChangeAbbreviation = $servicers[0]['QuickChangeAbbreviation'];
                 }
 
-                if ((int)$tasks[$i]['BackToBackEND'] && ((int)$tasks[$i]['TaskType'] === 0 ||
+                if ((int)$tasks[$i]['BackToBackEnd'] && ((int)$tasks[$i]['TaskType'] === 0 ||
                         (int)$tasks[$i]['TaskType'] === 4 ||
                         (int)$tasks[$i]['TaskType'] === 8)
                 ) {
