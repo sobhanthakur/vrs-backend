@@ -155,7 +155,7 @@ class TabsService extends BaseService
                             }
                         } else {
                             $common = array_merge($common, array(
-                                $key => $value
+                                $key => trim($value)
                             ));
                         }
                     }
