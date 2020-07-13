@@ -150,6 +150,7 @@ class ServicersDashboardService extends BaseService
                 $servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] ? $piecePay = $tasks[$i]['PiecePay'] : $piecePay = null;
 
                 $response[$i]['Details'] = array(
+                    'ShowStartTimeOnDashboard' => (int)$servicers[0]['ShowStartTimeOnDashboard'] === 1 ? 1 : 0,
                     'PiecePay' => $piecePay,
                     'QuickChangeAbbreviation' => $quickChangeAbbreviation,
                     'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
