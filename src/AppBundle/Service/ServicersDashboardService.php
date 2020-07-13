@@ -147,8 +147,10 @@ class ServicersDashboardService extends BaseService
                 ) {
                     $quickChangeAbbreviation = trim($servicers[0]['QuickChangeAbbreviation']);
                 }
+                $servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] ? $piecePay = $tasks[$i]['PiecePay'] : $piecePay = null;
 
                 $response[$i]['Details'] = array(
+                    'PiecePay' => $piecePay,
                     'QuickChangeAbbreviation' => $quickChangeAbbreviation,
                     'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
                     'TaskID' => $tasks[$i]['TaskID'],
