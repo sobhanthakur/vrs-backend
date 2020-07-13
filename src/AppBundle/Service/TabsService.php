@@ -352,6 +352,7 @@ class TabsService extends BaseService
                     );
 
                     // CheckList Response
+                    $checkListResponse = [];
                     foreach ($rsChecklistItems as $rsChecklistItem) {
                         $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0]['TaskID'],$rsChecklistItem['ChecklistItemID']);
                         $result = [];
