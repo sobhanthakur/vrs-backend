@@ -395,7 +395,15 @@ class TasksRepository extends EntityRepository
      */
     public function FetchTasksForDashboard($servicerID, $servicers)
     {
-        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        // The dashboard should limit tasks to Servicers.ViewTasksWithinDays
+        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        if ($viewTaskWithinDays === 0) {
+            $viewTaskWithinDays = 7;
+        }
+        $min = min($viewTaskWithinDays,7);
+
+        $today = (new \DateTime('now'))->modify('+'.$min.' days')->format('Y-m-d');
         $result =  $this
             ->createQueryBuilder('t2');
 
