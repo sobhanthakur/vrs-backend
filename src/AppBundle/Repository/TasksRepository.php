@@ -400,11 +400,12 @@ class TasksRepository extends EntityRepository
             ->createQueryBuilder('t2');
 
         // Fetch Basic task details
-        $result->select('pb2.backtobackend AS BackToBackEnd,pb2.backtobackstart AS BackToBackStart,p2.staffdashboardnote AS StaffDashboardNote, t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+        $result->select('t2.backtoback AS BackToBack,p2.sortorder,rgid.sortorder,r2.sortorder,t2.taskdatetime AS TaskDateTime,pb2.backtobackend AS BackToBackEnd,pb2.backtobackstart AS BackToBackStart,p2.staffdashboardnote AS StaffDashboardNote, t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
             // Task Description Details
             ->addSelect('pb2.globalnote AS GlobalNote,pb2.inglobalnote AS InGlobalNote, serviceid.tasktype AS TaskType, pb2.outglobalnote AS OutGlobalNote, ts.instructions AS Instructions, serviceid.showalltagsondashboards AS ShowAllTagsOnDashboards, pb2.bookingtags AS BookingTags, pb2.manualbookingtags AS ManualBookingTags,npb2.bookingtags AS NextBookingTags,npb2.manualbookingtags AS NextManualBookingTags,serviceid.showpmshousekeepingnoteondashboard AS ShowPMSHousekeepingNoteOnDashboards, pb2.pmshousekeepingnote AS PMSHousekeepingNote')
             ->leftJoin('t2.propertyid','p2')
             ->leftJoin('p2.regionid','r2')
+            ->leftJoin('r2.regiongroupid','rgid')
             ->leftJoin('t2.propertybookingid','pb2')
             ->leftJoin('AppBundle:Propertybookings','npb2',Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
             ->leftJoin('p2.customerid','c2')
@@ -419,9 +420,22 @@ class TasksRepository extends EntityRepository
             ->andWhere('p2.customerid=s2.customerid')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
             ->andWhere("t2.taskdate < :Today")
-            ->setParameter('Today',$today)
-            ->orderBy('t2.taskdate','ASC')
-        ;
+            ->setParameter('Today',$today);
+
+        // Default Ordering
+        $result->addOrderBy('t2.taskdatetime')
+            ->addOrderBy('r2.sortorder')
+            ->addOrderBy('rgid.sortorder')
+            ->addOrderBy('p2.sortorder')
+            ->addOrderBy('t2.taskcompletebydate');
+
+        // Conditional Ordering
+        if ((int)$servicers[0]['SortQuickChangeToTop'] === 1) {
+            $result->addOrderBy('t2.backtoback','DESC');
+
+        } elseif ((int)$servicers[0]['SortQuickChangeToTop'] === 2) {
+            $result->addOrderBy('t2.backtoback','DESC');
+        }
 
         // If Task Estimates is true then select minimum and maximum time (In Hours)
         if($servicers[0]['ShowTaskEstimates']) {
