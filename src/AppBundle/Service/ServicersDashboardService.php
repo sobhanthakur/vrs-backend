@@ -180,7 +180,13 @@ class ServicersDashboardService extends BaseService
                 );
 
                 // Guest Details
-                if ((int)$servicers[0]['IncludeGuestNumbers']) {
+                if ((int)$servicers[0]['IncludeGuestNumbers'] && ((int)$tasks[$i]['TaskType'] !== 0 ||
+                        (int)$tasks[$i]['TaskType'] !== 2 ||
+                        (int)$tasks[$i]['TaskType'] !== 3 ||
+                        (int)$tasks[$i]['TaskType'] !== 4 ||
+                        (int)$tasks[$i]['TaskType'] !== 8
+                    )
+                ) {
                     $guestDetails['Previous']['NumberOfGuests'] = $tasks[$i]['PrevNumberOfGuests'];
                     $guestDetails['Previous']['NumberOfChildren'] = $tasks[$i]['PrevNumberOfChildren'];
                     $guestDetails['Previous']['NumberOfPets'] = $tasks[$i]['PrevNumberOfPets'];
@@ -190,7 +196,7 @@ class ServicersDashboardService extends BaseService
                     $guestDetails['Next']['NumberOfPets'] = $tasks[$i]['NextNumberOfPets'];
                 }
 
-                if((int)$servicers[0]['IncludeGuestEmailPhone']) {
+                if((int)$servicers[0]['IncludeGuestEmailPhone'] && (int)$tasks[$i]['TaskType'] !== 3) {
                     $guestDetails['Previous']['Email'] = $tasks[$i]['PrevEmail'];
                     $guestDetails['Previous']['Phone'] = $tasks[$i]['PrevPhone'];
 
@@ -198,7 +204,7 @@ class ServicersDashboardService extends BaseService
                     $guestDetails['Next']['Phone'] = $tasks[$i]['NextPhone'];
                 }
 
-                if((int)$servicers[0]['IncludeGuestName']) {
+                if((int)$servicers[0]['IncludeGuestName'] && (int)$tasks[$i]['TaskType'] !== 3) {
                     $guestDetails['Previous']['Name'] = $tasks[$i]['PrevEmail'];
 
                     $guestDetails['Previous']['Next'] = $tasks[$i]['NextEmail'];
