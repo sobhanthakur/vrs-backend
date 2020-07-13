@@ -443,20 +443,14 @@ class TasksRepository extends EntityRepository
         }
 
         // Fetch Guest Details based on conditions
-        if($servicers[0]['IncludeGuestNumbers']) {
-            $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
-            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
-        }
+        $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
+        $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
 
-        if($servicers[0]['IncludeGuestEmailPhone']) {
-            $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
-            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
-        }
+        $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
+        $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
 
-        if($servicers[0]['IncludeGuestName']) {
-            $result->addSelect('pb2.guest AS PrevName');
-            $result->addSelect('npb2.guest AS NextName');
-        }
+        $result->addSelect('pb2.guest AS PrevName');
+        $result->addSelect('npb2.guest AS NextName');
 
         return $result->distinct(true)->setMaxResults(61)->getQuery()
             ->getResult();
