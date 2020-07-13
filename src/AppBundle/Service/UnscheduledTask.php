@@ -246,7 +246,7 @@ class UnscheduledTask extends BaseService
             $task = new Tasks();
             $task->setPropertybookingid(null);
             $task->setPropertyid($propertyObj);
-            $task->setTaskname(trim($details['TaskName']));
+            $task->setTaskname(array_key_exists('TaskName',$details) ? trim($details['TaskName']) : null);
             $task->setTasktype(6);
             $task->setTaskdate($today);
             $task->setTasktime((int)ltrim($today->format('H'), '0'));
@@ -255,8 +255,8 @@ class UnscheduledTask extends BaseService
             $task->setTaskcompletebytime(99);
             $task->setServiceid(null);
             $task->setServicerid($servicerID);
-            $task->setServicernotes(trim($details['UnscheduledTaskNote']));
-            $task->setToownernote(trim($details['NoteToOwner']));
+            $task->setServicernotes(array_key_exists('UnscheduledTaskNote',$details) ? trim($details['UnscheduledTaskNote']) : null);
+            $task->setToownernote(array_key_exists('NoteToOwner',$details) ? trim($details['NoteToOwner']) : null);
             $task->setMarked(true);
             $task->setEdited(true);
             $task->setCompleteconfirmeddate($completeStatus ? $today : null);
@@ -291,9 +291,10 @@ class UnscheduledTask extends BaseService
             $response['TasksToServicers'] = $tasksToServicers->getTasktoservicerid();
 
             // Manage Notification
+            array_key_exists('SendToOwnerNote',$details) ? $sendToOwnerNote = (int)$details['SendToOwnerNote'] : $sendToOwnerNote = 1;
             if ($completeStatus) {
                 $thisOwnerID = 0;
-                if ($propertyObj->getOwnerid() && (int)$details['SendToOwnerNote'] !== 1 && (int)$servicerObj->getNotifyowneroncompletion() > 0) {
+                if ($propertyObj->getOwnerid() && $sendToOwnerNote !== 1 && (int)$servicerObj->getNotifyowneroncompletion() > 0) {
                     $thisOwnerID = $propertyObj->getOwnerid()->getOwnerid();
                 }
                 $result = array(
