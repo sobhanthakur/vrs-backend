@@ -300,7 +300,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.allowcreatecompletedtask AS AllowCreateCompletedTask,IDENTITY(s.customerid) AS CustomerID,t.region AS Region,s.languageid AS Locale,c.phone AS Phone,c.email AS Email,c.customername AS CustomerName,c.businessinfo AS BusinessInfo,s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
+            ->select('c.dateformat AS DateFormat,s.allowcreatecompletedtask AS AllowCreateCompletedTask,IDENTITY(s.customerid) AS CustomerID,t.region AS Region,s.languageid AS Locale,c.phone AS Phone,c.email AS Email,c.customername AS CustomerName,c.businessinfo AS BusinessInfo,s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
             ->innerJoin('s.customerid','c')
             ->leftJoin('s.timezoneid','t')
             ->where('s.servicerid= :ServicerID')
