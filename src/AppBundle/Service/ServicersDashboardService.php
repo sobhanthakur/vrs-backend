@@ -103,7 +103,9 @@ class ServicersDashboardService extends BaseService
                     'FromTime' => $tasks[$i]['TaskStartTime'],
                     'ToTime' => $tasks[$i]['TaskCompleteByTime'],
                     'FromMinutes' => $tasks[$i]['TaskStartTimeMinutes'],
-                    'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes']
+                    'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes'],
+                    'TaskTime' => $tasks[$i]['TaskTime'],
+                    'TaskTimeMinutes' => $tasks[$i]['TaskTimeMinutes']
                 );
 
                 if (
@@ -158,6 +160,9 @@ class ServicersDashboardService extends BaseService
                 }
 
                 $response[$i]['Details'] = array(
+                    'ParentTaskID' => $tasks[$i]['ParenTaskID'],
+                    'ParentServiceAbbreviation' => $tasks[$i]['ParentServiceAbbreviation'],
+                    'ParentCompleteConfirmedDate' => $tasks[$i]['ParentCompleteConfirmedDate'],
                     'SchedulingNote' => $schedulingNote,
                     'ShowStartTimeOnDashboard' => (int)$servicers[0]['ShowStartTimeOnDashboard'] === 1 ? 1 : 0,
                     'PiecePay' => $piecePay,
