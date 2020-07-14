@@ -103,9 +103,7 @@ class ServicersDashboardService extends BaseService
                     'FromTime' => $tasks[$i]['TaskStartTime'],
                     'ToTime' => $tasks[$i]['TaskCompleteByTime'],
                     'FromMinutes' => $tasks[$i]['TaskStartTimeMinutes'],
-                    'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes'],
-                    'TaskTime' => $tasks[$i]['TaskTime'],
-                    'TaskTimeMinutes' => $tasks[$i]['TaskTimeMinutes']
+                    'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes']
                 );
 
                 if (

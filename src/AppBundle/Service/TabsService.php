@@ -42,7 +42,7 @@ class TabsService extends BaseService
                 $query .= ' AND SubQuery.FromTaskID='.$taskID;
                 $query .= ' ORDER BY SubQuery.CreateDate DESC';
             } else {
-                $query .= ' ORDER BY SubQuery.CreateDate ASC';
+                $query .= ' AND SubQuery.ClosedDate IS NULL';
             }
 
             $staffTasks = $this->entityManager->getConnection()->prepare($query);
