@@ -214,7 +214,7 @@ class ServicersDashboardService extends BaseService
 
                 // Check if log tab has to be rendered
                 $log = 0;
-                $allIssues = 'SELECT TOP 1 FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0 OR vIssues.FromTaskID='.$tasks[$i]['TaskID'];
+                $allIssues = 'SELECT TOP 1 FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0 AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
                 $issues = $this->entityManager->getConnection()->prepare($allIssues);
                 $issues->execute();
                 $issues = $issues->fetchAll();
