@@ -33,8 +33,19 @@ class TabsService extends BaseService
         try {
             $propertyID = $content['PropertyID'];
 
+            array_key_exists('TaskID',$content) ? $taskID = $content['TaskID'] : $taskID = null;
+
             $property = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertyNameByID($propertyID);
-            $staffTasks = $this->entityManager->getConnection()->prepare('SELECT CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.ClosedDate IS NULL AND SubQuery.PropertyID='.$propertyID.' ORDER BY SubQuery.CreateDate DESC');
+            $query = 'SELECT CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.PropertyID <> 0 AND SubQuery.PropertyID='.$propertyID;
+
+            if ($taskID) {
+                $query .= ' AND SubQuery.FromTaskID='.$taskID;
+                $query .= ' ORDER BY SubQuery.CreateDate DESC';
+            } else {
+                $query .= ' ORDER BY SubQuery.CreateDate ASC';
+            }
+
+            $staffTasks = $this->entityManager->getConnection()->prepare($query);
             $staffTasks->execute();
             $staffTasks = $staffTasks->fetchAll();
             $response = array(
