@@ -37,7 +37,7 @@ class ServicersDashboardService extends BaseService
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=0; $i<1; $i++) {
+//            for ($i=count($tasks)-1; $i<count($tasks); $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -67,7 +67,7 @@ class ServicersDashboardService extends BaseService
                 // Show or hide Start Task
                 $now = new \DateTime('now');
                 if ( ((int)$servicers[0]['TimeTracking'] === 1 && $tasks[$i]['TaskStartDate'] <= $now) &&
-                     ((int)$servicers[0]['AllowStartEarly'] || $tasks[$i]['TaskStartDate'] <= $now) &&
+                     ((int)$servicers[0]['AllowStartEarly'] || $tasks[$i]['AssignedDate'] <= $now) &&
                      (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
                 ) {
                     if (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']) {
