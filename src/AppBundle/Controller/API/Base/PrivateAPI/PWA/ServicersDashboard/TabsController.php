@@ -31,7 +31,7 @@ class TabsController extends FOSRestController
      *     type="string",
      *     description="Base64 the following request format:
     {
-    ""PropertyID"":1
+    ""PropertyID"":1,""TaskID"":1
     }"
      *     )
      *  )
