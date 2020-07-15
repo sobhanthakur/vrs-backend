@@ -13,6 +13,7 @@ use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use QuickBooksOnline\API\Exception\ServiceException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -35,7 +36,7 @@ class SyncBillingController extends FOSRestController
      *     response=200,
      *     description="Success"
      * )
-     * @return array
+     * @return array | JsonResponse
      * @throws ServiceException
      * @param Request $request
      * @Get("/qbo/syncbilling", name="vrs_qbo_syncbilling")
@@ -56,6 +57,25 @@ class SyncBillingController extends FOSRestController
                     'TimeTracking' => $exception->getMessage()
                 ]
             ]);
+
+            $xml = $exception->getMessage();
+            $from = '<IntuitResponse';
+            $to = ']';
+            $str = $xml;
+            $sub = substr($str, strpos($str,$from),strlen($str));
+            libxml_use_internal_errors(true);
+
+            $exceptionMsg = simplexml_load_string(substr($sub,0,strpos($sub,$to)));
+            if ($exceptionMsg) {
+                $response = new JsonResponse();
+                $response->setStatusCode(422);
+                $response->setContent(json_encode([
+                    'ReasonCode' => 1023,
+                    'ReasonText' => (String)$exceptionMsg->Fault->Error->Detail
+                ]));
+                return $response;
+            }
+
             throw new UnprocessableEntityHttpException(ErrorConstants::QBO_CONNECTION_ERROR);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
