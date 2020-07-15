@@ -161,9 +161,11 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Set Status
-                if ($tasks[$i]['TaskCompleteByDate'] < $now || ($tasks[$i]['TaskCompleteByDate'] === $now && $tasks['TaskCompleteByTime'] <=  $now->format('H'))) {
+                $midNightTime = $now->setTime(0,0,0);
+
+                if ($tasks[$i]['TaskCompleteByDate'] < $midNightTime || ($tasks[$i]['TaskCompleteByDate'] === $midNightTime && $tasks['TaskCompleteByTime'] <=  $now->format('H'))) {
                     $status = 0;
-                } elseif ($tasks[$i]['AssignedDate'] <= $now) {
+                } elseif ($tasks[$i]['AssignedDate'] <= $midNightTime) {
                     $status = 1;
                 } else {
                     $status = 2;
