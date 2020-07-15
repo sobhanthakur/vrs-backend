@@ -99,7 +99,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($customers as $customer) {
-            $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id));
+            $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id,'customerid' => $customerObj->getCustomerid()));
             if(!$integrationQBDCustomers) {
                 $integrationQBDCustomers = new Integrationqbdcustomers();
             }
@@ -121,7 +121,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         // Check if any record is deleted or not.
         $diffArray = array_diff($qbdListIDs, $incomingListIDs);
         foreach ($diffArray as $key => $value) {
-            $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value));
+            $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value,'customerid' => $customerObj->getCustomerid()));
             $qbdCustomers->setActive(false);
         }
         $this->entityManager->flush();
@@ -139,14 +139,14 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($employees as $employee) {
-            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id));
+            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
             if (!$integrationQBDEmployees) {
                 $integrationQBDEmployees = new Integrationqbdemployees();
             }
             $incomingListIDs[] = $employee->Id;
             $integrationQBDEmployees->setCustomerid($customerObj);
             $integrationQBDEmployees->setActive($employee->Active);
-            $integrationQBDEmployees->setQbdemployeefullname($employee->GivenName);
+            $integrationQBDEmployees->setQbdemployeefullname($employee->DisplayName);
             $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
             $this->entityManager->persist($integrationQBDEmployees);
         }
@@ -161,7 +161,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         // Check if any record is deleted or not.
         $diffArray = array_diff($qbdListIDs, $incomingListIDs);
         foreach ($diffArray as $key => $value) {
-            $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $value));
+            $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $value,'customerid' => $customerObj->getCustomerid()));
             $qbdEmployees->setActive(false);
         }
         $this->entityManager->flush();
@@ -179,7 +179,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingItemListIDs = [];
         foreach ($items as $item) {
-            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id));
+            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
             if(!$integrationQBDItems) {
                 $integrationQBDItems = new Integrationqbditems();
             }
@@ -188,6 +188,7 @@ class QuickbooksOnlineSyncResources extends BaseService
             $integrationQBDItems->setActive($item->Active);
             $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
             $integrationQBDItems->setQbditemlistid($item->Id);
+            $integrationQBDItems->setUnitprice($item->UnitPrice);
             $this->entityManager->persist($integrationQBDItems);
         }
 
@@ -200,7 +201,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         }
         $diffArray = array_diff($qbdListIDs, $incomingItemListIDs);
         foreach ($diffArray as $key => $value) {
-            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value));
+            $qbdItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid' => $value,'customerid' => $customerObj->getCustomerid()));
             $qbdItems->setActive(false);
         }
         $this->entityManager->flush();
@@ -232,7 +233,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         if($integrationsToCustomers->getQbdsyncbilling() || $integrationsToCustomers->getTimetrackingtype()) {
 
             // Fetch Items
-            $items = $dataService->Query('select Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
+            $items = $dataService->Query('select UnitPrice,Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
             if(!empty($items)) {
                 $this->StoreItems($items,$customerObj);
             }
@@ -240,7 +241,7 @@ class QuickbooksOnlineSyncResources extends BaseService
 
         if($integrationsToCustomers->getQbdsyncpayroll()) {
             // Fetch Customers
-            $employees = $dataService->Query('select Active,GivenName,Id from Employee MAXRESULTS 1000');
+            $employees = $dataService->Query('select Active,DisplayName,Id from Employee MAXRESULTS 1000');
             if(!empty($employees)) {
                 $this->StoreEmployees($employees,$customerObj);
             }

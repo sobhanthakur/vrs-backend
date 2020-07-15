@@ -104,7 +104,7 @@ class TimeTrackingApprovalService extends BaseService
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2 . ' ORDER BY Name_9 OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($response . ' UNION ALL ' . $response2 . ' ORDER BY Name_9,TimeClockTaskID_5,Clockin_11 OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
                 $response->execute();
                 $response = $response->fetchAll();
                 $response = $this->ProcessTimeClockTasksResponse($response);
@@ -118,6 +118,7 @@ class TimeTrackingApprovalService extends BaseService
                 }
                 $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $completedDate, $timezones, $limit, $offset, $status,$qbo);
                 $response = $this->processResponse($response);
+                return $response;
             }
 
             return array(
@@ -156,8 +157,8 @@ class TimeTrackingApprovalService extends BaseService
             unset($response[$i]["Status_6"]);
 
             // Process TimeTracked
-            if($response[$i]['TimeTrackedSeconds_8']) {
-                $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]);
+            if($response[$i]['TimeTrackedSeconds_8'] !== null) {
+                $response[$i]["TimeTracked"] = (int)$response[$i]['TimeTrackedSeconds_8'] >=0 ? $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]) : $response[$i]['TimeTrackedSeconds_8'];
                 $response[$i]["Date"] = $response[$i]["Day_7"];
             } else {
                 $clockin = (new \DateTime($response[$i]['ClockIn_11']));
@@ -530,13 +531,16 @@ class TimeTrackingApprovalService extends BaseService
                                     'day' => (new \DateTime($innerKey))
                                 ));
 
-                                // Else Create New
+                                // Create New
                                 if(!$integrationQBDTimeTracking) {
                                     $integrationQBDTimeTracking = new Integrationqbdtimetrackingrecords();
                                     $integrationQBDTimeTracking->setStatus(2);
                                     $integrationQBDTimeTracking->setDay(new \DateTime($innerKey));
                                     $integrationQBDTimeTracking->setTimetrackedseconds($diff);
                                     $integrationQBDTimeTracking->setDrivetimeclocktaskid($timeClockTask);
+                                    $this->entityManager->persist($integrationQBDTimeTracking);
+                                } else {
+                                    $integrationQBDTimeTracking->setTimetrackedseconds($diff);
                                     $this->entityManager->persist($integrationQBDTimeTracking);
                                 }
                             }

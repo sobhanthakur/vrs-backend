@@ -318,12 +318,12 @@ class IntegrationsService extends BaseService
             }
 
             // Remove the Items To Services Mappings
-            $itemsToServices = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItemsToServices FROM IntegrationQBDItemsToServices INNER JOIN IntegrationQBDItems ON IntegrationQBDItemsToServices.IntegrationQBDItemID = IntegrationQBDItems.IntegrationQBDItemID WHERE IntegrationQBDItems.CustomerID='.$customerID)->execute();
+            $itemsToServices = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItemsToServices FROM IntegrationQBDItemsToServices LEFT JOIN Services ON IntegrationQBDItemsToServices.ServiceID = Services.ServiceID WHERE Services.CustomerID='.$customerID)->execute();
             if(!$itemsToServices) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
             }
 
-            // Remove the Items To Services Mappings
+            // Remove the Items Mappings
             $items = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBDItems FROM IntegrationQBDItems WHERE IntegrationQBDItems.CustomerID='.$customerID)->execute();
             if(!$items) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);

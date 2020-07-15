@@ -47,6 +47,13 @@ class Integrationqbditems
     private $qbditemfullname;
 
     /**
+     * @var float|null
+     *
+     * @ORM\Column(name="UnitPrice", type="float",precision=53, scale=0, nullable=true)
+     */
+    private $unitprice;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
@@ -201,5 +208,29 @@ class Integrationqbditems
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set unitprice.
+     *
+     * @param float|null $unitprice
+     *
+     * @return Integrationqbditems
+     */
+    public function setUnitprice($unitprice = null)
+    {
+        $this->unitprice = $unitprice;
+
+        return $this;
+    }
+
+    /**
+     * Get unitprice.
+     *
+     * @return float|null
+     */
+    public function getUnitprice()
+    {
+        return $this->unitprice;
     }
 }

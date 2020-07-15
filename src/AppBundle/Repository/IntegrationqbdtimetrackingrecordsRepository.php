@@ -359,7 +359,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('ii.qbditemlistid AS ItemListID,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
+            ->select('ii.qbditemlistid AS ItemListID,ii.unitprice AS UnitPrice,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
             ->innerJoin('b1.timeclocktasksid', 't2')
             ->innerJoin('t2.servicerid', 's2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
@@ -428,15 +428,22 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
         }
 
         if ($staff) {
-            $result->andWhere('s2.servicerid IN (:Staffs)')
-                ->setParameter('Staffs', $staff);
+            $condition = 's2.servicerid IN (';
+            $i=0;
+            for (;$i<count($staff)-1;$i++) {
+                $condition .= $staff[$i].',';
+            }
+            $condition .= $staff[$i].')';
+            $result->andWhere($condition);
+//            $result->andWhere('s2.servicerid IN (:Staffs)')
+//                ->setParameter('Staffs', $staff);
         }
 
         if(!empty($timezones)) {
             $size = count($timezones);
             $query = "t1.clockin>='".$timezones[0]->format('Y-m-d')." ".$timezones[0]->format('H:i:s')."'";
             for ($i=1;$i<$size;$i++) {
-                $query .= " OR t1.clockin>='".$timezones[$i]->format('Y-m-d')." ".$timezones->format('H:i:s')."'";
+                $query .= " OR t1.clockin>='".$timezones[$i]->format('Y-m-d')." ".$timezones[$i]->format('H:i:s')."'";
             }
             $result->andWhere($query);
         }

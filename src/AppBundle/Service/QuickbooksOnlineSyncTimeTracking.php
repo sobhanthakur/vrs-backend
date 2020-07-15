@@ -115,7 +115,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 if (empty($timeclocks)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
                 }
-
+                
                 $batch = $this->CreateBatch($integrationsToCustomers);
 
                 // Create time activity object for Quickbooks Online
@@ -144,27 +144,32 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
-
+                        "HourlyRate" =>$timeclock['PayRate'],
                         "Taxable" => "false",
-                        "HourlyRate" => $timeclock['PayRate'],
                         "Description" => $description
                     );
 
-                    if($timeclock['CustomerValue']) {
+                    if(array_key_exists('CustomerValue',$timeclock) && $timeclock['CustomerValue']) {
                         $timeActivity = array_merge($timeActivity,array(
                             "CustomerRef" => [
                                 "Value" => $timeclock['CustomerValue']
-                            ]
+                            ],
+                            "BillableStatus" => "Billable"
                         ));
                     }
 
-                    if($timeclock['ItemListID']) {
+                    if (!$timeclock['PayRate'] && array_key_exists('UnitPrice',$timeclock) && $timeclock['UnitPrice']) {
+                        $timeActivity['HourlyRate'] = $timeclock['UnitPrice'];
+                    }
+
+                    if(array_key_exists('ItemListID',$timeclock) && $timeclock['ItemListID']) {
                         $timeActivity = array_merge($timeActivity,array(
                            "ItemRef" =>  [
                                "value" => $timeclock['ItemListID']
                            ]
                         ));
                     }
+
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
 
@@ -182,6 +187,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                         $integrationQBDTimeTracking->setSentstatus(true);
                         $integrationQBDTimeTracking->setIntegrationqbbatchid($batch);
                         $this->entityManager->persist($integrationQBDTimeTracking);
+                        $this->entityManager->flush();
                     }
                 }
             } else {
@@ -226,8 +232,8 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     $result->setSentstatus(true);
                     $this->entityManager->persist($result);
                 }
+                $this->entityManager->flush();
             }
-            $this->entityManager->flush();
 
             return true;
         } catch (UnprocessableEntityHttpException $exception) {
