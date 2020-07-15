@@ -161,7 +161,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 $response[$i]['Details'] = array(
-                    'AllowChangeTaskDate' => (int)$servicers[0]['AllowChangeTaskDate'],
+                    'AllowChangeTaskDate' => (int)$servicers[0]['ChangeDate'],
                     'ParentTaskDate' => $tasks[$i]['ParentTaskDate'],
                     'ParentTaskID' => $tasks[$i]['ParenTaskID'],
                     'ParentServiceAbbreviation' => $tasks[$i]['ParentServiceAbbreviation'],
