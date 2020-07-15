@@ -163,7 +163,7 @@ class ServicersDashboardService extends BaseService
                 // Set Status
                 if ($tasks[$i]['TaskCompleteByDate'] < $now || ($tasks[$i]['TaskCompleteByDate'] === $now && $tasks['TaskCompleteByTime'] <=  $now->format('H'))) {
                     $status = 0;
-                } elseif ($tasks[$i]['TaskDate'] <= $now) {
+                } elseif ($tasks[$i]['AssignedDate'] <= $now) {
                     $status = 1;
                 } else {
                     $status = 2;
