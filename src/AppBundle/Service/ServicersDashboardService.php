@@ -160,7 +160,17 @@ class ServicersDashboardService extends BaseService
                     $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
                 }
 
+                // Set Status
+                if ($tasks[$i]['TaskCompleteByDate'] < $now || ($tasks[$i]['TaskCompleteByDate'] === $now && $tasks['TaskCompleteByTime'] <=  $now->format('H'))) {
+                    $status = 0;
+                } elseif ($tasks[$i]['TaskDate'] <= $now) {
+                    $status = 1;
+                } else {
+                    $status = 2;
+                }
+
                 $response[$i]['Details'] = array(
+                    'Status' => $status,
                     'AllowChangeTaskDate' => (int)$servicers[0]['AllowChangeTaskDate'],
                     'ParentTaskDate' => $tasks[$i]['ParentTaskDate'],
                     'ParentTaskID' => $tasks[$i]['ParenTaskID'],
