@@ -31,4 +31,9 @@ parameters:
         BaseURL: 'development'
         AuthMode: 'oauth2'
         RedirectAfterCallback: 'http://localhost:3000'
+    aws:
+        region: ~
+        key: ~
+        secret: ~
+        bucket_name: ~
 
