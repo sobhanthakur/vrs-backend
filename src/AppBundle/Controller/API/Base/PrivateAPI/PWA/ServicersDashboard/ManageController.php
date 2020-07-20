@@ -284,4 +284,60 @@ class ManageController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Uploads Image to corresponding folder
+     * @SWG\Tag(name="Manage Tab")
+     * @Post("/issue/upload/image", name="vrs_pwa_upload_image_post")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="CustomerID",
+     *              type="integer",
+     *              example=1801
+     *         ),
+     *         @SWG\Property(
+     *              property="Image",
+     *              type="file",
+     *              example="Image File"
+     *         )
+     *    )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Uploads Image to corresponding folder",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function UploadImage(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $manageService = $this->container->get('vrscheduler.manage_service');
+            return $manageService->UploadImage($request);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

@@ -18,6 +18,8 @@ use AppBundle\Entity\Notifications;
 use AppBundle\Entity\Properties;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
+use phpDocumentor\Reflection\File;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -27,6 +29,9 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 class ManageService extends BaseService
 {
+    /**
+     * @var array
+     */
     private $notification = [];
     /**
      * @param $servicerID
@@ -52,6 +57,7 @@ class ManageService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
             }
 
+            // Create a new Issue
             $issues = new Issues();
             $issues->setIssuetype($content['IssueType']);
             $issues->setIssue($content['Issue']);
@@ -275,6 +281,72 @@ class ManageService extends BaseService
             $this->notification['TaskNotification'] = $notificationResult;
 
             return $task;
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array | null
+     */
+    public function UploadImage($request)
+    {
+        $path = $this->serviceContainer->getParameter('filepath');
+        $filename = null;
+        $response = [];
+        try {
+            $customerID = $request->get('CustomerID');
+            $request->files->get('Image') ? $image = $request->files->get('Image') : $image=null;
+
+            if (!$customerID || !$image) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
+            }
+
+            // Move the file to a corresponding path
+            $filename = $image->getClientOriginalName();
+            $image->move($path,$filename);
+
+            // aws Parameters
+            $aws = $this->serviceContainer->getParameter('aws');
+
+            // Connect to s3
+            $s3 = new \Aws\S3\S3Client([
+                'region'  => $aws['region'],
+                'version' => 'latest',
+                'credentials' => [
+                    'key'    => $aws['key'],
+                    'secret' => $aws['secret'],
+                ]
+            ]);
+
+            // Push Image
+            $result = $s3->putObject([
+                'Bucket' => $aws['bucket_name'],
+                'ACL' => 'public-read',
+                'Key'    => $customerID.'/'.$filename,
+                'SourceFile' => $path.'/'.$filename
+            ]);
+
+            if ($result) {
+                if ($result['@metadata']['statusCode'] === 200) {
+                    $response['ImageURL'] = $result['@metadata']['effectiveUri'];
+                }
+            }
+
+            return $response;
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed Uploading Image due to: '.
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        } finally {
+            // Delete the Image from Local Path
+            if ($filename) {
+                unlink($path.'/'.$filename);
+            }
         }
     }
 }
