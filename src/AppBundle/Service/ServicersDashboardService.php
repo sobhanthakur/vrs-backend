@@ -225,9 +225,9 @@ class ServicersDashboardService extends BaseService
                 }
 
                 if((int)$servicers[0]['IncludeGuestName'] && (int)$tasks[$i]['TaskType'] !== 3) {
-                    $guestDetails['Previous']['Name'] = $tasks[$i]['PrevEmail'];
+                    $guestDetails['Previous']['Name'] = $tasks[$i]['PrevName'];
 
-                    $guestDetails['Next']['Name'] = $tasks[$i]['NextEmail'];
+                    $guestDetails['Next']['Name'] = $tasks[$i]['NextName'];
                 }
 
                 $response[$i]['GuestDetails'] = $guestDetails;
