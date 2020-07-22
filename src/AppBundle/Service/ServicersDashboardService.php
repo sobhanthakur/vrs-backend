@@ -35,9 +35,10 @@ class ServicersDashboardService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
+            $thisStaff = null;
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=count($tasks)-1; $i<count($tasks); $i++) {
+//            for ($i=1; $i<2; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -303,6 +304,10 @@ class ServicersDashboardService extends BaseService
                 // Team for Each Task
                 $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID']);
                 $response[$i]['Team'] = !empty($team) ? $team : null;
+
+//                if ((int)$servicers[0]['AllowAdminAccess'] || (string)$servicers[0]['Email'] === (string)$servicers[0]['CustomersEmail']) {
+//
+//                }
             }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {
