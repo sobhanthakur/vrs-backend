@@ -303,7 +303,16 @@ class ServicersDashboardService extends BaseService
 
                 // Team for Each Task
                 $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID']);
-                $response[$i]['Team'] = !empty($team) ? $team : null;
+                if (!empty($team)) {
+                    for ($i=0;$i<count($team);$i++) {
+                        $team[$i]['Name'] = trim($team[$i]['Name']);
+                        $team[$i]['Email'] = trim($team[$i]['Email']);
+                        $team[$i]['Phone'] = trim($team[$i]['Phone']);
+                    }
+                } else {
+                    $team = null;
+                }
+                $response[$i]['Team'] = $team;
 
 //                if ((int)$servicers[0]['AllowAdminAccess'] || (string)$servicers[0]['Email'] === (string)$servicers[0]['CustomersEmail']) {
 //
