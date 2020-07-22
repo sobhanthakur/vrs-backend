@@ -611,7 +611,7 @@ class TasksRepository extends EntityRepository
     {
         $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
         $result = $this->createQueryBuilder('t2')
-            ->select('(CASE WHEN ts.islead=1 THEN 1 ELSE 0 END) AS IsLead,s2.name AS Name')
+            ->select('(CASE WHEN ts.islead=1 THEN 1 ELSE 0 END) AS IsLead,s2.name AS Name,s2.email AS Email,s2.phone AS Phone')
             ->leftJoin('t2.propertyid', 'p2')
             ->leftJoin('p2.customerid', 'c2')
             ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 't2.taskid=ts.taskid')
