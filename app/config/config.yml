@@ -214,18 +214,21 @@ nelmio_api_doc:
 monolog:
     handlers:
         api:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/apiRequestResponse.log"
             level: debug
             channels: [api]
+            max_files: 15
         exception:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/exception.log"
             level: error
             channels: [exception]
+            max_files: 15
         qb:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/qbResponse.log"
             level: debug
             channels: [qb]
+            max_files: 15
     channels: [api,exception,qb]
