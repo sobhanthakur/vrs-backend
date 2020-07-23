@@ -66,7 +66,7 @@ class ServicersDashboardService extends BaseService
 
                 // Show or hide Start Task
                 $now = new \DateTime('now');
-                $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalConversion('now',$servicers[0]['Region']);
+                $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalConversion($servicers[0]['Region']);
                 if ( ((int)$servicers[0]['TimeTracking'] === 1 && $tasks[$i]['TaskStartDate'] <= $localTime) &&
                      ((int)$servicers[0]['AllowStartEarly'] || $tasks[$i]['AssignedDate'] <= $localTime) &&
                      (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
