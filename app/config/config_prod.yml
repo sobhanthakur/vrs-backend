@@ -10,9 +10,10 @@ imports:
 monolog:
     handlers:
         main:
-            type: fingers_crossed
+            type: rotating_file
             action_level: error
             handler: nested
+            max_files: 15
         nested:
             type: stream
             path: '%kernel.logs_dir%/%kernel.environment%.log'
