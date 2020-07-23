@@ -20,11 +20,11 @@ class Utilities
      * @param $region
      * @return \DateTime
      */
-    public function UtcToLocalConversion($region,$dateTime='now')
+    public function UtcToLocalToUtcConversion($region,$dateTime='now')
     {
         $dateTime = new \DateTime($dateTime);
         $dateTime->setTimezone(new \DateTimeZone($region));
-        return $dateTime;
+        return (new \DateTime($dateTime->format('Y-m-d'),new \DateTimeZone('UTC')));
     }
 
 }
