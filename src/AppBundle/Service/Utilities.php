@@ -24,7 +24,7 @@ class Utilities
     {
         $dateTime = new \DateTime($dateTime);
         $dateTime->setTimezone(new \DateTimeZone($region));
-        return (new \DateTime($dateTime->format('Y-m-d'),new \DateTimeZone('UTC')));
+        return (new \DateTime($dateTime->format('Y-m-d H:i:s'),new \DateTimeZone('UTC')));
     }
 
 }

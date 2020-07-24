@@ -228,6 +228,11 @@ class UnscheduledTask extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
             }
 
+            $region = $servicerObj->getTimezoneid();
+            if ($region) {
+                $region = $region->getRegion();
+            }
+
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
             if (!$propertyObj) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
@@ -240,18 +245,19 @@ class UnscheduledTask extends BaseService
             }
 
             // INSERTING A COMPLETED TASKS FOR THEMSELVES
-
+            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($region,$dateTime);
             $today = new \DateTime($dateTime);
+
 
             $task = new Tasks();
             $task->setPropertybookingid(null);
             $task->setPropertyid($propertyObj);
             $task->setTaskname(array_key_exists('TaskName',$details) ? trim($details['TaskName']) : null);
             $task->setTasktype(6);
-            $task->setTaskdate($today);
-            $task->setTasktime((int)ltrim($today->format('H'), '0'));
+            $task->setTaskdate($localTime);
+            $task->setTasktime((int)ltrim($localTime->format('H'), '0'));
             $task->setTaskdatetime($today);
-            $task->setTaskcompletebydate($today);
+            $task->setTaskcompletebydate($localTime);
             $task->setTaskcompletebytime(99);
             $task->setServiceid(null);
             $task->setServicerid($servicerID);
@@ -271,6 +277,8 @@ class UnscheduledTask extends BaseService
             $task->setIncludesupplyflag(true);
             $task->setIncludeurgentflag(true);
             $task->setIncludeservicernote(true);
+            $task->setCreatedate($today);
+            $task->setSchedulechangedate($today);
 
             $this->entityManager->persist($task);
             $this->entityManager->flush();
@@ -284,6 +292,7 @@ class UnscheduledTask extends BaseService
             $tasksToServicers->setIslead(true);
             $tasksToServicers->setPayrate($servicerObj->getPayrate());
             $tasksToServicers->setAccepteddate($today);
+            $tasksToServicers->setCreatedate($today);
 
             $this->entityManager->persist($tasksToServicers);
             $this->entityManager->flush();
