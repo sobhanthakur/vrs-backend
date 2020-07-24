@@ -302,7 +302,7 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
 
                 // Team for Each Task
-                $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID']);
+                $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID'],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : null;
             }
             return array('Tasks' => $response);
