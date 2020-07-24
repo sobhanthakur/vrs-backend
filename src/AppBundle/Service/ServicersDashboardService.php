@@ -162,11 +162,12 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Set Status
-                $midNightTime = $now->setTime(0,0,0);
+                $localHour = (int)ltrim($localTime->format('H'), '0');;
+                $localTime->setTime(0,0,0);
 
-                if ($tasks[$i]['TaskCompleteByDate'] < $midNightTime || ($tasks[$i]['TaskCompleteByDate'] === $midNightTime && $tasks['TaskCompleteByTime'] <=  $now->format('H'))) {
+                if ($tasks[$i]['TaskCompleteByDate'] < $localTime || ($tasks[$i]['TaskCompleteByDate'] === $localTime && $tasks['TaskCompleteByTime'] <=  $localHour)) {
                     $status = 0;
-                } elseif ($tasks[$i]['AssignedDate'] <= $midNightTime) {
+                } elseif ($tasks[$i]['AssignedDate'] <= $localTime) {
                     $status = 1;
                 } else {
                     $status = 2;
