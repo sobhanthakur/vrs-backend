@@ -496,6 +496,8 @@ class ServicersDashboardService extends BaseService
             $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
             $thisAdditionalMessage = '';
             $thisAdditionalTextMessage = '';
+            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsThisTask[0]['Region'],$dateTime);
+            $currentTime = new \DateTime($dateTime);
 
             // Manage Backup Servicer.
             // If Backup Servicer ID is present then assign the servicer ID to that task
@@ -512,7 +514,7 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            $tasksToServicers->setDeclineddate(new \DateTime($dateTime));
+            $tasksToServicers->setDeclineddate($currentTime);
             $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
             $this->entityManager->persist($tasksToServicers);
 
@@ -520,7 +522,7 @@ class ServicersDashboardService extends BaseService
             $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
             $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
             $taskAcceptDeclines->setAcceptordecline(false);
-            $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
+            $taskAcceptDeclines->setCreatedate($currentTime);
             $this->entityManager->persist($taskAcceptDeclines);
 
             $this->entityManager->flush();
@@ -536,14 +538,14 @@ class ServicersDashboardService extends BaseService
                     'SubmittedByServicerID' => $servicerID,
                     'TypeID' => 0
                 );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime);
                 $notification['TaskNotification'] = $taskNotification;
 
             }
 
             // Deal with backup servicer notification
             if (!empty($rsBackup)) {
-                $viewTaskDate = (new \DateTime('now'))->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
+                $viewTaskDate = $localTime->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
                 if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
                     if ($rsBackup[0]['RequestAcceptTasks']) {
                         $thisAdditionalTextMessage = 'Please Accept or Decline';
@@ -561,7 +563,7 @@ class ServicersDashboardService extends BaseService
                         'AdditionalTextMessage' => $thisAdditionalTextMessage,
                         'AdditionalMessage' => $thisAdditionalMessage
                     );
-                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
+                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
                     $notification['BackupServicerNotification'] = $taskNotification;
                 }
             }
