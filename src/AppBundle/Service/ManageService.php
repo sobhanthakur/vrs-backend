@@ -16,6 +16,7 @@ use AppBundle\Entity\Issueimages;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Notifications;
 use AppBundle\Entity\Properties;
+use AppBundle\Entity\Servicers;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
 use phpDocumentor\Reflection\File;
@@ -48,6 +49,9 @@ class ManageService extends BaseService
                 $taskID = $content['TaskID'];
             }
             $task = null;
+
+            array_key_exists('DateTime',$content) ? $dateTime = $content['DateTime'] : $dateTime='now';
+            $currentDate = new \DateTime($dateTime);
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
@@ -57,6 +61,8 @@ class ManageService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
             }
 
+            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID));
+
             // Create a new Issue
             $issues = new Issues();
             $issues->setIssuetype($content['IssueType']);
@@ -64,10 +70,11 @@ class ManageService extends BaseService
             $issues->setUrgent((int)$content['Urgent'] === 1 ? true : false);
             $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
+            $issues->setCreatedate($currentDate);
             if ($taskID) {
                 $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
             }
-            $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID)));
+            $issues->setSubmittedbyservicerid($servicer);
 
             // Persist and flush Issue
             $this->entityManager->persist($issues);
@@ -83,7 +90,7 @@ class ManageService extends BaseService
                 $rsService = $rsService->fetchAll();
 
                 // Create Task
-                $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj);
+                $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj,$currentDate,$servicer);
                 $response['TaskID'] = $task->getTaskid();
 
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
@@ -111,6 +118,7 @@ class ManageService extends BaseService
                 $tasksToServicers->setPiecepay($rsService[0]['PiecePay']);
                 $tasksToServicers->setPayrate($payRate);
                 $tasksToServicers->setPaytype($rsService[0]['PayType']);
+                $tasksToServicers->setCreatedate($currentDate);
 
                 // persist taskstoservicers
                 $this->entityManager->persist($tasksToServicers);
@@ -144,6 +152,7 @@ class ManageService extends BaseService
                         $tasksToServicers->setServicerid($servicerObj ? $servicerObj : null);
                         $tasksToServicers->setIslead(false);
                         $tasksToServicers->setPiecepay($rsAdditionalServicer['PiecePay']);
+                        $tasksToServicers->setCreatedate($currentDate);
 
                         // Persist $tasksToServicers
                         $this->entityManager->persist($tasksToServicers);
@@ -159,6 +168,7 @@ class ManageService extends BaseService
                 $issueImage = new Issueimages();
                 $issueImage->setImageName($image['Image']);
                 $issueImage->setIssueID($issues);
+                $issueImage->setCreateDate($currentDate);
                 if ($task) {
                     $issueImage->setTaskID($task);
                 }
@@ -181,7 +191,7 @@ class ManageService extends BaseService
                 'ServicerID' => $servicerID,
                 'TypeID' => 0
             );
-            $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification);
+            $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification,$currentDate);
             $this->notification['IssueNotificationID'] = $result;
 
             return array(
@@ -205,14 +215,16 @@ class ManageService extends BaseService
      * @param $servicerID
      * @param $issues
      * @param $rsService
-     * @param Properties $propertyObj
+     * @param $propertyObj
+     * @param $currentDate
+     * @param Servicers $servicer
      * @return Tasks
-     * @throws \Doctrine\DBAL\DBALException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateTask($content, $servicerID, $issues, $rsService,$propertyObj)
+    public function CreateTask($content, $servicerID, $issues, $rsService, $propertyObj, $currentDate, $servicer)
     {
+        $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content['DateTime']);
         if ($rsService) {
             $task = new Tasks();
             $task->setPropertybookingid(null);
@@ -222,12 +234,12 @@ class ManageService extends BaseService
 //            $task->setParenttaskid(0);
             $task->setTasktype(9);
             $task->setTaskname($content['Issue']);
-            $task->setTaskstartdate(new \DateTime('now'));
+            $task->setTaskstartdate($localTime);
             $task->setTaskstarttime(99);
-            $task->setTaskdate(new \DateTime('now'));
+            $task->setTaskdate($localTime);
             $task->setTasktime(99);
-            $task->setTaskdatetime(new \DateTime('now'));
-            $task->setTaskcompletebydate((new \DateTime('now'))->modify('+5 day'));
+            $task->setTaskdatetime($localTime);
+            $task->setTaskcompletebydate($localTime->modify('+5 day'));
             $task->setTaskcompletebytime(99);
             $task->setServiceid($content['FormServiceID']);
             $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
@@ -260,6 +272,8 @@ class ManageService extends BaseService
             $task->setExpenseamount($rsService[0]['ExpenseAmount'] ? $rsService[0]['ExpenseAmount'] : 0);
 //            $task->setPropertyitemid();
             $task->setCreatedbyservicerid($servicerID);
+            $task->setCreatedate($currentDate);
+            $task->setSchedulechangedate($currentDate);
 //            $task->setTaskdescriptionimage1($content['Images'][0]['Image']);
 //            $task->setTaskdescriptionimage2($content['Images'][1]['Image']);
 //            $task->setTaskdescriptionimage3($content['Images'][2]['Image']);
@@ -275,7 +289,7 @@ class ManageService extends BaseService
             );
 
             // Send Notification
-            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification);
+            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification,$currentDate);
 
             // Return Task Object
             $this->notification['TaskNotification'] = $notificationResult;
