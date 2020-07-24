@@ -260,7 +260,7 @@ class ManageSubmit extends BaseService
                     'SubmittedByServicerID' => $servicerID,
                     'TypeID' => 0
                 );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result);
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result,$now);
                 $notification['TaskNotification'] = $taskNotification;
             }
 

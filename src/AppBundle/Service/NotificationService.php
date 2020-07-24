@@ -115,7 +115,7 @@ class NotificationService extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateManageCompleteNotification($result)
+    public function CreateManageCompleteNotification($result,$currentDate=null)
     {
         $notification = new Notifications();
         $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
@@ -125,6 +125,10 @@ class NotificationService extends BaseService
 
         if (array_key_exists('ServicerID',$result)) {
             $notification->setServicerid($result['ServicerID']);
+        }
+
+        if ($currentDate) {
+            $notification->setCreatedate($currentDate);
         }
 
         $notification->setOwnerid($this->entityManager->getRepository('AppBundle:Owners')->find($result['OwnerID']));
