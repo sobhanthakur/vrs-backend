@@ -310,7 +310,7 @@ class TabsService extends BaseService
             $team = 0;
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers[0]['CustomerID'],$taskID);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
@@ -412,7 +412,7 @@ class TabsService extends BaseService
                     // SHOW "END TASK" IF THIS IS THE STARTED TASK
 //                if (!empty($timeClockTasks) && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID'])) {
                     // Team Details
-                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],1);
+                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],$servicers,1);
                     if (!empty($team)) {
                         $team = 1;
                     }

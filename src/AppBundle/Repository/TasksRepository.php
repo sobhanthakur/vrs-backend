@@ -403,10 +403,10 @@ class TasksRepository extends EntityRepository
         }
         $min = min($viewTaskWithinDays,7);
 
-
         $now = (new \DateTime('now'));
         $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
         $today = $now->modify('+'.$min.' days')->format('Y-m-d');
+
         $result =  $this
             ->createQueryBuilder('t2');
 
@@ -474,10 +474,20 @@ class TasksRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function FetchTasksForDashboard2($servicerID,$customerID,$taskID=null,$fields="*")
+    public function FetchTasksForDashboard2($servicerID,$servicers,$taskID=null,$fields="*")
     {
-        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
-        $query = "SELECT ".$fields."  FROM (".(new Tasks())->TasksQuery($servicerID,$customerID).") AS t where t.TaskDate < '".$today."'";
+        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        if ($viewTaskWithinDays === 0) {
+            $viewTaskWithinDays = 7;
+        }
+        $min = min($viewTaskWithinDays,7);
+
+        $now = (new \DateTime('now'));
+        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
+
+        $query = "SELECT ".$fields."  FROM (".(new Tasks())->TasksQuery($servicerID,$servicers[0]['CustomerID']).") AS t where t.TaskDate < '".$today."'";
         if ($taskID) {
             $query .= " AND t.TaskID=".$taskID;
         }
@@ -610,9 +620,20 @@ class TasksRepository extends EntityRepository
      * @param $taskID
      * @return mixed
      */
-    public function GetTeamByTask($taskID,$limit=null)
+    public function GetTeamByTask($taskID,$servicers,$limit=null)
     {
-        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        if ($viewTaskWithinDays === 0) {
+            $viewTaskWithinDays = 7;
+        }
+        $min = min($viewTaskWithinDays,7);
+
+
+        $now = (new \DateTime('now'));
+        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
+
         $result = $this->createQueryBuilder('t2')
             ->select('(CASE WHEN ts.islead=1 THEN 1 ELSE 0 END) AS IsLead,s2.name AS Name,s2.email AS Email,s2.phone AS Phone')
             ->leftJoin('t2.propertyid', 'p2')
