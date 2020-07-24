@@ -19,17 +19,22 @@ class NotificationService extends BaseService
 {
     /**
      * @param $result
-     * @return integer
+     * @param null|\DateTime $currentDate
+     * @return int
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateTaskNotification($result)
+    public function CreateTaskNotification($result, $currentDate=null)
     {
         $notification = new Notifications();
         $notification->setTaskid($result['TaskID']);
         $notification->setMessageid($result['MessageID']);
         $notification->setCustomerid($result['CustomerID']);
         $notification->setTypeid($result['TypeID']);
+
+        if ($currentDate) {
+            $notification->setCreatedate($currentDate);
+        }
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
@@ -42,7 +47,7 @@ class NotificationService extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function CreateIssueNotification($result)
+    public function CreateIssueNotification($result,$currentDate = null)
     {
         $notification = new Notifications();
         if ($result['TaskID']) {
@@ -56,6 +61,10 @@ class NotificationService extends BaseService
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['ServicerID']);
         $notification->setTypeid($result['TypeID']);
+
+        if ($currentDate) {
+            $notification->setCreatedate($currentDate);
+        }
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
