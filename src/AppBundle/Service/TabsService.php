@@ -75,7 +75,8 @@ class TabsService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
-            $today = new \DateTime('now',new \DateTimeZone('UTC'));
+            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $today->setTime(0,0,0);
             if( $tasks[0]['TaskStartDate'] >= $today ||
                 ((int)$servicers[0]['TimeTracking'] === 1 &&
                     (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID'])
@@ -305,11 +306,12 @@ class TabsService extends BaseService
     public function ManageTabDetails($servicerID, $content)
     {
         try {
-            $today = (new \DateTime('now'));
             $response = [];
             $team = 0;
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $today->setTime(0,0,0);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {

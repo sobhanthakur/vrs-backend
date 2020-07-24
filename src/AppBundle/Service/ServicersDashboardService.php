@@ -36,6 +36,14 @@ class ServicersDashboardService extends BaseService
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
 
+            // Local Time
+            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $localHour = (int)ltrim($localTime->format('H'), '0');;
+            $localTime->setTime(0,0,0);
+            /*
+             * Make Sure Local time is changed here
+             */
+
             for ($i=0; $i<count($tasks); $i++) {
 //            for ($i=18; $i<19; $i++) {
 
@@ -65,8 +73,6 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Expand'] = $expand;
 
                 // Show or hide Start Task
-                $now = new \DateTime('now');
-                $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
                 if ( ((int)$servicers[0]['TimeTracking'] === 1 && $tasks[$i]['TaskStartDate'] <= $localTime) &&
                      ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) &&
                      (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
@@ -162,9 +168,6 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Set Status
-                $localHour = (int)ltrim($localTime->format('H'), '0');;
-                $localTime->setTime(0,0,0);
-
                 if ($tasks[$i]['TaskCompleteByDate'] < $localTime || ($tasks[$i]['TaskCompleteByDate'] === $localTime && $tasks['TaskCompleteByTime'] <=  $localHour)) {
                     $status = 0;
                 } elseif ($tasks[$i]['AssignedDate'] <= $localTime) {
