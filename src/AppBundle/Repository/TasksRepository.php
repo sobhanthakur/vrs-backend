@@ -403,7 +403,10 @@ class TasksRepository extends EntityRepository
         }
         $min = min($viewTaskWithinDays,7);
 
-        $today = (new \DateTime('now'))->modify('+'.$min.' days')->format('Y-m-d');
+
+        $now = (new \DateTime('now'));
+        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
         $result =  $this
             ->createQueryBuilder('t2');
 
