@@ -318,7 +318,7 @@ class UnscheduledTask extends BaseService
                     'TypeID' => 0
                 );
 
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result);
+                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result,$today);
                 $response['TaskNotification'] = $taskNotification;
             }
 
