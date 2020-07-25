@@ -12,14 +12,12 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\AdditionalDefaultServicers;
 use AppBundle\DatabaseViews\ServicesToProperties;
-use AppBundle\Entity\Issueimages;
+use AppBundle\Entity\Issueandtaskimages;
+use AppBundle\Entity\Issueandtaskimagestotasks;
 use AppBundle\Entity\Issues;
-use AppBundle\Entity\Notifications;
-use AppBundle\Entity\Properties;
 use AppBundle\Entity\Servicers;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
-use phpDocumentor\Reflection\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -165,14 +163,18 @@ class ManageService extends BaseService
 
             // Save Images
             foreach ($content['Images'] as $image) {
-                $issueImage = new Issueimages();
+                $issueImage = new Issueandtaskimages();
                 $issueImage->setImageName($image['Image']);
                 $issueImage->setIssueID($issues);
                 $issueImage->setCreateDate($currentDate);
-                if ($task) {
-                    $issueImage->setTaskID($task);
-                }
+                $issueImage->setPropertyID($propertyObj);
                 $this->entityManager->persist($issueImage);
+                if ($task) {
+                    $issueImageToTask = new Issueandtaskimagestotasks();
+                    $issueImageToTask->setTaskId($task);
+                    $issueImageToTask->setIssueAndtaskimageid($issueImage);
+                    $this->entityManager->persist($issueImageToTask);
+                }
             }
             $this->entityManager->flush();
 
