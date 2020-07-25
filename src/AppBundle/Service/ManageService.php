@@ -241,7 +241,7 @@ class ManageService extends BaseService
             $task->setTaskdate($localTime);
             $task->setTasktime(99);
             $task->setTaskdatetime($localTime);
-            $task->setTaskcompletebydate($localTime->modify('+5 day'));
+            $task->setTaskcompletebydate($this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content['DateTime'])->modify('+5 day'));
             $task->setTaskcompletebytime(99);
             $task->setServiceid($content['FormServiceID']);
             $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
