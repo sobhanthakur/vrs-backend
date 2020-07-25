@@ -49,7 +49,7 @@ class StartTaskService extends BaseService
                 $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone,$dateTime);
 
                 // Insert new Time Clock Days if empty
-                if (!empty($timeClockDays)) {
+                if (empty($timeClockDays)) {
                     $timeClockDays = new TimeClock();
                     $timeClockDays->setServicerid($servicer);
                     $this->entityManager->persist($timeClockDays);
