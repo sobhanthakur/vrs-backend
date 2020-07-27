@@ -54,10 +54,10 @@ class ManageService extends BaseService
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
             // get all issues submitted from this task in the last one minute
-            $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
-            if (!empty($issues)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
-            }
+//            $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
+//            if (!empty($issues)) {
+//                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
+//            }
 
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID));
 
