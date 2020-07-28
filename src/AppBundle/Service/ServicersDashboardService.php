@@ -455,8 +455,8 @@ class ServicersDashboardService extends BaseService
 
             $this->entityManager->flush();
 
-            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
-            if ((int)$taskNotification[0]['Count'] === 0) {
+//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
+//            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
                     'MessageID' => 26,
                     'CustomerID' => $rsThisTask[0]['CustomerID'],
@@ -468,7 +468,7 @@ class ServicersDashboardService extends BaseService
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
                 $notification['TaskNotification'] = $taskNotification;
 
-            }
+//            }
 
             return array(
                 'Status' => 'Success',
@@ -532,8 +532,8 @@ class ServicersDashboardService extends BaseService
             $this->entityManager->flush();
 
             // Manage Notifications for the task ID in last one minute
-            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
-            if ((int)$taskNotification[0]['Count'] === 0) {
+//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
+//            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
                     'MessageID' => 27,
                     'CustomerID' => $rsThisTask[0]['CustomerID'],
@@ -545,7 +545,7 @@ class ServicersDashboardService extends BaseService
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime);
                 $notification['TaskNotification'] = $taskNotification;
 
-            }
+//            }
 
             // Deal with backup servicer notification
             if (!empty($rsBackup)) {

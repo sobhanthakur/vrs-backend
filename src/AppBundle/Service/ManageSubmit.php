@@ -212,8 +212,8 @@ class ManageSubmit extends BaseService
 
             // there is a SERVICER NOTE, Make it an Issue
             if (trim($content['TaskNote']) !== '') {
-                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
-                if (empty($rsAllTaskIssues)) {
+//                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
+//                if (empty($rsAllTaskIssues)) {
                     $issues = new Issues();
                     $issues->setIssuetype(-1);
                     $issues->setUrgent(false);
@@ -229,7 +229,7 @@ class ManageSubmit extends BaseService
                     $issues->setFromtaskid($taskObj);
                     $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($rsServicers[0]['ServicerID']));
                     $this->entityManager->persist($issues);
-                }
+//                }
             }
 
             // Update the time Tracking
@@ -246,8 +246,8 @@ class ManageSubmit extends BaseService
             $details['OwnerID'] = $thisOwnerID;
 
             // manage Notification
-            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsServicers[0]['CustomerID'],5);
-            if ((int)$taskNotification[0]['Count'] === 0) {
+//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsServicers[0]['CustomerID'],5);
+//            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
                     'MessageID' => 5,
                     'CustomerID' => $rsServicers[0]['CustomerID'],
@@ -262,7 +262,7 @@ class ManageSubmit extends BaseService
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result,$now);
                 $notification['TaskNotification'] = $taskNotification;
-            }
+//            }
 
             $this->entityManager->flush();
 
