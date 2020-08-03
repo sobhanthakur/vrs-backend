@@ -329,10 +329,10 @@ class IntegrationsService extends BaseService
 //                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
 //            }
 //
-//            $integrationqbotokens = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBOTokens FROM IntegrationQBOTokens WHERE IntegrationQBOTokens.CustomerID='.$customerID)->execute();
-//            if(!$integrationqbotokens) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
-//            }
+            $integrationqbotokens = $this->getEntityManager()->getConnection()->prepare('DELETE IntegrationQBOTokens FROM IntegrationQBOTokens WHERE IntegrationQBOTokens.CustomerID='.$customerID)->execute();
+            if(!$integrationqbotokens) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
+            }
 
             // Remove PayrollItemwages to Customers Mapping and set active state to 0
             $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
