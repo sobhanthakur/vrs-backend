@@ -84,7 +84,9 @@ class TabsService extends BaseService
                 )
             ) {
                 // Sub CheckLists
-                $subCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                $tasks[0]['ServiceID'] ? $serviceID = $tasks[0]['ServiceID'] : $serviceID = 0;
+                $tasks[0]['PropertyID'] ? $propertyID = $tasks[0]['PropertyID'] : $propertyID = 0;
+                $subCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.PropertyID='.$propertyID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                 $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
                 $subCheckListItems->execute();
                 $subCheckListItems = $subCheckListItems->fetchAll();
@@ -92,7 +94,7 @@ class TabsService extends BaseService
                     $checkListItems = $subCheckListItems;
                 } else {
                     // Master CheckLists
-                    $masterCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                    $masterCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                     $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
                     $masterCheckListItems->execute();
                     $checkListItems = $masterCheckListItems->fetchAll();
@@ -346,7 +348,9 @@ class TabsService extends BaseService
                     );
 
                     // Get CheckList Items
-                    $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.PropertyID='.$tasks[0]['PropertyID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                    $tasks[0]['ServiceID'] ? $serviceID = $tasks[0]['ServiceID'] : $serviceID = 0;
+                    $tasks[0]['PropertyID'] ? $propertyID = $tasks[0]['PropertyID'] : $propertyID = 0;
+                    $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.PropertyID='.$propertyID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                     $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
                     $subCheckListItems->execute();
                     $subCheckListItems = $subCheckListItems->fetchAll();
@@ -354,7 +358,7 @@ class TabsService extends BaseService
                         $rsChecklistItems = $subCheckListItems;
                     } else {
                         // Master CheckLists
-                        $masterCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$tasks[0]['ServiceID'].' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
+                        $masterCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                         $masterCheckListItems = $this->entityManager->getConnection()->prepare($masterCheckListItems);
                         $masterCheckListItems->execute();
                         $rsChecklistItems = $masterCheckListItems->fetchAll();
