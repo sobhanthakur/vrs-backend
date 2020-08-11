@@ -282,7 +282,7 @@ class ServicersDashboardService extends BaseService
                     $taskIDs = preg_replace("/,$/", '', $taskIDs);
                 }
                 // Get All Properties
-                $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID']);
+                $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID'],$servicers);
                 if (!empty($rsCurrentTaskServicers)) {
                     foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
                         $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
