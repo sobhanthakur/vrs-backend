@@ -764,7 +764,7 @@ class TasksRepository extends EntityRepository
         $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
         $today = $now->modify('+'.$min.' days')->format('Y-m-d');
         $query = "SELECT
-              Distinct Tasks.PropertyID
+              Distinct IsLead,Name,Tasks.TaskID,TimeZones.Region as TimeZoneRegion,Tasks.IncludeUrgentFlag,Tasks.PropertyID,StaffDashboardNote
               FROM Tasks 
               LEFT JOIN PropertyBookings ON Tasks.PropertyBookingID = PropertyBookings.PropertyBookingID
               LEFT JOIN Properties ON Tasks.PropertyID = Properties.PropertyID
@@ -782,7 +782,7 @@ class TasksRepository extends EntityRepository
               AND Tasks.TaskDAte <=   '" . $today . "' AND Tasks.TaskID IN (" . $taskIDs . ")";
 
         $query .= " AND (Services.Active = 1 OR Services.Active IS NULL)
-              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is NULL)
+              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is NULL) Order By Tasks.TaskID,Name
               ";
         $tasks = $this->getEntityManager()->getConnection()->prepare($query);
         $tasks->execute();
