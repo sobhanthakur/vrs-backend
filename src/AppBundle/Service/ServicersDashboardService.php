@@ -46,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=0; $i<1; $i++) {
+//            for ($i=1; $i<2; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -307,7 +307,7 @@ class ServicersDashboardService extends BaseService
 
                 if (
                     ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
-                        $servicers[0]['Email'] === $tasks[$i]['Email']) &&
+                        $servicers[0]['Email'] === $servicers[0]['CustomersEmail']) &&
                     (!empty($temp))
                 ) {
                     $assignments = 1;
