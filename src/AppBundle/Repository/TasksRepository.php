@@ -751,9 +751,18 @@ class TasksRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function GetTaskServicers($taskIDs, $customerID)
+    public function GetTaskServicers($taskIDs, $customerID,$servicers)
     {
-        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        if ($viewTaskWithinDays === 0) {
+            $viewTaskWithinDays = 7;
+        }
+        $min = min($viewTaskWithinDays,7);
+
+        $now = (new \DateTime('now'));
+        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
         $query = "SELECT
               Distinct Tasks.PropertyID
               FROM Tasks 
