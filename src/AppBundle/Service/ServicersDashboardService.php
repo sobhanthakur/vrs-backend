@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\Issues;
+use AppBundle\DatabaseViews\TaskWithServicers;
 use AppBundle\DatabaseViews\TimeClockDays;
 use AppBundle\Entity\Taskacceptdeclines;
 use AppBundle\Entity\Taskchanges;
@@ -45,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=18; $i<19; $i++) {
+//            for ($i=0; $i<1; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -267,7 +268,42 @@ class ServicersDashboardService extends BaseService
 
                 // Check if Assignments tab has to be rendered or not
                 $assignments = 0;
-                $temp = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForAssignmentsTab($tasks[$i]['PropertyBookingID'],1);
+                $propertyBookings = '';
+                $propertiesCondition = '';
+                $taskIDs = '';
+                $pb = $tasks;
+                if (!empty($pb)) {
+                    foreach ($pb as $value) {
+                        $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
+                        $value['TaskID'] ? $taskIDs .= $value['TaskID'].',' : false;
+                        $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
+                    }
+                    $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                    $taskIDs = preg_replace("/,$/", '', $taskIDs);
+                }
+                // Get All Properties
+                $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID']);
+                if (!empty($rsCurrentTaskServicers)) {
+                    foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
+                        $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
+                    }
+                    $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+                }
+
+                empty($propertiesCondition) ? $propertiesCondition=0:false;
+                empty($propertyBookings) ? $propertyBookings=0:false;
+
+                $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                        T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
+
+                $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY TaskDate DESC';
+
+                $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
+                $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$tasks[$i]['PropertyID'].'  ORDER BY R.TaskDate desc';
+                $temp = $this->entityManager->getConnection()->prepare($temp);
+                $temp->execute();
+                $temp = $temp->fetchAll();
 
                 if (
                     ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
