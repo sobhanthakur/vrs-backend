@@ -699,9 +699,19 @@ class TasksRepository extends EntityRepository
      * @param $servicerID
      * @return mixed
      */
-    public function AssignmentsTask($servicerID)
+    public function AssignmentsTask($servicerID,$servicers)
     {
-        $today = (new \DateTime('now'))->modify('+7 days')->format('Y-m-d');
+        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        if ($viewTaskWithinDays === 0) {
+            $viewTaskWithinDays = 7;
+        }
+        $min = min($viewTaskWithinDays,7);
+
+
+        $now = (new \DateTime('now'));
+        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
         $result =  $this
             ->createQueryBuilder('t2');
 
@@ -760,10 +770,10 @@ class TasksRepository extends EntityRepository
               AND Properties.Active =1 
               anD Properties.CustomerID = " . $customerID . "
               AND Tasks.CompleteConfirmedDAte is NULL
-              AND Tasks.TaskDAte <=   '".$today."'   
-              AND Tasks.TaskID IN (" . $taskIDs . ")
-              AND (Services.Active = 1 OR Services.Active IS NULL)
-              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is null)
+              AND Tasks.TaskDAte <=   '" . $today . "' AND Tasks.TaskID IN (" . $taskIDs . ")";
+
+        $query .= " AND (Services.Active = 1 OR Services.Active IS NULL)
+              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is NULL)
               ";
         $tasks = $this->getEntityManager()->getConnection()->prepare($query);
         $tasks->execute();
