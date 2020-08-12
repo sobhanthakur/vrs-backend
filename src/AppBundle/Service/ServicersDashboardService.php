@@ -46,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=3; $i<4; $i++) {
+//            for ($i=4; $i<5; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -241,6 +241,7 @@ class ServicersDashboardService extends BaseService
                 // Check if log tab has to be rendered
                 $log = 0;
                 $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0';
+                $allIssues .= ' AND vIssues.ClosedDate IS NULL';
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
                     $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
                 }
