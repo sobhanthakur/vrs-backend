@@ -46,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=1; $i<2; $i++) {
+//            for ($i=3; $i<4; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -240,12 +240,15 @@ class ServicersDashboardService extends BaseService
 
                 // Check if log tab has to be rendered
                 $log = 0;
-                $allIssues = 'SELECT TOP 1 FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0 AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
+                $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0';
+                if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
+                    $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
+                }
                 $issues = $this->entityManager->getConnection()->prepare($allIssues);
                 $issues->execute();
                 $issues = $issues->fetchAll();
 
-                if (!empty($issues) || (int)$servicers[0]['ShowIssueLog']) {
+                if (!empty($issues)) {
                     $log = 1;
                 }
 
