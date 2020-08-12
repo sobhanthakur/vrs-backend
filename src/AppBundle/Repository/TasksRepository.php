@@ -502,14 +502,16 @@ class TasksRepository extends EntityRepository
      * @param $taskID
      * @return mixed
      */
-    public function GetTasksForInfoTab($taskID)
+    public function GetTasksForInfoTab($taskID,$servicerID)
     {
         return $this->createQueryBuilder('t2')
-            ->select('t2.taskid AS TaskID,c2.email AS Customers_Email,s2.email AS Servicers_Email,t2.taskstartdate AS TaskStartDate,t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,p2.address AS Address,p2.description AS Description,p2.internalnotes AS InternalPropertyNotes, s2.timetracking AS TimeTracking, IDENTITY(s2.customerid) AS Servicers_CustomerID')
+            ->select('s2.servicerid,t2.taskid AS TaskID,c2.email AS Customers_Email,s2.email AS Servicers_Email,t2.taskstartdate AS TaskStartDate,t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,p2.address AS Address,p2.description AS Description,p2.internalnotes AS InternalPropertyNotes, s2.timetracking AS TimeTracking, IDENTITY(s2.customerid) AS Servicers_CustomerID')
             ->leftJoin('t2.propertyid', 'p2')
             ->leftJoin('p2.customerid','c2')
-            ->leftJoin('AppBundle:Servicers', 's2', Expr\Join::WITH, 't2.servicerid=s2.servicerid')
+            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
+            ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
             ->where('t2.taskid=' . $taskID)
+            ->andWhere('s2.servicerid='.$servicerID)
             ->getQuery()
             ->execute();
     }
