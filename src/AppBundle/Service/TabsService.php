@@ -286,8 +286,8 @@ class TabsService extends BaseService
                         }
 
                     }
-                    $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
                 }
+                $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
             }
 
         return array(

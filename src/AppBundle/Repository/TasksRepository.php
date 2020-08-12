@@ -465,7 +465,7 @@ class TasksRepository extends EntityRepository
         $result->addSelect('pb2.guest AS PrevName');
         $result->addSelect('npb2.guest AS NextName');
 
-        return $result->distinct(true)->setMaxResults(61)->getQuery()
+        return $result->distinct(true)->setMaxResults(31)->getQuery()
             ->getResult();
     }
 
