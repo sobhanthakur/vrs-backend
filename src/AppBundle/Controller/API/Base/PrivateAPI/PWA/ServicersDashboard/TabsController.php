@@ -74,7 +74,7 @@ class TabsController extends FOSRestController
             $tabsService = $this->container->get('vrscheduler.tabs_service');
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $tabsService->GetLog($content);
+            return $tabsService->GetLog($content,$servicerID);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

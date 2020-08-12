@@ -28,7 +28,7 @@ class TabsService extends BaseService
      * @param $content
      * @return array
      */
-    public function GetLog($content)
+    public function GetLog($content,$servicerID)
     {
         try {
             $propertyID = $content['PropertyID'];
@@ -37,12 +37,14 @@ class TabsService extends BaseService
 
             $property = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertyNameByID($propertyID);
             $query = 'SELECT CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.PropertyID <> 0 AND SubQuery.PropertyID='.$propertyID;
+            $query .= ' AND SubQuery.ClosedDate IS NULL';
 
             if ($taskID) {
-                $query .= ' AND SubQuery.FromTaskID='.$taskID;
+                $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+                if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
+                    $query .= ' AND SubQuery.FromTaskID='.$taskID;
+                }
                 $query .= ' ORDER BY SubQuery.CreateDate DESC';
-            } else {
-                $query .= ' AND SubQuery.ClosedDate IS NULL';
             }
 
             $staffTasks = $this->entityManager->getConnection()->prepare($query);
