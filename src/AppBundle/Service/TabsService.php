@@ -227,67 +227,71 @@ class TabsService extends BaseService
             $propertiesCondition = '';
             $region = null;
             $taskIDs = '';
+            $response = [];
 
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             if (empty($servicers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
             }
 
-            $region = $servicers[0]['Region'];
-            $timeZoneRegion = new \DateTimeZone($region);
+            $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
+            if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === $propertyID) {
+                $region = $servicers[0]['Region'];
+                $timeZoneRegion = new \DateTimeZone($region);
 
-            // Get all PropertyBookings
-            $pb = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
+                // Get all PropertyBookings
+                $pb = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
 
-            if (!empty($pb)) {
-                foreach ($pb as $value) {
-                    $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
-                    $value['TaskID'] ? $taskIDs .= $value['TaskID'].',' : false;
-                    $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
+                if (!empty($pb)) {
+                    foreach ($pb as $value) {
+                        $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
+                        $value['TaskID'] ? $taskIDs .= $value['TaskID'].',' : false;
+                        $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
+                    }
+                    $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                    $taskIDs = preg_replace("/,$/", '', $taskIDs);
                 }
-                $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
-                $taskIDs = preg_replace("/,$/", '', $taskIDs);
-            }
 
-            // Get All Properties
-            $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID'],$servicers);
-            if (!empty($rsCurrentTaskServicers)) {
-                foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
-                    $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
+                // Get All Properties
+                $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID'],$servicers);
+                if (!empty($rsCurrentTaskServicers)) {
+                    foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
+                        $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
+                    }
+                    $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
                 }
-                $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
-            }
 
-            empty($propertiesCondition) ? $propertiesCondition=0:false;
-            empty($propertyBookings) ? $propertyBookings=0:false;
+                empty($propertiesCondition) ? $propertiesCondition=0:false;
+                empty($propertyBookings) ? $propertyBookings=0:false;
 
-            $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
                         T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
 
-            $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY TaskDate DESC';
+                $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
+                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY T2.TaskDate DESC';
 
-            $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
-            $response = 'SELECT TOP 5 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
-            $response = $this->entityManager->getConnection()->prepare($response);
-            $response->execute();
-            $response = $response->fetchAll();
+                $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
+                $response = 'SELECT TOP 5 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
+                $response = $this->entityManager->getConnection()->prepare($response);
+                $response->execute();
+                $response = $response->fetchAll();
 
-            for ($i=0; $i<count($response); $i++) {
-                if ($response[$i]['ServicerID']) {
-                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
-                    if (!empty($staff)) {
-                        $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
-                        $response[$i]['ServicersDetails'] = $staff[0];
-                        if ($response[$i]['CompleteConfirmedDate']) {
-                            $dateTime = new \DateTime($response[$i]['CompleteConfirmedDate']);
-                            $dateTime->setTimezone($timeZoneRegion);
-                            $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
+                for ($i=0; $i<count($response); $i++) {
+                    if ($response[$i]['ServicerID']) {
+                        $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
+                        if (!empty($staff)) {
+                            $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
+                            $response[$i]['ServicersDetails'] = $staff[0];
+                            if ($response[$i]['CompleteConfirmedDate']) {
+                                $dateTime = new \DateTime($response[$i]['CompleteConfirmedDate']);
+                                $dateTime->setTimezone($timeZoneRegion);
+                                $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
+                            }
+
                         }
-
                     }
+                    $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
                 }
-                $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
             }
 
         return array(

@@ -393,7 +393,7 @@ class TasksRepository extends EntityRepository
      * @param $servicerID
      * @return mixed
      */
-    public function FetchTasksForDashboard($servicerID, $servicers)
+    public function FetchTasksForDashboard($servicerID, $servicers,$assignments = null)
     {
         // The dashboard should limit tasks to Servicers.ViewTasksWithinDays
         $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
@@ -405,7 +405,8 @@ class TasksRepository extends EntityRepository
 
         $now = (new \DateTime('now'));
         $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
-        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
+        !$assignments ? $today = $now->modify('+'.$min.' days')->format('Y-m-d') : $today = $now->format('Y-m-d');
+
 
         $result =  $this
             ->createQueryBuilder('t2');
@@ -431,9 +432,14 @@ class TasksRepository extends EntityRepository
             ->andWhere('t2.active=1')
             ->andWhere('t2.completeconfirmeddate IS NULL')
             ->andWhere('p2.customerid=s2.customerid')
-            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
-            ->andWhere("t2.taskdate < :Today")
-            ->setParameter('Today',$today);
+            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL');
+        if (!$assignments) {
+            $result->andWhere("t2.taskdate < :Today")
+                ->setParameter('Today',$today);
+        } else {
+            $result->andWhere("t2.taskdate = :Today")
+                ->setParameter('Today',$today);
+        }
 
         // Default Ordering
         $result->addOrderBy('t2.taskdatetime')
