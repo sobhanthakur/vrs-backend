@@ -277,7 +277,7 @@ class ServicersDashboardService extends BaseService
                 $taskIDs = '';
                 $temp = [];
                 $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
-                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === $tasks[$i]['PropertyID']) {
+                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === (int)$tasks[$i]['PropertyID']) {
                     $pb = $tasks;
                     if (!empty($pb)) {
                         foreach ($pb as $value) {
