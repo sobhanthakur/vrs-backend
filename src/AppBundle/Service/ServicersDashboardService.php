@@ -300,11 +300,8 @@ class ServicersDashboardService extends BaseService
                     empty($propertiesCondition) ? $propertiesCondition=0:false;
                     empty($propertyBookings) ? $propertyBookings=0:false;
 
-                    $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
-
-                    $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY T2.TaskDate DESC';
+                    $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],500,$propertyBookings);
+                    $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],100,null,$propertiesCondition);
 
                     $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
                     $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$tasks[$i]['PropertyID'].'  ORDER BY R.TaskDate desc';

@@ -437,8 +437,9 @@ class TasksRepository extends EntityRepository
             $result->andWhere("t2.taskdate < :Today")
                 ->setParameter('Today',$today);
         } else {
-            $result->andWhere("t2.taskdate = :Today")
-                ->setParameter('Today',$today);
+//            $result->andWhere("t2.taskdate = :Today")
+//                ->setParameter('Today',$today);
+            $result->andWhere('t2.taskid='.$assignments);
         }
 
         // Default Ordering
@@ -707,50 +708,27 @@ class TasksRepository extends EntityRepository
      * @param $servicerID
      * @return mixed
      */
-    public function AssignmentsTask($servicerID,$servicers)
+    public function AssignmentsTask($customerID,$limit,$propertyBookings=null,$properties=null)
     {
-        $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+        $query = "SELECT TOP ".$limit." s0_.Email AS ServicersEmail, s0_.Name ServicersName, s0_.Phone AS ServicersPhone, t1_.PropertyID, t2_.IsLead,
+                  t1_.TaskDate, t1_.PropertyBookingID, s3_.Abbreviation,
+                  t1_.CompleteConfirmedDate, t2_.ServicerID, s3_.ServiceName,
+                  t1_.TaskID FROM Tasks t1_ LEFT JOIN PropertyBookings p4_ ON t1_.PropertyBookingID = p4_.PropertyBookingID
+                  LEFT JOIN Properties p5_ ON t1_.PropertyID = p5_.PropertyID LEFT JOIN Services s3_ ON (t1_.ServiceID = s3_.ServiceID)
+                  LEFT JOIN TasksToServicers t2_ ON (t1_.TaskID = t2_.TaskID) LEFT JOIN Servicers s0_ ON (s0_.ServicerID = t2_.ServicerID)";
+        $query .= " WHERE t1_.Active = 1 AND p5_.CustomerID = ".$customerID;
 
-        if ($viewTaskWithinDays === 0) {
-            $viewTaskWithinDays = 7;
+        if ($propertyBookings) {
+            $query .= " AND (t1_.PropertyBookingID <> 0 OR t1_.PropertyBookingID <> '') AND t1_.PropertyBookingID IN
+		          (".$propertyBookings.") AND t1_.TaskType <> 3";
         }
-        $min = min($viewTaskWithinDays,7);
 
+        if ($properties) {
+            $query .= " AND t1_.PropertyID IN (".$properties.") and t1_.CompleteConfirmedDate IS NOT NULL 
+            ORDER BY t1_.TaskDate DESC";
+        }
 
-        $now = (new \DateTime('now'));
-        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
-        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
-        $result =  $this
-            ->createQueryBuilder('t2');
-
-        // Fetch Basic task details
-        $result->select('IDENTITY(t2.propertyid) AS PropertyID,pb2.propertybookingid AS PropertyBookingID, t2.taskid AS TaskID')
-            // Task Description Details
-            ->leftJoin('t2.propertyid','p2')
-            ->leftJoin('p2.regionid','r2')
-            ->leftJoin('t2.propertybookingid','pb2')
-            ->leftJoin('AppBundle:Propertybookings','npb2',Expr\Join::WITH, 't2.nextpropertybookingid=npb2.propertybookingid')
-            ->leftJoin('p2.customerid','c2')
-            ->leftJoin('AppBundle:Taskstoservicers','ts',Expr\Join::WITH, 't2.taskid=ts.taskid')
-            ->leftJoin('AppBundle:Servicers','s2',Expr\Join::WITH, 'ts.servicerid=s2.servicerid')
-            ->leftJoin('t2.propertyid','propertyid')
-            ->leftJoin('AppBundle:Services', 'serviceid', Expr\Join::WITH, 't2.serviceid=serviceid.serviceid')
-            ->where('s2.servicerid='.$servicerID)
-            ->andWhere('p2.active=1')
-            ->andWhere('t2.active=1')
-            ->andWhere('t2.completeconfirmeddate IS NULL')
-            ->andWhere('t2.propertybookingid IS NOT NULL OR t2.propertybookingid != :Blank OR t2.propertybookingid <> 0')
-            ->andWhere('p2.customerid=s2.customerid')
-            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
-            ->andWhere("t2.taskdate < :Today")
-            ->setParameter('Today',$today)
-            ->setParameter('Blank','')
-            ->orderBy('t2.taskdate','ASC')
-        ;
-
-
-        return $result->setMaxResults(61)->getQuery()
-            ->getResult();
+        return $query;
     }
 
     /**

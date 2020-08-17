@@ -222,7 +222,7 @@ class TabsService extends BaseService
     public function GetAssignments($servicerID,$content)
     {
         try {
-            $propertyID = $content['PropertyID'];
+            $propertyID = (int)$content['PropertyID'];
             $propertyBookings = '';
             $propertiesCondition = '';
             $region = null;
@@ -234,8 +234,14 @@ class TabsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
             }
 
-            $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
-            if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === $propertyID) {
+            $region = $servicers[0]['Region'];
+            $timeZoneRegion = new \DateTimeZone($region);
+
+//            $now = (new \DateTime('now',$timeZoneRegion));
+//            $today = new \DateTime($now->format('Y-m-d'));
+
+//            $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers,$taskID);
+
                 $region = $servicers[0]['Region'];
                 $timeZoneRegion = new \DateTimeZone($region);
 
@@ -261,37 +267,36 @@ class TabsService extends BaseService
                     $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
                 }
 
-                empty($propertiesCondition) ? $propertiesCondition=0:false;
-                empty($propertyBookings) ? $propertyBookings=0:false;
+                empty($propertiesCondition) ? $propertiesCondition='0':false;
+                empty($propertyBookings) ? $propertyBookings='0':false;
 
-                $query1 = 'SELECT top 500 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T1 WHERE T1.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T1.PropertyBookingID IN ('.$propertyBookings.') and T1.TaskType <> 3 and T1.PropertyBookingID <> 0 AND T1.Active = 1';
+                $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],500,$propertyBookings);
 
-                $query2 = 'SELECT top 100 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,PropertyBookingID,TaskID,TaskDate,IsLead,PropertyID FROM (' . TaskWithServicers::vTasksWithServicers . ') AS T2 WHERE T2.CustomerID = ' . $servicers[0]['CustomerID'] . ' AND 
-                        T2.PropertyID IN (' . $propertiesCondition . ') and T2.CompleteConfirmedDate IS NOT NULL AND T2.Active = 1 ORDER BY T2.TaskDate DESC';
+                $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],100,null,$propertiesCondition);
 
                 $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
-                $response = 'SELECT TOP 5 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
+                $response = 'SELECT TOP 5 *  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
                 $response = $this->entityManager->getConnection()->prepare($response);
                 $response->execute();
                 $response = $response->fetchAll();
 
-                for ($i=0; $i<count($response); $i++) {
-                    if ($response[$i]['ServicerID']) {
-                        $staff = $this->entityManager->getRepository('AppBundle:Servicers')->GetStaffContactInfo($response[$i]['ServicerID']);
-                        if (!empty($staff)) {
-                            $staff[0]['ServicersPhone'] = trim($staff[0]['ServicersPhone']);
-                            $response[$i]['ServicersDetails'] = $staff[0];
-                            if ($response[$i]['CompleteConfirmedDate']) {
-                                $dateTime = new \DateTime($response[$i]['CompleteConfirmedDate']);
-                                $dateTime->setTimezone($timeZoneRegion);
-                                $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
-                            }
-
-                        }
-                    }
-                    $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
+            for ($i = 0; $i < count($response); $i++) {
+                if ($response[$i]['CompleteConfirmedDate']) {
+                    $dateTime = new \DateTime($response[$i]['CompleteConfirmedDate']);
+                    $dateTime->setTimezone($timeZoneRegion);
+                    $response[$i]['CompleteConfirmedDate'] = $dateTime->format('Y-m-d h:i A');
                 }
+                $response[$i]['ServicersPhone'] = trim($response[$i]['ServicersPhone']);
+                $response[$i]['Abbreviation'] = trim($response[$i]['Abbreviation']);
+                $response[$i]['ServicersDetails'] = array(
+                    'ServicersPhone' => $response[$i]['ServicersPhone'],
+                    'ServicersEmail' => $response[$i]['ServicersEmail'],
+                    'ServicersName' => $response[$i]['ServicersName']
+                );
+
+                unset($response[$i]['ServicersPhone']);
+                unset($response[$i]['ServicersEmail']);
+                unset($response[$i]['ServicersName']);
             }
 
         return array(
