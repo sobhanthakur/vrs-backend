@@ -46,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=4; $i<5; $i++) {
+//            for ($i=3; $i<4; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -276,8 +276,8 @@ class ServicersDashboardService extends BaseService
                 $propertiesCondition = '';
                 $taskIDs = '';
                 $temp = [];
-                $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
-                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === (int)$tasks[$i]['PropertyID']) {
+//                $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
+//                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === (int)$tasks[$i]['PropertyID']) {
                     $pb = $tasks;
                     if (!empty($pb)) {
                         foreach ($pb as $value) {
@@ -308,7 +308,7 @@ class ServicersDashboardService extends BaseService
                     $temp = $this->entityManager->getConnection()->prepare($temp);
                     $temp->execute();
                     $temp = $temp->fetchAll();
-                }
+//                }
 
                 if (
                     ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
