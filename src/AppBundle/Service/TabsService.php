@@ -270,9 +270,9 @@ class TabsService extends BaseService
                 empty($propertiesCondition) ? $propertiesCondition='0':false;
                 empty($propertyBookings) ? $propertyBookings='0':false;
 
-                $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],500,$propertyBookings);
+                $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,$propertyBookings);
 
-                $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],100,null,$propertiesCondition);
+                $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,null,$propertiesCondition);
 
                 $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
                 $response = 'SELECT TOP 5 *  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';

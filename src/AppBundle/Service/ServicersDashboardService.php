@@ -300,8 +300,8 @@ class ServicersDashboardService extends BaseService
                     empty($propertiesCondition) ? $propertiesCondition=0:false;
                     empty($propertyBookings) ? $propertyBookings=0:false;
 
-                    $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],500,$propertyBookings);
-                    $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],100,null,$propertiesCondition);
+                    $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,$propertyBookings);
+                    $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,null,$propertiesCondition);
 
                     $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
                     $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$tasks[$i]['PropertyID'].'  ORDER BY R.TaskDate desc';
