@@ -432,10 +432,8 @@ class TabsService extends BaseService
                     // SHOW "END TASK" IF THIS IS THE STARTED TASK
 //                if (!empty($timeClockTasks) && ($timeClockTasks[0]['TaskID'] === (string)$tasks[0]['TaskID'])) {
                     // Team Details
-                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],$servicers,1);
-                    if (!empty($team)) {
-                        $team = 1;
-                    }
+                    $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[0]['TaskID'],$servicers,2);
+                    $team = count($team);
 //                }
 
                     //TaskInfo
