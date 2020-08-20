@@ -639,6 +639,7 @@ class ServicersDashboardService extends BaseService
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->ChangeTaskDate($taskID,$servicerID);
             $thisTime = 8;
             $response = [];
+            $schedulingNote = "";
 
             if(empty($rsThisTask)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
@@ -658,6 +659,11 @@ class ServicersDashboardService extends BaseService
                         $thisTime = $rsThisTask[0]['TaskCompleteByTime'] - $rsThisTask[0]['MaxTimeToComplete'];
                         $taskDateTime = $taskDateTime->setTime($thisTime,0);
                     }
+                }
+
+                $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$taskDateTime->format('N')];
+                if ((int)$rsThisTask[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
+                    $schedulingNote = trim($rsThisTask[0]['ScheduleNote' . $thisDayOfWeek]);
                 }
 
                 // Update Datetime
@@ -681,6 +687,7 @@ class ServicersDashboardService extends BaseService
 
                 $response['TaskID'] = $task->getTaskid();
                 $response['TaskChangesID'] = $taskChanges->getTaskchangeid();
+                $response['SchedulingNote'] = $schedulingNote;
             }
 
             return array(
