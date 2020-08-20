@@ -200,7 +200,7 @@ class TabsService extends BaseService
     {
         try {
             $propertyID = $content['PropertyID'];
-            $serviceID = $content['ServiceID'];
+            array_key_exists('ServiceID',$content) ? $serviceID = $content['ServiceID'] : $serviceID = null;
 
             $images = $this->entityManager->getRepository('AppBundle:Images')->GetImagesForImageTab($propertyID,$serviceID);
             return array(
