@@ -256,7 +256,7 @@ class UnscheduledTask extends BaseService
             $task->setTasktype(6);
             $task->setTaskdate($localTime);
             $task->setTasktime((int)ltrim($localTime->format('H'), '0'));
-            $task->setTaskdatetime($today);
+            $task->setTaskdatetime($localTime);
             $task->setTaskcompletebydate($localTime);
             $task->setTaskcompletebytime(99);
             $task->setServiceid(null);
@@ -269,7 +269,7 @@ class UnscheduledTask extends BaseService
             $task->setCloseddate($completeStatus ? $today : null);
             $task->setCompletedbyservicerid($completeStatus ? $servicerID : null);
             $task->setCompleted($completeStatus ? true : false);
-            $task->setTaskstartdate($today);
+            $task->setTaskstartdate($localTime);
             $task->setTaskstarttime(99);
             $task->setIncludedamage(true);
             $task->setIncludemaintenance(true);
