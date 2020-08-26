@@ -331,7 +331,8 @@ class TabsService extends BaseService
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {
-                return $response;
+//                return $response;
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($tasks[0]['TaskID']);
