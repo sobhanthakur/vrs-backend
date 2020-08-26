@@ -393,7 +393,7 @@ class TasksRepository extends EntityRepository
      * @param $servicerID
      * @return mixed
      */
-    public function FetchTasksForDashboard($servicerID, $servicers,$assignments = null)
+    public function FetchTasksForDashboard($servicerID, $servicers,$taskID=null)
     {
         // The dashboard should limit tasks to Servicers.ViewTasksWithinDays
         $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
@@ -405,17 +405,24 @@ class TasksRepository extends EntityRepository
 
         $now = (new \DateTime('now'));
         $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
-        !$assignments ? $today = $now->modify('+'.$min.' days')->format('Y-m-d') : $today = $now->format('Y-m-d');
+        $today = $now->modify('+'.$min.' days')->format('Y-m-d');
 
 
         $result =  $this
             ->createQueryBuilder('t2');
 
         // Fetch Basic task details
-        $result->select('parenttask.taskdate AS ParentTaskDate,parenttask.completeconfirmeddate AS ParentCompleteConfirmedDate,parentservice.abbreviation AS ParentServiceAbbreviation,IDENTITY(t2.parenttaskid) AS ParenTaskID,t2.tasktime AS TaskTime,t2.tasktimeminutes AS TaskTimeMinutes,ts.piecepay AS PiecePay,t2.backtoback AS BackToBack,p2.sortorder,rgid.sortorder,r2.sortorder,t2.taskdatetime AS TaskDateTime,pb2.backtobackend AS BackToBackEnd,pb2.backtobackstart AS BackToBackStart,p2.staffdashboardnote AS StaffDashboardNote, t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
-            // Task Description Details
-            ->addSelect('pb2.globalnote AS GlobalNote,pb2.inglobalnote AS InGlobalNote, serviceid.tasktype AS TaskType, pb2.outglobalnote AS OutGlobalNote, ts.instructions AS Instructions, serviceid.showalltagsondashboards AS ShowAllTagsOnDashboards, pb2.bookingtags AS BookingTags, pb2.manualbookingtags AS ManualBookingTags,npb2.bookingtags AS NextBookingTags,npb2.manualbookingtags AS NextManualBookingTags,serviceid.showpmshousekeepingnoteondashboard AS ShowPMSHousekeepingNoteOnDashboards, pb2.pmshousekeepingnote AS PMSHousekeepingNote')
-            ->leftJoin('t2.propertyid','p2')
+        if ($taskID) {
+            $result->select('t2.includeservicernote AS IncludeServicerNote,t2.serviceid AS ServiceID,IDENTITY(t2.propertyid) AS PropertyID,ts.accepteddate as AcceptedDate,t2.taskstartdate AS TaskStartDate,t2.taskid AS TaskID,t2.servicernotes AS ServicerNotes,t2.taskname AS TaskName,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.defaulttoownernote AS DefaultToOwnerNote,t2.toownernote AS ToOwnerNote,t2.includetoownernote AS IncludeToOwnerNote,t2.allowshareimageswithowners AS AllowShareImagesWithOwners,t2.includeurgentflag AS IncludeUrgentFlag,t2.includesupplyflag AS IncludeSupplyFlag,t2.includelostandfound AS IncludeLostAndFound,t2.includedamage AS IncludeDamage,t2.includemaintenance AS IncludeMaintenance')
+                // Remove this later
+                ->addSelect('t2.taskdescriptionimage3 AS TaskDescriptionImage3,t2.taskdescriptionimage2 AS TaskDescriptionImage2,t2.taskdescriptionimage1 AS TaskDescriptionImage1');
+        } else {
+            $result->select('parenttask.taskdate AS ParentTaskDate,parenttask.completeconfirmeddate AS ParentCompleteConfirmedDate,parentservice.abbreviation AS ParentServiceAbbreviation,IDENTITY(t2.parenttaskid) AS ParenTaskID,t2.tasktime AS TaskTime,t2.tasktimeminutes AS TaskTimeMinutes,ts.piecepay AS PiecePay,t2.backtoback AS BackToBack,p2.sortorder,rgid.sortorder,r2.sortorder,t2.taskdatetime AS TaskDateTime,pb2.backtobackend AS BackToBackEnd,pb2.backtobackstart AS BackToBackStart,p2.staffdashboardnote AS StaffDashboardNote, t2.serviceid AS ServiceID,IDENTITY(s2.customerid) AS S_CustomerID,c2.customerid AS C_CustomerID,pb2.propertybookingid AS PropertyBookingID,t2.nextpropertybookingid AS NextPropertyBookingID,c2.email AS Email,p2.address AS Address,p2.doorcode AS DoorCode,p2.propertyfile AS PropertyFile,IDENTITY(t2.propertyid) AS PropertyID,serviceid.servicename AS ServiceName,propertyid.propertyname AS PropertyName,t2.taskdescription AS TaskDescription,t2.taskstarttimeminutes AS TaskStartTimeMinutes,t2.taskcompletebytimeminutes AS TaskCompleteByTimeMinutes,t2.taskcompletebytime AS TaskCompleteByTime,t2.taskstarttime AS TaskStartTime,t2.taskcompletebydate AS TaskCompleteByDate,t2.taskstartdate As TaskStartDate,ts.accepteddate as AcceptedDate,t2.taskid AS TaskID, t2.taskname AS TaskName, r2.region AS Region,r2.color AS RegionColor, p2.lat AS Lat, p2.lon AS Lon,t2.taskdate AS AssignedDate')
+                // Task Description Details
+                ->addSelect('pb2.globalnote AS GlobalNote,pb2.inglobalnote AS InGlobalNote, serviceid.tasktype AS TaskType, pb2.outglobalnote AS OutGlobalNote, ts.instructions AS Instructions, serviceid.showalltagsondashboards AS ShowAllTagsOnDashboards, pb2.bookingtags AS BookingTags, pb2.manualbookingtags AS ManualBookingTags,npb2.bookingtags AS NextBookingTags,npb2.manualbookingtags AS NextManualBookingTags,serviceid.showpmshousekeepingnoteondashboard AS ShowPMSHousekeepingNoteOnDashboards, pb2.pmshousekeepingnote AS PMSHousekeepingNote');
+
+        }
+            $result->leftJoin('t2.propertyid','p2')
             ->leftJoin('p2.regionid','r2')
             ->leftJoin('r2.regiongroupid','rgid')
             ->leftJoin('t2.propertybookingid','pb2')
@@ -433,46 +440,47 @@ class TasksRepository extends EntityRepository
             ->andWhere('t2.completeconfirmeddate IS NULL')
             ->andWhere('p2.customerid=s2.customerid')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL');
-        if (!$assignments) {
+
             $result->andWhere("t2.taskdate < :Today")
                 ->setParameter('Today',$today);
-        } else {
-//            $result->andWhere("t2.taskdate = :Today")
-//                ->setParameter('Today',$today);
-            $result->andWhere('t2.taskid='.$assignments);
-        }
 
         // Default Ordering
-        $result->addOrderBy('t2.taskdatetime')
-            ->addOrderBy('r2.sortorder')
-            ->addOrderBy('rgid.sortorder')
-            ->addOrderBy('p2.sortorder')
-            ->addOrderBy('t2.taskcompletebydate');
+        if (!$taskID) {
+            $result->addOrderBy('t2.taskdatetime')
+                ->addOrderBy('r2.sortorder')
+                ->addOrderBy('rgid.sortorder')
+                ->addOrderBy('p2.sortorder')
+                ->addOrderBy('t2.taskcompletebydate');
 
-        // Conditional Ordering
-        if ((int)$servicers[0]['SortQuickChangeToTop'] === 1) {
-            $result->addOrderBy('t2.backtoback','DESC');
+            // Conditional Ordering
+            if ((int)$servicers[0]['SortQuickChangeToTop'] === 1) {
+                $result->addOrderBy('t2.backtoback','DESC');
 
-        } elseif ((int)$servicers[0]['SortQuickChangeToTop'] === 2) {
-            $result->addOrderBy('t2.backtoback','DESC');
+            } elseif ((int)$servicers[0]['SortQuickChangeToTop'] === 2) {
+                $result->addOrderBy('t2.backtoback','DESC');
+            }
+
+            // If Task Estimates is true then select minimum and maximum time (In Hours)
+            if($servicers[0]['ShowTaskEstimates']) {
+                $result->addSelect('t2.mintimetocomplete AS Min, t2.maxtimetocomplete AS Max');
+            }
+
+            // Fetch Guest Details based on conditions
+            $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
+            $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
+
+            $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
+            $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
+
+            $result->addSelect('pb2.guest AS PrevName');
+            $result->addSelect('npb2.guest AS NextName');
+
+            $result->distinct(true);
+        } else {
+            $result->andWhere('t2.taskid='.$taskID);
         }
 
-        // If Task Estimates is true then select minimum and maximum time (In Hours)
-        if($servicers[0]['ShowTaskEstimates']) {
-            $result->addSelect('t2.mintimetocomplete AS Min, t2.maxtimetocomplete AS Max');
-        }
-
-        // Fetch Guest Details based on conditions
-        $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
-        $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');
-
-        $result->addSelect('pb2.guestemail AS PrevEmail,pb2.guestphone AS PrevPhone');
-        $result->addSelect('npb2.guestemail AS NextEmail,npb2.guestphone AS NextPhone');
-
-        $result->addSelect('pb2.guest AS PrevName');
-        $result->addSelect('npb2.guest AS NextName');
-
-        return $result->distinct(true)->setMaxResults(31)->getQuery()
+        return $result->setMaxResults(31)->getQuery()
             ->getResult();
     }
 

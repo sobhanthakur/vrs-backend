@@ -328,7 +328,7 @@ class TabsService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
             $today->setTime(0,0,0);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard2($servicerID,$servicers,$taskID);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {
 //                return $response;
@@ -437,8 +437,12 @@ class TabsService extends BaseService
                     $team = count($team);
 //                }
 
+                    // TaskImages
+                    $images = $this->entityManager->getRepository('AppBundle:Issueandtaskimagestotasks')->GetImagesByTaskID($taskID);
+
                     //TaskInfo
                     $response['TaskInfo'] = array(
+                        'TaskImages' => $images,
                         'TaskDescriptionImage1' => $tasks[0]['TaskDescriptionImage1'],
                         'TaskDescriptionImage2' => $tasks[0]['TaskDescriptionImage2'],
                         'TaskDescriptionImage3' => $tasks[0]['TaskDescriptionImage3'],
