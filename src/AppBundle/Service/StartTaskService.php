@@ -44,7 +44,7 @@ class StartTaskService extends BaseService
             array_key_exists('long',$content) ? $long = $content['long'] : $long = null;
             array_key_exists('accuracy',$content) ? $accuracy = $content['accuracy'] : $accuracy = null;
 
-            if ($timeTrackingGps) {
+            if ($timeTrackingGps && $lat && $long && $accuracy) {
                 $gpsTracking = new Gpstracking();
                 $gpsTracking->setServicerid($servicer);
                 $gpsTracking->setAccuracy($accuracy);
