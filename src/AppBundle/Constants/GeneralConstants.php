@@ -169,6 +169,7 @@ final class GeneralConstants
     const MONOLOG_QB = 'monolog.logger.qb';
     const FUNCTION_LOG = ' function failed due to Error : ';
     const AUTHPAYLOAD = 'AuthPayload';
+    const MOBILE_HEADERS = 'MOBILE_HEADERS';
     const AUTHORIZATION = 'Authorization';
     const BILLING_STATUS_1 = 'b1.status=1';
     const BILLING_STATUS_0 = 'b1.status=0';

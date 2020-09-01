@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockDays;
+use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Timeclocktasks;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -26,7 +27,7 @@ class StartTaskService extends BaseService
      * @param $content
      * @return mixed
      */
-    public function StartTask($servicerID, $content)
+    public function StartTask($servicerID, $content,$mobileHeaders)
     {
         try {
             $startPause = $content['StartPause'];
@@ -34,13 +35,42 @@ class StartTaskService extends BaseService
             $dateTime = $content['DateTime'];
             $response = [];
             $timeClockResponse = null;
+            $isMobile = $mobileHeaders['IsMobile'];
+            $now = new \DateTime($dateTime);
 
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+            (int)$servicer->getTimetrackinggps() ? $timeTrackingGps = true : $timeTrackingGps = false;
+            array_key_exists('lat',$content) ? $lat = $content['lat'] : $lat = null;
+            array_key_exists('long',$content) ? $long = $content['long'] : $long = null;
+            array_key_exists('accuracy',$content) ? $accuracy = $content['accuracy'] : $accuracy = null;
+
+            if ($timeTrackingGps) {
+                $gpsTracking = new Gpstracking();
+                $gpsTracking->setServicerid($servicer);
+                $gpsTracking->setAccuracy($accuracy);
+                $gpsTracking->setIsmobile($isMobile);
+                $gpsTracking->setLatitude($lat);
+                $gpsTracking->setLongitude($long);
+                $gpsTracking->setUseragent($mobileHeaders['UserAgent']);
+                $gpsTracking->setCreatedate($now);
+                $this->entityManager->persist($gpsTracking);
+                $this->entityManager->flush();
+
+            }
 
             // Start/Pause a Task
             if($startPause) {
 
-                $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".(new \DateTime($dateTime))->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
+                $query = "UPDATE TimeClockTasks SET ClockOut = '".$now->format('Y-m-d H:i:s')."'";
+
+                if ($timeTrackingGps && $lat && $long && $accuracy) {
+                    // Update lat and lon
+                    $query .= ", OutLat=".$lat.", OutLon=".$long.", OutAccuracy=".$accuracy.", OutIsMobile=".$isMobile.", UpdateDate='".$dateTime."'";
+                }
+
+                $query .= " WHERE ClockOut IS NULL AND ServicerID=".$servicerID;
+
+                $timeClockTasks = $this->getEntityManager()->getConnection()->prepare($query)->execute();
 
                 // Get time clock days
                 $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
@@ -52,6 +82,13 @@ class StartTaskService extends BaseService
                 if (empty($timeClockDays)) {
                     $timeClockDays = new TimeClock();
                     $timeClockDays->setServicerid($servicer);
+                    if ($timeTrackingGps && $lat && $long && $accuracy) {
+                        $timeClockDays->setInlat($lat);
+                        $timeClockDays->setInlon($long);
+                        $timeClockDays->setInaccuracy($accuracy);
+                        $timeClockDays->setInismobile($isMobile);
+                        $timeClockDays->setUpdatedate($now);
+                    }
                     $this->entityManager->persist($timeClockDays);
                     $this->entityManager->flush($timeClockDays);
                     $response['TimeClockDaysID'] = $timeClockDays->getTimeclockdayid();
@@ -61,21 +98,36 @@ class StartTaskService extends BaseService
                 if(!empty($task)) {
                     $timeClockTasks = new Timeclocktasks();
                     $timeClockTasks->setServicerid($servicer);
-                    $timeClockTasks->setClockin((new \DateTime($dateTime)));
+                    $timeClockTasks->setClockin($now);
                     $timeClockTasks->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+                    if ($timeTrackingGps && $lat && $long && $accuracy) {
+                        $timeClockTasks->setInlat($lat);
+                        $timeClockTasks->setInlon($long);
+                        $timeClockTasks->setInaccuracy($accuracy);
+                        $timeClockTasks->setInismobile($isMobile);
+                        $timeClockTasks->setUpdatedate($now);
+                    }
                     $this->entityManager->persist($timeClockTasks);
                     $this->entityManager->flush();
                     $response['TimeClockTasksID'] = $timeClockTasks->getTimeclocktaskid();
                 }
 
-                $dateTime = (new \DateTime($dateTime));
-                $dateTime->setTimezone($timeZone);
-                $response['Started'] = $dateTime->format('h:i A');
+                $now->setTimezone($timeZone);
+                $response['Started'] = $now->format('h:i A');
             } else {
                 // Clock Out/Pause Task
                 $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer->getTimezoneid()->getRegion());
                 if(!empty($timeClockTasks)) {
-                    $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".(new \DateTime($dateTime))->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID." AND TaskID=".$taskID)->execute();
+                    $query = "UPDATE TimeClockTasks SET ClockOut = '".$now->format('Y-m-d H:i:s')."'";
+
+                    if ($timeTrackingGps && $lat && $long && $accuracy) {
+                        // Update lat and lon
+                        $query .= ", OutLat=".$lat.", OutLon=".$long.", OutAccuracy=".$accuracy.", OutIsMobile=".$isMobile.", UpdateDate='".$dateTime."'";
+                    }
+
+                    $query .= " WHERE ClockOut IS NULL AND ServicerID=".$servicerID." AND TaskID=".$taskID;
+
+                    $timeClockTasks = $this->getEntityManager()->getConnection()->prepare($query)->execute();
                 }
                 $response['Started'] = null;
 

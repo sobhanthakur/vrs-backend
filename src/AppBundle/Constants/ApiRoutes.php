@@ -100,4 +100,9 @@ final class ApiRoutes
         "vrs_pwa_unscheduled_tasks_complete",
         "vrs_pwa_upload_image_post"
     );
+
+    const LOCATION_ROUTES = array (
+        "vrs_pwa_starttask",
+        "vrs_pwa_manage_submit"
+    );
 }
