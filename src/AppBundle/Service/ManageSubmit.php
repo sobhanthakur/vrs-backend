@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Scheduledwebhooks;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -26,7 +27,7 @@ class ManageSubmit extends BaseService
      * @param $content
      * @return array
      */
-    public function SubmitManageForm($servicerID, $content)
+    public function SubmitManageForm($servicerID, $content,$mobileHeaders)
     {
         try {
             $taskID = $content['TaskID'];
@@ -35,6 +36,9 @@ class ManageSubmit extends BaseService
             $propertyObj = null;
             $notification = [];
             $details = [];
+            $isMobile = $mobileHeaders['IsMobile'];
+            $now = new \DateTime($dateTime);
+
 
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->SubmitManage($servicerID,$taskID);
 
@@ -46,6 +50,25 @@ class ManageSubmit extends BaseService
 
             if (empty($rsServicers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
+            }
+
+            (int)$rsServicers[0]['TimeTrackingGPS'] ? $timeTrackingGps = true : $timeTrackingGps = false;
+            array_key_exists('lat',$content) ? $lat = $content['lat'] : $lat = null;
+            array_key_exists('long',$content) ? $long = $content['long'] : $long = null;
+            array_key_exists('accuracy',$content) ? $accuracy = $content['accuracy'] : $accuracy = null;
+
+            if ($timeTrackingGps) {
+                $gpsTracking = new Gpstracking();
+                $gpsTracking->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $gpsTracking->setAccuracy($accuracy);
+                $gpsTracking->setIsmobile($isMobile);
+                $gpsTracking->setLatitude($lat);
+                $gpsTracking->setLongitude($long);
+                $gpsTracking->setUseragent($mobileHeaders['UserAgent']);
+                $gpsTracking->setCreatedate($now);
+                $this->entityManager->persist($gpsTracking);
+                $this->entityManager->flush();
+
             }
 
             // Task Object
@@ -233,8 +256,16 @@ class ManageSubmit extends BaseService
             }
 
             // Update the time Tracking
-            $now = new \DateTime($dateTime);
-            $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$now->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND TaskID=".$taskID)->execute();
+            $query = "UPDATE TimeClockTasks SET ClockOut = '".$now->format('Y-m-d H:i:s')."'";
+
+            if ($timeTrackingGps && $lat && $long && $accuracy) {
+                // Update lat and lon
+                $query .= ", OutLat=".$lat.", OutLon=".$long.", OutAccuracy=".$accuracy.", OutIsMobile=".$isMobile.", UpdateDate='".$dateTime."'";
+            }
+
+            $query .= " WHERE ClockOut IS NULL AND TaskID=".$taskID;
+
+            $timeClockTasks = $this->getEntityManager()->getConnection()->prepare($query)->execute();
 
             // Get Owner ID
             $thisOwnerID = 0;
