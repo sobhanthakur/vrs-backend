@@ -425,4 +425,35 @@ class AuthenticationService extends BaseService
         }
         return $authenticateResult;
     }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function SetMobileHeaders($request)
+    {
+        $response = [];
+        try {
+            $response['IsMobile'] = 0;
+            $userAgent = strtolower($request->headers->get('user-agent'));
+            $response['UserAgent'] = $userAgent;
+
+            // Check if the userAgent contains mobile devices
+            if (strpos($userAgent,'iphone') !== false ||
+                strpos($userAgent,'ipad') !== false ||
+                strpos($userAgent,'android') !== false
+            ) {
+                $response['IsMobile'] = 1;
+            }
+
+            return $response;
+
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

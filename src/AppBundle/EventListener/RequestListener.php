@@ -108,6 +108,11 @@ class RequestListener extends BaseService
         // Check if the incoming request is for the PWA application
         if(in_array($route, ApiRoutes::PWA_ROUTES)) {
             $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            if(in_array($route, ApiRoutes::LOCATION_ROUTES)) {
+                $mobileHeaders = $authService->SetMobileHeaders($request);
+                $request->attributes->set(GeneralConstants::MOBILE_HEADERS,$mobileHeaders);
+            }
+
             $authenticateResult = $authService->VerifyPWAAuthentication($request);
             if($authenticateResult['status']) {
                 $request->attributes->set('AuthPayload',$authenticateResult);

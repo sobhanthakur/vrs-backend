@@ -147,7 +147,8 @@ class ServicersDashboardController extends FOSRestController
             $servicersDashboard = $this->container->get('vrscheduler.starttask_service');
             $content = json_decode($request->getContent(),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $servicersDashboard->StartTask($servicerID,$content);
+            $mobileHeaders = $request->attributes->get(GeneralConstants::MOBILE_HEADERS);
+            return $servicersDashboard->StartTask($servicerID,$content,$mobileHeaders);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
