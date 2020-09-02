@@ -179,17 +179,19 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingItemListIDs = [];
         foreach ($items as $item) {
-            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
-            if(!$integrationQBDItems) {
-                $integrationQBDItems = new Integrationqbditems();
+            if ($item->Type !== 'Category') {
+                $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
+                if(!$integrationQBDItems) {
+                    $integrationQBDItems = new Integrationqbditems();
+                }
+                $incomingItemListIDs[] = $item->Id;
+                $integrationQBDItems->setCustomerid($customerObj);
+                $integrationQBDItems->setActive($item->Active);
+                $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
+                $integrationQBDItems->setQbditemlistid($item->Id);
+                $integrationQBDItems->setUnitprice($item->UnitPrice);
+                $this->entityManager->persist($integrationQBDItems);
             }
-            $incomingItemListIDs[] = $item->Id;
-            $integrationQBDItems->setCustomerid($customerObj);
-            $integrationQBDItems->setActive($item->Active);
-            $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
-            $integrationQBDItems->setQbditemlistid($item->Id);
-            $integrationQBDItems->setUnitprice($item->UnitPrice);
-            $this->entityManager->persist($integrationQBDItems);
         }
 
 
@@ -233,7 +235,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         if($integrationsToCustomers->getQbdsyncbilling() || $integrationsToCustomers->getTimetrackingtype()) {
 
             // Fetch Items
-            $items = $dataService->Query('select UnitPrice,Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
+            $items = $dataService->Query('select UnitPrice,Type,Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
             if(!empty($items)) {
                 $this->StoreItems($items,$customerObj);
             }
