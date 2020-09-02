@@ -235,7 +235,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         if($integrationsToCustomers->getQbdsyncbilling() || $integrationsToCustomers->getTimetrackingtype()) {
 
             // Fetch Items
-            $items = $dataService->Query('select UnitPrice,Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
+            $items = $dataService->Query('select UnitPrice,Type,Active,FullyQualifiedName,Id from Item MAXRESULTS 1000');
             if(!empty($items)) {
                 $this->StoreItems($items,$customerObj);
             }
