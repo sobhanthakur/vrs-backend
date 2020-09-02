@@ -179,17 +179,19 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingItemListIDs = [];
         foreach ($items as $item) {
-            $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
-            if(!$integrationQBDItems) {
-                $integrationQBDItems = new Integrationqbditems();
+            if ($item->Type !== 'Category') {
+                $integrationQBDItems = $this->entityManager->getRepository('AppBundle:Integrationqbditems')->findOneBy(array('qbditemlistid'=>$item->Id,'customerid' => $customerObj->getCustomerid()));
+                if(!$integrationQBDItems) {
+                    $integrationQBDItems = new Integrationqbditems();
+                }
+                $incomingItemListIDs[] = $item->Id;
+                $integrationQBDItems->setCustomerid($customerObj);
+                $integrationQBDItems->setActive($item->Active);
+                $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
+                $integrationQBDItems->setQbditemlistid($item->Id);
+                $integrationQBDItems->setUnitprice($item->UnitPrice);
+                $this->entityManager->persist($integrationQBDItems);
             }
-            $incomingItemListIDs[] = $item->Id;
-            $integrationQBDItems->setCustomerid($customerObj);
-            $integrationQBDItems->setActive($item->Active);
-            $integrationQBDItems->setQbditemfullname($item->FullyQualifiedName);
-            $integrationQBDItems->setQbditemlistid($item->Id);
-            $integrationQBDItems->setUnitprice($item->UnitPrice);
-            $this->entityManager->persist($integrationQBDItems);
         }
 
 
