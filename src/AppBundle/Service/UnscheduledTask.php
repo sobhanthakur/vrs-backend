@@ -239,10 +239,10 @@ class UnscheduledTask extends BaseService
             }
 
             // MAKE SURE THIS TASK HAS NOT BEEN SUBMITTED IN THE LAST xx seconds to AVOID ACCIDENTAL DUPLICATES
-            $lastTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskSubmittedInLast5Seconds($servicerID, $propertyID);
-            if (!empty($lastTask)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::TRYAFTERSOMETIME);
-            }
+//            $lastTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskSubmittedInLast5Seconds($servicerID, $propertyID);
+//            if (!empty($lastTask)) {
+//                throw new UnprocessableEntityHttpException(ErrorConstants::TRYAFTERSOMETIME);
+//            }
 
             // INSERTING A COMPLETED TASKS FOR THEMSELVES
             $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($region,$dateTime);
@@ -252,7 +252,7 @@ class UnscheduledTask extends BaseService
             $task = new Tasks();
             $task->setPropertybookingid(null);
             $task->setPropertyid($propertyObj);
-            $task->setTaskname(array_key_exists('TaskName',$details) ? trim($details['TaskName']) : null);
+            $task->setTaskname(trim($details['TaskName']) === '' ? $servicerObj->getTaskname() : $details['TaskName']);
             $task->setTasktype(6);
             $task->setTaskdate($localTime);
             $task->setTasktime((int)ltrim($localTime->format('H'), '0'));
