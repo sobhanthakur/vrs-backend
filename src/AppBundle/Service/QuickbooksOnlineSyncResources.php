@@ -108,6 +108,9 @@ class QuickbooksOnlineSyncResources extends BaseService
             $integrationQBDCustomers->setActive($customer->Active);
             $integrationQBDCustomers->setQbdcustomerfullname($customer->FullyQualifiedName);
             $integrationQBDCustomers->setQbdcustomerlistid($customer->Id);
+            $customer->PrimaryEmailAddr && $integrationQBDCustomers->setQbdcustomeremail($customer->PrimaryEmailAddr->Address);
+            $integrationQBDCustomers->setQbdtaxable($customer->Taxable);
+            $integrationQBDCustomers->setQbdsalestermref($customer->SalesTermRef);
             $this->entityManager->persist($integrationQBDCustomers);
         }
 
@@ -226,7 +229,7 @@ class QuickbooksOnlineSyncResources extends BaseService
             ($integrationsToCustomers->getQbdsyncpayroll() && (int)$integrationsToCustomers->getTimetrackingtype() === 1) ||
             $integrationsToCustomers->getQbdsyncbilling()) {
             // Fetch Customers
-            $customers = $dataService->Query('select Active,FullyQualifiedName,Id from Customer MAXRESULTS 1000');
+            $customers = $dataService->Query('select Taxable,PrimaryEmailAddr,SalesTermRef,Active,FullyQualifiedName,Id from Customer MAXRESULTS 1000');
             if(!empty($customers)) {
                 $this->StoreCustomers($customers, $customerObj);
             }
