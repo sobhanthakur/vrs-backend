@@ -104,6 +104,8 @@ class QuickbooksOnlineSyncBilling extends BaseService
             $result = null;
             $taskDate = [];
             $emails = [];
+            $taxable  = [];
+            $salesRef = [];
 
             // Get Tasks that are ready for Billing
             $tasks = $this->entityManager->getRepository('AppBundle:Integrationqbdbillingrecords')->GetTasksForSalesOrder($customerID,true);
@@ -138,7 +140,9 @@ class QuickbooksOnlineSyncBilling extends BaseService
                 $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
                 $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
 
-                $emails[$task['QBDCustomerListID']] = $task['OwnerEmail'];
+                $emails[$task['QBDCustomerListID']] = $task['QBDCustomerEmail'] ? $task['QBDCustomerEmail']:$task['OwnerEmail'];
+
+                $salesRef[$task['QBDCustomerListID']] = $task['QBDSalesTermRef'];
 
                 // Add "-" only if previous field is not empty
                 $des = $propertyCount ? $task['PropertyName'] : '';
@@ -192,6 +196,14 @@ class QuickbooksOnlineSyncBilling extends BaseService
                     ),
                     "Line" => $line
                 );
+
+                if ($salesRef[$key]) {
+                    $billing = array_merge($billing,array(
+                        'SalesTermRef' => array(
+                            'value' => $salesRef[$key]
+                        )
+                    ));
+                }
 
                 if ($emails[$key] && $emails[$key] !== 'REMOVED') {
                     $billing = array_merge($billing,array(

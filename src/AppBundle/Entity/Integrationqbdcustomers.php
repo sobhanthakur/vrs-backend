@@ -60,6 +60,27 @@ class Integrationqbdcustomers
      */
     private $customerid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="QBDTaxable", type="boolean", nullable=false)
+     */
+    private $qbdtaxable = 0;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="QBDCustomerEmail", type="string", length=100, nullable=true)
+     */
+    private $qbdcustomeremail;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="QBDSalesTermRef", type="string", length=200, nullable=true)
+     */
+    private $qbdsalestermref;
+
 
 
     /**
@@ -201,5 +222,77 @@ class Integrationqbdcustomers
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set qbdtaxable.
+     *
+     * @param bool $qbdtaxable
+     *
+     * @return Integrationqbdcustomers
+     */
+    public function setQbdtaxable($qbdtaxable)
+    {
+        $this->qbdtaxable = $qbdtaxable;
+
+        return $this;
+    }
+
+    /**
+     * Get qbdtaxable.
+     *
+     * @return bool
+     */
+    public function getQbdtaxable()
+    {
+        return $this->qbdtaxable;
+    }
+
+    /**
+     * Set qbdcustomeremail.
+     *
+     * @param string|null $qbdcustomeremail
+     *
+     * @return Integrationqbdcustomers
+     */
+    public function setQbdcustomeremail($qbdcustomeremail = null)
+    {
+        $this->qbdcustomeremail = $qbdcustomeremail;
+
+        return $this;
+    }
+
+    /**
+     * Get qbdcustomeremail.
+     *
+     * @return string|null
+     */
+    public function getQbdcustomeremail()
+    {
+        return $this->qbdcustomeremail;
+    }
+
+    /**
+     * Set qbdsalestermref.
+     *
+     * @param string|null $qbdsalestermref
+     *
+     * @return Integrationqbdcustomers
+     */
+    public function setQbdsalestermref($qbdsalestermref = null)
+    {
+        $this->qbdsalestermref = $qbdsalestermref;
+
+        return $this;
+    }
+
+    /**
+     * Get qbdsalestermref.
+     *
+     * @return string|null
+     */
+    public function getQbdsalestermref()
+    {
+        return $this->qbdsalestermref;
     }
 }
