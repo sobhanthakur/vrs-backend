@@ -270,10 +270,10 @@ class TimeClockTasksRepository extends EntityRepository
             $dateTime = 'now';
         }
         $timeClockTasks = null;
-//        $timeZone = new \DateTimeZone($region);
+        $timeZone = new \DateTimeZone($region);
 
-        $today = (new \DateTime($dateTime))->setTime(0,0,0);
-        $todayEOD = (new \DateTime($dateTime))->setTime(0,0,0)->modify('+1 day');
+        $today = (new \DateTime($dateTime,$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $todayEOD = (new \DateTime($dateTime,$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
 
         $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
 
