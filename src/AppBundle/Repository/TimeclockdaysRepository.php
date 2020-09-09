@@ -337,8 +337,8 @@ class TimeclockdaysRepository extends EntityRepository
             $dateTime = 'now';
         }
 
-        $today = (new \DateTime($dateTime,$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
-        $todayEOD = (new \DateTime($dateTime,$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $today = (new \DateTime($dateTime));
+        $todayEOD = (new \DateTime($dateTime))->modify('+1 day');
         $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID." AND T.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND T.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'";
         $timeClockDays = $this->getEntityManager()->getConnection()->prepare($timeClockDays);
         $timeClockDays->execute();

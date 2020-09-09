@@ -269,13 +269,16 @@ class TimeClockTasksRepository extends EntityRepository
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function CheckOtherStartedTasks($servicerID,$region)
+    public function CheckOtherStartedTasks($servicerID,$region,$dateTime = null)
     {
+        if (!$dateTime) {
+            $dateTime = 'now';
+        }
         $timeClockTasks = null;
-        $timeZone = new \DateTimeZone($region);
+//        $timeZone = new \DateTimeZone($region);
 
-        $today = (new \DateTime('now',$timeZone))->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
-        $todayEOD = (new \DateTime('now',$timeZone))->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+        $today = (new \DateTime($dateTime));
+        $todayEOD = (new \DateTime($dateTime))->modify('+1 day');
 
         $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
 
