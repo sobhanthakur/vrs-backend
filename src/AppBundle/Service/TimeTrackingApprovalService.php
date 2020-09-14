@@ -118,7 +118,6 @@ class TimeTrackingApprovalService extends BaseService
                 }
                 $response = $this->entityManager->getRepository('AppBundle:Timeclockdays')->MapTimeClockDaysWithFilters($customerID, $staff, $completedDate, $timezones, $limit, $offset, $status,$qbo);
                 $response = $this->processResponse($response);
-                return $response;
             }
 
             return array(
