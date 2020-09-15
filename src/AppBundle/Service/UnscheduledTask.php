@@ -11,6 +11,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\Servicers;
 use AppBundle\DatabaseViews\ServicesToProperties;
+use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -213,7 +214,7 @@ class UnscheduledTask extends BaseService
      * @param $content
      * @return array
      */
-    public function CompleteUnscheduledTask($servicerID, $content)
+    public function CompleteUnscheduledTask($servicerID, $content,$mobileHeaders)
     {
         try {
             $propertyID = $content['PropertyID'];
@@ -298,6 +299,45 @@ class UnscheduledTask extends BaseService
             $this->entityManager->flush();
 
             $response['TasksToServicers'] = $tasksToServicers->getTasktoservicerid();
+
+            // Start Task If Mark Complete is false
+            if (!$completeStatus) {
+                $content['TaskID'] = $task->getTaskid();
+                $content['StartPause'] = 1;
+                $this->serviceContainer->get('vrscheduler.starttask_service')->StartTask($servicerID, $content, $mobileHeaders);
+            } else {
+
+                $isMobile = $mobileHeaders['IsMobile'];
+                (int)$servicerObj->getTimetrackinggps() ? $timeTrackingGps = true : $timeTrackingGps = false;
+                array_key_exists('lat', $content) ? $lat = $content['lat'] : $lat = null;
+                array_key_exists('long', $content) ? $long = $content['long'] : $long = null;
+                array_key_exists('accuracy', $content) ? $accuracy = $content['accuracy'] : $accuracy = null;
+
+                if ($timeTrackingGps && $lat && $long && $accuracy) {
+                    $gpsTracking = new Gpstracking();
+                    $gpsTracking->setServicerid($servicerObj);
+                    $gpsTracking->setAccuracy($accuracy);
+                    $gpsTracking->setIsmobile($isMobile);
+                    $gpsTracking->setLatitude($lat);
+                    $gpsTracking->setLongitude($long);
+                    $gpsTracking->setUseragent($mobileHeaders['UserAgent']);
+                    $gpsTracking->setCreatedate($today);
+                    $this->entityManager->persist($gpsTracking);
+                    $this->entityManager->flush();
+
+                }
+                // Update the time Tracking
+//                $query = "UPDATE TimeClockTasks SET ClockOut = '" . $today->format('Y-m-d H:i:s') . "'";
+//
+//                if ($timeTrackingGps && $lat && $long && $accuracy) {
+//                    // Update lat and lon
+//                    $query .= ", OutLat=" . $lat . ", OutLon=" . $long . ", OutAccuracy=" . $accuracy . ", OutIsMobile=" . $isMobile . ", UpdateDate='" . $dateTime . "'";
+//                }
+//
+//                $query .= " WHERE ClockOut IS NULL AND TaskID=" . $task->getTaskid();
+//
+//                $timeClockTasks = $this->getEntityManager()->getConnection()->prepare($query)->execute();
+            }
 
             // Manage Notification
             array_key_exists('SendToOwnerNote',$details) ? $sendToOwnerNote = (int)$details['SendToOwnerNote'] : $sendToOwnerNote = 1;
