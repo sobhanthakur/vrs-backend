@@ -103,6 +103,7 @@ final class ApiRoutes
 
     const LOCATION_ROUTES = array (
         "vrs_pwa_starttask",
-        "vrs_pwa_manage_submit"
+        "vrs_pwa_manage_submit",
+        "vrs_pwa_unscheduled_tasks_complete"
     );
 }

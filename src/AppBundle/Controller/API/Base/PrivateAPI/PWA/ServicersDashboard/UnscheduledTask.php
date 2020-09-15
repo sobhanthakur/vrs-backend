@@ -328,7 +328,8 @@ class UnscheduledTask extends FOSRestController
             $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
             $content = json_decode($request->getContent(),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $servicersDashboard->CompleteUnscheduledTask($servicerID,$content);
+            $mobileHeaders = $request->attributes->get(GeneralConstants::MOBILE_HEADERS);
+            return $servicersDashboard->CompleteUnscheduledTask($servicerID,$content,$mobileHeaders);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
