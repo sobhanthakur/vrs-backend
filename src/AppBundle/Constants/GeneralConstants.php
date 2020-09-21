@@ -461,7 +461,8 @@ final class GeneralConstants
         1 => 'spa',
         2 => 'por',
         3 => 'fre',
-        4 => 'jap'
+        4 => 'jap',
+        5 => 'chi'
     ];
 
     const DAYOFWEEK = [
