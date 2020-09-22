@@ -341,7 +341,7 @@ class TabsService extends BaseService
             // START: TIME TRACKING
             if ($tasks[0]['TaskStartDate']<= $today) {
                 if (((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[0]['TaskStartDate']<= $today) &&
-                    (((int)$servicers[0]['RequestAcceptTasks'] === 1 && $tasks[0]['AcceptedDate']) || (int)$servicers[0]['RequestAcceptTasks'] !== 1)
+                    (((int)$servicers[0]['RequestAcceptTasks'] === 1) || (int)$servicers[0]['RequestAcceptTasks'] !== 1)
                 ) {
                     // Initialize Standard Services
                     $standardServices = null;
