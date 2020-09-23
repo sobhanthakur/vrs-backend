@@ -64,9 +64,8 @@ class TranslationFiles extends BaseService
 
                 $translation->setTranslatedtext($value);
                 $this->entityManager->persist($translation);
+                $this->entityManager->flush();
             }
-
-            $this->entityManager->flush();
 
             return array("Status" => "Success","Message" => "Translation Entries Created");
 
@@ -75,7 +74,7 @@ class TranslationFiles extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error("Unable to Generate Files Due to:" .
+            $this->logger->error("Unable to Create translation entries in DB due to: " .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
