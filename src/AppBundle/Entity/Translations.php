@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Translations")
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks()
  */
 class Translations
 {
@@ -30,9 +31,9 @@ class Translations
     /**
      * @var string
      *
-     * @ORM\Column(name="Translation", type="string", length=50, nullable=false)
+     * @ORM\Column(name="TranslatedText", type="string", length=50, nullable=false)
      */
-    private $translation;
+    private $translatedtext;
 
     /**
      * @var TranslationLocale
@@ -69,30 +70,6 @@ class Translations
     public function getTranslationid()
     {
         return $this->translationid;
-    }
-
-    /**
-     * Set translation.
-     *
-     * @param string $translation
-     *
-     * @return Translations
-     */
-    public function setTranslation($translation)
-    {
-        $this->translation = $translation;
-
-        return $this;
-    }
-
-    /**
-     * Get translation.
-     *
-     * @return string
-     */
-    public function getTranslation()
-    {
-        return $this->translation;
     }
 
     /**
@@ -165,5 +142,40 @@ class Translations
     public function getTranslationTextID()
     {
         return $this->translationTextID;
+    }
+
+    /**
+     * Set translatedtext.
+     *
+     * @param string $translatedtext
+     *
+     * @return Translations
+     */
+    public function setTranslatedtext($translatedtext)
+    {
+        $this->translatedtext = $translatedtext;
+
+        return $this;
+    }
+
+    /**
+     * Get translatedtext.
+     *
+     * @return string
+     */
+    public function getTranslatedtext()
+    {
+        return $this->translatedtext;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

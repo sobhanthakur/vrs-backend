@@ -81,6 +81,7 @@ final class ErrorConstants
     const INVALID_TIMELOGIN_DETAILS = 'INVALID_TIMELOGIN_DETAILS';
     const INVALID_TASKSTOSERVICERS = 'INVALID_TASKSTOSERVICERS';
     const TASK_NOT_CREATED = 'TASK_NOT_CREATED';
+    const INVALID_LOCALE_ID = 'INVALID_LOCALE_ID';
 
 
 
@@ -144,6 +145,7 @@ final class ErrorConstants
         self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later'],
         self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers'],
         self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated'],
-        self::TRYAFTERSOMETIME  => ['code' => 422, self::MESSAGE => 'api.response.error.tryaftersometime']
+        self::TRYAFTERSOMETIME  => ['code' => 422, self::MESSAGE => 'api.response.error.tryaftersometime'],
+        self::INVALID_LOCALE_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_locale_id']
     ];
 }
