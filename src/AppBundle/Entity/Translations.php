@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Translations
  *
  * @ORM\Table(name="Translations")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TranslationsRepository")
  * @ORM\HasLifecycleCallbacks()
  */
 class Translations
