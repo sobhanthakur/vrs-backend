@@ -205,3 +205,7 @@ services:
     vrscheduler.util:
             class: AppBundle\Service\Utilities
             public: true
+    vrscheduler.translation_files:
+            class: AppBundle\Service\TranslationFiles
+            parent: vrscheduler.base_service
+            public: true

@@ -31,7 +31,7 @@ class TranslationTexts
     /**
      * @var string
      *
-     * @ORM\Column(name="EnglistText", type="string", length=50, nullable=false)
+     * @ORM\Column(name="EnglishText", type="string", length=50, nullable=false)
      */
     private $englishtext;
 

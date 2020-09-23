@@ -76,6 +76,7 @@ api:
             invalid_timelogin_details: "Bookings are not allowed with checkout 2 days or earlier than today."
             invalid_taskstoservicers: "Invalid Tasks To Servicer"
             invalid_tasknotcreated: "Task Cannot be created"
+            invalid_locale_id: "Please Enter a valid TranslationLocaleID"
         success:
             message: success
             password_reset: The password was reset successfully.

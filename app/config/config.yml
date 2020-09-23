@@ -210,6 +210,7 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/unscheduled/tasks
                 -  /v1/vrs/pwa/unscheduled/tasks/complete
                 -  /v1/vrs/pwa/issue/upload/image
+                -  /v1/vrs/pwa/translations
 
 monolog:
     handlers:
