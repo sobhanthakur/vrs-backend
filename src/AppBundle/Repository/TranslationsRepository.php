@@ -1,0 +1,27 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: sobhan
+ * Date: 23/9/20
+ * Time: 2:40 PM
+ */
+
+namespace AppBundle\Repository;
+
+
+use Doctrine\ORM\EntityRepository;
+
+class TranslationsRepository extends EntityRepository
+{
+
+    public function GetTranslations($localeID)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.translatedtext AS TranslatedText,e.englishtext AS EnglishText,l.translationlocale AS TranslationLocale')
+            ->leftJoin('t.translationLocaleID','l')
+            ->leftJoin('t.translationTextID','e')
+            ->where('l.translationlocaleid='.$localeID)
+            ->getQuery()
+            ->execute();
+    }
+}

@@ -15,12 +15,38 @@ use AppBundle\Entity\TranslationTexts;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Class TranslationFiles
+ * @package AppBundle\Service
+ */
 class TranslationFiles extends BaseService
 {
+    /**
+     * @return array
+     */
     public function GenerateTranslationFiles()
     {
+        $response = [];
+        $filePath = $this->serviceContainer->getParameter('filepath');
         try {
+            $locales = $this->entityManager->getRepository('AppBundle:TranslationLocale')->findAll();
 
+            foreach ($locales as $locale) {
+                $details = $this->entityManager->getRepository('AppBundle:Translations')->GetTranslations($locale->getTranslationlocaleid());
+                $temp = [];
+                foreach ($details as $inner) {
+                    $temp = array_merge($temp,array(
+                        $inner['EnglishText'] => $inner['TranslatedText']
+                    ));
+                }
+                $localPath = $filePath.$locale->getTranslationlocale().".json";
+                $temp = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
+                    return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
+                }, json_encode($temp,JSON_PRETTY_PRINT));
+                file_put_contents($localPath,stripslashes($temp));
+                $response[$locale->getTranslationlocale()] = $this->SendToS3($localPath,$locale->getTranslationlocale());
+            }
+            return $response;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -29,10 +55,20 @@ class TranslationFiles extends BaseService
             $this->logger->error("Unable to Generate Files Due to:" .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        } finally {
+            // Delete all json files from the server
+            foreach (glob($filePath."*.json") as $filename) {
+                unlink($filename);
+            }
         }
     }
 
-    public function InsertToDB($localeID,$content)
+    /**
+     * @param $localeID
+     * @param $content
+     * @return array
+     */
+    public function InsertToDB($localeID, $content)
     {
         try {
             $localeObj = $this->entityManager->getRepository('AppBundle:TranslationLocale')->find($localeID);
@@ -75,6 +111,55 @@ class TranslationFiles extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error("Unable to Create translation entries in DB due to: " .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $filePath
+     * @param $filename
+     * @return mixed
+     */
+    public function SendToS3($filePath, $filename)
+    {
+        try {
+
+            // aws Parameters
+            $aws = $this->serviceContainer->getParameter('aws');
+
+            // Connect to s3
+            $s3 = new \Aws\S3\S3Client([
+                'region'  => $aws['region'],
+                'version' => 'latest',
+                'credentials' => [
+                    'key'    => $aws['key'],
+                    'secret' => $aws['secret'],
+                ]
+            ]);
+
+            // Push Image
+            $result = $s3->putObject([
+                'Bucket' => $aws['bucket_name'],
+                'ACL' => 'public-read',
+                'Key'    => 'locales/'.$filename.".json",
+                'SourceFile' => $filePath
+            ]);
+
+            if ($result) {
+                if ($result['@metadata']['statusCode'] === 200) {
+                     return $result['@metadata']['effectiveUri'];
+                }
+            }
+
+            return false;
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error("Failed Uploading translation files to S3 due to: " .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
