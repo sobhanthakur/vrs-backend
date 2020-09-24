@@ -457,12 +457,13 @@ final class GeneralConstants
     const RATE_LIMIT_TTL = 60;
 
     const LOCALE = [
-        0 => 'eng',
-        1 => 'spa',
-        2 => 'por',
-        3 => 'fre',
-        4 => 'jap',
-        5 => 'chi'
+        0 => 'English',
+        1 => 'Spanish',
+        2 => 'Portugese',
+        3 => 'French',
+        4 => 'Japanese',
+        5 => 'Chinese',
+        6 => 'German'
     ];
 
     const DAYOFWEEK = [
