@@ -32,7 +32,7 @@ class TranslationFiles extends BaseService
             $locales = $this->entityManager->getRepository('AppBundle:Locale')->findAll();
 
             foreach ($locales as $locale) {
-                $details = $this->entityManager->getRepository('AppBundle:Translations')->GetTranslations($locale->getTranslationlocaleid());
+                $details = $this->entityManager->getRepository('AppBundle:Translations')->GetTranslations($locale->getLocale());
                 $temp = [];
                 foreach ($details as $inner) {
                     $temp = array_merge($temp,array(
@@ -71,7 +71,7 @@ class TranslationFiles extends BaseService
     public function InsertToDB($localeID, $content)
     {
         try {
-            $localeObj = $this->entityManager->getRepository('Locale.php')->find($localeID);
+            $localeObj = $this->entityManager->getRepository('AppBundle:Locale')->find($localeID);
             if (!$localeObj) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_LOCALE_ID);
             }
@@ -89,7 +89,7 @@ class TranslationFiles extends BaseService
 
                 // Check if localeObj and englishText exists in the translations Table
                 $translation = $this->entityManager->getRepository('AppBundle:Translations')->findOneBy(array(
-                    'translationLocaleID' => $localeObj,
+                    'LocaleID' => $localeObj,
                     'translationTextID' => $englishText
                 ));
                 if (!$translation) {
