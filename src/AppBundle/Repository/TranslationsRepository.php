@@ -20,7 +20,7 @@ class TranslationsRepository extends EntityRepository
             ->select('t.translatedtext AS TranslatedText,e.englishtext AS EnglishText,l.locale AS Locale')
             ->leftJoin('t.LocaleID','l')
             ->leftJoin('t.translationTextID','e')
-            ->where('l.translationlocaleid='.$localeID)
+            ->where('l.localeid='.$localeID)
             ->getQuery()
             ->execute();
     }
