@@ -10,6 +10,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Constants\LocaleConstants;
 use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockDays;
 use Lcobucci\JWT\Builder;
@@ -305,10 +306,11 @@ class AuthenticationService extends BaseService
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
 
-
             if(empty($servicer)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
+
+            $format = LocaleConstants::Locale[strtolower($servicer[0]['LocaleFormat'])];
 
             // Set TimeZone
             $timeZone = new \DateTimeZone($servicer[0]['Region']);
@@ -333,6 +335,7 @@ class AuthenticationService extends BaseService
             $servicer[0]['AllowAdminAccess'] = $servicer[0]['AllowAdminAccess'] ? 1 : 0;
 
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
+            $servicer[0]['LocaleFormat'] = $format;
 
             // Create a new token
             $signer = new Sha256();
