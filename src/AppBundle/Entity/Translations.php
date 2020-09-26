@@ -36,14 +36,14 @@ class Translations
     private $translatedtext;
 
     /**
-     * @var TranslationLocale
+     * @var Locale
      *
-     * @ORM\ManyToOne(targetEntity="TranslationLocale")
+     * @ORM\ManyToOne(targetEntity="Locale")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="TranslationLocaleID", referencedColumnName="TranslationLocaleID")
+     *   @ORM\JoinColumn(name="LocaleID", referencedColumnName="LocaleID")
      * })
      */
-    private $translationLocaleID;
+    private $LocaleID;
 
     /**
      * @var TranslationTexts
@@ -99,11 +99,11 @@ class Translations
     /**
      * Set translationLocaleID.
      *
-     * @param \AppBundle\Entity\TranslationLocale|null $translationLocaleID
+     * @param \AppBundle\Entity\Locale|null $translationLocaleID
      *
      * @return Translations
      */
-    public function setTranslationLocaleID(\AppBundle\Entity\TranslationLocale $translationLocaleID = null)
+    public function setTranslationLocaleID(\AppBundle\Entity\Locale $translationLocaleID = null)
     {
         $this->translationLocaleID = $translationLocaleID;
 
@@ -113,7 +113,7 @@ class Translations
     /**
      * Get translationLocaleID.
      *
-     * @return \AppBundle\Entity\TranslationLocale|null
+     * @return \AppBundle\Entity\Locale|null
      */
     public function getTranslationLocaleID()
     {

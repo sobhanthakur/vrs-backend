@@ -29,7 +29,7 @@ class TranslationFiles extends BaseService
         $response = [];
         $filePath = $this->serviceContainer->getParameter('filepath');
         try {
-            $locales = $this->entityManager->getRepository('AppBundle:TranslationLocale')->findAll();
+            $locales = $this->entityManager->getRepository('AppBundle:Locale')->findAll();
 
             foreach ($locales as $locale) {
                 $details = $this->entityManager->getRepository('AppBundle:Translations')->GetTranslations($locale->getTranslationlocaleid());
@@ -39,12 +39,12 @@ class TranslationFiles extends BaseService
                         $inner['EnglishText'] => $inner['TranslatedText']
                     ));
                 }
-                $localPath = $filePath.$locale->getTranslationlocale().".json";
+                $localPath = $filePath.$locale->getLocale().".json";
                 $temp = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
                     return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
                 }, json_encode($temp,JSON_PRETTY_PRINT));
                 file_put_contents($localPath,stripslashes($temp));
-                $response[$locale->getTranslationlocale()] = $this->SendToS3($localPath,$locale->getTranslationlocale());
+                $response[$locale->getLocale()] = $this->SendToS3($localPath,$locale->getLocale());
             }
             return $response;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -71,7 +71,7 @@ class TranslationFiles extends BaseService
     public function InsertToDB($localeID, $content)
     {
         try {
-            $localeObj = $this->entityManager->getRepository('AppBundle:TranslationLocale')->find($localeID);
+            $localeObj = $this->entityManager->getRepository('Locale.php')->find($localeID);
             if (!$localeObj) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_LOCALE_ID);
             }

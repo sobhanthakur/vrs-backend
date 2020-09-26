@@ -17,8 +17,8 @@ class TranslationsRepository extends EntityRepository
     public function GetTranslations($localeID)
     {
         return $this->createQueryBuilder('t')
-            ->select('t.translatedtext AS TranslatedText,e.englishtext AS EnglishText,l.translationlocale AS TranslationLocale')
-            ->leftJoin('t.translationLocaleID','l')
+            ->select('t.translatedtext AS TranslatedText,e.englishtext AS EnglishText,l.locale AS Locale')
+            ->leftJoin('t.LocaleID','l')
             ->leftJoin('t.translationTextID','e')
             ->where('l.translationlocaleid='.$localeID)
             ->getQuery()
