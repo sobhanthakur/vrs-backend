@@ -22,7 +22,7 @@ class Translations
     /**
      * @var int
      *
-     * @ORM\Column(name="TranlationID", type="integer", nullable=false)
+     * @ORM\Column(name="TranslationID", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
@@ -105,7 +105,7 @@ class Translations
      */
     public function setTranslationLocaleID(\AppBundle\Entity\Locale $translationLocaleID = null)
     {
-        $this->translationLocaleID = $translationLocaleID;
+        $this->LocaleID = $translationLocaleID;
 
         return $this;
     }
@@ -117,7 +117,7 @@ class Translations
      */
     public function getTranslationLocaleID()
     {
-        return $this->translationLocaleID;
+        return $this->LocaleID;
     }
 
     /**
