@@ -344,23 +344,23 @@ class AuthenticationService extends BaseService
 
             // Long Format
             $dateType = \IntlDateFormatter::LONG;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
             $localFormat['Long'] = $formatter->getPattern();
 
 
             // Short Format
             $dateType = \IntlDateFormatter::SHORT;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
             $localFormat['Short'] = $formatter->getPattern();
 
             // Full format
             $dateType = \IntlDateFormatter::FULL;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
             $localFormat['Full'] = $formatter->getPattern();
 
             // Medium Format
             $dateType = \IntlDateFormatter::MEDIUM;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
             $localFormat['Medium'] = $formatter->getPattern();
 
 
