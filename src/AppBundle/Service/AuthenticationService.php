@@ -310,8 +310,6 @@ class AuthenticationService extends BaseService
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
-            $format = LocaleConstants::Locale[strtolower($servicer[0]['LocaleFormat'])];
-
             // Set TimeZone
             $timeZone = new \DateTimeZone($servicer[0]['Region']);
 
@@ -333,9 +331,39 @@ class AuthenticationService extends BaseService
             $servicer[0]['Phone'] = trim($servicer[0]['Phone']);
             $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
             $servicer[0]['AllowAdminAccess'] = $servicer[0]['AllowAdminAccess'] ? 1 : 0;
+            $servicer[0]['ActiveForDates'] = $servicer[0]['ActiveForDates'] ? 1 : 0;
+            $servicer[0]['ActiveForLanguages'] = $servicer[0]['ActiveForLanguages'] ? 1 : 0;
+
+            /*
+             * Locale formats
+             */
+            $localFormat = [];
+            $timeType = \IntlDateFormatter::NONE;
+
+            // Long Format
+            $dateType = \IntlDateFormatter::LONG;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $localFormat['Long'] = $formatter->getPattern();
+
+
+            // Short Format
+            $dateType = \IntlDateFormatter::SHORT;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $localFormat['Short'] = $formatter->getPattern();
+
+            // Full format
+            $dateType = \IntlDateFormatter::FULL;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $localFormat['Full'] = $formatter->getPattern();
+
+            // Medium Format
+            $dateType = \IntlDateFormatter::MEDIUM;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleFormat'], $dateType,$timeType);
+            $localFormat['Medium'] = $formatter->getPattern();
+
 
             $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
-            $servicer[0]['LocaleFormat'] = $format;
+            $servicer[0]['LocaleFormat'] = $localFormat;
 
             // Create a new token
             $signer = new Sha256();
