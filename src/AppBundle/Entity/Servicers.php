@@ -916,6 +916,15 @@ class Servicers
      */
     private $locale;
 
+    /**
+     * @var Locale
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Locale")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="LocaleID", referencedColumnName="LocaleID")
+     * })
+     */
+    private $localeid;
 
 
     /**
@@ -3974,5 +3983,29 @@ class Servicers
     public function getLocale()
     {
         return $this->locale;
+    }
+
+    /**
+     * Set localeid.
+     *
+     * @param \AppBundle\Entity\Locale|null $localeid
+     *
+     * @return Servicers
+     */
+    public function setLocaleid(\AppBundle\Entity\Locale $localeid = null)
+    {
+        $this->localeid = $localeid;
+
+        return $this;
+    }
+
+    /**
+     * Get localeid.
+     *
+     * @return \AppBundle\Entity\Locale|null
+     */
+    public function getLocaleid()
+    {
+        return $this->localeid;
     }
 }
