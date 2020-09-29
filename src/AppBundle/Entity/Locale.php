@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Locale
  *
  * @ORM\Table(name="Locales")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\LocalesRepository")
  */
 class Locale
 {

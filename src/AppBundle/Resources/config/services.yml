@@ -209,3 +209,7 @@ services:
             class: AppBundle\Service\TranslationFiles
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.translation_service:
+            class: AppBundle\Service\TranslationService
+            parent: vrscheduler.base_service
+            public: true

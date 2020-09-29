@@ -116,4 +116,100 @@ class TranslationFiles extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Get English Texts
+     * @SWG\Tag(name="Translations")
+     * @Get("/translations/english", name="vrs_pwa_translation_get")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get All Locales",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function GetEnglishTexts(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $translationService = $this->container->get('vrscheduler.translation_service');
+            return $translationService->GetEnglishTexts();
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Get All Locales
+     * @SWG\Tag(name="Translations")
+     * @Get("/translations/locales", name="vrs_pwa_translation_locales")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get All Locales",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function GetAllLocales(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $translationService = $this->container->get('vrscheduler.translation_service');
+            return $translationService->GetLocales();
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Get English Texts
+     * @SWG\Tag(name="Translations")
+     * @Get("/translations/locales/{id}", name="vrs_pwa_translation_get")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Get All Locales",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function GetLocalesByID(Request $request,$id)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $translationService = $this->container->get('vrscheduler.translation_service');
+            return $translationService->GetLocalesByID($id);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
