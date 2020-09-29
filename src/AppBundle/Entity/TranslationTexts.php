@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  * TranslationTexts
  *
  * @ORM\Table(name="TranslationTexts")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TranslationTextsRepository")
  */
 class TranslationTexts
 {

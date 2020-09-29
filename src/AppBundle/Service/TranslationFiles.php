@@ -164,5 +164,4 @@ class TranslationFiles extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
-
 }
