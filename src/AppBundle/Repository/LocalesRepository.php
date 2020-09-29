@@ -19,6 +19,7 @@ class LocalesRepository extends EntityRepository
             ->select('l.localeid AS LocaleID')
             ->addSelect('l.locale AS Locale')
             ->addSelect('l.localereadable AS LocaleReadable')
+            ->where('l.activeforlanguages=1')
             ->getQuery()
             ->execute();
     }
