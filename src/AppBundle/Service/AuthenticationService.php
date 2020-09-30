@@ -364,7 +364,7 @@ class AuthenticationService extends BaseService
             $localFormat['Medium'] = $formatter->getPattern();
 
 
-            $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
+            $servicer[0]['Locale'] = $this->serviceContainer->getParameter('locale_mapping')[$servicer[0]['LanguageLocaleID']];
             $servicer[0]['LocaleFormat'] = $localFormat;
 
             // Create a new token
