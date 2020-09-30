@@ -929,9 +929,9 @@ class Servicers
     /**
      * @var int
      *
-     * @ORM\Column(name="LanguageLocaleID", type="integer")
+     * @ORM\Column(name="TranslationLocaleID", type="integer")
      */
-    private $languagelocaleid;
+    private $translationlocaleid;
 
 
     /**
@@ -4017,26 +4017,26 @@ class Servicers
     }
 
     /**
-     * Set languagelocaleid.
+     * Set translationlocaleid.
      *
-     * @param int $languagelocaleid
+     * @param int $translationlocaleid
      *
      * @return Servicers
      */
-    public function setLanguagelocaleid($languagelocaleid)
+    public function setTranslationlocaleid($translationlocaleid)
     {
-        $this->languagelocaleid = $languagelocaleid;
+        $this->translationlocaleid = $translationlocaleid;
 
         return $this;
     }
 
     /**
-     * Get languagelocaleid.
+     * Get translationlocaleid.
      *
      * @return int
      */
-    public function getLanguagelocaleid()
+    public function getTranslationlocaleid()
     {
-        return $this->languagelocaleid;
+        return $this->translationlocaleid;
     }
 }
