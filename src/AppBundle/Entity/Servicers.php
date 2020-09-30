@@ -926,6 +926,13 @@ class Servicers
      */
     private $localeid;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="LanguageLocaleID", type="integer")
+     */
+    private $languagelocaleid;
+
 
     /**
      * Get servicerid.
@@ -4007,5 +4014,29 @@ class Servicers
     public function getLocaleid()
     {
         return $this->localeid;
+    }
+
+    /**
+     * Set languagelocaleid.
+     *
+     * @param int $languagelocaleid
+     *
+     * @return Servicers
+     */
+    public function setLanguagelocaleid($languagelocaleid)
+    {
+        $this->languagelocaleid = $languagelocaleid;
+
+        return $this;
+    }
+
+    /**
+     * Get languagelocaleid.
+     *
+     * @return int
+     */
+    public function getLanguagelocaleid()
+    {
+        return $this->languagelocaleid;
     }
 }
