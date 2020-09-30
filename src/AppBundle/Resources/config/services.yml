@@ -213,3 +213,7 @@ services:
             class: AppBundle\Service\TranslationService
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.mail_service:
+            class: AppBundle\Service\SendMail
+            parent: vrscheduler.base_service
+            public: true
