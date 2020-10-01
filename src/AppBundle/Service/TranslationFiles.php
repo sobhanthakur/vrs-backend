@@ -29,7 +29,7 @@ class TranslationFiles extends BaseService
         $response = [];
         $filePath = $this->serviceContainer->getParameter('filepath');
         try {
-            $locales = $this->entityManager->getRepository('AppBundle:Locale')->findAll();
+            $locales = $this->entityManager->getRepository('AppBundle:Locale')->findBy(array('activeforlanguages'=>true));
             foreach ($locales as $locale) {
                 $details = $this->entityManager->getRepository('AppBundle:Translations')->GetTranslations($locale->getLocaleid());
 
