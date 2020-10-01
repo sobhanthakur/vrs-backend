@@ -40,12 +40,4 @@ parameters:
         key: ~
         secret: ~
         bucket_name: ~
-    locale_mapping:
-        53: English
-        31: Chinese
-        60: French
-        67: German
-        81: Japanese
-        104: Portugese
-        130: Spanish
 
