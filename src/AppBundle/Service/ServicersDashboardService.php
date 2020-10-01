@@ -503,8 +503,7 @@ class ServicersDashboardService extends BaseService
                     'CustomerID' => $rsThisTask[0]['CustomerID'],
                     'TaskID' => $taskID,
                     'SendToManagers' => 1,
-                    'SubmittedByServicerID' => $servicerID,
-                    'TypeID' => 0
+                    'SubmittedByServicerID' => $servicerID
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
                 $notification['TaskNotification'] = $taskNotification;
@@ -580,8 +579,7 @@ class ServicersDashboardService extends BaseService
                     'CustomerID' => $rsThisTask[0]['CustomerID'],
                     'TaskID' => $taskID,
                     'SendToManagers' => 1,
-                    'SubmittedByServicerID' => $servicerID,
-                    'TypeID' => 0
+                    'SubmittedByServicerID' => $servicerID
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime);
                 $notification['TaskNotification'] = $taskNotification;
@@ -604,7 +602,6 @@ class ServicersDashboardService extends BaseService
                         'SendToManagers' => 1,
                         'BackupServicerID' => $backupServicer,
                         'SubmittedByServicerID' => $servicerID,
-                        'TypeID' => 0,
                         'AdditionalTextMessage' => $thisAdditionalTextMessage,
                         'AdditionalMessage' => $thisAdditionalMessage
                     );

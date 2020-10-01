@@ -190,8 +190,7 @@ class ManageService extends BaseService
                 'OwnerID' => 0,
                 'SendToMaintenanceStaff' => 1,
                 'SendToManagers' => 1,
-                'ServicerID' => $servicerID,
-                'TypeID' => 0
+                'ServicerID' => $servicerID
             );
             $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification,$currentDate);
             $this->notification['IssueNotificationID'] = $result;
@@ -286,8 +285,7 @@ class ManageService extends BaseService
             $notification = array(
                 'MessageID' => 24,
                 'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
-                'TaskID' => $task,
-                'TypeID' => 0
+                'TaskID' => $task
             );
 
             // Send Notification

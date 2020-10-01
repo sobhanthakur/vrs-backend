@@ -30,7 +30,6 @@ class NotificationService extends BaseService
         $notification->setTaskid($result['TaskID']);
         $notification->setMessageid($result['MessageID']);
         $notification->setCustomerid($result['CustomerID']);
-        $notification->setTypeid($result['TypeID']);
 
         if ($currentDate) {
             $notification->setCreatedate($currentDate);
@@ -60,7 +59,6 @@ class NotificationService extends BaseService
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['ServicerID']);
-        $notification->setTypeid($result['TypeID']);
 
         if ($currentDate) {
             $notification->setCreatedate($currentDate);
@@ -85,7 +83,6 @@ class NotificationService extends BaseService
         $notification->setCustomerid($result['CustomerID']);
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
-        $notification->setTypeid($result['TypeID']);
 
         if ($servicerID) {
             $notification->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($result['BackupServicerID']));
@@ -135,7 +132,6 @@ class NotificationService extends BaseService
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
-        $notification->setTypeid($result['TypeID']);
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();
