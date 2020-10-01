@@ -39,12 +39,19 @@ class TranslationFiles extends BaseService
                         $inner['EnglishText'] => $inner['TranslatedText']
                     ));
                 }
-                $localPath = $filePath.$locale->getLocale().".json";
+
+                // Rename Locales
+                $localeName = $locale->getLocale();
+                $localeSplit = explode("-",$localeName);
+                if (count($localeSplit) > 1) {
+                    $localeName = $localeSplit[0]."-".strtoupper($localeSplit[1]);
+                }
+                $localPath = $filePath.$localeName.".json";
                 $temp = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
                     return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
                 }, json_encode($temp,JSON_PRETTY_PRINT));
                 file_put_contents($localPath,stripslashes($temp));
-                $response[$locale->getLocale()] = $this->SendToS3($localPath,$locale->getLocale());
+                $response[$locale->getLocale()] = $this->SendToS3($localPath,$localeName);
             }
             return $response;
         } catch (UnprocessableEntityHttpException $exception) {
