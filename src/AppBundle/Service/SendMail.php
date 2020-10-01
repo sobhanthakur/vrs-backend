@@ -32,7 +32,9 @@ class SendMail extends BaseService
             $requestBody = $content['RequestContent'];
             $error = $content['Error'];
 
-            $message = "<b>JWT: </b>".$requestHeader."<br/>";
+            $message = "<b>ServicerID: </b>".$content['UserInfo']['ServicerID']."<br/>";
+            $message .= "<b>CustomerID: </b>".$content['UserInfo']['CustomerID']."<br/>";
+            $message .= "<b>JWT: </b>".$requestHeader."<br/>";
             $message .= "<b>Request Body: </b>".$requestBody."<br/>";
             $message .= "<b>Error: </b>".$error."<br/>";
 
