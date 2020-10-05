@@ -348,7 +348,7 @@ class ServicersDashboardService extends BaseService
 
                 // Team for Each Task
                 $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID'],$servicers);
-                $response[$i]['Team'] = !empty($team) ? $team : null;
+                $response[$i]['Team'] = !empty($team) ? $team : [];
             }
             return array('Tasks' => $response);
         } catch (UnprocessableEntityHttpException $exception) {

@@ -115,7 +115,7 @@ class TabsService extends BaseService
             }
         return array(
             'TaskDetails' => $tasks[0],
-            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : null
+            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : []
         );
         } catch (HttpException $exception) {
             throw $exception;
@@ -342,7 +342,7 @@ class TabsService extends BaseService
             if ($tasks[0]['TaskStartDate']<= $today) {
                 if (((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[0]['TaskStartDate'] <= $today)) {
                     // Initialize Standard Services
-                    $standardServices = null;
+                    $standardServices = [];
                     if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
                         $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
                         $standardServices->execute();
