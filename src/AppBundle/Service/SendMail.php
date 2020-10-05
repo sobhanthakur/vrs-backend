@@ -31,8 +31,10 @@ class SendMail extends BaseService
             $requestHeader = $content['JWT'];
             $requestBody = $content['RequestContent'];
             $error = $content['Error'];
+            $today = new \DateTime('now');
 
-            $message = "<b>ServicerID: </b>".$content['UserInfo']['ServicerID']."<br/>";
+            $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
+            $message .= "<b>ServicerID: </b>".$content['UserInfo']['ServicerID']."<br/>";
             $message .= "<b>CustomerID: </b>".$content['UserInfo']['CustomerID']."<br/>";
             $message .= "<b>JWT: </b>".$requestHeader."<br/>";
             $message .= "<b>Request Body: </b>".$requestBody."<br/>";
@@ -41,12 +43,20 @@ class SendMail extends BaseService
             $to = $this->serviceContainer->getParameter('mailer_to');
             $from = $this->serviceContainer->getParameter('mailer_from');
 
+            $today = $today->format('Y-m-d');
+            $logPath = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
+
             $msg = \Swift_Message::newInstance()
                 ->setSubject($subject)
                 ->setFrom($from)
                 ->setTo($to)
                 ->setBody($message,'text/html')
             ;
+
+            if (file_exists($logPath)) {
+                $msg->attach(\Swift_Attachment::fromPath($logPath)->setFilename("exception-".$today.".log"));
+            }
+
             $sent = $this->serviceContainer->get('mailer')->send($msg);
 
             if (!$sent) {
