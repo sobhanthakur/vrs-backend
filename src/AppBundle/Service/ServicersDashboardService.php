@@ -33,9 +33,9 @@ class ServicersDashboardService extends BaseService
     {
         try {
             $response = [];
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID, $servicers);
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
+            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions((int)$servicerID);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard((int)$servicerID, $servicers);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0]['Region']);
 
             // Local Time
             $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
