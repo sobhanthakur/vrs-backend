@@ -36,7 +36,7 @@ class TabsService extends BaseService
             array_key_exists('TaskID',$content) ? $taskID = $content['TaskID'] : $taskID = null;
 
             $property = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertyNameByID($propertyID);
-            $query = 'SELECT CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.PropertyID <> 0 AND SubQuery.PropertyID='.$propertyID;
+            $query = 'SELECT StatusID,CreateDate,Issue,FromTaskID,SubmittedByServicerID,CustomerName,SubmittedByName,TimeZoneRegion,Urgent,IssueType,PropertyID,Notes FROM ('.Issues::vIssues.') AS SubQuery WHERE SubQuery.PropertyID <> 0 AND SubQuery.PropertyID='.$propertyID;
             $query .= ' AND SubQuery.ClosedDate IS NULL';
 
             if ($taskID) {
@@ -44,7 +44,7 @@ class TabsService extends BaseService
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
                     $query .= ' AND SubQuery.FromTaskID='.$taskID;
                 }
-                $query .= ' ORDER BY SubQuery.CreateDate DESC';
+                $query .= ' ORDER BY Subquery.StatusID,SubQuery.CreateDate DESC';
             }
 
             $staffTasks = $this->entityManager->getConnection()->prepare($query);
