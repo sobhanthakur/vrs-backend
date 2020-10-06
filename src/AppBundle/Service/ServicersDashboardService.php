@@ -82,10 +82,18 @@ class ServicersDashboardService extends BaseService
                         $startTask = 1;
                     } else {
                         $pauseTask = 1;
-                        $manage = 1;
                         $started = new \DateTime($timeClockTasks[0]['ClockIn']);
                         $started->setTimezone(new \DateTimeZone($servicers[0]['Region']));
                         $started = $started->format('h:i A');
+                    }
+                }
+
+                if (!((int)$servicers[0]['TimeTracking'] === 1
+                    && (!empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']))
+                    && $tasks[$i]['TaskStartDate'] <= $localTime
+                ) {
+                    if ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) {
+                        $manage = 1;
                     }
                 }
 
