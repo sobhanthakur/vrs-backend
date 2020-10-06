@@ -60,6 +60,7 @@ class ServicersDashboardService extends BaseService
                 $description = null;
                 $manage = 0;
                 $started = null;
+                $doneCondition = 0;
 
                 // Show AcceptDecline
                 if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
@@ -95,6 +96,10 @@ class ServicersDashboardService extends BaseService
                     if ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) {
                         $manage = 1;
                     }
+                }
+
+                if ((int)$servicers[0]['TimeTracking'] === 1 && !empty($timeClockTasks) && (string)$timeClockTasks[0]['TaskID'] === (string)$tasks[$i]['TaskID']) {
+                    $doneCondition = 1;
                 }
 
                 $response[$i]['StartTask'] = $startTask;
@@ -186,6 +191,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 $response[$i]['Details'] = array(
+                    'DoneCondition' => $doneCondition,
                     'Status' => $status,
                     'AllowChangeTaskDate' => (int)$servicers[0]['AllowChangeTaskDate'],
                     'ParentTaskDate' => $tasks[$i]['ParentTaskDate'],
