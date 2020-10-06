@@ -46,7 +46,7 @@ class ServicersDashboardService extends BaseService
              */
 
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=3; $i<4; $i++) {
+//            for ($i=0; $i<1; $i++) {
 
                     // Initialize local variables
                 $taskEstimates = null;
@@ -89,7 +89,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 if (!((int)$servicers[0]['TimeTracking'] === 1
-                    && (!empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']))
+                    && (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']))
                     && $tasks[$i]['TaskStartDate'] <= $localTime
                 ) {
                     if ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) {
