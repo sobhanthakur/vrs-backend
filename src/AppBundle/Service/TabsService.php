@@ -447,7 +447,7 @@ class TabsService extends BaseService
                         'IncludeToOwnerNote' => (int)$tasks[0]['IncludeToOwnerNote'],
                         'ToOwnerNote' => $tasks[0]['ToOwnerNote'],
                         'DefaultToOwnerNote' => $tasks[0]['DefaultToOwnerNote'],
-                        'IncludeServicerNote' => $tasks[0]['IncludeServicerNote'],
+                        'IncludeServicerNote' => (int)$tasks[0]['IncludeServicerNote'],
                         'ServicerNotes' => $tasks[0]['ServicerNotes'],
                         'PropertyName' => $tasks[0]['PropertyName'],
                         'ServiceName' => $tasks[0]['ServiceName'],
