@@ -3778,4 +3778,28 @@ class Tasks
     {
         return $this->retrievelinen;
     }
+
+    /**
+     * Set completed.
+     *
+     * @param bool|null $completed
+     *
+     * @return Tasks
+     */
+    public function setCompleted($completed = null)
+    {
+        $this->completed = $completed;
+
+        return $this;
+    }
+
+    /**
+     * Get completed.
+     *
+     * @return bool|null
+     */
+    public function getCompleted()
+    {
+        return $this->completed;
+    }
 }

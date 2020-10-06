@@ -190,3 +190,30 @@ services:
             class: AppBundle\Service\ManageSave
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.notification_service:
+            class: AppBundle\Service\NotificationService
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.manage_submit:
+            class: AppBundle\Service\ManageSubmit
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.unscheduled_task:
+            class: AppBundle\Service\UnscheduledTask
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.util:
+            class: AppBundle\Service\Utilities
+            public: true
+    vrscheduler.translation_files:
+            class: AppBundle\Service\TranslationFiles
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.translation_service:
+            class: AppBundle\Service\TranslationService
+            parent: vrscheduler.base_service
+            public: true
+    vrscheduler.mail_service:
+            class: AppBundle\Service\SendMail
+            parent: vrscheduler.base_service
+            public: true

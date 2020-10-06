@@ -902,6 +902,36 @@ class Servicers
      */
     private $timezoneid;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="DeclineBackupServicerID", type="integer", nullable=false)
+     */
+    private $declinebackupservicerid;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="Locale", type="string", length=50, nullable=true)
+     */
+    private $locale;
+
+    /**
+     * @var Locale
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Locale")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="LocaleID", referencedColumnName="LocaleID")
+     * })
+     */
+    private $localeid;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="TranslationLocaleID", type="integer")
+     */
+    private $translationlocaleid;
 
 
     /**
@@ -3912,5 +3942,101 @@ class Servicers
     public function getTimezoneid()
     {
         return $this->timezoneid;
+    }
+
+    /**
+     * Set declinebackupservicerid.
+     *
+     * @param int $declinebackupservicerid
+     *
+     * @return Servicers
+     */
+    public function setDeclinebackupservicerid($declinebackupservicerid)
+    {
+        $this->declinebackupservicerid = $declinebackupservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get declinebackupservicerid.
+     *
+     * @return int
+     */
+    public function getDeclinebackupservicerid()
+    {
+        return $this->declinebackupservicerid;
+    }
+
+    /**
+     * Set locale.
+     *
+     * @param string|null $locale
+     *
+     * @return Servicers
+     */
+    public function setLocale($locale = null)
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    /**
+     * Get locale.
+     *
+     * @return string|null
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
+     * Set localeid.
+     *
+     * @param \AppBundle\Entity\Locale|null $localeid
+     *
+     * @return Servicers
+     */
+    public function setLocaleid(\AppBundle\Entity\Locale $localeid = null)
+    {
+        $this->localeid = $localeid;
+
+        return $this;
+    }
+
+    /**
+     * Get localeid.
+     *
+     * @return \AppBundle\Entity\Locale|null
+     */
+    public function getLocaleid()
+    {
+        return $this->localeid;
+    }
+
+    /**
+     * Set translationlocaleid.
+     *
+     * @param int $translationlocaleid
+     *
+     * @return Servicers
+     */
+    public function setTranslationlocaleid($translationlocaleid)
+    {
+        $this->translationlocaleid = $translationlocaleid;
+
+        return $this;
+    }
+
+    /**
+     * Get translationlocaleid.
+     *
+     * @return int
+     */
+    public function getTranslationlocaleid()
+    {
+        return $this->translationlocaleid;
     }
 }

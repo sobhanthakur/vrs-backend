@@ -89,6 +89,21 @@ final class ApiRoutes
         "vrs_pwa_issue_post",
         "vrs_pwa_starttask",
         "vrs_pwa_clockinout",
-        "vrs_pwa_manage_save"
+        "vrs_pwa_manage_save",
+        "vrs_pwa_task_accept_decline",
+        "vrs_pwa_task_changedate",
+        "vrs_pwa_manage_submit",
+        "vrs_pwa_unscheduled_properties",
+        "vrs_pwa_unscheduled_tabs_property",
+        "vrs_pwa_unscheduled_tabs_Image",
+        "vrs_pwa_unscheduled_tasks",
+        "vrs_pwa_unscheduled_tasks_complete",
+        "vrs_pwa_upload_image_post"
+    );
+
+    const LOCATION_ROUTES = array (
+        "vrs_pwa_starttask",
+        "vrs_pwa_manage_submit",
+        "vrs_pwa_unscheduled_tasks_complete"
     );
 }

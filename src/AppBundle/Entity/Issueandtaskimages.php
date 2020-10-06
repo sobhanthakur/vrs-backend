@@ -5,25 +5,25 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Issueimages
+ * Issueandtaskimages
  *
- * @ORM\Table(name="IssueImages")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\IssueimagesRepository")
+ * @ORM\Table(name="IssueAndTaskImages")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\IssueandtaskimagesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Issueimages
+class Issueandtaskimages
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="IssueImageID", type="integer")
+     * @ORM\Column(name="IssueAndTaskImageID", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $issueImageid;
+    private $issueAndtaskimageid;
 
     /**
-     * @var \Issues
+     * @var Issues
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Issues")
      * @ORM\JoinColumns({
@@ -33,11 +33,21 @@ class Issueimages
     private $issueID;
 
     /**
+     * @var Properties
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Properties")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="PropertyID", referencedColumnName="PropertyID")
+     * })
+     */
+    private $propertyID;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="ShowOwner", type="boolean")
      */
-    private $showOwner;
+    private $showOwner = false;
 
     /**
      * @var string
@@ -55,13 +65,24 @@ class Issueimages
 
 
     /**
-     * Get issueImageid.
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
+    }
+
+    /**
+     * Get issueAndtaskimageid.
      *
      * @return int
      */
-    public function getIssueImageid()
+    public function getIssueAndtaskimageid()
     {
-        return $this->issueImageid;
+        return $this->issueAndtaskimageid;
     }
 
     /**
@@ -69,7 +90,7 @@ class Issueimages
      *
      * @param bool $showOwner
      *
-     * @return Issueimages
+     * @return Issueandtaskimages
      */
     public function setShowOwner($showOwner)
     {
@@ -93,7 +114,7 @@ class Issueimages
      *
      * @param string $imageName
      *
-     * @return Issueimages
+     * @return Issueandtaskimages
      */
     public function setImageName($imageName)
     {
@@ -117,7 +138,7 @@ class Issueimages
      *
      * @param \DateTime $createDate
      *
-     * @return Issueimages
+     * @return Issueandtaskimages
      */
     public function setCreateDate($createDate)
     {
@@ -141,7 +162,7 @@ class Issueimages
      *
      * @param \AppBundle\Entity\Issues|null $issueID
      *
-     * @return Issueimages
+     * @return Issueandtaskimages
      */
     public function setIssueID(\AppBundle\Entity\Issues $issueID = null)
     {
@@ -161,13 +182,26 @@ class Issueimages
     }
 
     /**
-     * @ORM\PrePersist
+     * Set propertyID.
+     *
+     * @param \AppBundle\Entity\Properties|null $propertyID
+     *
+     * @return Issueandtaskimages
      */
-    public function updatedTimestamps()
+    public function setPropertyID(\AppBundle\Entity\Properties $propertyID = null)
     {
-        if ($this->getCreatedate() == null) {
-            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
-            $this->setCreatedate($datetime);
-        }
+        $this->propertyID = $propertyID;
+
+        return $this;
+    }
+
+    /**
+     * Get propertyID.
+     *
+     * @return \AppBundle\Entity\Properties|null
+     */
+    public function getPropertyID()
+    {
+        return $this->propertyID;
     }
 }

@@ -10,6 +10,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Constants\LocaleConstants;
 use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockDays;
 use Lcobucci\JWT\Builder;
@@ -305,34 +306,64 @@ class AuthenticationService extends BaseService
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
 
-            // Set TimeZone
-            $timeZone = new \DateTimeZone($servicer[0]['Region']);
-
             if(empty($servicer)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
             }
 
+            // Set TimeZone
+            $timeZone = new \DateTimeZone($servicer[0]['Region']);
+
             // TimeTracking Information from time clock tasks and time clock days
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
-            $timeClockDays = "SELECT TOP 1 ClockIn,ClockOut,TimeZoneRegion FROM (".TimeClockDays::vTimeClockDays.") AS T WHERE T.ClockOut IS NULL AND T.ServicerID=".$servicerID.' ORDER BY T.ClockIn DESC';
-            $timeClockDays = $this->entityManager->getConnection()->prepare($timeClockDays);
-            $timeClockDays->execute();
-            $timeClockDays = $timeClockDays->fetchAll();
 
-            if (!empty($timeClockDays)) {
-                $timeClockResponse = (new TimeZoneConverter())->RangeCalculation($timeClockDays[0]['ClockIn'],$timeZone);
+            // Check If Any TimeClockDay is present for current day
+            $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone);
+
+            if(!empty($timeClockDays)) {
+                $clockedIn = new \DateTime($timeClockDays[0]['ClockIn']);
+                $clockedIn->setTimezone($timeZone);
+                $clockedIn = $clockedIn->format('h:i A');
             }
 
-            // Convert Clock In to the local timezone
-            if($timeClockResponse) {
-                $clockedIn = ((new \DateTime($timeClockDays[0]['ClockIn']))->setTimezone($timeZone))->format('h:i A');
-            }
-
-            $servicer[0]['TimeClockDays'] = $timeClockResponse ? 1 : 0;
+            $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;
+            $servicer[0]['Phone'] = trim($servicer[0]['Phone']);
+            $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
+            $servicer[0]['AllowAdminAccess'] = $servicer[0]['AllowAdminAccess'] ? 1 : 0;
+            $servicer[0]['ActiveForDates'] = $servicer[0]['ActiveForDates'] ? 1 : 0;
+            $servicer[0]['ActiveForLanguages'] = $servicer[0]['ActiveForLanguages'] ? 1 : 0;
 
-            $servicer[0]['Locale'] = GeneralConstants::LOCALE[$servicer[0]['Locale']];
+            /*
+             * Locale formats
+             */
+            $localFormat = [];
+            $timeType = \IntlDateFormatter::NONE;
+
+            // Long Format
+            $dateType = \IntlDateFormatter::LONG;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $localFormat['Long'] = $formatter->getPattern();
+
+
+            // Short Format
+            $dateType = \IntlDateFormatter::SHORT;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $localFormat['Short'] = $formatter->getPattern();
+
+            // Full format
+            $dateType = \IntlDateFormatter::FULL;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $localFormat['Full'] = $formatter->getPattern();
+
+            // Medium Format
+            $dateType = \IntlDateFormatter::MEDIUM;
+            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $localFormat['Medium'] = $formatter->getPattern();
+
+
+//            $servicer[0]['Locale'] = $this->serviceContainer->getParameter('locale_mapping')[$servicer[0]['TranslationLocaleID']];
+            $servicer[0]['LocaleFormat'] = $localFormat;
 
             // Create a new token
             $signer = new Sha256();
@@ -422,5 +453,36 @@ class AuthenticationService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
         return $authenticateResult;
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function SetMobileHeaders($request)
+    {
+        $response = [];
+        try {
+            $response['IsMobile'] = 0;
+            $userAgent = strtolower($request->headers->get('user-agent'));
+            $response['UserAgent'] = $userAgent;
+
+            // Check if the userAgent contains mobile devices
+            if (strpos($userAgent,'iphone') !== false ||
+                strpos($userAgent,'ipad') !== false ||
+                strpos($userAgent,'android') !== false
+            ) {
+                $response['IsMobile'] = 1;
+            }
+
+            return $response;
+
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

@@ -260,7 +260,12 @@ class IssueRepository extends EntityRepository
 
     }
 
-    public function GetIssuesFromLastOneMinute($issueType,$issue)
+    /**
+     * @param $issueType
+     * @param $issue
+     * @return mixed
+     */
+    public function GetIssuesFromLastOneMinute($issueType, $issue)
     {
         $now = (new \DateTime('now'))->modify('-1 minutes');
         return $this->createQueryBuilder('i')
@@ -269,6 +274,29 @@ class IssueRepository extends EntityRepository
             ->andWhere('i.issue = :Issue')
             ->andWhere('i.createdate > :CreateDate')
             ->setParameter('IssueType',$issueType)
+            ->setParameter('Issue',$issue)
+            ->setParameter('CreateDate',$now)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+
+    }
+
+    /**
+     * @param $issueType
+     * @param $issue
+     * @return mixed
+     */
+    public function GetIssuesFromLastOneMinuteManageSubmit($taskID,$issue)
+    {
+        $now = (new \DateTime('now'))->modify('-1 minutes');
+        return $this->createQueryBuilder('i')
+            ->select('i.issuetype AS IssueType,i.issue AS Issue,i.issueid AS IssueID')
+            ->where('i.issuetype = :IssueType')
+            ->andWhere('i.issue = :Issue')
+            ->andWhere('i.createdate > :CreateDate')
+            ->andWhere('i.taskid='.$taskID)
+            ->setParameter('IssueType',-1)
             ->setParameter('Issue',$issue)
             ->setParameter('CreateDate',$now)
             ->setMaxResults(1)

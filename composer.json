@@ -18,6 +18,7 @@
         "ext-json": "*",
         "ext-simplexml": "*",
         "ext-soap": "*",
+        "aws/aws-sdk-php": "^3.147",
         "beberlei/doctrineextensions": "^1.2",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-migrations-bundle": "^2.0",

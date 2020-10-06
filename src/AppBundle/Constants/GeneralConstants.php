@@ -169,6 +169,7 @@ final class GeneralConstants
     const MONOLOG_QB = 'monolog.logger.qb';
     const FUNCTION_LOG = ' function failed due to Error : ';
     const AUTHPAYLOAD = 'AuthPayload';
+    const MOBILE_HEADERS = 'MOBILE_HEADERS';
     const AUTHORIZATION = 'Authorization';
     const BILLING_STATUS_1 = 'b1.status=1';
     const BILLING_STATUS_0 = 'b1.status=0';
@@ -510,11 +511,13 @@ final class GeneralConstants
     const RATE_LIMIT_TTL = 60;
 
     const LOCALE = [
-        0 => 'eng',
-        1 => 'spa',
-        2 => 'por',
-        3 => 'fre',
-        4 => 'jap'
+        0 => 'English',
+        1 => 'Spanish',
+        2 => 'Portugese',
+        3 => 'French',
+        4 => 'Japanese',
+        5 => 'Chinese',
+        6 => 'German'
     ];
 
     const DAYOFWEEK = [
@@ -526,5 +529,4 @@ final class GeneralConstants
         6 => 7,
         7 => 1
     ];
-
 }

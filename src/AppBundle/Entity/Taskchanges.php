@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TaskChanges", indexes={@ORM\Index(name="IDX_AB9B6D26EF8DEFC9", columns={"TaskID"})})
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks()
  */
 class Taskchanges
 {
@@ -59,9 +60,9 @@ class Taskchanges
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Tasks
@@ -251,5 +252,16 @@ class Taskchanges
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

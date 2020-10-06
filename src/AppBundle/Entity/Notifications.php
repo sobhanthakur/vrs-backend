@@ -7,15 +7,16 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Notifications
  *
- * @ORM\Table(name="Notifications", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="TypeID", columns={"TypeID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
- * @ORM\Entity
+ * @ORM\Table(name="NotificationsToSend", indexes={@ORM\Index(name="MessageID", columns={"MessageID", "AccountCustomerID", "TaskID"}), @ORM\Index(name="servicerID", columns={"ServicerID"}), @ORM\Index(name="TaskID", columns={"TaskID"}), @ORM\Index(name="IDX_D37EFB26C409BF01", columns={"AccountCustomerID"}), @ORM\Index(name="IDX_D37EFB26148DE471", columns={"OwnerID"}), @ORM\Index(name="IDX_D37EFB26CC6341F", columns={"PropertyBookingID"}), @ORM\Index(name="IDX_D37EFB26AC1A3790", columns={"FromServicerID"})})
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\NotificationsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Notifications
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="NotificationID", type="integer", nullable=false)
+     * @ORM\Column(name="NotificationToSendID", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
@@ -31,16 +32,17 @@ class Notifications
     /**
      * @var int|null
      *
-     * @ORM\Column(name="CustomerNotificationID", type="integer", nullable=true)
+     * @ORM\Column(name="SendToMaintenanceStaff", type="integer", nullable=true)
      */
-    private $customernotificationid;
+    private $sendtomaintenancestaff;
 
     /**
-     * @var int
+     * @var int|null
      *
-     * @ORM\Column(name="TypeID", type="integer", nullable=false)
+     * @ORM\Column(name="SendToManagers", type="integer", nullable=true)
      */
-    private $typeid;
+    private $sendtomanagers;
+
 
     /**
      * @var int|null
@@ -52,9 +54,16 @@ class Notifications
     /**
      * @var int|null
      *
-     * @ORM\Column(name="FromCustomerID", type="integer", nullable=true)
+     * @ORM\Column(name="ToCustomerID", type="integer", nullable=true)
      */
-    private $fromcustomerid;
+    private $tocustomerid;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="SubmittedByServicerID", type="integer", nullable=true)
+     */
+    private $submittedbyservicerid;
 
     /**
      * @var int|null
@@ -64,56 +73,28 @@ class Notifications
     private $issueid;
 
     /**
-     * @var \DateTime|null
+     * @var string|null
      *
-     * @ORM\Column(name="ListStartDate", type="date", nullable=true)
+     * @ORM\Column(name="AdditionalTextMessage", type="text", nullable=true)
      */
-    private $liststartdate;
-
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(name="ListEndDate", type="date", nullable=true)
-     */
-    private $listenddate;
+    private $additionaltextmessage;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="Subject", type="text", length=-1, nullable=true)
+     * @ORM\Column(name="AdditionalMessage", type="text", nullable=true)
      */
-    private $subject;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="Email", type="text", length=-1, nullable=true)
-     */
-    private $email;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="Phone", type="string", length=50, nullable=true)
-     */
-    private $phone;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="Notification", type="text", length=-1, nullable=true)
-     */
-    private $notification;
+    private $additionalmessage;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
-     * @var \Tasks
+     * @var Tasks
      *
      * @ORM\ManyToOne(targetEntity="Tasks")
      * @ORM\JoinColumns({
@@ -123,17 +104,7 @@ class Notifications
     private $taskid;
 
     /**
-     * @var \Customers
-     *
-     * @ORM\ManyToOne(targetEntity="Customers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="AccountCustomerID", referencedColumnName="CustomerID")
-     * })
-     */
-    private $accountcustomerid;
-
-    /**
-     * @var \Owners
+     * @var Owners
      *
      * @ORM\ManyToOne(targetEntity="Owners")
      * @ORM\JoinColumns({
@@ -151,28 +122,17 @@ class Notifications
      * })
      */
     private $servicerid;
-
+    
     /**
-     * @var \Propertybookings
-     *
-     * @ORM\ManyToOne(targetEntity="Propertybookings")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyBookingID", referencedColumnName="PropertyBookingID")
-     * })
+     * @ORM\PrePersist
      */
-    private $propertybookingid;
-
-    /**
-     * @var \Servicers
-     *
-     * @ORM\ManyToOne(targetEntity="Servicers")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="FromServicerID", referencedColumnName="ServicerID")
-     * })
-     */
-    private $fromservicerid;
-
-
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
+    }
 
     /**
      * Get notificationid.
@@ -209,51 +169,51 @@ class Notifications
     }
 
     /**
-     * Set customernotificationid.
+     * Set sendtomaintenancestaff.
      *
-     * @param int|null $customernotificationid
+     * @param int|null $sendtomaintenancestaff
      *
      * @return Notifications
      */
-    public function setCustomernotificationid($customernotificationid = null)
+    public function setSendtomaintenancestaff($sendtomaintenancestaff = null)
     {
-        $this->customernotificationid = $customernotificationid;
+        $this->sendtomaintenancestaff = $sendtomaintenancestaff;
 
         return $this;
     }
 
     /**
-     * Get customernotificationid.
+     * Get sendtomaintenancestaff.
      *
      * @return int|null
      */
-    public function getCustomernotificationid()
+    public function getSendtomaintenancestaff()
     {
-        return $this->customernotificationid;
+        return $this->sendtomaintenancestaff;
     }
 
     /**
-     * Set typeid.
+     * Set sendtomanagers.
      *
-     * @param int $typeid
+     * @param int|null $sendtomanagers
      *
      * @return Notifications
      */
-    public function setTypeid($typeid)
+    public function setSendtomanagers($sendtomanagers = null)
     {
-        $this->typeid = $typeid;
+        $this->sendtomanagers = $sendtomanagers;
 
         return $this;
     }
 
     /**
-     * Get typeid.
+     * Get sendtomanagers.
      *
-     * @return int
+     * @return int|null
      */
-    public function getTypeid()
+    public function getSendtomanagers()
     {
-        return $this->typeid;
+        return $this->sendtomanagers;
     }
 
     /**
@@ -281,27 +241,51 @@ class Notifications
     }
 
     /**
-     * Set fromcustomerid.
+     * Set tocustomerid.
      *
-     * @param int|null $fromcustomerid
+     * @param int|null $tocustomerid
      *
      * @return Notifications
      */
-    public function setFromcustomerid($fromcustomerid = null)
+    public function setTocustomerid($tocustomerid = null)
     {
-        $this->fromcustomerid = $fromcustomerid;
+        $this->tocustomerid = $tocustomerid;
 
         return $this;
     }
 
     /**
-     * Get fromcustomerid.
+     * Get tocustomerid.
      *
      * @return int|null
      */
-    public function getFromcustomerid()
+    public function getTocustomerid()
     {
-        return $this->fromcustomerid;
+        return $this->tocustomerid;
+    }
+
+    /**
+     * Set submittedbyservicerid.
+     *
+     * @param int|null $submittedbyservicerid
+     *
+     * @return Notifications
+     */
+    public function setSubmittedbyservicerid($submittedbyservicerid = null)
+    {
+        $this->submittedbyservicerid = $submittedbyservicerid;
+
+        return $this;
+    }
+
+    /**
+     * Get submittedbyservicerid.
+     *
+     * @return int|null
+     */
+    public function getSubmittedbyservicerid()
+    {
+        return $this->submittedbyservicerid;
     }
 
     /**
@@ -329,147 +313,51 @@ class Notifications
     }
 
     /**
-     * Set liststartdate.
+     * Set additionaltextmessage.
      *
-     * @param \DateTime|null $liststartdate
+     * @param string|null $additionaltextmessage
      *
      * @return Notifications
      */
-    public function setListstartdate($liststartdate = null)
+    public function setAdditionaltextmessage($additionaltextmessage = null)
     {
-        $this->liststartdate = $liststartdate;
+        $this->additionaltextmessage = $additionaltextmessage;
 
         return $this;
     }
 
     /**
-     * Get liststartdate.
-     *
-     * @return \DateTime|null
-     */
-    public function getListstartdate()
-    {
-        return $this->liststartdate;
-    }
-
-    /**
-     * Set listenddate.
-     *
-     * @param \DateTime|null $listenddate
-     *
-     * @return Notifications
-     */
-    public function setListenddate($listenddate = null)
-    {
-        $this->listenddate = $listenddate;
-
-        return $this;
-    }
-
-    /**
-     * Get listenddate.
-     *
-     * @return \DateTime|null
-     */
-    public function getListenddate()
-    {
-        return $this->listenddate;
-    }
-
-    /**
-     * Set subject.
-     *
-     * @param string|null $subject
-     *
-     * @return Notifications
-     */
-    public function setSubject($subject = null)
-    {
-        $this->subject = $subject;
-
-        return $this;
-    }
-
-    /**
-     * Get subject.
+     * Get additionaltextmessage.
      *
      * @return string|null
      */
-    public function getSubject()
+    public function getAdditionaltextmessage()
     {
-        return $this->subject;
+        return $this->additionaltextmessage;
     }
 
     /**
-     * Set email.
+     * Set additionalmessage.
      *
-     * @param string|null $email
+     * @param string|null $additionalmessage
      *
      * @return Notifications
      */
-    public function setEmail($email = null)
+    public function setAdditionalmessage($additionalmessage = null)
     {
-        $this->email = $email;
+        $this->additionalmessage = $additionalmessage;
 
         return $this;
     }
 
     /**
-     * Get email.
+     * Get additionalmessage.
      *
      * @return string|null
      */
-    public function getEmail()
+    public function getAdditionalmessage()
     {
-        return $this->email;
-    }
-
-    /**
-     * Set phone.
-     *
-     * @param string|null $phone
-     *
-     * @return Notifications
-     */
-    public function setPhone($phone = null)
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    /**
-     * Get phone.
-     *
-     * @return string|null
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * Set notification.
-     *
-     * @param string|null $notification
-     *
-     * @return Notifications
-     */
-    public function setNotification($notification = null)
-    {
-        $this->notification = $notification;
-
-        return $this;
-    }
-
-    /**
-     * Get notification.
-     *
-     * @return string|null
-     */
-    public function getNotification()
-    {
-        return $this->notification;
+        return $this->additionalmessage;
     }
 
     /**
@@ -521,30 +409,6 @@ class Notifications
     }
 
     /**
-     * Set accountcustomerid.
-     *
-     * @param \AppBundle\Entity\Customers|null $accountcustomerid
-     *
-     * @return Notifications
-     */
-    public function setAccountcustomerid(\AppBundle\Entity\Customers $accountcustomerid = null)
-    {
-        $this->accountcustomerid = $accountcustomerid;
-
-        return $this;
-    }
-
-    /**
-     * Get accountcustomerid.
-     *
-     * @return \AppBundle\Entity\Customers|null
-     */
-    public function getAccountcustomerid()
-    {
-        return $this->accountcustomerid;
-    }
-
-    /**
      * Set ownerid.
      *
      * @param \AppBundle\Entity\Owners|null $ownerid
@@ -590,53 +454,5 @@ class Notifications
     public function getServicerid()
     {
         return $this->servicerid;
-    }
-
-    /**
-     * Set propertybookingid.
-     *
-     * @param \AppBundle\Entity\Propertybookings|null $propertybookingid
-     *
-     * @return Notifications
-     */
-    public function setPropertybookingid(\AppBundle\Entity\Propertybookings $propertybookingid = null)
-    {
-        $this->propertybookingid = $propertybookingid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertybookingid.
-     *
-     * @return \AppBundle\Entity\Propertybookings|null
-     */
-    public function getPropertybookingid()
-    {
-        return $this->propertybookingid;
-    }
-
-    /**
-     * Set fromservicerid.
-     *
-     * @param \AppBundle\Entity\Servicers|null $fromservicerid
-     *
-     * @return Notifications
-     */
-    public function setFromservicerid(\AppBundle\Entity\Servicers $fromservicerid = null)
-    {
-        $this->fromservicerid = $fromservicerid;
-
-        return $this;
-    }
-
-    /**
-     * Get fromservicerid.
-     *
-     * @return \AppBundle\Entity\Servicers|null
-     */
-    public function getFromservicerid()
-    {
-        return $this->fromservicerid;
     }
 }

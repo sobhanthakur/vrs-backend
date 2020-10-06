@@ -69,6 +69,9 @@ swiftmailer:
     host: '%mailer_host%'
     username: '%mailer_user%'
     password: '%mailer_password%'
+#    auth_mode: '%auth_mode%'
+    encryption: '%encryption%'
+    port: '%mailer_port%'
     spool: { type: memory }
 
 fos_rest:
@@ -201,22 +204,38 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/starttask
                 -  /v1/vrs/pwa/clockinout
                 -  /v1/vrs/pwa/manage/save
+                -  /v1/vrs/pwa/task/acceptdecline
+                -  /v1/vrs/pwa/task/changedate
+                -  /v1/vrs/pwa/manage/complete
+                -  /v1/vrs/pwa/unscheduled/properties
+                -  /v1/vrs/pwa/unscheduled/tabs/property
+                -  /v1/vrs/pwa/unscheduled/tabs/image
+                -  /v1/vrs/pwa/unscheduled/tasks
+                -  /v1/vrs/pwa/unscheduled/tasks/complete
+                -  /v1/vrs/pwa/issue/upload/image
+                -  /v1/vrs/pwa/translations
+                -  /v1/vrs/pwa/translations/english
+                -  /v1/vrs/pwa/translations/locales
+                -  /v1/vrs/pwa/translations/locales/{id}
 
 monolog:
     handlers:
         api:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/apiRequestResponse.log"
             level: debug
             channels: [api]
+            max_files: 15
         exception:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/exception.log"
             level: error
             channels: [exception]
+            max_files: 15
         qb:
-            type: stream
+            type: rotating_file
             path: "%kernel.logs_dir%/qbResponse.log"
             level: debug
             channels: [qb]
+            max_files: 15
     channels: [api,exception,qb]

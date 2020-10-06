@@ -73,11 +73,15 @@ final class ErrorConstants
     const INVALID_CHECKOUT = 'INVALID_CHECKOUT';
     const LIMIT_EXHAUST = 'LIMIT_EXHAUST';
     const TRY1MINLATER = 'TRY_1_MIN_LATER';
+    const TRYAFTERSOMETIME = 'TRYAFTERSOMETIME';
 
     const INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
     const NOTHING_TO_MAP = 'NOTHINGTOMAP';
     const INVALID_PROPERTY_BOOKING_ID = 'INVALID_PROPERTY_BOOKING_ID';
     const INVALID_TIMELOGIN_DETAILS = 'INVALID_TIMELOGIN_DETAILS';
+    const INVALID_TASKSTOSERVICERS = 'INVALID_TASKSTOSERVICERS';
+    const TASK_NOT_CREATED = 'TASK_NOT_CREATED';
+    const INVALID_LOCALE_ID = 'INVALID_LOCALE_ID';
 
 
 
@@ -138,6 +142,10 @@ final class ErrorConstants
         self::INVALID_PROPERTY_BOOKING_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_booking'],
         self::INVALID_CHECKOUT  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_checkout'],
         self::INVALID_TIMELOGIN_DETAILS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timelogin_details'],
-        self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later']
+        self::TRY1MINLATER  => ['code' => 422, self::MESSAGE => 'api.response.error.try_1_min_later'],
+        self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers'],
+        self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated'],
+        self::TRYAFTERSOMETIME  => ['code' => 422, self::MESSAGE => 'api.response.error.tryaftersometime'],
+        self::INVALID_LOCALE_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_locale_id']
     ];
 }

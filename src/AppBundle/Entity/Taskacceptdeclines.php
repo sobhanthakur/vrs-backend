@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="TaskAcceptDeclines", indexes={@ORM\Index(name="IDX_5F66D6763C7E7BEF", columns={"ServicerID"}), @ORM\Index(name="IDX_5F66D676EF8DEFC9", columns={"TaskID"})})
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks()
  */
 class Taskacceptdeclines
 {
@@ -38,9 +39,9 @@ class Taskacceptdeclines
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDAte", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDAte", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Servicers
@@ -192,5 +193,16 @@ class Taskacceptdeclines
     public function getTaskid()
     {
         return $this->taskid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function updatedTimestamps()
+    {
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

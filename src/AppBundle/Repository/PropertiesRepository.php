@@ -343,4 +343,55 @@ class PropertiesRepository extends EntityRepository
             ->execute();
     }
 
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function GetPropertiesForUnscheduledTask($servicerID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyname AS PropertyName,p.propertyid AS PropertyID')
+            ->leftJoin('AppBundle:Servicerstoproperties', 'sp', Expr\Join::WITH, 'sp.propertyid=p.propertyid')
+            ->where('sp.servicerid='.$servicerID)
+            ->andWhere('p.active=1')
+            ->orderBy('p.propertyname')
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $propertyID
+     * @return mixed
+     */
+    public function PropertyTabUnscheduledTasks($propertyID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyid AS PropertyID')
+            ->addSelect('p.propertyfile AS PropertyFile')
+            ->addSelect('p.description AS Description')
+            ->addSelect('p.address AS Address')
+            ->addSelect('p.doorcode AS DoorCode')
+            ->addSelect('p.propertyname AS PropertyName')
+            ->addSelect('p.internalnotes AS InternalPropertyNotes')
+            ->addSelect('p.staffdashboardnote AS StaffDashboardNote')
+            ->where('p.propertyid='.$propertyID)
+            ->getQuery()
+            ->execute();
+
+    }
+
+    /**
+     * @param $propertyID
+     * @return mixed
+     */
+    public function PropertyDetailsForUnscheduledTasks($propertyID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.staffdashboardnote AS StaffDashboardNote')
+            ->addSelect('p.propertyname AS PropertyName')
+            ->where('p.propertyid='.$propertyID)
+            ->getQuery()
+            ->execute();
+    }
 }

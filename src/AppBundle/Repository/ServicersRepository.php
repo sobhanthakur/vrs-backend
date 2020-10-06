@@ -7,6 +7,7 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\DatabaseViews\Servicers;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use AppBundle\Constants\GeneralConstants;
@@ -299,9 +300,11 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('IDENTITY(s.customerid) AS CustomerID,t.region AS Region,s.languageid AS Locale,c.phone AS Phone,c.email AS Email,c.customername AS CustomerName,c.businessinfo AS BusinessInfo,s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
+            ->select('s.translationlocaleid AS TranslationLocaleID,localeid.activeforlanguages AS ActiveForLanguages,localeid.activefordates AS ActiveForDates,localeid.locale AS LocaleID,s.email AS ServicersEmail,s.allowadminaccess AS AllowAdminAccess,c.dateformat AS DateFormat,s.allowcreatecompletedtask AS AllowCreateCompletedTask,IDENTITY(s.customerid) AS CustomerID,t.region AS Region,language.locale AS Locale,c.phone AS Phone,c.email AS Email,c.customername AS CustomerName,c.businessinfo AS BusinessInfo,s.servicerid AS ServicerID, s.name AS ServicerName, (CASE WHEN s.timetracking=1 THEN 1 ELSE 0 END) AS TimeTracking, (CASE WHEN s.timetrackingmileage=1 THEN 1 ELSE 0 END) AS Mileage, (CASE WHEN s.allowchangetaskdate=1 THEN 1 ELSE 0 END) AS ChangeDate')
             ->innerJoin('s.customerid','c')
             ->leftJoin('s.timezoneid','t')
+            ->leftJoin('s.localeid','localeid')
+            ->leftJoin('AppBundle:Locale', 'language', Expr\Join::WITH, 'language.localeid=s.translationlocaleid')
             ->where('s.servicerid= :ServicerID')
             ->andWhere('s.password= :Password')
             ->setParameter('ServicerID',$servicerid)
@@ -319,11 +322,74 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('IDENTITY(s.customerid) AS CustomerID,s.allowaddstandardtask AS AllowAddStandardTask,s.email AS Email,s.allowadminaccess AS AllowAdminAccess,s.allowstartearly AS AllowStartEarly,s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->select('c.email AS CustomersEmail,s.allowchangetaskdate AS AllowChangeTaskDate,s.viewtaskswithindays AS ViewTaskWithinDays,c.showstarttimeondashboard AS ShowStartTimeOnDashboard,c.showpiecepayamountsonemployeedashboards AS ShowPiecePayAmountsOnEmployeeDashboards,c.sortquickchangetotop AS SortQuickChangeToTop,c.quickchangeabbreviation AS QuickChangeAbbreviation,IDENTITY(s.customerid) AS CustomerID,s.allowaddstandardtask AS AllowAddStandardTask,s.email AS Email,s.allowadminaccess AS AllowAdminAccess,s.allowstartearly AS AllowStartEarly,s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->addSelect('s.schedulenote1 AS ScheduleNote1,s.schedulenote2 AS ScheduleNote2,s.schedulenote3 AS ScheduleNote3,s.schedulenote4 AS ScheduleNote4,s.schedulenote5 AS ScheduleNote5,s.schedulenote6 AS ScheduleNote6,s.schedulenote7 AS ScheduleNote7')
+            ->addSelect('s.schedulenote1show AS Schedulenote1Show,s.schedulenote2show AS Schedulenote2Show,s.schedulenote3show AS Schedulenote3Show,s.schedulenote4show AS Schedulenote4Show,s.schedulenote5show AS Schedulenote5Show,s.schedulenote6show AS Schedulenote6Show,s.schedulenote7show AS Schedulenote7Show')
             ->where('s.servicerid= :ServicerID')
             ->innerJoin('s.timezoneid','t')
+            ->leftJoin('s.customerid','c')
             ->setParameter('ServicerID',$servicerID)
             ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function GetStaffContactInfo($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.phone AS ServicersPhone,s.email AS ServicersEmail,s.name AS ServicersName')
+            ->where('s.servicerid='.$servicerID)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function DeclineBackup($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.requestaccepttasks AS RequestAcceptTasks,s.viewtaskswithindays AS ViewTasksWithinDays,s.declinebackupservicerid AS DeclineBackupServicerID')
+            ->where('s.servicerid='.$servicerID)
+            ->andWhere('s.declinebackupservicerid <> 0')
+            ->andWhere('s.active=1')
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function SubmitManageTab($servicerID)
+    {
+        $query = 'SELECT TimeTrackingGPS,ServicerID,Name,ServicerAbbreviation,Email,SendEmails,Phone,SendTexts,TimeZone,TimeZoneRegion,CustomerID,ViewBookingsWithinDays,ViewTasksWithinDays,IncludeGuestName,IncludeGuestNumbers,TimeTracking,TimeTrackingMileage,TimeTrackingGPS,CustomerEmail,AllowAdminAccess,GoLiveDate,AlertOnMaintenance,AlertOnDamage,QuickChangeAbbreviation,PlanType,CreateDAte,ShowTaskTimeEstimates,RequestAcceptTasks,ShowStartTimeOnDashboard,AllowCreateCompletedTask,INCLUDESERVICERNOTE,IncludeToOwnerNote,DefaultToOwnerNote,INCLUDEMAINTENANCE,INCLUDEDAMAGE,IncludeLostAndFound,IncludeSupplyFlag,ALLOWIMAGEUPLOAD,TASKNAME,NOTIFYOWNERONCOMPLETION,active,UseBeHome247,BeHome247Key,BeHome247Secret,ScheduleNote1,ScheduleNote2,ScheduleNote3,ScheduleNote4,ScheduleNote5,ScheduleNote6,ScheduleNote7,ScheduleNote1Show,ScheduleNote2Show,ScheduleNote3Show,ScheduleNote4Show,ScheduleNote5Show,ScheduleNote6Show,ScheduleNote7Show,ShowPiecePayAmountsOnEmployeeDashboards,INCLUDEURGENTFLAG,ShowIssuesLog,AllowStartEarly,AllowChangeTaskDAte,SortQuickChangeToTop,LanguageID,AllowAddStandardTask,PayRate,Password,IncludeGuestEmailPhone FROM ('.Servicers::vServicers.') AS S
+        WHERE  S.ServicerID = '.$servicerID.'
+        AND S.CustomerActive = 1 and S.Active = 1';
+
+        $servicer = $this->getEntityManager()->getConnection()->prepare($query);
+        $servicer->execute();
+        return $servicer->fetchAll();
+    }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function PropertyTabUnscheduledTasks($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.allowadminaccess AS AllowAdminAccess')
+            ->addSelect('s.email AS Servicers_Email')
+            ->addSelect('c.email AS Customers_Email')
+            ->leftJoin('s.customerid','c')
+            ->where('s.servicerid='.$servicerID)
             ->getQuery()
             ->execute();
     }
