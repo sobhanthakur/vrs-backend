@@ -21,6 +21,7 @@ parameters:
     mailer_password: ~
     mailer_from: ~
     mailer_to: ~
+    mailer_cc: ~
     mailer_port: 587
     encryption: tls
 
