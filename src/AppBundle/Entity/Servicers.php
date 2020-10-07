@@ -910,13 +910,6 @@ class Servicers
     private $declinebackupservicerid;
 
     /**
-     * @var string|null
-     *
-     * @ORM\Column(name="Locale", type="string", length=50, nullable=true)
-     */
-    private $locale;
-
-    /**
      * @var Locale
      *
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Locale")
@@ -3966,30 +3959,6 @@ class Servicers
     public function getDeclinebackupservicerid()
     {
         return $this->declinebackupservicerid;
-    }
-
-    /**
-     * Set locale.
-     *
-     * @param string|null $locale
-     *
-     * @return Servicers
-     */
-    public function setLocale($locale = null)
-    {
-        $this->locale = $locale;
-
-        return $this;
-    }
-
-    /**
-     * Get locale.
-     *
-     * @return string|null
-     */
-    public function getLocale()
-    {
-        return $this->locale;
     }
 
     /**
