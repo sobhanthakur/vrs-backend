@@ -32,9 +32,9 @@ class UnscheduledTask extends BaseService
         try {
             $properties = $this->entityManager->getRepository('AppBundle:Properties')->GetPropertiesForUnscheduledTask($servicerID);
 
-            if (empty($properties)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
-            }
+//            if (empty($properties)) {
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
+//            }
             
             return array('Properties' => $properties);
         } catch (UnprocessableEntityHttpException $exception) {
