@@ -77,6 +77,8 @@ api:
             invalid_taskstoservicers: "Invalid Tasks To Servicer"
             invalid_tasknotcreated: "Task Cannot be created"
             invalid_locale_id: "Please Enter a valid TranslationLocaleID"
+            invalid_englishtext_id: "Invalid EnglishTextID"
+            invalid_translation_id: "Please Enter a valid TranslationID"
         success:
             message: success
             password_reset: The password was reset successfully.

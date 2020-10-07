@@ -82,7 +82,8 @@ final class ErrorConstants
     const INVALID_TASKSTOSERVICERS = 'INVALID_TASKSTOSERVICERS';
     const TASK_NOT_CREATED = 'TASK_NOT_CREATED';
     const INVALID_LOCALE_ID = 'INVALID_LOCALE_ID';
-
+    const INVALID_TRANSLATION_ID = 'INVALID_TRANSLATION_ID';
+    const INVALID_ENGLISHTEXT_ID = 'INVALID_ENGLISHTEXT_ID';
 
 
     public static $errorCodeMap = [
@@ -146,6 +147,8 @@ final class ErrorConstants
         self::INVALID_TASKSTOSERVICERS  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_taskstoservicers'],
         self::TASK_NOT_CREATED  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_tasknotcreated'],
         self::TRYAFTERSOMETIME  => ['code' => 422, self::MESSAGE => 'api.response.error.tryaftersometime'],
-        self::INVALID_LOCALE_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_locale_id']
+        self::INVALID_LOCALE_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_locale_id'],
+        self::INVALID_ENGLISHTEXT_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_englishtext_id'],
+        self::INVALID_TRANSLATION_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_translation_id']
     ];
 }

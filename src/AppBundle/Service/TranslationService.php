@@ -97,4 +97,46 @@ class TranslationService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    public function UpdateTranslation($content)
+    {
+        try {
+            $locale = $this->entityManager->getRepository('AppBundle:Locale')->findOneBy(array(
+                'localeid' => $content['LocaleID'],
+                'activeforlanguages' => true
+            ));
+            if (!$locale) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_LOCALE_ID);
+            }
+
+            $englishText = $this->entityManager->getRepository('AppBundle:TranslationTexts')->find($content['EnglishTextID']);
+            if (!$englishText) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_ENGLISHTEXT_ID);
+            }
+
+            if (array_key_exists('TranslationID',$content) && $content['TranslationID']) {
+                // Update translationID
+                $translation = $this->entityManager->getRepository('AppBundle:Translations')->find($content['TranslationID']);
+                if (!$translation) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TRANSLATION_ID);
+                }
+
+                $translation->setTranslatedtext($content['TranslatedText']);
+                $this->entityManager->persist($translation);
+            } else {
+                // Create New Translation
+            }
+            $this->entityManager->flush();
+            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error("Unable to Update Translation:" .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
