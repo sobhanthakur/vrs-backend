@@ -42,6 +42,7 @@ class SendMail extends BaseService
 
             $to = $this->serviceContainer->getParameter('mailer_to');
             $from = $this->serviceContainer->getParameter('mailer_from');
+            $cc = $this->serviceContainer->getParameter('mailer_cc');
 
             $today = $today->format('Y-m-d');
             $logPath = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
@@ -50,6 +51,7 @@ class SendMail extends BaseService
                 ->setSubject($subject)
                 ->setFrom($from)
                 ->setTo($to)
+                ->setCc($cc)
                 ->setBody($message,'text/html')
             ;
 
