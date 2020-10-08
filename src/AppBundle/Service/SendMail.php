@@ -56,7 +56,7 @@ class SendMail extends BaseService
                 ->setBody($message,'text/html')
             ;
 
-            if (file_exists($logPath1 && $logPath2)) {
+            if (file_exists($logPath1) && file_exists($logPath2)) {
                 $msg->attach(\Swift_Attachment::fromPath($logPath1)->setFilename("exception-".$today.".log"));
                 $msg->attach(\Swift_Attachment::fromPath($logPath2)->setFilename("apiRequestResponse-".$today.".log"));
             }
