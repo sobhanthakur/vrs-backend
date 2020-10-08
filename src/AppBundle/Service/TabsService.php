@@ -441,9 +441,6 @@ class TabsService extends BaseService
                     //TaskInfo
                     $response['TaskInfo'] = array(
                         'TaskImages' => $images,
-                        'TaskDescriptionImage1' => $tasks[0]['TaskDescriptionImage1'],
-                        'TaskDescriptionImage2' => $tasks[0]['TaskDescriptionImage2'],
-                        'TaskDescriptionImage3' => $tasks[0]['TaskDescriptionImage3'],
                         'IncludeToOwnerNote' => (int)$tasks[0]['IncludeToOwnerNote'],
                         'ToOwnerNote' => $tasks[0]['ToOwnerNote'],
                         'DefaultToOwnerNote' => $tasks[0]['DefaultToOwnerNote'],
