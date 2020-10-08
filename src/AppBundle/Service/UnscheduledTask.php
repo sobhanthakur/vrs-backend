@@ -261,8 +261,8 @@ class UnscheduledTask extends BaseService
             $task->setTaskcompletebydate($localTime);
             $task->setTaskcompletebytime(99);
             // remove this when schema changes
-            // $task->setServiceid(null);
-            $task->setServiceid(0);
+             $task->setServiceid(null);
+//            $task->setServiceid(0);
             $task->setServicerid($servicerID);
             $task->setServicernotes(array_key_exists('UnscheduledTaskNote',$details) ? trim($details['UnscheduledTaskNote']) : null);
             $task->setToownernote(array_key_exists('NoteToOwner',$details) ? trim($details['NoteToOwner']) : null);
