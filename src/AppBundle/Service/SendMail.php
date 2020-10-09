@@ -45,7 +45,8 @@ class SendMail extends BaseService
             $cc = $this->serviceContainer->getParameter('mailer_cc');
 
             $today = $today->format('Y-m-d');
-            $logPath = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
+            $logPath1 = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
+            $logPath2 = $this->serviceContainer->getParameter('kernel.logs_dir')."/apiRequestResponse-".$today.".log";
 
             $msg = \Swift_Message::newInstance()
                 ->setSubject($subject)
@@ -55,8 +56,9 @@ class SendMail extends BaseService
                 ->setBody($message,'text/html')
             ;
 
-            if (file_exists($logPath)) {
-                $msg->attach(\Swift_Attachment::fromPath($logPath)->setFilename("exception-".$today.".log"));
+            if (file_exists($logPath1) && file_exists($logPath2)) {
+                $msg->attach(\Swift_Attachment::fromPath($logPath1)->setFilename("exception-".$today.".log"));
+                $msg->attach(\Swift_Attachment::fromPath($logPath2)->setFilename("apiRequestResponse-".$today.".log"));
             }
 
             $sent = $this->serviceContainer->get('mailer')->send($msg);
