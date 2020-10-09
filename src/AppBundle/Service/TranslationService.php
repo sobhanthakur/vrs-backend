@@ -10,6 +10,8 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Translations;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -100,6 +102,7 @@ class TranslationService extends BaseService
 
     public function UpdateTranslation($content)
     {
+        $translation = null;
         try {
             $locale = $this->entityManager->getRepository('AppBundle:Locale')->findOneBy(array(
                 'localeid' => $content['LocaleID'],
@@ -125,9 +128,18 @@ class TranslationService extends BaseService
                 $this->entityManager->persist($translation);
             } else {
                 // Create New Translation
+                $translation = new Translations();
+                $translation->setTranslationLocaleID($locale);
+                $translation->setTranslationTextID($englishText);
+                $translation->setTranslatedtext($content['TranslatedText']);
+                $this->entityManager->persist($translation);
             }
             $this->entityManager->flush();
-            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+            return array(
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => "Success",
+                "TranslationID" => $translation->getTranslationid()
+            );
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
