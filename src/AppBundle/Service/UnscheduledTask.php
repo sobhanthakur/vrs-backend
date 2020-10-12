@@ -253,7 +253,8 @@ class UnscheduledTask extends BaseService
             $task = new Tasks();
             $task->setPropertybookingid(null);
             $task->setPropertyid($propertyObj);
-            $task->setTaskname(array_key_exists('TaskName',$details) && trim($details['TaskName']) !== '' ?  $details['TaskName'] : $servicerObj->getTaskname());
+            // $task->setTaskname(array_key_exists('TaskName',$details) && trim($details['TaskName']) !== '' ?  $details['TaskName'] : $servicerObj->getTaskname());
+            $task->setTaskname(array_key_exists('TaskName',$details) ?  $details['TaskName'] : '');
             $task->setTasktype(6);
             $task->setTaskdate($localTime);
             $task->setTasktime((int)ltrim($localTime->format('H'), '0'));
