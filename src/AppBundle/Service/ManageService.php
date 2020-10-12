@@ -103,9 +103,12 @@ class ManageService extends BaseService
 
                 // Get Payrate of that Servicer
                 $payRate = 0;
-                $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
-                if ($servicerObj) {
-                    $payRate = $servicerObj->getPayrate();
+                $servicerObj = null;
+                if ($thisDefaultServicerID) {
+                    $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                    if ($servicerObj) {
+                        $payRate = $servicerObj->getPayrate();
+                    }
                 }
 
                 // Insert Lead Employee
