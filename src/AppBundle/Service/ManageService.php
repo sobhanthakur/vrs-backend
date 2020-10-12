@@ -76,7 +76,7 @@ class ManageService extends BaseService
 
             // Persist and flush Issue
             $this->entityManager->persist($issues);
-            $this->entityManager->flush();
+//            $this->entityManager->flush();
 
             // If ServiceID is present And Issue IS is present then create a task
             if ($issues && array_key_exists('FormServiceID',$content) ? $content['FormServiceID'] !== '' : null) {
@@ -137,15 +137,18 @@ class ManageService extends BaseService
                 if (!empty($rsAdditionalServicers)) {
                     foreach ($rsAdditionalServicers as $rsAdditionalServicer) {
                         // Assign the default Servicer
-                        $thisDefaultServicerID = $rsAdditionalServicer['DefaultServicerID'];
+                        $thisDefaultServicerID = $rsAdditionalServicer['ServicerID'];
 
                         // If the servicer is not working on this day, then assign a backup Servicer
                         if(strpos((string)$rsAdditionalServicer['WorkDays'],(string)$thisDayOfWeek) === false) {
                             $thisDefaultServicerID = $rsAdditionalServicer['BackupServicerID'.(string)$thisDayOfWeek];
                         }
 
-                        // Servicer Object
-                        $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                        $servicerObj = null;
+                        if ($thisDefaultServicerID) {
+                            // Servicer Object
+                            $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                        }
 
                         // INSERT ADDITIONAL EMPLOYEE
                         $tasksToServicers = new Taskstoservicers();
