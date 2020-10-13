@@ -309,7 +309,28 @@ class UnscheduledTask extends BaseService
                 $content['StartPause'] = 1;
                 $this->serviceContainer->get('vrscheduler.starttask_service')->StartTask($servicerID, $content, $mobileHeaders);
             } else {
+                // Create an Issue if task note is present
+                if (trim($details['UnscheduledTaskNote']) !== '') {
+                    $issues = new \AppBundle\Entity\Issues();
+                    $issues->setIssuetype(-1);
+                    $issues->setUrgent(false);
+                    $issues->setIssue(substr($details['UnscheduledTaskNote'], 0, 150));
+                    $issues->setPropertyid($propertyObj);
 
+                    if (strlen($details['UnscheduledTaskNote']) > 150) {
+                        $issues->setNotes($details['UnscheduledTaskNote']);
+                    } else {
+                        $issues->setNotes('');
+                    }
+
+                    $issues->setFromtaskid($task);
+                    $issues->setSubmittedbyservicerid($servicerObj);
+                    $this->entityManager->persist($issues);
+                    $this->entityManager->flush();
+                    $response['IssueID'] = $issues->getIssueid();
+                }
+
+                // Manage Locations
                 $isMobile = $mobileHeaders['IsMobile'];
                 (int)$servicerObj->getTimetrackinggps() ? $timeTrackingGps = true : $timeTrackingGps = false;
                 array_key_exists('lat', $content) ? $lat = $content['lat'] : $lat = null;
