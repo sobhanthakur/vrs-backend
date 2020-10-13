@@ -505,6 +505,10 @@ class TasksRepository extends EntityRepository
                 $result->addSelect('t2.mintimetocomplete AS Min, t2.maxtimetocomplete AS Max');
             }
 
+            // Add Booking Colour details
+            $result->addSelect('pb2.color AS BookingColor')
+                ->addSelect('IDENTITY(pb2.propertyid) AS PropertyBookingPropertyID');
+
             // Fetch Guest Details based on conditions
             $result->addSelect('pb2.numberofguests AS PrevNumberOfGuests,pb2.numberofchildren AS PrevNumberOfChildren,pb2.numberofpets AS PrevNumberOfPets');
             $result->addSelect('npb2.numberofguests AS NextNumberOfGuests,npb2.numberofchildren AS NextNumberOfChildren,npb2.numberofpets AS NextNumberOfPets');

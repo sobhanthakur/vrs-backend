@@ -190,6 +190,16 @@ class ServicersDashboardService extends BaseService
                     $status = 2;
                 }
 
+                // Compute Region Colour
+                if ((string)$tasks[$i]['BookingColor'] !== '' && $tasks[$i]['PropertyID'] === $tasks[$i]['PropertyBookingPropertyID']) {
+                    $regionColour = trim($tasks[$i]['BookingColor']);
+                } elseif ($tasks[$i]['RegionColor'] !== '') {
+                    $regionColour = trim($tasks[$i]['RegionColor']);
+                } else {
+                    $regionColour = '#0275d8';
+                }
+
+
                 $response[$i]['Details'] = array(
                     'DoneCondition' => $doneCondition,
                     'Status' => $status,
@@ -206,7 +216,7 @@ class ServicersDashboardService extends BaseService
                     'TaskID' => $tasks[$i]['TaskID'],
                     'TaskName' => $tasks[$i]['TaskName'],
                     'Region' => $tasks[$i]['Region'],
-                    'RegionColor' => $tasks[$i]['RegionColor'],
+                    'RegionColor' => $regionColour,
                     'PropertyBookingID' => $tasks[$i]['PropertyBookingID'],
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],
