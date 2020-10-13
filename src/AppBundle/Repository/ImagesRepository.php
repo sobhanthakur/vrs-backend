@@ -39,7 +39,7 @@ class ImagesRepository extends EntityRepository
     public function GetImagesForImageTab($propertyID, $serviceID=null,$limit = null)
     {
         $result = $this->createQueryBuilder('i')
-            ->select('i.sortorder AS SortOrder,i.imageid AS ImageID,i.imagetitle AS ImageTitle,i.image AS Image,i.imagedescription AS ImageDescription')
+            ->select('i.embedtag AS EmbedTag,i.pdf AS PDF,i.sortorder AS SortOrder,i.imageid AS ImageID,i.imagetitle AS ImageTitle,i.image AS Image,i.imagedescription AS ImageDescription')
             ->where('i.propertyid=' . $propertyID);
 
         if ($serviceID) {
