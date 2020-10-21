@@ -234,17 +234,18 @@ class ManageSubmit extends BaseService
             }
 
             // there is a SERVICER NOTE, Make it an Issue
-            if (trim($content['TaskNote']) !== '') {
+            if (trim($content['TaskNote']) !== '' || $taskObj->getServicernotes() !== '') {
 //                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
 //                if (empty($rsAllTaskIssues)) {
+                    trim($content['TaskNote']) !== '' ? $taskNote = $content['TaskNote'] : $taskNote = $taskObj->getServicernotes();
                     $issues = new Issues();
                     $issues->setIssuetype(-1);
                     $issues->setUrgent(false);
-                    $issues->setIssue(substr($content['TaskNote'], 0, 150));
+                    $issues->setIssue(substr($taskNote, 0, 150));
                     $issues->setPropertyid($propertyObj);
 
-                    if (strlen($content['TaskNote']) > 150) {
-                        $issues->setNotes($content['TaskNote']);
+                    if (strlen($taskNote) > 150) {
+                        $issues->setNotes($taskNote);
                     } else {
                         $issues->setNotes('');
                     }
