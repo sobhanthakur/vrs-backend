@@ -74,10 +74,34 @@ class ManageSubmit extends BaseService
             // Task Object
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($rsThisTask[0]['TaskID']);
 
+            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0]['PropertyID']);
+
+            // there is a SERVICER NOTE, Make it an Issue
+            if (((string)$taskObj->getServicernotes() !== "") || (trim($content['TaskNote']) !== "")) {
+//                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
+//                if (empty($rsAllTaskIssues)) {
+                trim($content['TaskNote']) !== "" ? $taskNote = $content['TaskNote'] : $taskNote = (string)$taskObj->getServicernotes();
+                $issues = new Issues();
+                $issues->setIssuetype(-1);
+                $issues->setUrgent(false);
+                $issues->setIssue(substr($taskNote, 0, 150));
+                $issues->setPropertyid($propertyObj);
+
+                if (strlen($taskNote) > 150) {
+                    $issues->setNotes($taskNote);
+                } else {
+                    $issues->setNotes('');
+                }
+
+                $issues->setFromtaskid($taskObj);
+                $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($rsServicers[0]['ServicerID']));
+                $this->entityManager->persist($issues);
+//                }
+                $this->entityManager->flush();
+            }
+
             // Save the manage form first
             $save = $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,$dateTime);
-
-            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0]['PropertyID']);
 
             if ($rsThisTask[0]['PropertyStatusID'] && (int)$rsThisTask[0]['PropertyStatusID'] !== 0) {
                 if ($propertyObj) {
@@ -231,28 +255,6 @@ class ManageSubmit extends BaseService
                     $schedulingWebHooks->setValue($rsThisTask[0]['BH247Custom_2State']);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
-            }
-
-            // there is a SERVICER NOTE, Make it an Issue
-            if (trim($content['TaskNote']) !== '') {
-//                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
-//                if (empty($rsAllTaskIssues)) {
-                    $issues = new Issues();
-                    $issues->setIssuetype(-1);
-                    $issues->setUrgent(false);
-                    $issues->setIssue(substr($content['TaskNote'], 0, 150));
-                    $issues->setPropertyid($propertyObj);
-
-                    if (strlen($content['TaskNote']) > 150) {
-                        $issues->setNotes($content['TaskNote']);
-                    } else {
-                        $issues->setNotes('');
-                    }
-
-                    $issues->setFromtaskid($taskObj);
-                    $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($rsServicers[0]['ServicerID']));
-                    $this->entityManager->persist($issues);
-//                }
             }
 
             // Update the time Tracking
