@@ -12,6 +12,7 @@ namespace AppBundle\Constants;
 final class GeneralConstants
 {
     const TOKEN_EXPIRY_TIME = '43200';
+    const PWA_TOKEN_EXPIRY_TIME = '2592000';
     const QWC_APP_ID = '{11A45FC0-11D6-2315-AB85-AC87A7D71230}';
     const QWC_SYNC_INFO = [
         self::OWNERID => '{90A44FB7-33D6-4815-AC85-AC86A7E71230}',
