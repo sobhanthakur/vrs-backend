@@ -372,7 +372,7 @@ class AuthenticationService extends BaseService
             $accessToken = (new Builder())
                 ->set(GeneralConstants::SERVICERID, $servicerID)
                 ->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
-                ->setHeader('exp',GeneralConstants::TOKEN_EXPIRY_TIME)
+                ->setHeader('exp',GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
 
                 // Creating Signature.
                 ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
