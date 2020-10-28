@@ -311,20 +311,18 @@ class ManageService extends BaseService
     public function UploadImage($request)
     {
         $path = $this->serviceContainer->getParameter('filepath');
-        $filename = null;
+        $imageName = null;
         $response = [];
         try {
             $customerID = $request->get('CustomerID');
-            $request->files->get('Image') ? $image = $request->files->get('Image') : $image=null;
+            $imageName = $request->get('ImageName');
+            $image = $request->get('Image');
 
-            if (!$customerID || !$image) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
-            }
+            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
-            // Move the file to a corresponding path
-            $filename = $image->getClientOriginalName();
-            $image->move($path,$filename);
-
+            // Save the File
+            file_put_contents($path."/".$imageName, $data);
+            
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
 
@@ -342,8 +340,8 @@ class ManageService extends BaseService
             $result = $s3->putObject([
                 'Bucket' => $aws['bucket_name'],
                 'ACL' => 'public-read',
-                'Key'    => $customerID.'/'.$filename,
-                'SourceFile' => $path.'/'.$filename
+                'Key'    => $customerID.'/'.$imageName,
+                'SourceFile' => $path.'/'.$imageName
             ]);
 
             if ($result) {
@@ -364,8 +362,8 @@ class ManageService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         } finally {
             // Delete the Image from Local Path
-            if ($filename) {
-                unlink($path.'/'.$filename);
+            if ($imageName) {
+                unlink($path.'/'.$imageName);
             }
         }
     }
