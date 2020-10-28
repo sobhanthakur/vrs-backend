@@ -321,7 +321,7 @@ class ManageService extends BaseService
             $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
             // Save the File
-            file_put_contents($path.$imageName, $data);
+//            file_put_contents($path.$imageName, $data);
             
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
@@ -341,7 +341,7 @@ class ManageService extends BaseService
                 'Bucket' => $aws['bucket_name'],
                 'ACL' => 'public-read',
                 'Key'    => $customerID.'/'.$imageName,
-                'SourceFile' => $path.'/'.$imageName
+                'Body' => $data
             ]);
 
             if ($result) {
@@ -360,11 +360,12 @@ class ManageService extends BaseService
             $this->logger->error('Failed Uploading Image due to: '.
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
-        } finally {
-            // Delete the Image from Local Path
-            if ($imageName) {
-                unlink($path.'/'.$imageName);
-            }
         }
+        /*finally {
+            // Delete the Image from Local Path
+            if ($path.$imageName) {
+                unlink($path.$imageName);
+            }
+        }*/
     }
 }
