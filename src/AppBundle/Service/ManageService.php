@@ -321,7 +321,7 @@ class ManageService extends BaseService
             $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
             // Save the File
-            file_put_contents($path."/".$imageName, $data);
+            file_put_contents($path.$imageName, $data);
             
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
