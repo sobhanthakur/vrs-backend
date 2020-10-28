@@ -36,6 +36,13 @@ class Services
     private $numberofservicers = '0';
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="Beds24UnitStatusText", type="string", length=50, nullable=true)
+     */
+    private $beds24UnitStatusText;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="Abbreviation", type="string", length=10, nullable=true, options={"fixed"=true})
@@ -713,6 +720,34 @@ class Services
      * @ORM\Column(name="CloudbedsHousekeepingStatus", type="string", length=20, nullable=true, options={"fixed"=true})
      */
     private $cloudbedshousekeepingstatus;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="WebRezProStatus", type="string", length=20, nullable=true, options={"fixed"=true})
+     */
+    private $webRezProStatus;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="LMPMStatus", type="string", length=20, nullable=true, options={"fixed"=true})
+     */
+    private $lmpmStatus;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="GuestyStatus", type="string", length=20, nullable=true, options={"fixed"=true})
+     */
+    private $guestyStatus;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="Beds24UnitStatusIndex", type="string", length=20, nullable=true, options={"fixed"=true})
+     */
+    private $beds24UnitStatusIndex;
 
     /**
      * @var string|null
@@ -3295,5 +3330,125 @@ class Services
     public function getFlag2()
     {
         return $this->flag2;
+    }
+
+    /**
+     * Set webRezProStatus.
+     *
+     * @param string|null $webRezProStatus
+     *
+     * @return Services
+     */
+    public function setWebRezProStatus($webRezProStatus = null)
+    {
+        $this->webRezProStatus = $webRezProStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get webRezProStatus.
+     *
+     * @return string|null
+     */
+    public function getWebRezProStatus()
+    {
+        return $this->webRezProStatus;
+    }
+
+    /**
+     * Set lmpmStatus.
+     *
+     * @param string|null $lmpmStatus
+     *
+     * @return Services
+     */
+    public function setLmpmStatus($lmpmStatus = null)
+    {
+        $this->lmpmStatus = $lmpmStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get lmpmStatus.
+     *
+     * @return string|null
+     */
+    public function getLmpmStatus()
+    {
+        return $this->lmpmStatus;
+    }
+
+    /**
+     * Set guestyStatus.
+     *
+     * @param string|null $guestyStatus
+     *
+     * @return Services
+     */
+    public function setGuestyStatus($guestyStatus = null)
+    {
+        $this->guestyStatus = $guestyStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get guestyStatus.
+     *
+     * @return string|null
+     */
+    public function getGuestyStatus()
+    {
+        return $this->guestyStatus;
+    }
+
+    /**
+     * Set beds24UnitStatusIndex.
+     *
+     * @param string|null $beds24UnitStatusIndex
+     *
+     * @return Services
+     */
+    public function setBeds24UnitStatusIndex($beds24UnitStatusIndex = null)
+    {
+        $this->beds24UnitStatusIndex = $beds24UnitStatusIndex;
+
+        return $this;
+    }
+
+    /**
+     * Get beds24UnitStatusIndex.
+     *
+     * @return string|null
+     */
+    public function getBeds24UnitStatusIndex()
+    {
+        return $this->beds24UnitStatusIndex;
+    }
+
+    /**
+     * Set beds24UnitStatusText.
+     *
+     * @param string|null $beds24UnitStatusText
+     *
+     * @return Services
+     */
+    public function setBeds24UnitStatusText($beds24UnitStatusText = null)
+    {
+        $this->beds24UnitStatusText = $beds24UnitStatusText;
+
+        return $this;
+    }
+
+    /**
+     * Get beds24UnitStatusText.
+     *
+     * @return string|null
+     */
+    public function getBeds24UnitStatusText()
+    {
+        return $this->beds24UnitStatusText;
     }
 }
