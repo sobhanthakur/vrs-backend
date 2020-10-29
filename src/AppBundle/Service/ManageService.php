@@ -350,7 +350,7 @@ class ManageService extends BaseService
                 }
             }
 
-            return $response;
+            return $result;
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
