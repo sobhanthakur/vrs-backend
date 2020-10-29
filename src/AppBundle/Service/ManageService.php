@@ -350,7 +350,7 @@ class ManageService extends BaseService
                 }
             }
 
-            return $result;
+            return $response;
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -360,12 +360,11 @@ class ManageService extends BaseService
             $this->logger->error('Failed Uploading Image due to: '.
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        } finally {
+            // Delete the Image from Local Path
+            if ($path.$imageName) {
+                unlink($path.$imageName);
+            }
         }
-//        finally {
-//            // Delete the Image from Local Path
-//            if ($path.$imageName) {
-//                unlink($path.$imageName);
-//            }
-//        }
     }
 }
