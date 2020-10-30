@@ -112,81 +112,151 @@ class ManageSubmit extends BaseService
             }
 
             // Submit To CloudBeds
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(3);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['CloudbedsHousekeepingStatus']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((string)trim($rsThisTask[0]['CloudbedsHousekeepingStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(3);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['CloudbedsHousekeepingStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
+
+            // Submit To WebRezProStatus
+            if ((string)trim($rsThisTask[0]['WebRezProStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(11);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['WebRezProStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to Mews
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(7);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['MewsStatus']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((string)trim($rsThisTask[0]['MewsStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(7);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['MewsStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
+
+            // Submit to LMPM
+            if ((int)$rsThisTask[0]['LMPMStatus'] !== 0) {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(9);
+                $schedulingWebHooks->setEventid(0);
+                $schedulingWebHooks->setValue($rsThisTask[0]['LMPMStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
+
+            // Submit to GUESTY
+            if ((int)$rsThisTask[0]['GuestyStatus'] !== 0 && (string)trim($rsThisTask[0]['GuestyStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(10);
+                $schedulingWebHooks->setEventid(0);
+                $schedulingWebHooks->setValue($rsThisTask[0]['GuestyStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to Operto
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(4);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['OpertoStatus']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((string)trim($rsThisTask[0]['OpertoStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(4);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['OpertoStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to Trackhs
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(6);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['TrackHSCleanTypeID']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((int)$rsThisTask[0]['TrackHSCleanTypeID'] !== 0) {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(6);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['TrackHSCleanTypeID']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
+
+            // Submit to Trackhs
+            if ((int)$rsThisTask[0]['Beds24UnitStatusIndex'] !== 0) {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(8);
+                $schedulingWebHooks->setEventid($rsThisTask[0]['Beds24UnitStatusIndex']);
+                $schedulingWebHooks->setValue($rsThisTask[0]['Beds24UnitStatusText']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to ESCAPIA
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(2);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['EscapiaHousekeepingStatus']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((string)trim($rsThisTask[0]['EscapiaHousekeepingStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(2);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['EscapiaHousekeepingStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to STREAMLINE
-            $schedulingWebHooks = new Scheduledwebhooks();
-            $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-            $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-            $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-            $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-            $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
-            $schedulingWebHooks->setPartnerid(5);
-            $schedulingWebHooks->setEventid(1);
-            $schedulingWebHooks->setValue($rsThisTask[0]['StreamlineHousekeepingStatus']);
-            $this->entityManager->persist($schedulingWebHooks);
+            if ((int)$rsThisTask[0]['StreamlineHousekeepingStatus'] !== 0) {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
+                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
+                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setPartnerid(5);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['StreamlineHousekeepingStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
 
             // Submit to BH247
             if ((int)$rsServicers[0]['UseBeHome247'] !== 0 &&
                 (int)$rsThisTask[0]['BeHome247ID'] !== 0 &&
                 ($rsThisTask[0]['BH247CleaningState'] !== '' ||
+                    $rsThisTask[0]['BH247QAState'] !== '' ||
+                    $rsThisTask[0]['BH247MaintenanceState'] !== '' ||
                     $rsThisTask[0]['BH247Custom_1State'] !== '' ||
                     $rsThisTask[0]['BH247Custom_2State'] !== ''
                 )
