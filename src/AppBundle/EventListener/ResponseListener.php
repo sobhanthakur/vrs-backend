@@ -43,6 +43,13 @@ class ResponseListener extends BaseService
             $response->setStatusCode(201);
         }
 
+        // Make HTTP Status Code to 200 for QB auth API
+        if($request->attributes->get('_route') === 'oauth_validate_post' &&
+            $response->getStatusCode() === 401
+        ) {
+            $response->setStatusCode(200);
+        }
+
         //Enable Headers for CORS
         $response->headers->set('Access-Control-Allow-Origin','*');
         $response->headers->set('Access-Control-Allow-Headers','*');
