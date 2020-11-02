@@ -112,8 +112,17 @@ class ExceptionListener extends BaseService
 
         $responseService = $this->serviceContainer->get('vrscheduler.api_response_service');
 
-        $result = $responseService->createApiErrorResponse($messageKey);
-        $response = new JsonResponse($result, $status);
+        // Set custom exception for QB auth API
+        if ($event->getRequest()->attributes->get('_route') === 'oauth_validate_post') {
+            $result = array(
+                GeneralConstants::REASON_CODE => 1004,
+                GeneralConstants::REASON_TEXT => "Invalid Authorization"
+            );
+            $response = new JsonResponse($result, 200);
+        } else {
+            $result = $responseService->createApiErrorResponse($messageKey);
+            $response = new JsonResponse($result, $status);
+        }
 
         // Logging Exception in Exception log.
         $this->logger->error('VRS Exception :', [
