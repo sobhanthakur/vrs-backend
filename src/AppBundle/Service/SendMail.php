@@ -67,7 +67,7 @@ class SendMail extends BaseService
                 $file = file($logPath1);
                 $exceptionMsg = '';
                 for ($i = max(0, count($file)-5); $i < count($file); $i++) {
-                    $exceptionMsg .= $file[$i] . "\n";
+                    $exceptionMsg .= $file[$i];
                 }
 
                 if (file_exists($logPath1)) {
