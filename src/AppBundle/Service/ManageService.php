@@ -321,8 +321,12 @@ class ManageService extends BaseService
             $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
             // Save the File
-            file_put_contents($path.$imageName, $data);
-            
+            if ($imageName && $imageName !== '') {
+                file_put_contents($path.$imageName, $data);
+            } else {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
+            }
+
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
 
@@ -362,7 +366,7 @@ class ManageService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         } finally {
             // Delete the Image from Local Path
-            if ($path.$imageName) {
+            if ($imageName && $imageName !== '' && file_exists($path.$imageName)) {
                 unlink($path.$imageName);
             }
         }

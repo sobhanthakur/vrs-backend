@@ -85,6 +85,19 @@ class ExceptionListener extends BaseService
                 break;
         }
 
+        $responseService = $this->serviceContainer->get('vrscheduler.api_response_service');
+
+        $result = $responseService->createApiErrorResponse($messageKey);
+        $response = new JsonResponse($result, $status);
+
+        // Logging Exception in Exception log.
+        $this->logger->error('VRS Exception :', [
+            'Response' => [
+                'Headers' => $response->headers->all(),
+                'Content' => $response->getContent()
+            ]
+        ]);
+
         // Send Mail on Error (422,500)
         $request = $event->getRequest();
         if ($status === 422 || $status === 500) {
@@ -93,6 +106,7 @@ class ExceptionListener extends BaseService
             $content['JWT'] = $request->headers->has('authorization') ? explode(" ",$request->headers->get('authorization'))[1] : "";
             $content['RequestContent'] = $request->getContent();
             $content['Error'] = $exceptionMessage;
+            $content['URI'] = $request->getRequestUri();
 
             $authPayload = [];
             $authPayload['CustomerID'] = null;
@@ -110,18 +124,6 @@ class ExceptionListener extends BaseService
             $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content);
         }
 
-        $responseService = $this->serviceContainer->get('vrscheduler.api_response_service');
-
-        $result = $responseService->createApiErrorResponse($messageKey);
-        $response = new JsonResponse($result, $status);
-
-        // Logging Exception in Exception log.
-        $this->logger->error('VRS Exception :', [
-            'Response' => [
-                'Headers' => $response->headers->all(),
-                'Content' => $response->getContent()
-            ]
-        ]);
         $event->setResponse($response);
     }
 }

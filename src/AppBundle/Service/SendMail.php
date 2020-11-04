@@ -49,22 +49,23 @@ class SendMail extends BaseService
             } else {
                 $requestHeader = $content['JWT'];
                 $requestBody = $content['RequestContent'];
+                $uri = $content['URI'];
 
                 // Generate the Body
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
                 $message .= "<b>ServicerID: </b>".$content['UserInfo']['ServicerID']."<br/>";
                 $message .= "<b>CustomerID: </b>".$content['UserInfo']['CustomerID']."<br/>";
                 $message .= "<b>JWT: </b>".$requestHeader."<br/>";
-                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
+//                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
+                $message .= "<b>URI: </b>".$uri."<br/>";
                 $message .= "<b>Error: </b>".$error."<br/>";
 
                 $today = $today->format('Y-m-d');
                 $logPath1 = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
-                $logPath2 = $this->serviceContainer->getParameter('kernel.logs_dir')."/apiRequestResponse-".$today.".log";
 
-                if (file_exists($logPath1) && file_exists($logPath2)) {
+                if (file_exists($logPath1)) {
                     $msg->attach(\Swift_Attachment::fromPath($logPath1)->setFilename("exception-".$today.".log"));
-                    $msg->attach(\Swift_Attachment::fromPath($logPath2)->setFilename("apiRequestResponse-".$today.".log"));
+                    $msg->attach(\Swift_Attachment::newInstance($content['RequestContent'],"apiRequestResponse-".$today.".log","text/plain"));
                 }
             }
 
