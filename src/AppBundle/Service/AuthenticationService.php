@@ -307,7 +307,7 @@ class AuthenticationService extends BaseService
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
 
             if(empty($servicer)) {
-                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHENTICATION_BODY);
+                throw new UnprocessableEntityHttpException(ErrorConstants::WRONG_PASSWORD);
             }
 
             // Set TimeZone
@@ -383,6 +383,8 @@ class AuthenticationService extends BaseService
                 "Details" => $servicer[0]
             );
         } catch (UnauthorizedHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
