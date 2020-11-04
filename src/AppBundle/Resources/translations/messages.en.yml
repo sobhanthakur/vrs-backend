@@ -79,6 +79,7 @@ api:
             invalid_locale_id: "Please Enter a valid TranslationLocaleID"
             invalid_englishtext_id: "Invalid EnglishTextID"
             invalid_translation_id: "Please Enter a valid TranslationID"
+            wrong_password: "Incorrect Password"
         success:
             message: success
             password_reset: The password was reset successfully.
