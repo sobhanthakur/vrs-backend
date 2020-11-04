@@ -58,6 +58,7 @@ class SendMail extends BaseService
                 $message .= "<b>JWT: </b>".$requestHeader."<br/>";
 //                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
                 $message .= "<b>URI: </b>".$uri."<br/>";
+                $message .= "<b>Method: </b>".$content['Method']."<br/>";
                 $message .= "<b>Error: </b>".$error."<br/>";
 
                 $today = $today->format('Y-m-d');
