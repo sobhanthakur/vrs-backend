@@ -388,37 +388,39 @@ class TabsService extends BaseService
                         $result = [];
 
                         // Create check Lists if empty
-                        switch ((int)$rsChecklistItem['ChecklistTypeID']) {
-                            case 0:
-                                // CheckBox
-                            case 1:
-                            case 9:
-                                // Radio With Other
-                            case 2:
-                                // Radio buttons
-                            case 3:
-                                // Dropdown
-                            case 8:
-                                // Radio With Other
-                            case 4:
-                                // Image Upload
-                            case 5:
-                                // Image Verification
-                                if (empty($rsThisResponse)) {
-                                    $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
-                                }
-                                break;
-                            case 7:
-                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
-                                break;
-                            case 10:
-                                // ColumnCount
-                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
-                                break;
-                            case 11:
-                                // ColumnCount
-                                $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
-                                break;
+                        if ($rsChecklistItem['ChecklistTypeID'] !== null) {
+                            switch ((int)$rsChecklistItem['ChecklistTypeID']) {
+                                case 0:
+                                    // CheckBox
+                                case 1:
+                                case 9:
+                                    // Radio With Other
+                                case 2:
+                                    // Radio buttons
+                                case 3:
+                                    // Dropdown
+                                case 8:
+                                    // Radio With Other
+                                case 4:
+                                    // Image Upload
+                                case 5:
+                                    // Image Verification
+                                    if (empty($rsThisResponse)) {
+                                        $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
+                                    }
+                                    break;
+                                case 7:
+                                    $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
+                                    break;
+                                case 10:
+                                    // ColumnCount
+                                    $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
+                                    break;
+                                case 11:
+                                    // ColumnCount
+                                    $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
+                                    break;
+                            }
                         }
 
                         $checkLists = array('CheckListItem' => $rsChecklistItem);

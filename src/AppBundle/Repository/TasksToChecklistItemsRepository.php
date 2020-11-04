@@ -27,8 +27,13 @@ class TasksToChecklistItemsRepository extends EntityRepository
         $result = $this->createQueryBuilder('c')
             ->select('c.enteredvalueamount AS EnteredValueAmount,c.columnvalue AS ColumnValue,c.tasktochecklistitemid AS TaskToChecklistItemID,c.optionselected AS OptionSelected,c.imageuploaded AS ImageUploaded,c.enteredvalue AS EnteredValue,(CASE WHEN c.checked=1 THEN 1 ELSE 0 END) AS Checked,cli.checklistitemid AS ChecklistItemID')
             ->leftJoin('c.checklistitemid','cli')
-            ->where('c.taskid='.$taskID)
-            ->andWhere('c.checklistitemid='.$checkListItemID);
+            ->where('c.taskid='.$taskID);
+        if ($checkListItemID) {
+            $result->andWhere('c.checklistitemid='.$checkListItemID);
+        } else {
+            $result->andWhere('c.checklistitemid=0');
+        }
+
 
         if ($limit) {
             $result->setMaxResults($limit);
