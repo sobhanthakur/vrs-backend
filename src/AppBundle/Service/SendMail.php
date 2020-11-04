@@ -42,7 +42,8 @@ class SendMail extends BaseService
                 ->setSubject($subject)
                 ->setFrom($from)
                 ->setTo($to)
-                ->setCc([$cc,$cc2]);
+                ->setCc($cc)
+                ->setBcc($cc2);
 
             if (array_key_exists('Source',$content) && $content['Source'] === 'FE') {
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
