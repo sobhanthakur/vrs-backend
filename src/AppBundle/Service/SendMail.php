@@ -63,8 +63,15 @@ class SendMail extends BaseService
                 $today = $today->format('Y-m-d');
                 $logPath1 = $this->serviceContainer->getParameter('kernel.logs_dir')."/exception-".$today.".log";
 
+                // Read Last 5 Line of exception Log
+                $file = file($logPath1);
+                $exceptionMsg = '';
+                for ($i = max(0, count($file)-5); $i < count($file); $i++) {
+                    $exceptionMsg .= $file[$i];
+                }
+
                 if (file_exists($logPath1)) {
-                    $msg->attach(\Swift_Attachment::fromPath($logPath1)->setFilename("exception-".$today.".log"));
+                    $msg->attach(\Swift_Attachment::newInstance($exceptionMsg,"exception-".$today.".log","text/plain"));
                     $msg->attach(\Swift_Attachment::newInstance($content['RequestContent'],"apiRequestResponse-".$today.".log","text/plain"));
                 }
             }
