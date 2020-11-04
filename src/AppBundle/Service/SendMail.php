@@ -36,7 +36,7 @@ class SendMail extends BaseService
             $to = $this->serviceContainer->getParameter('mailer_to');
             $from = $this->serviceContainer->getParameter('mailer_from');
             $cc = $this->serviceContainer->getParameter('mailer_cc');
-            $cc2 = $this->serviceContainer->getParameter('mailer_cc_2');
+//            $cc2 = $this->serviceContainer->getParameter('mailer_cc_2');
 
             $msg = \Swift_Message::newInstance()
                 ->setSubject($subject)
