@@ -85,31 +85,6 @@ class ExceptionListener extends BaseService
                 break;
         }
 
-        // Send Mail on Error (422,500)
-        $request = $event->getRequest();
-        if ($status === 422 || $status === 500) {
-            $content = [];
-            $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');
-            $content['JWT'] = $request->headers->has('authorization') ? explode(" ",$request->headers->get('authorization'))[1] : "";
-            $content['RequestContent'] = $request->getContent();
-            $content['Error'] = $exceptionMessage;
-
-            $authPayload = [];
-            $authPayload['CustomerID'] = null;
-            $authPayload['ServicerID'] = null;
-            if ($request->attributes->get('AuthPayload'))
-            {
-                $temp1 = $request->attributes->get('AuthPayload');
-                if (array_key_exists('message',$temp1)) {
-                    $temp2 = $temp1['message'];
-                    array_key_exists('ServicerID',$temp2) ? $authPayload['ServicerID'] = $temp2['ServicerID'] : $authPayload['ServicerID'] = null;
-                    array_key_exists('CustomerID',$temp2) ? $authPayload['CustomerID'] = $temp2['CustomerID'] : $authPayload['CustomerID'] = null;
-                }
-            }
-            $content['UserInfo'] = $authPayload;
-            $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content);
-        }
-
         $responseService = $this->serviceContainer->get('vrscheduler.api_response_service');
 
         // Set custom exception for QB auth API
@@ -131,6 +106,33 @@ class ExceptionListener extends BaseService
                 'Content' => $response->getContent()
             ]
         ]);
+
+        // Send Mail on Error (422,500)
+        $request = $event->getRequest();
+        if ($status === 422 || $status === 500) {
+            $content = [];
+            $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');
+            $content['JWT'] = $request->headers->has('authorization') ? explode(" ",$request->headers->get('authorization'))[1] : "";
+            $content['RequestContent'] = $request->getContent();
+            $content['Error'] = $exceptionMessage;
+            $content['URI'] = $request->getRequestUri();
+
+            $authPayload = [];
+            $authPayload['CustomerID'] = null;
+            $authPayload['ServicerID'] = null;
+            if ($request->attributes->get('AuthPayload'))
+            {
+                $temp1 = $request->attributes->get('AuthPayload');
+                if (array_key_exists('message',$temp1)) {
+                    $temp2 = $temp1['message'];
+                    array_key_exists('ServicerID',$temp2) ? $authPayload['ServicerID'] = $temp2['ServicerID'] : $authPayload['ServicerID'] = null;
+                    array_key_exists('CustomerID',$temp2) ? $authPayload['CustomerID'] = $temp2['CustomerID'] : $authPayload['CustomerID'] = null;
+                }
+            }
+            $content['UserInfo'] = $authPayload;
+            $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content);
+        }
+
         $event->setResponse($response);
     }
 }
