@@ -36,15 +36,12 @@ class SendMail extends BaseService
             $to = $this->serviceContainer->getParameter('mailer_to');
             $from = $this->serviceContainer->getParameter('mailer_from');
             $cc = $this->serviceContainer->getParameter('mailer_cc');
-//            $cc2 = $this->serviceContainer->getParameter('mailer_cc_2');
 
             $msg = \Swift_Message::newInstance()
                 ->setSubject($subject)
                 ->setFrom($from)
                 ->setTo($to)
-                ->setCc($cc)
-//                ->setBcc($cc2)
-            ;
+                ->setCc($cc);
 
             if (array_key_exists('Source',$content) && $content['Source'] === 'FE') {
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
