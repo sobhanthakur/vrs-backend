@@ -315,8 +315,8 @@ class ManageService extends BaseService
         $response = [];
         try {
             $customerID = 70;
-            $imageName = "sobhan.jpeg";
-            $image = $request->get('Image');
+            $imageName = "test.png";
+//            $image = $request->get('Image');
 
 //            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
@@ -326,6 +326,10 @@ class ManageService extends BaseService
             } else {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
             }*/
+
+            // Read as Form Data
+            $file = $request->files->get('Image');
+            $file->move($path,$imageName);
 
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
@@ -346,7 +350,7 @@ class ManageService extends BaseService
                 'ACL' => 'public-read',
                 'Key'    => $customerID.'/'.$imageName,
 //                'SourceFile' => $path.$imageName
-                'Body' => $image
+                'SourceFile' => $path.$imageName
             ]);
 
             if ($result) {
@@ -367,9 +371,9 @@ class ManageService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         } finally {
             // Delete the Image from Local Path
-            /*if ($imageName && $imageName !== '' && file_exists($path.$imageName)) {
+            if ($imageName && $imageName !== '' && file_exists($path.$imageName)) {
                 unlink($path.$imageName);
-            }*/
+            }
         }
     }
 }
