@@ -367,9 +367,9 @@ class ManageService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         } finally {
             // Delete the Image from Local Path
-            if ($imageName && $imageName !== '' && file_exists($path.$imageName)) {
+            /*if ($imageName && $imageName !== '' && file_exists($path.$imageName)) {
                 unlink($path.$imageName);
-            }
+            }*/
         }
     }
 }
