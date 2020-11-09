@@ -314,8 +314,8 @@ class ManageService extends BaseService
         $imageName = null;
         $response = [];
         try {
-            $customerID = $request->get('CustomerID');
-            $imageName = $request->get('ImageName');
+            $customerID = 70;
+            $imageName = "sobhan.jpeg";
             $image = $request->get('Image');
 
 //            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
