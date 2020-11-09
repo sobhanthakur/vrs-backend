@@ -73,7 +73,7 @@ class SendMail extends BaseService
 
                 if (file_exists($logPath1)) {
                     $msg->attach(\Swift_Attachment::newInstance($exceptionMsg,"exception-".$today.".log","text/plain"));
-                    $msg->attach(\Swift_Attachment::newInstance($content['RequestContent'],"apiRequestResponse-".$today.".log","text/plain"));
+                    $msg->attach(\Swift_Attachment::newInstance($requestBody,"apiRequestResponse-".$today.".log","text/plain"));
                 }
             }
 

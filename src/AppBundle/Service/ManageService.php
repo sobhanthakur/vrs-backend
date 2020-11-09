@@ -318,14 +318,14 @@ class ManageService extends BaseService
             $imageName = $request->get('ImageName');
             $image = $request->get('Image');
 
-            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
+//            $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $image));
 
             // Save the File
-            if ($imageName && $imageName !== '') {
+            /*if ($imageName && $imageName !== '') {
                 file_put_contents($path.$imageName, $data);
             } else {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
-            }
+            }*/
 
             // aws Parameters
             $aws = $this->serviceContainer->getParameter('aws');
@@ -345,7 +345,8 @@ class ManageService extends BaseService
                 'Bucket' => $aws['bucket_name'],
                 'ACL' => 'public-read',
                 'Key'    => $customerID.'/'.$imageName,
-                'SourceFile' => $path.$imageName
+//                'SourceFile' => $path.$imageName
+                'Body' => $image
             ]);
 
             if ($result) {
