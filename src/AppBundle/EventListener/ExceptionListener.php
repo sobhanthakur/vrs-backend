@@ -108,6 +108,7 @@ class ExceptionListener extends BaseService
             $content['Error'] = $exceptionMessage;
             $content['URI'] = $request->getRequestUri();
             $content['Method'] = $request->getMethod();
+            $content['Content-Length'] = $request->headers->get('Content-Length');
 
             $authPayload = [];
             $authPayload['CustomerID'] = null;

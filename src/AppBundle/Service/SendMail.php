@@ -60,6 +60,7 @@ class SendMail extends BaseService
 //                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
                 $message .= "<b>URI: </b>".$uri."<br/>";
                 $message .= "<b>Method: </b>".$content['Method']."<br/>";
+                $message .= "<b>Content-Length: </b>".$content['Content-Length']." bytes<br/>";
                 $message .= "<b>Error: </b>".$error."<br/>";
 
                 $today = $today->format('Y-m-d');
@@ -74,7 +75,7 @@ class SendMail extends BaseService
 
                 if (file_exists($logPath1)) {
                     $msg->attach(\Swift_Attachment::newInstance($exceptionMsg,"exception-".$today.".log","text/plain"));
-                    $msg->attach(\Swift_Attachment::newInstance($requestBody,"apiRequestResponse-".$today.".log","text/plain"));
+                    $msg->attach(\Swift_Attachment::newInstance($requestBody,"apiRequest-".$today.".log","text/plain"));
                 }
             }
 
