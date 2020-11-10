@@ -43,7 +43,8 @@ class ManageSubmit extends BaseService
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->SubmitManage($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                return array();
             }
 
             $rsServicers = $this->entityManager->getRepository('AppBundle:Servicers')->SubmitManageTab($servicerID);
