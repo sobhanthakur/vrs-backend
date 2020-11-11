@@ -193,7 +193,7 @@ class UnscheduledTask extends BaseService
                 'Manage' => $manage,
                 'Log' => $log,
                 'Image' => $image,
-                'Info' => $property
+                'Property' => $property
             );
 
             return $response;
