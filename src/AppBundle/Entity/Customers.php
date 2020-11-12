@@ -643,6 +643,20 @@ class Customers
      */
     private $countryid;
 
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="UseQuickbooks", type="boolean", nullable=false)
+     */
+    private $useQuickbooks=false;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="ConnectedStripeAccountID", type="string", length=200, nullable=true)
+     */
+    private $connectedStripeAccountID;
+
 
 
     /**
@@ -2765,5 +2779,53 @@ class Customers
     public function getLinenfields()
     {
         return $this->linenfields;
+    }
+
+    /**
+     * Set useQuickbooks.
+     *
+     * @param bool $useQuickbooks
+     *
+     * @return Customers
+     */
+    public function setUseQuickbooks($useQuickbooks)
+    {
+        $this->useQuickbooks = $useQuickbooks;
+
+        return $this;
+    }
+
+    /**
+     * Get useQuickbooks.
+     *
+     * @return bool
+     */
+    public function getUseQuickbooks()
+    {
+        return $this->useQuickbooks;
+    }
+
+    /**
+     * Set connectedStripeAccountID.
+     *
+     * @param string|null $connectedStripeAccountID
+     *
+     * @return Customers
+     */
+    public function setConnectedStripeAccountID($connectedStripeAccountID = null)
+    {
+        $this->connectedStripeAccountID = $connectedStripeAccountID;
+
+        return $this;
+    }
+
+    /**
+     * Get connectedStripeAccountID.
+     *
+     * @return string|null
+     */
+    public function getConnectedStripeAccountID()
+    {
+        return $this->connectedStripeAccountID;
     }
 }

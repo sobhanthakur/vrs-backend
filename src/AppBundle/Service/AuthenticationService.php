@@ -199,6 +199,25 @@ class AuthenticationService extends BaseService
                 $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
 
+                // Manage Menu Conditions
+                $restrictions[GeneralConstants::RESTRICTIONS]['UseQuickbooks'] = (int)$customerID[0]['UseQuickbooks'];
+                $restrictions[GeneralConstants::RESTRICTIONS]['ConnectedStripeAccountID'] = trim((string)$customerID[0]['ConnectedStripeAccountID']) !== '' ? 1 : 0;
+
+                // Setup Menu Condition
+                $integrationCompanyID = $this->serviceContainer->get('doctrine.orm.integrations_entity_manager');
+                $integrationCompanyID = $integrationCompanyID->getConnection()->prepare('select CustomerIntegrationID from CustomerIntegrations where CustomerID='.$authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+                $integrationCompanyID->execute();
+                $integrationCompanyID = $integrationCompanyID->fetchAll();
+                $companyID = 0;
+                foreach ($integrationCompanyID as $item) {
+                    if ((int)$item['CustomerIntegrationID'] === 12) {
+                        $companyID = 1;
+                        break;
+                    }
+                }
+                $restrictions[GeneralConstants::RESTRICTIONS]['IntegrationCompanyID'] = $companyID;
+
+                $restrictions[GeneralConstants::RESTRICTIONS]['TrackLaborOrMaterials'] = (int)$customerID[0]['TrackLaborOrMaterials'];
 
                 /*
                  * Check if property Group is present or not
