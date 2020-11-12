@@ -48,6 +48,7 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->select('c.customerid')
             ->addSelect('c.useQuickbooks AS UseQuickbooks')
             ->addSelect('c.connectedStripeAccountID AS ConnectedStripeAccountID')
+            ->addSelect('c.tracklabormaterials AS TrackLaborOrMaterials')
             ->where(GeneralConstants::CUSTOMER_ID_CONDITION)
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
             ->setMaxResults(1)
