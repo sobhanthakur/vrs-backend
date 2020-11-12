@@ -196,6 +196,10 @@ class AuthenticationService extends BaseService
                 $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
 
+                // Manage Menu Conditions
+                $restrictions[GeneralConstants::RESTRICTIONS]['UseQuickbooks'] = (int)$customerID[0]['UseQuickbooks'];
+                $restrictions[GeneralConstants::RESTRICTIONS]['ConnectedStripeAccountID'] = trim((string)$customerID[0]['ConnectedStripeAccountID']) !== '' ? 1 : 0;
+
 
                 /*
                  * Check if property Group is present or not
