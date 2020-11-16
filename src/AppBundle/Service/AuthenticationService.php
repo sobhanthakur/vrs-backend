@@ -202,12 +202,12 @@ class AuthenticationService extends BaseService
 
                 // Setup Menu Condition
                 $integrationCompanyID = $this->serviceContainer->get('doctrine.orm.integrations_entity_manager');
-                $integrationCompanyID = $integrationCompanyID->getConnection()->prepare('select CustomerIntegrationID from CustomerIntegrations where CustomerID='.$authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+                $integrationCompanyID = $integrationCompanyID->getConnection()->prepare('select IntegrationCompanyID from CustomerIntegrations where CustomerID='.$authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 $integrationCompanyID->execute();
                 $integrationCompanyID = $integrationCompanyID->fetchAll();
                 $companyID = 0;
                 foreach ($integrationCompanyID as $item) {
-                    if ((int)$item['CustomerIntegrationID'] === 12) {
+                    if ((int)$item['IntegrationCompanyID'] === 12) {
                         $companyID = 1;
                         break;
                     }
