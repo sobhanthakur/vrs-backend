@@ -114,7 +114,7 @@ class AuthenticationService extends BaseService
                 // Set Username
                 $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME];
                 $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = null;
-                $restrictions[GeneralConstants::LOCALEID] = 'en-US';
+                $restrictions[GeneralConstants::LOCALEID] = 'en-us';
 
                 // Region Groups and Regions Repository
                 $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
