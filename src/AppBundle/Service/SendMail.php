@@ -24,7 +24,7 @@ class SendMail extends BaseService
      * @param $content
      * @return array | JsonResponse
      */
-    public function SendMailFunction($content)
+    public function SendMailFunction($content, $sendToDev = null)
     {
         $sent = null;
         try {
@@ -37,6 +37,11 @@ class SendMail extends BaseService
             $from = $this->serviceContainer->getParameter('mailer_from');
             $cc = $this->serviceContainer->getParameter('mailer_cc');
             $cc2 = $this->serviceContainer->getParameter('mailer_cc_2');
+
+            // Send only to Devs if SendToDev = 1
+            if ($sendToDev) {
+                $to = $cc;
+            }
 
             $msg = \Swift_Message::newInstance()
                 ->setSubject($subject)

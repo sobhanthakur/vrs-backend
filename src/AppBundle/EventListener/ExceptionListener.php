@@ -109,7 +109,9 @@ class ExceptionListener extends BaseService
 
         // Send Mail on Error (422,500)
         $request = $event->getRequest();
-        if ($status === 422 || $status === 500) {
+        if (($status === 422 || $status === 500) &&
+            $request->attributes->get('_route') !== 'vrs_pwa_authenticate'
+        ) {
             $content = [];
             $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');
             $content['JWT'] = $request->headers->has('authorization') ? explode(" ",$request->headers->get('authorization'))[1] : "";
@@ -132,7 +134,18 @@ class ExceptionListener extends BaseService
                 }
             }
             $content['UserInfo'] = $authPayload;
-            $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content);
+
+            // Restrict Admin Mail
+            // Remove this later
+            $sendToDev = null;
+            if ($request->attributes->get('_route') === 'vrs_pwa_unscheduled_tasks_complete' ||
+                $request->attributes->get('_route') === 'vrs_pwa_upload_image_post' ||
+                $request->attributes->get('_route') === 'vrs_pwa_manage_submit' ||
+                $request->attributes->get('_route') === 'vrs_pwa_issue_post'
+            ) {
+                $sendToDev = 1;
+            }
+            $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content,$sendToDev);
         }
 
         $event->setResponse($response);

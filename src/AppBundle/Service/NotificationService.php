@@ -128,7 +128,10 @@ class NotificationService extends BaseService
             $notification->setCreatedate($currentDate);
         }
 
-        $notification->setOwnerid($this->entityManager->getRepository('AppBundle:Owners')->find($result['OwnerID']));
+        // Set null if owner ID is 0
+        $result['OwnerID'] !== 0 ? $ownerID= $this->entityManager->getRepository('AppBundle:Owners')->find($result['OwnerID']) : $ownerID = null;
+
+        $notification->setOwnerid($ownerID);
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
         $notification->setSendtomanagers($result['SendToManagers']);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
