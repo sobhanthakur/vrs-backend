@@ -73,6 +73,7 @@ class TabsService extends BaseService
     {
         try {
             $checkListItems = [];
+            $taskImages = [];
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID,$servicerID);
@@ -103,6 +104,13 @@ class TabsService extends BaseService
                 }
 
             }
+            if ((int)$servicers[0]['TimeTracking'] === 1 &&
+                (empty($timeClockTasks) || $timeClockTasks[0]['TaskID'] !== (string)$tasks[0]['TaskID'])
+
+            ) {
+                // Show Task Images if not clocked IN
+                $taskImages = $this->entityManager->getRepository('AppBundle:Issueandtaskimagestotasks')->GetImagesByTaskID($taskID);
+            }
 
             // unset tasks fields that are not required
             if(!empty($tasks)) {
@@ -115,7 +123,8 @@ class TabsService extends BaseService
             }
         return array(
             'TaskDetails' => $tasks[0],
-            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : []
+            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : [],
+            'TaskImages' => $taskImages
         );
         } catch (HttpException $exception) {
             throw $exception;
