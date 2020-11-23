@@ -58,11 +58,11 @@ doctrine:
                 MultipleActiveResultSets: true
             integrations:
                 driver: pdo_sqlsrv
-                host: '%database_host%'
+                host: '%database_host_2%'
                 port: '%database_port%'
                 dbname: '%database_name_2%'
-                user: '%database_user%'
-                password: '%database_password%'
+                user: '%database_user_2%'
+                password: '%database_password_2%'
                 charset: UTF8
                 MultipleActiveResultSets: true
         types:
