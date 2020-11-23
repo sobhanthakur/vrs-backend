@@ -14,10 +14,12 @@ use Doctrine\ORM\Query\Expr;
 
 class TranslationTextsRepository extends EntityRepository
 {
-    public function EnglishTexts()
+    public function EnglishTexts($limit,$offset)
     {
         return $this->createQueryBuilder('e')
             ->select('e.translationtextid AS TranslationTextID,e.englishtext AS EnglishText')
+            ->setMaxResults($limit)
+            ->setFirstResult(($offset - 1) * $limit)
             ->getQuery()
             ->execute();
     }
