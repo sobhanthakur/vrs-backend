@@ -120,7 +120,21 @@ class TranslationFiles extends FOSRestController
     /**
      * Get English Texts
      * @SWG\Tag(name="Translations")
-     * @Get("/translations/english", name="vrs_pwa_translation_get")
+     * @Get("/translations/english", name="vrs_pwa_translation_get_english")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Make changes and encode the following to Base64:
+                {
+                ""Pagination"": {
+                ""Offset"": 1,
+                ""Limit"": 10
+                }
+                }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Get All Locales",
@@ -133,8 +147,13 @@ class TranslationFiles extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $response = null;
         try {
+            $data = json_decode(base64_decode($request->get('data')),true);
+            if(empty($data)) {
+                $data = [];
+            }
+
             $translationService = $this->container->get('vrscheduler.translation_service');
-            return $translationService->GetEnglishTexts();
+            return $translationService->GetEnglishTexts($data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
