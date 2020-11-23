@@ -530,4 +530,6 @@ final class GeneralConstants
         6 => 7,
         7 => 1
     ];
+
+    const LOCALEID = 'LocaleID';
 }

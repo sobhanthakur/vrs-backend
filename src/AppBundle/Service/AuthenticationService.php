@@ -114,6 +114,7 @@ class AuthenticationService extends BaseService
                 // Set Username
                 $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME];
                 $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = null;
+                $restrictions[GeneralConstants::LOCALEID] = 'en-us';
 
                 // Region Groups and Regions Repository
                 $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
@@ -157,6 +158,9 @@ class AuthenticationService extends BaseService
                     // Set Username and password
                     $restrictions[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD] = trim($servicersResponse['password2']);
                     $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $servicersResponse['name'];
+
+                    // Set Locale ID
+                    $restrictions[GeneralConstants::LOCALEID] = $servicersResponse['Locale'];
 
                     // Set Servicers Responses in the restrictions array.
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
@@ -203,6 +207,21 @@ class AuthenticationService extends BaseService
                 $restrictions[GeneralConstants::RESTRICTIONS]['UseQuickbooks'] = (int)$customerID[0]['UseQuickbooks'];
                 $restrictions[GeneralConstants::RESTRICTIONS]['ConnectedStripeAccountID'] = trim((string)$customerID[0]['ConnectedStripeAccountID']) !== '' ? 1 : 0;
 
+                // Setup Menu Condition
+                $integrationCompanyID = $this->serviceContainer->get('doctrine.orm.integrations_entity_manager');
+                $integrationCompanyID = $integrationCompanyID->getConnection()->prepare('select IntegrationCompanyID from CustomerIntegrations where CustomerID='.$authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
+                $integrationCompanyID->execute();
+                $integrationCompanyID = $integrationCompanyID->fetchAll();
+                $companyID = 0;
+                foreach ($integrationCompanyID as $item) {
+                    if ((int)$item['IntegrationCompanyID'] === 12) {
+                        $companyID = 1;
+                        break;
+                    }
+                }
+                $restrictions[GeneralConstants::RESTRICTIONS]['IntegrationCompanyID'] = $companyID;
+
+                $restrictions[GeneralConstants::RESTRICTIONS]['TrackLaborOrMaterials'] = (int)$customerID[0]['TrackLaborOrMaterials'];
 
                 /*
                  * Check if property Group is present or not
@@ -322,16 +341,18 @@ class AuthenticationService extends BaseService
 
             // Check If Any TimeClockDay is present for current day
             $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone);
-
+            
             if(!empty($timeClockDays)) {
                 $clockedIn = new \DateTime($timeClockDays[0]['ClockIn']);
                 $clockedIn->setTimezone($timeZone);
                 $clockedIn = $clockedIn->format('h:i A');
             }
 
+
             $servicer[0]['TimeClockDays'] = !empty($timeClockDays) ? 1 : 0;
             $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['ClockedIn'] = $clockedIn;
+            $servicer[0]['TimeClockTasks'] = !empty($timeClockTasks) ? 1 : 0;
             $servicer[0]['Phone'] = trim($servicer[0]['Phone']);
             $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
             $servicer[0]['AllowAdminAccess'] = $servicer[0]['AllowAdminAccess'] ? 1 : 0;

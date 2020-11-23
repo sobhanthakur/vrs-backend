@@ -4,7 +4,11 @@
 parameters:
     database_host: 127.0.0.1
     database_port: ~
-    database_name: symfony
+    database_name: vrscheduler
+    database_host_2: ~
+    database_name_2: integrations
+    database_user_2: ~
+    database_password_2: ~
     database_user: root
     database_password: ~
     # You should uncomment this if you want to use pdo_sqlite

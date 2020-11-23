@@ -320,6 +320,17 @@ class PropertiesRepository extends EntityRepository
 
     }
 
+    public function CountPropertiesForInvoiceDescription($customerID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('COUNT(p.propertyid) AS Count')
+            ->leftJoin('p.customerid','c')
+            ->where('c.customerid='.$customerID)
+            ->andWhere('p.active=1')
+            ->getQuery()
+            ->execute();
+    }
+
     /**
      * @param $propertyID
      * @return mixed
@@ -332,17 +343,6 @@ class PropertiesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
-    public function CountPropertiesForInvoiceDescription($customerID)
-    {
-        return $this->createQueryBuilder('p')
-            ->select('COUNT(p.propertyid) AS Count')
-            ->leftJoin('p.customerid','c')
-            ->where('c.customerid='.$customerID)
-            ->andWhere('p.active=1')
-            ->getQuery()
-            ->execute();
-    }
-
 
     /**
      * @param $servicerID

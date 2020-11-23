@@ -26,7 +26,8 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.name,s.password2,s.allowadminaccess, s.alloweditbookings,s.allowtracking, s.allowmanage, s.allowreports, s.allowsetupaccess, s.allowaccountaccess, s.allowissuesaccess, s.allowquickreports, s.allowscheduleaccess, s.allowmastercalendar')
+            ->select('s.name,s.password2,s.allowadminaccess, s.alloweditbookings,s.allowtracking, s.allowmanage, s.allowreports, s.allowsetupaccess, s.allowaccountaccess, s.allowissuesaccess, s.allowquickreports, s.allowscheduleaccess, s.allowmastercalendar, l.locale AS Locale')
+            ->leftJoin('AppBundle:Locale', 'l', Expr\Join::WITH, 'l.localeid=s.localeid')
             ->where('s.servicerid= :StaffID')
             ->setParameter('StaffID', $staffID)
             ->setMaxResults(1)
