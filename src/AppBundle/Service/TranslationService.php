@@ -25,10 +25,18 @@ class TranslationService extends BaseService
     /**
      * @return mixed
      */
-    public function GetEnglishTexts()
+    public function GetEnglishTexts($data)
     {
         try {
-            return $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts();
+            $limit = 20;
+            $offset = 1;
+            if (array_key_exists('Pagination',$data)) {
+                $pagination = $data['Pagination'];
+                $limit = $pagination['Limit'];
+                $offset = $pagination['Offset'];
+            }
+
+            return $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts($limit,$offset);
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
