@@ -12,6 +12,7 @@ namespace AppBundle\EventListener;
 
 use AppBundle\Constants\ApiRoutes;
 use AppBundle\Constants\GeneralConstants;
+use PHPUnit\Framework\MockObject\Api;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -110,8 +111,9 @@ class ExceptionListener extends BaseService
 
         // Send Mail on Error (422,500)
         $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
         if (($status === 422 || $status === 500) &&
-            !in_array($request->attributes->get('_route'),ApiRoutes::NO_ERROR_ROUTES)
+            !in_array($route,ApiRoutes::NO_ERROR_ROUTES)
         ) {
             $content = [];
             $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');
@@ -139,11 +141,7 @@ class ExceptionListener extends BaseService
             // Restrict Admin Mail
             // Remove this later
             $sendToDev = null;
-            if ($request->attributes->get('_route') === 'vrs_pwa_unscheduled_tasks_complete' ||
-                $request->attributes->get('_route') === 'vrs_pwa_upload_image_post' ||
-                $request->attributes->get('_route') === 'vrs_pwa_manage_submit' ||
-                $request->attributes->get('_route') === 'vrs_pwa_issue_post'
-            ) {
+            if (in_array($route,ApiRoutes::RESTRICT_ADMIN_ROUTES_MAIL)) {
                 $sendToDev = 1;
             }
             $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content,$sendToDev);

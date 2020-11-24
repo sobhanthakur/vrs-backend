@@ -115,4 +115,11 @@ final class ApiRoutes
         "oauth_refresh_post",
         "oauth_validate_post"
     );
+
+    const RESTRICT_ADMIN_ROUTES_MAIL = array(
+        "vrs_pwa_unscheduled_tasks_complete",
+        "vrs_pwa_upload_image_post",
+        "vrs_pwa_manage_submit",
+        "vrs_pwa_issue_post"
+    );
 }
