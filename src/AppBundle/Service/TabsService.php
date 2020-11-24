@@ -77,6 +77,9 @@ class TabsService extends BaseService
             $taskID = $content['TaskID'];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID,$servicerID);
+            if (empty($tasks)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
             $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
             $today->setTime(0,0,0);

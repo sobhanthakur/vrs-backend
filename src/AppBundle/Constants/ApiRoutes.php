@@ -107,4 +107,12 @@ final class ApiRoutes
         "vrs_pwa_manage_submit",
         "vrs_pwa_unscheduled_tasks_complete"
     );
+
+    const NO_ERROR_ROUTES = array(
+        "vrs_pwa_authenticate",
+        "oauth_refresh_get",
+        "oauth_login_post",
+        "oauth_refresh_post",
+        "oauth_validate_post"
+    );
 }
