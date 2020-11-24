@@ -10,6 +10,7 @@
 
 namespace AppBundle\EventListener;
 
+use AppBundle\Constants\ApiRoutes;
 use AppBundle\Constants\GeneralConstants;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -101,7 +102,7 @@ class ExceptionListener extends BaseService
         // Send Mail on Error (422,500)
         $request = $event->getRequest();
         if (($status === 422 || $status === 500) &&
-            $request->attributes->get('_route') !== 'vrs_pwa_authenticate'
+            !in_array($request->attributes->get('_route'),ApiRoutes::NO_ERROR_ROUTES)
         ) {
             $content = [];
             $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');
