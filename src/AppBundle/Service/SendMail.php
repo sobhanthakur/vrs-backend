@@ -68,6 +68,11 @@ class SendMail extends BaseService
                 $message .= "<b>Method: </b>".$content['Method']."<br/>";
                 $message .= "<b>Content-Length: </b>".$contentLength." bytes<br/>";
                 $message .= "<b>User-Agent: </b>".$content['User-Agent']."<br/>";
+
+                // Offline Header
+                if ($content['Offline'] !== null) {
+                    $message .= "<b>Offline: </b>".$content['Offline']."<br/>";
+                }
                 $message .= "<b>Error: </b>".$error."<br/>";
 
                 $today = $today->format('Y-m-d');
