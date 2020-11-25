@@ -56,6 +56,7 @@ class SendMail extends BaseService
                 $requestHeader = $content['JWT'];
                 $requestBody = $content['RequestContent'];
                 $uri = $content['URI'];
+                $content['Content-Length'] && (int)$content['Content-Length'] > 0 ? $contentLength = $content['Content-Length'] : $contentLength = 0;
 
                 // Generate the Body
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
@@ -65,7 +66,8 @@ class SendMail extends BaseService
 //                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
                 $message .= "<b>URI: </b>".$uri."<br/>";
                 $message .= "<b>Method: </b>".$content['Method']."<br/>";
-                $message .= "<b>Content-Length: </b>".$content['Content-Length']." bytes<br/>";
+                $message .= "<b>Content-Length: </b>".$contentLength." bytes<br/>";
+                $message .= "<b>User-Agent: </b>".$content['User-Agent']."<br/>";
                 $message .= "<b>Error: </b>".$error."<br/>";
 
                 $today = $today->format('Y-m-d');
