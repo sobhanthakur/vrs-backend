@@ -116,6 +116,8 @@ class ExceptionListener extends BaseService
             $content['Content-Length'] = $request->headers->get('Content-Length');
             $content['User-Agent'] = $request->headers->get('user-agent');
 
+            $request->headers->has('Offline') ? $content['Offline'] = (strtolower($request->headers->get('Offline')) === 'true' ? 'true' : 'false') : $content['Offline'] = null;
+
             $authPayload = [];
             $authPayload['CustomerID'] = null;
             $authPayload['ServicerID'] = null;
