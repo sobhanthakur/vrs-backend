@@ -72,7 +72,7 @@ class RequestListener extends BaseService
                     'Access-Control-Allow-Origin' => '*',
                     'Access-Control-Allow-Credentials' => 'true',
                     'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                    'Access-Control-Allow-Headers' => 'X-Requested-With, Cache-Control, Content-Type, Authorization, Accept-Language,Content-Language,Last-Event-ID,X-HTTP-Method-Override'
+                    'Access-Control-Allow-Headers' => 'X-Requested-With, Cache-Control, Content-Type, Authorization, Accept-Language,Content-Language,Last-Event-ID,X-HTTP-Method-Override, Offline'
                 ])
             );
             return ;
