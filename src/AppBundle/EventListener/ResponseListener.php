@@ -52,7 +52,7 @@ class ResponseListener extends BaseService
 
         //Enable Headers for CORS
         $response->headers->set('Access-Control-Allow-Origin','*');
-        $response->headers->set('Access-Control-Allow-Headers','X-Requested-With, Cache-Control, Content-Type, Authorization, Accept-Language,Content-Language,Last-Event-ID,X-HTTP-Method-Override');
+        $response->headers->set('Access-Control-Allow-Headers','X-Requested-With, Cache-Control, Content-Type, Authorization, Accept-Language,Content-Language,Last-Event-ID,X-HTTP-Method-Override, Offline');
         $response->headers->set('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Credentials', true);
 
