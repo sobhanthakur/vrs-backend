@@ -98,6 +98,11 @@ class ManageController extends FOSRestController
         try {
             $manageService = $this->container->get('vrscheduler.manage_service');
             $content = json_decode($request->getContent(),true);
+
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $manageService->SubmitIssue($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -181,6 +186,12 @@ class ManageController extends FOSRestController
         try {
             $manageService = $this->container->get('vrscheduler.manage_save');
             $content = json_decode($request->getContent(),true);
+
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
+
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $manageService->SaveManageDetails($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -269,6 +280,12 @@ class ManageController extends FOSRestController
         try {
             $manageService = $this->container->get('vrscheduler.manage_submit');
             $content = json_decode($request->getContent(),true);
+
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
+            
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             $mobileHeaders = $request->attributes->get(GeneralConstants::MOBILE_HEADERS);
             return $manageService->SubmitManageForm($servicerID,$content,$mobileHeaders);

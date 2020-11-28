@@ -314,6 +314,11 @@ class ManageService extends BaseService
         $imageName = null;
         $response = [];
         try {
+            $content = json_decode($request->getContent(),true);
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $customerID = $request->get('CustomerID');
             $imageName = $request->get('ImageName');
             $image = $request->get('Image');
