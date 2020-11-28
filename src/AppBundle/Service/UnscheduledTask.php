@@ -223,6 +223,8 @@ class UnscheduledTask extends BaseService
             $dateTime = $content['DateTime'];
             $response = [];
 
+            array_key_exists('UnscheduledTaskNote',$details) ? $details['UnscheduledTaskNote'] = trim($details['UnscheduledTaskNote']) : $details['UnscheduledTaskNote'] = '';
+
             $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
 
             if (!$servicerObj) {
@@ -265,7 +267,7 @@ class UnscheduledTask extends BaseService
 //             $task->setServiceid(null);
             $task->setServiceid(0);
             $task->setServicerid($servicerID);
-            $task->setServicernotes(array_key_exists('UnscheduledTaskNote',$details) ? trim($details['UnscheduledTaskNote']) : null);
+            $task->setServicernotes($details['UnscheduledTaskNote']);
             $task->setToownernote(array_key_exists('NoteToOwner',$details) ? trim($details['NoteToOwner']) : null);
             $task->setMarked(true);
             $task->setEdited(true);
