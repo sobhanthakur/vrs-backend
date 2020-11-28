@@ -146,6 +146,10 @@ class ServicersDashboardController extends FOSRestController
         try {
             $servicersDashboard = $this->container->get('vrscheduler.starttask_service');
             $content = json_decode($request->getContent(),true);
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             $mobileHeaders = $request->attributes->get(GeneralConstants::MOBILE_HEADERS);
             return $servicersDashboard->StartTask($servicerID,$content,$mobileHeaders);
@@ -211,6 +215,10 @@ class ServicersDashboardController extends FOSRestController
         try {
             $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
             $content = json_decode($request->getContent(),true);
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->ClockInOut($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -275,6 +283,10 @@ class ServicersDashboardController extends FOSRestController
         try {
             $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
             $content = json_decode($request->getContent(),true);
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->AcceptDeclineTask($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -334,6 +346,10 @@ class ServicersDashboardController extends FOSRestController
         try {
             $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
             $content = json_decode($request->getContent(),true);
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->ChangeTaskDate($servicerID,$content);
         } catch (BadRequestHttpException $exception) {
