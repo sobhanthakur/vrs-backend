@@ -227,7 +227,9 @@ class ServicersDashboardService extends BaseService
                     'ServiceID' => $tasks[$i]['ServiceID'],
                     'PropertyName' => $tasks[$i]['PropertyName'],
                     'Started' => $started,
-                    'SlackLink' => (trim($tasks[$i]['SlackChannelID']) !== '' && trim($tasks[$i]['SlackTeamID'] !== '') && (int)$tasks[$i]['UseSlack'] === 1) ? 1 : 0
+                    'SlackLink' => (trim($tasks[$i]['SlackChannelID']) !== '' && trim($tasks[$i]['SlackTeamID'] !== '') && (int)$tasks[$i]['UseSlack'] === 1) ? 1 : 0,
+                    'SlackTeamID' => trim($tasks[$i]['SlackTeamID']),
+                    'SlackChannelID' => trim($tasks[$i]['SlackChannelID'])
                 );
 
                 // Guest Details
