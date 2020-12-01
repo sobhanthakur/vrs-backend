@@ -513,6 +513,13 @@ class Properties
      */
     private $staffdashboardnote;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="SlackChannelID", type="string", length=20, nullable=true)
+     */
+    private $slackchannelid;
+
 
 
     /**
@@ -2179,5 +2186,29 @@ class Properties
     public function getPropertystatusid()
     {
         return $this->propertystatusid;
+    }
+
+    /**
+     * Set slackchannelid.
+     *
+     * @param string|null $slackchannelid
+     *
+     * @return Properties
+     */
+    public function setSlackchannelid($slackchannelid = null)
+    {
+        $this->slackchannelid = $slackchannelid;
+
+        return $this;
+    }
+
+    /**
+     * Get slackchannelid.
+     *
+     * @return string|null
+     */
+    public function getSlackchannelid()
+    {
+        return $this->slackchannelid;
     }
 }

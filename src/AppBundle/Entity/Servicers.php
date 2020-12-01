@@ -926,6 +926,13 @@ class Servicers
      */
     private $translationlocaleid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="UseSlack", type="boolean", nullable=false)
+     */
+    private $useslack = false;
+
 
     /**
      * Get servicerid.
@@ -4007,5 +4014,29 @@ class Servicers
     public function getTranslationlocaleid()
     {
         return $this->translationlocaleid;
+    }
+
+    /**
+     * Set useslack.
+     *
+     * @param bool $useslack
+     *
+     * @return Servicers
+     */
+    public function setUseslack($useslack)
+    {
+        $this->useslack = $useslack;
+
+        return $this;
+    }
+
+    /**
+     * Get useslack.
+     *
+     * @return bool
+     */
+    public function getUseslack()
+    {
+        return $this->useslack;
     }
 }

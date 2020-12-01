@@ -375,6 +375,9 @@ class PropertiesRepository extends EntityRepository
             ->addSelect('p.propertyname AS PropertyName')
             ->addSelect('p.internalnotes AS InternalPropertyNotes')
             ->addSelect('p.staffdashboardnote AS StaffDashboardNote')
+            ->addSelect('p.slackchannelid AS SlackChannelID')
+            ->addSelect('c2.slackteamid AS SlackTeamID')
+            ->leftJoin('p.customerid','c2')
             ->where('p.propertyid='.$propertyID)
             ->getQuery()
             ->execute();
