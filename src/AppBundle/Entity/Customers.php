@@ -643,6 +643,13 @@ class Customers
      */
     private $countryid;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="SlackTeamID", type="string", length=10, nullable=true)
+     */
+    private $slackteamid;
+
 
 
     /**
@@ -2765,5 +2772,29 @@ class Customers
     public function getLinenfields()
     {
         return $this->linenfields;
+    }
+
+    /**
+     * Set slackteamid.
+     *
+     * @param string|null $slackteamid
+     *
+     * @return Customers
+     */
+    public function setSlackteamid($slackteamid = null)
+    {
+        $this->slackteamid = $slackteamid;
+
+        return $this;
+    }
+
+    /**
+     * Get slackteamid.
+     *
+     * @return string|null
+     */
+    public function getSlackteamid()
+    {
+        return $this->slackteamid;
     }
 }

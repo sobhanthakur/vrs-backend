@@ -388,6 +388,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->select('s.allowadminaccess AS AllowAdminAccess')
             ->addSelect('s.email AS Servicers_Email')
             ->addSelect('c.email AS Customers_Email')
+            ->addSelect('s.useslack AS UseSlack')
             ->leftJoin('s.customerid','c')
             ->where('s.servicerid='.$servicerID)
             ->getQuery()

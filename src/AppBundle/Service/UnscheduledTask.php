@@ -72,6 +72,8 @@ class UnscheduledTask extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
             }
 
+            $properties[0]['SlackLink'] = ($properties[0]['SlackChannelID'] !== '' && trim($properties[0]['SlackTeamID'] !== '') && (int)$servicers[0]['UseSlack'] === 1) ? 1 : 0;
+
             return array(
                 'PropertyDetails' => $properties[0],
                 'ServicerDetails' => $servicers[0]
