@@ -25,18 +25,20 @@ class TranslationService extends BaseService
     /**
      * @return mixed
      */
-    public function GetEnglishTexts($data)
+    public function GetEnglishTexts()
     {
         try {
-            $limit = 20;
+            // Add Pagination
+            // Remove this in future
+            /*$limit = 20;
             $offset = 1;
             if (array_key_exists('Pagination',$data)) {
                 $pagination = $data['Pagination'];
                 $limit = $pagination['Limit'];
                 $offset = $pagination['Offset'];
-            }
+            }*/
 
-            return $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts($limit,$offset);
+            return $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts();
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -72,18 +74,22 @@ class TranslationService extends BaseService
      * @param $data
      * @return array
      */
-    public function GetLocalesByID($id, $data)
+    public function GetLocalesByID($id)
     {
         try {
             $response = [];
-            $limit = 20;
+
+//            Remove Pagination
+//            Remove comments in future
+            /*$limit = 20;
             $offset = 1;
             if (array_key_exists('Pagination',$data)) {
                 $pagination = $data['Pagination'];
                 $limit = $pagination['Limit'];
                 $offset = $pagination['Offset'];
-            }
-            $english = $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts($limit,$offset);
+            }*/
+
+            $english = $this->entityManager->getRepository('AppBundle:TranslationTexts')->EnglishTexts();
             foreach ($english as $eng) {
                 $translationID = null;
                 $translatedText = null;
