@@ -48,7 +48,10 @@ final class ApiRoutes
         "vrs_qbo_syncresources",
         "vrs_qbo_syncbilling",
         "vrs_qbo_synctimetracking",
-        "vrs_staffs_drivetime",
+        "vrs_staffs_drivetime"
+    );
+
+    const TRANSLATION_ROUTES = array(
         "vrs_pwa_translation",
         "vrs_pwa_translation_post",
         "vrs_pwa_translation_get_english",
