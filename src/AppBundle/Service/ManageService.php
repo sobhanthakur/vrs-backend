@@ -349,7 +349,7 @@ class ManageService extends BaseService
             $result = $s3->putObject([
                 'Bucket' => $aws['bucket_name'],
                 'ACL' => 'public-read',
-                'Key'    => $customerID.'/'.$imageName,
+                'Key'    => 'media/'.$customerID.'/'.$imageName,
                 'SourceFile' => $path.$imageName
             ]);
 
