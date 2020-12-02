@@ -96,6 +96,16 @@ class RequestListener extends BaseService
             }
         }
 
+        // Check if the incoming route is for the translation APIs
+        if(in_array($route, ApiRoutes::TRANSLATION_ROUTES)) {
+            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            $authenticateResult = $authService->VerifyAuthToken($request,70);
+            if($authenticateResult['status']) {
+                $request->attributes->set('AuthPayload',$authenticateResult);
+            }
+        }
+
+
         // Check if the incoming public route is present in the array
         if(in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
             $authService = $this->serviceContainer->get('vrscheduler.public_authentication_service');

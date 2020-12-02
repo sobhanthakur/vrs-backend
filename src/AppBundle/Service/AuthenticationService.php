@@ -34,7 +34,7 @@ class AuthenticationService extends BaseService
      * @return mixed
      * This method validates the Authorization token and checks its validity
      */
-    public function VerifyAuthToken(Request $request)
+    public function VerifyAuthToken(Request $request, $restrictCustomer=null)
     {
         $authenticateResult[GeneralConstants::STATUS] = false;
         try {
@@ -68,7 +68,15 @@ class AuthenticationService extends BaseService
             }
 
             // Set token claims in authenticateResult array
-            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID] = $token->getClaim(GeneralConstants::CUSTOMER_ID);
+            $customerIDToken = $token->getClaim(GeneralConstants::CUSTOMER_ID);
+
+            // Check if restrict customer variable is set
+            // And throw exception if customerid is not 70
+            if ($restrictCustomer && $customerIDToken !== 70) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+            }
+
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID] = $customerIDToken;
             $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $token->getClaim(GeneralConstants::CUSTOMER_NAME);
             $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] = $token->getClaim(GeneralConstants::LOGGEDINSTAFFID);
 

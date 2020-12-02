@@ -309,9 +309,9 @@ class UnscheduledTask extends BaseService
 
             // Start Task If Mark Complete is false
             if (!$completeStatus) {
-                $content['TaskID'] = $task->getTaskid();
-                $content['StartPause'] = 1;
-                $this->serviceContainer->get('vrscheduler.starttask_service')->StartTask($servicerID, $content, $mobileHeaders);
+//                $content['TaskID'] = $task->getTaskid();
+//                $content['StartPause'] = 1;
+//                $this->serviceContainer->get('vrscheduler.starttask_service')->StartTask($servicerID, $content, $mobileHeaders);
             } else {
                 // Create an Issue if task note is present
                 if (trim($details['UnscheduledTaskNote']) !== '') {
