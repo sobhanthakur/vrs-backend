@@ -78,7 +78,8 @@ class TabsService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID,$servicerID);
             if (empty($tasks)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                return [];
             }
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
             $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
@@ -343,8 +344,8 @@ class TabsService extends BaseService
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {
-//                return $response;
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                return $response;
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($tasks[0]['TaskID']);
