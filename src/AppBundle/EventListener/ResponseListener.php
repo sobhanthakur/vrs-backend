@@ -8,6 +8,7 @@
 
 namespace AppBundle\EventListener;
 
+use AppBundle\Constants\ApiRoutes;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use AppBundle\Service\BaseService;
@@ -51,17 +52,18 @@ class ResponseListener extends BaseService
 
         $responseContent = $response->getContent();
 
-        $this->apiLogger->debug('API Request/Response',
-            array_merge($request->headers->all(),
-                [
-                    'host' => $request->getSchemeAndHttpHost(),
-                    'uri' => $request->getRequestUri(),
-                    'method' => $request->getMethod(),
-                    'request_content' => $request->getContent(),
-                    'response_content' => $responseContent,
-                    'response_status_code' => $response->getStatusCode()
-                ]
-            )
-        );
+        $route = $request->attributes->get('_route');
+
+        if (!in_array($route,ApiRoutes::RESTRICT_RESPONSE_LOGS)) {
+            $this->apiLogger->debug('API Request/Response',
+                array_merge($request->headers->all(),
+                    [
+                        'request_content' => $request->getContent(),
+                        'response_content' => $responseContent,
+                        'response_status_code' => $response->getStatusCode()
+                    ]
+                )
+            );
+        }
     }
 }
