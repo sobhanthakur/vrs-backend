@@ -132,7 +132,10 @@ class RequestListener extends BaseService
         $this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),
-                'content' => $request->getContent()
+                'content' => $request->getContent(),
+                'host' => $request->getSchemeAndHttpHost(),
+                'uri' => $request->getRequestUri(),
+                'method' => $request->getMethod()
             ]
         ]);
 

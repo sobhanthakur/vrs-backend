@@ -131,4 +131,9 @@ final class ApiRoutes
         "vrs_pwa_manage_submit",
         "vrs_pwa_issue_post"
     );
+
+    const RESTRICT_RESPONSE_LOGS = array(
+        "vrs_pwa_tasks",
+        "vrs_pwa_tabs_manage"
+    );
 }
