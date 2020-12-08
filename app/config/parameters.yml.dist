@@ -42,4 +42,8 @@ parameters:
         key: ~
         secret: ~
         bucket_name: ~
+        sns :
+            region: ~
+            key : ~
+            secret : ~
 

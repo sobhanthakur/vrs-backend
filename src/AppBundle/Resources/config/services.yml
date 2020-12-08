@@ -217,3 +217,7 @@ services:
             class: AppBundle\Service\SendMail
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.sms_service:
+            class: AppBundle\Service\SendSMS
+            parent: vrscheduler.base_service
+            public: true
