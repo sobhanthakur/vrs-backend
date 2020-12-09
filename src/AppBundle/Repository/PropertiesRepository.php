@@ -24,17 +24,27 @@ class PropertiesRepository extends EntityRepository
 {
     /**
      * @param $customerID
-     * @return mixed
+     * @param null $ownerID
+     * @return QueryBuilder
      */
-    public function GetProperties($customerID)
+    public function GetProperties($customerID, $ownerID = null)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('p')
             ->select('p.propertyid as PropertyID, p.propertyname as PropertyName')
-            ->where('p.customerid= :CustomerID')
-            ->andWhere('p.active=1')
-            ->setParameter('CustomerID', $customerID)
-            ->orderBy('p.propertyname','ASC')
+            ->where('p.active=1');
+
+        if ($ownerID) {
+            $result->andWhere('p.ownerid= :OwnerID')
+                ->setParameter('OwnerID', $ownerID);
+        } else {
+            $result->andWhere('p.customerid= :CustomerID')
+                ->setParameter('CustomerID', $customerID);
+        }
+
+        $result->orderBy('p.propertyname', 'ASC');
+
+        return $result
             ->getQuery()
             ->execute();
     }

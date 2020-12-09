@@ -394,4 +394,24 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerid
+     * @param $password
+     * @return mixed
+     */
+    public function VendorAuthForIssueForm($servicerid, $password)
+    {
+        return $this
+            ->createQueryBuilder('s')
+            ->select('s.servicerid AS ServicerID')
+            ->where('s.servicerid= :ServicerID')
+            ->andWhere('s.password= :Password')
+            ->andWhere('s.servicertype = 1')
+            ->setParameter('ServicerID',$servicerid)
+            ->setParameter('Password', $password)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }

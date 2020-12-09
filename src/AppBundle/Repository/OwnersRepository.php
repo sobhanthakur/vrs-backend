@@ -12,9 +12,17 @@ namespace AppBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
+/**
+ * Class OwnersRepository
+ * @package AppBundle\Repository
+ */
 class OwnersRepository extends EntityRepository
 {
 
+    /**
+     * @param $customerID
+     * @return mixed
+     */
     public function GetOwners($customerID)
     {
         return $this
@@ -136,4 +144,20 @@ class OwnersRepository extends EntityRepository
 
     }
 
+    /**
+     * @param $ownerID
+     * @param $password
+     * @return mixed
+     */
+    public function OwnerAuthForIssueForm($ownerID, $password)
+    {
+        return $this->createQueryBuilder('o')
+            ->select('o.ownerid AS OwnerID')
+            ->where('o.ownerid= :OwnerID')
+            ->andWhere('o.password= :Password')
+            ->setParameter('Password', $password)
+            ->setParameter('OwnerID',$ownerID)
+            ->getQuery()
+            ->execute();
+    }
 }
