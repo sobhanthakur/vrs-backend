@@ -520,4 +520,33 @@ class AuthenticationService extends BaseService
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    public function SMSAuthentication(Request $request)
+    {
+        try {
+            // Check if header is valid
+            // Parsing String Token to JWT Token Object.
+            $authorization = $request->headers->get(GeneralConstants::AUTHORIZATION);
+            $token = (new Parser())->parse((string)$authorization);
+            $signer = new Sha256();
+
+            // Checking If Token passed in API Request Header is valid OR not.
+            if (!$token->verify($signer, $this->serviceContainer->getParameter('api_secret'))) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+            }
+
+            // Check Expiry
+            if(!$this->CheckExpiry($token)) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::UNPROCESSABLE_AUTH_TOKEN);
+            }
+        } catch (UnauthorizedHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
