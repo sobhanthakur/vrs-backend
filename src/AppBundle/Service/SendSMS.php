@@ -13,8 +13,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+/**
+ * Class SendSMS
+ * @package AppBundle\Service
+ */
 class SendSMS extends BaseService
 {
+    /**
+     * @param $content
+     * @return array
+     */
     public function SendSMS($content)
     {
         $response = [];

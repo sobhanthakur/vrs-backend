@@ -136,4 +136,8 @@ final class ApiRoutes
         "vrs_pwa_tasks",
         "vrs_pwa_tabs_manage"
     );
+
+    const SMS_ROUTES = array(
+        "vrs_aws_sns"
+    );
 }

@@ -129,6 +129,12 @@ class RequestListener extends BaseService
             }
         }
 
+        // Check if the incoming route is present in the array
+        if(in_array($route, ApiRoutes::SMS_ROUTES)) {
+            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            $authService->SMSAuthentication($request);
+        }
+
         $this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),
