@@ -122,7 +122,8 @@ final class ApiRoutes
         "oauth_refresh_get",
         "oauth_login_post",
         "oauth_refresh_post",
-        "oauth_validate_post"
+        "oauth_validate_post",
+        "vrs_pwa_authenticate_issue_form"
     );
 
     const RESTRICT_ADMIN_ROUTES_MAIL = array(
