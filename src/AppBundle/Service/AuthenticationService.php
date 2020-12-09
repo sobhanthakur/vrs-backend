@@ -521,6 +521,9 @@ class AuthenticationService extends BaseService
         }
     }
 
+    /**
+     * @param Request $request
+     */
     public function SMSAuthentication(Request $request)
     {
         try {
@@ -539,6 +542,71 @@ class AuthenticationService extends BaseService
             if(!$this->CheckExpiry($token)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNPROCESSABLE_AUTH_TOKEN);
             }
+        } catch (UnauthorizedHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::AUTH_ERROR_TEXT .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function IssueFormAuthentication($content)
+    {
+        try {
+            array_key_exists('OwnerID',$content) && $content['OwnerID'] !== '' ? $ownerID = $content['OwnerID'] : $ownerID = null;
+            array_key_exists('VendorID',$content) && $content['VendorID'] !== '' ? $vendorID = $content['VendorID'] : $vendorID = null;
+            $password = $content['Password'];
+            $properties = [];
+
+            // Set JWT Algo.
+            $signer = new Sha256();
+            $accessToken = (new Builder());
+
+            if ($ownerID) {
+                $servicer = $this->entityManager->getRepository('AppBundle:Owners')->OwnerAuthForIssueForm($ownerID,$password);
+                if(empty($servicer)) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_CREDENTIALS);
+                }
+
+                // Get All Properties For the Owner
+                $properties = $this->entityManager->getRepository('AppBundle:Properties')->GetProperties(null,$ownerID);
+
+                $accessToken->set('OwnerID', $ownerID);
+            } else {
+                $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->VendorAuthForIssueForm($vendorID,$password);
+                if(empty($servicer)) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_CREDENTIALS);
+                }
+
+                // Get All Properties For the Owner
+                $properties = $this->entityManager->getRepository('AppBundle:Servicerstoproperties')->PropertiesForVendors($vendorID);
+
+                // Get All Properties For the Vendor
+
+                $accessToken->set('VendorID', $vendorID);
+            }
+
+            // Create a new token
+            $accessToken = $accessToken->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
+                ->setHeader('exp', GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
+                // Creating Signature.
+                ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
+                ->getToken()// Retrieves Generated Token Object
+                ->__toString(); // Converts Token into encoded String.
+
+            // Return response
+            return array(
+                "AccessToken" => $accessToken,
+                "Details" => $servicer[0],
+                "Properties" => $properties
+            );
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

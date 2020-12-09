@@ -99,4 +99,66 @@ class AuthController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Provide OwnerID/VendorID and password to authenticate and get a JWT token in return
+     * @SWG\Tag(name="Authenticate")
+     * @Get("/authenticate/issues", name="vrs_pwa_authenticate_issue_form")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format to authenticate the servicer:
+                {
+                ""OwnerID"":1,
+                ""Password"": ""Password""
+                }"
+     *     )
+     *  )
+
+     * @SWG\Response(
+     *     response=200,
+     *     description="Authenticates the servicer and returns a JWT in return.",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="AccessToken",
+     *              type="string",
+     *              example="abcsg.vvdd.12fff"
+     *          ),
+     *     @SWG\Property(
+     *              property="Properties",
+     *              example={
+     *                  {
+     *                      "PropertyID" : "p1",
+     *                      "PropertyName" : "pname",
+     *                  }
+     *              }
+     *     )
+     *    )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function IssueFormAuthentication(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $authenticationService = $this->container->get('vrscheduler.authentication_service');
+            $content = json_decode(base64_decode($request->get('data')),true);
+            return $authenticationService->IssueFormAuthentication($content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
