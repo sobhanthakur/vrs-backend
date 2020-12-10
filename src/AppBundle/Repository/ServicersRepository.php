@@ -404,7 +404,8 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this
             ->createQueryBuilder('s')
-            ->select('s.servicerid AS ServicerID')
+            ->select('s.servicerid AS ServicerID, c.customerid AS CustomerID')
+            ->leftJoin('s.customerid','c')
             ->where('s.servicerid= :ServicerID')
             ->andWhere('s.password= :Password')
             ->andWhere('s.servicertype = 1')

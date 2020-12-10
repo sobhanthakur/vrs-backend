@@ -578,6 +578,8 @@ class AuthenticationService extends BaseService
                 $accessToken->set(GeneralConstants::VENDORID, $vendorID);
             }
 
+            $servicer[0]['Properties'] = $properties;
+
             // Create a new token
             $accessToken = $accessToken->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
                 ->setHeader('exp', GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
@@ -589,8 +591,7 @@ class AuthenticationService extends BaseService
             // Return response
             return array(
                 "AccessToken" => $accessToken,
-                "Details" => $servicer[0],
-                "Properties" => $properties
+                "Details" => $servicer[0]
             );
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;

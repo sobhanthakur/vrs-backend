@@ -152,7 +152,8 @@ class OwnersRepository extends EntityRepository
     public function OwnerAuthForIssueForm($ownerID, $password)
     {
         return $this->createQueryBuilder('o')
-            ->select('o.ownerid AS OwnerID')
+            ->select('o.ownerid AS OwnerID, c.customerid AS CustomerID')
+            ->leftJoin('o.customerid','c')
             ->where('o.ownerid= :OwnerID')
             ->andWhere('o.password= :Password')
             ->setParameter('Password', $password)
