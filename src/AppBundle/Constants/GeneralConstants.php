@@ -99,6 +99,7 @@ final class GeneralConstants
     const CREATEDATETIME = 'CreateDateTime';
     const LOGGED_IN_SERVICER_PASSWORD = 'LoggedInServicerPassword';
     const SERVICERID = 'ServicerID';
+    const VENDORID = 'VendorID';
     const SERVICERNAME = 'ServicerName';
     const TIMETRACKING = 'TimeTracking';
     const MILEAGE = 'Mileage';

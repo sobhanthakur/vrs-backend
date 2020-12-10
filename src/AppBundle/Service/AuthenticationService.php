@@ -474,6 +474,14 @@ class AuthenticationService extends BaseService
             // Set token claims in authenticateResult array
             $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID] = $token->getClaim(GeneralConstants::SERVICERID);
 
+            if ($token->hasClaim(GeneralConstants::VENDORID)) {
+                $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::VENDORID] = $token->getClaim(GeneralConstants::VENDORID);
+            }
+
+            if ($token->hasClaim(GeneralConstants::OWNERID)) {
+                $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::OWNERID] = $token->getClaim(GeneralConstants::OWNERID);
+            }
+
             //Set authenticated status to true
             $authenticateResult[GeneralConstants::STATUS] = true;
         } catch (\InvalidArgumentException $ex) {
@@ -578,7 +586,8 @@ class AuthenticationService extends BaseService
                 // Get All Properties For the Owner
                 $properties = $this->entityManager->getRepository('AppBundle:Properties')->GetProperties(null,$ownerID);
 
-                $accessToken->set('OwnerID', $ownerID);
+                $accessToken->set(GeneralConstants::SERVICERID, $ownerID);
+                $accessToken->set(GeneralConstants::OWNERID, $ownerID);
             } else {
                 $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->VendorAuthForIssueForm($vendorID,$password);
                 if(empty($servicer)) {
@@ -590,8 +599,11 @@ class AuthenticationService extends BaseService
 
                 // Get All Properties For the Vendor
 
-                $accessToken->set('VendorID', $vendorID);
+                $accessToken->set(GeneralConstants::SERVICERID, $vendorID);
+                $accessToken->set(GeneralConstants::VENDORID, $vendorID);
             }
+
+            $servicer[0]['Properties'] = $properties;
 
             // Create a new token
             $accessToken = $accessToken->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
@@ -604,8 +616,7 @@ class AuthenticationService extends BaseService
             // Return response
             return array(
                 "AccessToken" => $accessToken,
-                "Details" => $servicer[0],
-                "Properties" => $properties
+                "Details" => $servicer[0]
             );
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
