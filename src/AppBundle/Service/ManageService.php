@@ -37,7 +37,7 @@ class ManageService extends BaseService
      * @param $content
      * @return array
      */
-    public function SubmitIssue($servicerID, $content)
+    public function SubmitIssue($servicerID, $content,$owner = null)
     {
         $response = [];
         try {
@@ -59,7 +59,6 @@ class ManageService extends BaseService
 //                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
 //            }
 
-            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID));
 
             // Create a new Issue
             $issues = new Issues();
@@ -72,7 +71,15 @@ class ManageService extends BaseService
             if ($taskID) {
                 $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
             }
-            $issues->setSubmittedbyservicerid($servicer);
+
+            if (!$owner) {
+                $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID));
+                $issues->setSubmittedbyservicerid($servicer);
+            } else {
+                $servicer = $this->entityManager->getRepository('AppBundle:Owners')->findOneBy(array('ownerid'=>$servicerID));
+                $issues->setSubmittedbyownerid($servicer);
+            }
+
 
             // Persist and flush Issue
             $this->entityManager->persist($issues);

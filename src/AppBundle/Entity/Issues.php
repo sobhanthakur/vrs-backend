@@ -282,6 +282,16 @@ class Issues
      */
     private $submittedbyservicerid;
 
+    /**
+     * @var Owners
+     *
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Owners")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="SubmittedByOwnerID", referencedColumnName="OwnerID")
+     * })
+     */
+    private $submittedbyownerid;
+
 
 
     /**
@@ -1145,5 +1155,29 @@ class Issues
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set submittedbyownerid.
+     *
+     * @param \AppBundle\Entity\Owners|null $submittedbyownerid
+     *
+     * @return Issues
+     */
+    public function setSubmittedbyownerid(\AppBundle\Entity\Owners $submittedbyownerid = null)
+    {
+        $this->submittedbyownerid = $submittedbyownerid;
+
+        return $this;
+    }
+
+    /**
+     * Get submittedbyownerid.
+     *
+     * @return \AppBundle\Entity\Owners|null
+     */
+    public function getSubmittedbyownerid()
+    {
+        return $this->submittedbyownerid;
     }
 }
