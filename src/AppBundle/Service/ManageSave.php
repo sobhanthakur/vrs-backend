@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\CheckLists;
+use AppBundle\Entity\ChecklistItemImages;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstochecklistitems;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -99,6 +100,10 @@ class ManageSave extends BaseService
                             case 11:
                                 // ColumnCount
                                 $this->ProcessOption7and10and11($inputs, 11);
+                                break;
+                            case 12:
+                                // Multiple Image Upload
+                                $this->ProcessMultipleImageUpload($inputs,(int)$checkListItem['ChecklistItemID']);
                                 break;
                         }
                     }
@@ -208,6 +213,23 @@ class ManageSave extends BaseService
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
             $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+            $this->entityManager->persist($taskToCheckListItem);
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param $inputs
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function ProcessMultipleImageUpload($inputs,$checklistItemID)
+    {
+        foreach ($inputs as $input) {
+            // Update the record
+            $taskToCheckListItem = new ChecklistItemImages();
+            $taskToCheckListItem->setUploadedimage($input['ImageUploaded']);
+            $taskToCheckListItem->setChecklistitemid($checklistItemID);
             $this->entityManager->persist($taskToCheckListItem);
         }
         $this->entityManager->flush();

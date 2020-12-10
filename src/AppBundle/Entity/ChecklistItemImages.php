@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="ChecklistItemImages")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ChecklistItemImagesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class ChecklistItemImages
 {
@@ -44,7 +45,6 @@ class ChecklistItemImages
 
     /**
      * @ORM\PrePersist
-     * @ORM\PreUpdate
      */
     public function updatedTimestamps()
     {
