@@ -172,7 +172,18 @@ class ServicersDashboardService extends BaseService
                 ) {
                     $quickChangeAbbreviation = trim($servicers[0]['QuickChangeAbbreviation']);
                 }
-                $servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] ? $piecePay = ((int)$tasks[$i]['PayType'] === 2 ? $tasks[$i]['PiecePay'] * $servicers[0]['PayRate'] : $tasks[$i]['PiecePay']) : $piecePay = null;
+
+                $piecePay = null;
+
+                if ((int)$servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] === 1) {
+                    if ((int)$tasks[$i]['PayType'] === 1) {
+                        $piecePay = $tasks[$i]['PiecePay'];
+                    }
+
+                    if ((int)$tasks[$i]['PayType'] === 2) {
+                        $piecePay = $tasks[$i]['PiecePay'] * $servicers[0]['PayRate'];
+                    }
+                }
 
                 // Check Scheduling Notes
                 $schedulingNote = null;
