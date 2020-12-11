@@ -139,7 +139,7 @@ class ManageSave extends BaseService
         // Checked/See Notes/NA grid
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
             if ($option === 7 || $option === 10) {
                 $taskToCheckListItem->setOptionselected((int)$input['OptionSelected']);
             } else {
@@ -160,7 +160,7 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
             $taskToCheckListItem->setChecked((int)$input['Checked'] === 1 ? true : false);
             $this->entityManager->persist($taskToCheckListItem);
         }
@@ -176,7 +176,7 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
             if (array_key_exists('OptionSelected',$input) && $input['OptionSelected'] === 'Other') {
                 $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
             }
@@ -195,7 +195,7 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
             $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
             $this->entityManager->persist($taskToCheckListItem);
         }
@@ -211,7 +211,7 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
             $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
             $this->entityManager->persist($taskToCheckListItem);
         }
