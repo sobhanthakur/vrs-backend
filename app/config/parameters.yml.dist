@@ -50,4 +50,6 @@ parameters:
             region: ~
             key : ~
             secret : ~
+    php-auth-user: ~
+    php-auth-password: ~
 
