@@ -13,6 +13,7 @@ use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\LocaleConstants;
 use AppBundle\CustomClasses\TimeZoneConverter;
 use AppBundle\DatabaseViews\TimeClockDays;
+use AppBundle\Entity\Integrationstocustomers;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -510,21 +511,17 @@ class AuthenticationService extends BaseService
     public function SMSAuthentication(Request $request)
     {
         try {
-            // Check if header is valid
-            // Parsing String Token to JWT Token Object.
-            $authorization = $request->headers->get(GeneralConstants::AUTHORIZATION);
-            $token = (new Parser())->parse((string)$authorization);
-            $signer = new Sha256();
-
-            // Checking If Token passed in API Request Header is valid OR not.
-            if (!$token->verify($signer, $this->serviceContainer->getParameter('api_secret'))) {
-                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
+            // Check if basic Authorization is present
+            if (!$request->headers->has('php-auth-user') && !$request->headers->has('php-auth-pw')) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
             }
 
-            // Check Expiry
-            if(!$this->CheckExpiry($token)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::UNPROCESSABLE_AUTH_TOKEN);
+            if ($request->headers->get('php-auth-user') !== $this->serviceContainer->getParameter('php-auth-user') &&
+                $request->headers->get('php-auth-pw') !== $this->serviceContainer->getParameter('php-auth-password')
+            ) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
             }
+            
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
