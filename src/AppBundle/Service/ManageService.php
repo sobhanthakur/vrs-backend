@@ -68,6 +68,11 @@ class ManageService extends BaseService
             $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
             $issues->setCreatedate($currentDate);
+
+            if ($owner) {
+                $issues->setShowonownerdashboard(true);
+            }
+
             if ($taskID) {
                 $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
             }
@@ -181,6 +186,11 @@ class ManageService extends BaseService
                 $issueImage->setIssueID($issues);
                 $issueImage->setCreateDate($currentDate);
                 $issueImage->setPropertyID($propertyObj);
+
+                if ($owner) {
+                    $issueImage->setShowOwner(true);
+                }
+
                 $this->entityManager->persist($issueImage);
                 if ($task) {
                     $issueImageToTask = new Issueandtaskimagestotasks();

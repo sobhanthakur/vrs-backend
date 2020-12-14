@@ -10,7 +10,6 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\CheckLists;
-use AppBundle\Entity\ChecklistItemImages;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstochecklistitems;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -103,7 +102,7 @@ class ManageSave extends BaseService
                                 break;
                             case 12:
                                 // Multiple Image Upload
-                                $this->ProcessMultipleImageUpload($inputs,(int)$checkListItem['ChecklistItemID']);
+                                $this->ProcessMultipleImageUpload($task,$checkListItem);
                                 break;
                         }
                     }
@@ -223,14 +222,33 @@ class ManageSave extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function ProcessMultipleImageUpload($inputs,$checklistItemID)
+    public function ProcessMultipleImageUpload($task, $checklistDetails)
     {
-        foreach ($inputs as $input) {
-            // Update the record
-            $taskToCheckListItem = new ChecklistItemImages();
-            $taskToCheckListItem->setUploadedimage($input['ImageUploaded']);
-            $taskToCheckListItem->setChecklistitemid($checklistItemID);
-            $this->entityManager->persist($taskToCheckListItem);
+        foreach ($checklistDetails['Input'] as $input) {
+            if ($input['TaskToChecklistItemID'] !== null) {
+                // Update an entry
+                $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $this->entityManager->persist($taskToCheckListItem);
+            } else {
+                // Create New Entry
+                $taskToCheckListItem = new Taskstochecklistitems();
+                $taskToCheckListItem->setTaskid($task);
+                $taskToCheckListItem->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checklistDetails['ChecklistItemID']));
+                $taskToCheckListItem->setOptionid(0);
+                $taskToCheckListItem->setOptionselected('');
+                $taskToCheckListItem->setChecklisttypeid(12);
+                $taskToCheckListItem->setChecklistitem(array_key_exists('ChecklistItem',$checklistDetails) ? $checklistDetails['ChecklistItem'] : '');
+                $taskToCheckListItem->setDescription(array_key_exists('Description',$checklistDetails) ? $checklistDetails['Description'] : '');
+                $taskToCheckListItem->setImage(array_key_exists('Image',$checklistDetails) ? $checklistDetails['Image'] : '');
+                $taskToCheckListItem->setEnteredvalue('');
+                $taskToCheckListItem->setShowonownerreport(array_key_exists('ShowOwnerReport',$checklistDetails) ? ((int)$checklistDetails['ShowOnOwnerReport'] === 1 ? true : false) : false);
+                $taskToCheckListItem->setChecked(false);
+                $taskToCheckListItem->setSortorder(array_key_exists('SortOrder',$checklistDetails) ? (int)$checklistDetails['SortOrder'] : 0);
+                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
+            }
         }
         $this->entityManager->flush();
     }
