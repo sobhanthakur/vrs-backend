@@ -435,7 +435,9 @@ class TabsService extends BaseService
                                     break;
                                 case 12:
                                     // Multiple Image Upload
-                                    $result = $this->ProcessMultipleImageUpload($rsChecklistItem);
+                                    // $result = $this->ProcessMultipleImageUpload($rsChecklistItem);
+                                    // $result = $rsThisResponse;
+                                    // Do Nothing
                                     break;
                             }
                         }
@@ -632,14 +634,14 @@ class TabsService extends BaseService
     {
         $res = [];
         $checkListItemImages = $this->entityManager->getRepository('AppBundle:ChecklistItemImages')->findBy(array(
-            'checklistitemid' => $checkListItem['ChecklistItemID']
+            'tasktochecklistitemid' => (int)$checkListItem['TaskToChecklistItemID']
         ));
 
         foreach ($checkListItemImages as $checkListItemImage) {
             $res[] = array(
                 'EnteredValueAmount' => 0,
                 'ColumnValue' => 0,
-                'TaskToChecklistItemID' => null,
+                'TaskToChecklistItemID' => $checkListItemImage->getTasktochecklistitemid(),
                 'OptionSelected' => "",
                 'ImageUploaded' => $checkListItemImage->getUploadedimage(),
                 'EnteredValue' => "",

@@ -25,9 +25,9 @@ class ChecklistItemImages
     /**
      * @var int
      *
-     * @ORM\Column(name="ChecklistItemID", type="integer", nullable=false)
+     * @ORM\Column(name="TaskToChecklistItemID", type="integer", nullable=false)
      */
-    private $checklistitemid;
+    private $tasktochecklistitemid;
 
     /**
      * @var string|null
@@ -63,31 +63,7 @@ class ChecklistItemImages
     {
         return $this->checklistitemimageid;
     }
-
-    /**
-     * Set checklistitemid.
-     *
-     * @param int $checklistitemid
-     *
-     * @return ChecklistItemImages
-     */
-    public function setChecklistitemid($checklistitemid)
-    {
-        $this->checklistitemid = $checklistitemid;
-
-        return $this;
-    }
-
-    /**
-     * Get checklistitemid.
-     *
-     * @return int
-     */
-    public function getChecklistitemid()
-    {
-        return $this->checklistitemid;
-    }
-
+    
     /**
      * Set uploadedimage.
      *
@@ -134,5 +110,29 @@ class ChecklistItemImages
     public function getCreatedate()
     {
         return $this->createdate;
+    }
+
+    /**
+     * Set tasktochecklistitemid.
+     *
+     * @param int $tasktochecklistitemid
+     *
+     * @return ChecklistItemImages
+     */
+    public function setTasktochecklistitemid($tasktochecklistitemid)
+    {
+        $this->tasktochecklistitemid = $tasktochecklistitemid;
+
+        return $this;
+    }
+
+    /**
+     * Get tasktochecklistitemid.
+     *
+     * @return int
+     */
+    public function getTasktochecklistitemid()
+    {
+        return $this->tasktochecklistitemid;
     }
 }
