@@ -436,8 +436,6 @@ class ManageController extends FOSRestController
                 $owner = true;
             }
 
-            $content['OwnerVendor'] = true;
-
             return $manageService->SubmitIssue($servicerID,$content,$owner);
         } catch (BadRequestHttpException $exception) {
             throw $exception;

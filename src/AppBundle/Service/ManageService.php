@@ -69,7 +69,7 @@ class ManageService extends BaseService
             $issues->setNotes($content['IssueDescription']);
             $issues->setCreatedate($currentDate);
 
-            if (array_key_exists('OwnerVendor',$content) && $content['OwnerVendor'] === true) {
+            if ($owner) {
                 $issues->setShowonownerdashboard(true);
             }
 
@@ -187,7 +187,7 @@ class ManageService extends BaseService
                 $issueImage->setCreateDate($currentDate);
                 $issueImage->setPropertyID($propertyObj);
 
-                if (array_key_exists('OwnerVendor',$content) && $content['OwnerVendor'] === true) {
+                if ($owner) {
                     $issueImage->setShowOwner(true);
                 }
 

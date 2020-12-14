@@ -10,7 +10,6 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\CheckLists;
-use AppBundle\Entity\ChecklistItemImages;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstochecklistitems;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -231,11 +230,6 @@ class ManageSave extends BaseService
                 $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
                 $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
                 $this->entityManager->persist($taskToCheckListItem);
-
-                // Update the entry in ChecklistItemImages Table
-                $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:ChecklistItemImages')->findOneBy(array('tasktochecklistitemid' => (int)$input['TaskToChecklistItemID']));
-                $taskToCheckListItem->setUploadedimage($input['ImageUploaded']);
-                $this->entityManager->persist($taskToCheckListItem);
             } else {
                 // Create New Entry
                 $taskToCheckListItem = new Taskstochecklistitems();
@@ -254,12 +248,6 @@ class ManageSave extends BaseService
                 $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
                 $this->entityManager->persist($taskToCheckListItem);
                 $this->entityManager->flush();
-
-                // New Entry in ChecklistItemImages Table
-                $taskToCheckListItemImages = new ChecklistItemImages();
-                $taskToCheckListItemImages->setUploadedimage($input['ImageUploaded']);
-                $taskToCheckListItemImages->setTasktochecklistitemid($taskToCheckListItem->getTasktochecklistitemid());
-                $this->entityManager->persist($taskToCheckListItemImages);
             }
         }
         $this->entityManager->flush();
