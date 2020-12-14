@@ -104,7 +104,8 @@ class ExceptionListener extends BaseService
         $request = $event->getRequest();
         $route = $request->attributes->get('_route');
         if (($status === 422 || $status === 500) &&
-            !in_array($route,ApiRoutes::NO_ERROR_ROUTES)
+            !in_array($route,ApiRoutes::NO_ERROR_ROUTES) &&
+            !in_array($messageKey,ApiRoutes::NO_ERROR_MESSAGES)
         ) {
             $content = [];
             $content['Subject'] = "HTTP Error: ".$status." ON ".$this->serviceContainer->getParameter('api_host');

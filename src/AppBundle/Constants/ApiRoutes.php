@@ -142,4 +142,8 @@ final class ApiRoutes
     const SMS_ROUTES = array(
         "vrs_aws_sns"
     );
+
+    const NO_ERROR_MESSAGES = array(
+        "NOTHINGTOMAP"
+    );
 }

@@ -139,7 +139,6 @@ final class ErrorConstants
         self::OAUTH_FAILED => ['code' => 1002, self::MESSAGE => 'api.response.error.oauth_failed'],
         self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
         self::QBO_CONNECTION_ERROR => ['code' => 1002, self::MESSAGE => 'api.response.error.qbo_connection_error'],
-        self::NOTHING_TO_MAP => ['code' => 422, self::MESSAGE => 'api.response.error.nothing_to_map'],
         self::UNABLE_TO_RESET_BATCH => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_reset_batch'],
         self::INVALID_PROPERTY_BOOKING_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_property_booking'],
         self::INVALID_CHECKOUT  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_checkout'],
