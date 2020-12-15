@@ -657,6 +657,16 @@ class Customers
      */
     private $connectedStripeAccountID;
 
+    /**
+     * @var \Timezones
+     *
+     * @ORM\ManyToOne(targetEntity="Locale")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="LocaleID", referencedColumnName="LocaleID")
+     * })
+     */
+    private $localeid;
+
 
 
     /**
@@ -2827,5 +2837,29 @@ class Customers
     public function getConnectedStripeAccountID()
     {
         return $this->connectedStripeAccountID;
+    }
+
+    /**
+     * Set localeid.
+     *
+     * @param \AppBundle\Entity\Locale|null $localeid
+     *
+     * @return Customers
+     */
+    public function setLocaleid(\AppBundle\Entity\Locale $localeid = null)
+    {
+        $this->localeid = $localeid;
+
+        return $this;
+    }
+
+    /**
+     * Get localeid.
+     *
+     * @return \AppBundle\Entity\Locale|null
+     */
+    public function getLocaleid()
+    {
+        return $this->localeid;
     }
 }
