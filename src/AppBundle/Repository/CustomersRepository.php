@@ -14,6 +14,7 @@ namespace AppBundle\Repository;
  */
 
 use AppBundle\Constants\GeneralConstants;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * Class CustomersRepository
@@ -49,8 +50,10 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->addSelect('c.useQuickbooks AS UseQuickbooks')
             ->addSelect('c.connectedStripeAccountID AS ConnectedStripeAccountID')
             ->addSelect('c.tracklabormaterials AS TrackLaborOrMaterials')
+            ->addSelect('l.locale AS LocaleID')
             ->where(GeneralConstants::CUSTOMER_ID_CONDITION)
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
+            ->leftJoin('AppBundle:Locale','l',Expr\Join::WITH, 'c.localeid=l.localeid')
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
