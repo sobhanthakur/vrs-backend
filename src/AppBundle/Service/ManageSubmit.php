@@ -12,6 +12,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Scheduledwebhooks;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -43,8 +44,8 @@ class ManageSubmit extends BaseService
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->SubmitManage($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
-                return array();
+                // Throw Error if the Task Does not belong to the Servicer.
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
 
             $rsServicers = $this->entityManager->getRepository('AppBundle:Servicers')->SubmitManageTab($servicerID);
@@ -376,6 +377,8 @@ class ManageSubmit extends BaseService
                 'SaveDetails' => $save
             );
 
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {

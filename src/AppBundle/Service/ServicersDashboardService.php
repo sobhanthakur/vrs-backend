@@ -685,7 +685,9 @@ class ServicersDashboardService extends BaseService
             $schedulingNote = "";
 
             if(empty($rsThisTask)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                // Throw Error if the Task Does not belong to the Servicer.
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
 
             $taskDateTime = (new \DateTime($content['TaskDate']))->setTime($thisTime,0);
@@ -738,6 +740,8 @@ class ServicersDashboardService extends BaseService
                 'Details' => $response
             );
 
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {

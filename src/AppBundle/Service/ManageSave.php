@@ -33,79 +33,81 @@ class ManageSave extends BaseService
             $taskID = $content['TaskID'];
             $checkListItems = $content['CheckListDetails'];
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskToSaveManage($taskID, $servicerID);
+            if (empty($rsThisTask)) {
+                // Throw Error if the Task Does not belong to the Servicer.
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
+            }
 
-            if (!empty($rsThisTask)) {
-                // STORE THE ISSUE TO THE  TASK TO MAKE SURE THE NOTIFICATION CAN GRAB THE INFO
-                /*
-                 * TaskNote = servicernotes
-                 * Note To Owner: = To Owner Note
-                 */
-                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
-                if (!$task) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
-                }
-                $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
-                if (array_key_exists('NoteToOwner', $content) && $content['NoteToOwner'] !== '') {
-                    $task->setToownernote(trim(substr($content['NoteToOwner'], 0, 5000)));
-                }
+            // STORE THE ISSUE TO THE  TASK TO MAKE SURE THE NOTIFICATION CAN GRAB THE INFO
+            /*
+             * TaskNote = servicernotes
+             * Note To Owner: = To Owner Note
+             */
+            $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+            if (!$task) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
+            $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
+            if (array_key_exists('NoteToOwner', $content) && $content['NoteToOwner'] !== '') {
+                $task->setToownernote(trim(substr($content['NoteToOwner'], 0, 5000)));
+            }
 
-                // Update Completed Time if the task is completed.
-                if ($complete && $complete !== '') {
-                    $now = new \DateTime($complete);
-                    $task->setCloseddate($now);
-                    $task->setCompleteconfirmeddate($now);
-                    $task->setCompletedbyservicerid($servicerID);
-                    $task->setCompleted(true);
-                }
+            // Update Completed Time if the task is completed.
+            if ($complete && $complete !== '') {
+                $now = new \DateTime($complete);
+                $task->setCloseddate($now);
+                $task->setCompleteconfirmeddate($now);
+                $task->setCompletedbyservicerid($servicerID);
+                $task->setCompleted(true);
+            }
 
-                // Save and commit Task
-                $this->entityManager->persist($task);
-                $this->entityManager->flush();
+            // Save and commit Task
+            $this->entityManager->persist($task);
+            $this->entityManager->flush();
 
-                // Process CheckList items
-                foreach ($checkListItems as $checkListItem) {
-                    $inputs = $checkListItem['Input'];
-                    if ((int)$checkListItem['ChecklistItemID'] !== 0) {
-                        switch ((int)$checkListItem['ChecklistTypeID']) {
-                            case 0:
-                                // CheckBox
-                                $this->ProcessChecked($inputs);
-                                break;
-                            case 1:
-                            case 9:
-                                // Radio With Other
-                                $this->ProcessEnteredValue($inputs);
-                                break;
-                            case 2:
-                                // Radio buttons
-                            case 3:
-                                // Dropdown
-                            case 8:
-                                // Radio With Other
-                                $this->ProcessOptionSelected($inputs);
-                                break;
-                            case 4:
-                                // Image Upload
-                            case 5:
-                                // Image Verification
-                                $this->ProcessImageUpload($inputs);
-                                break;
-                            case 7:
-                                $this->ProcessOption7and10and11($inputs);
-                                break;
-                            case 10:
-                                // ColumnCount
-                                $this->ProcessOption7and10and11($inputs, 10);
-                                break;
-                            case 11:
-                                // ColumnCount
-                                $this->ProcessOption7and10and11($inputs, 11);
-                                break;
-                            case 12:
-                                // Multiple Image Upload
-                                $this->ProcessMultipleImageUpload($task,$checkListItem);
-                                break;
-                        }
+            // Process CheckList items
+            foreach ($checkListItems as $checkListItem) {
+                $inputs = $checkListItem['Input'];
+                if ((int)$checkListItem['ChecklistItemID'] !== 0) {
+                    switch ((int)$checkListItem['ChecklistTypeID']) {
+                        case 0:
+                            // CheckBox
+                            $this->ProcessChecked($inputs);
+                            break;
+                        case 1:
+                        case 9:
+                            // Radio With Other
+                            $this->ProcessEnteredValue($inputs);
+                            break;
+                        case 2:
+                            // Radio buttons
+                        case 3:
+                            // Dropdown
+                        case 8:
+                            // Radio With Other
+                            $this->ProcessOptionSelected($inputs);
+                            break;
+                        case 4:
+                            // Image Upload
+                        case 5:
+                            // Image Verification
+                            $this->ProcessImageUpload($inputs);
+                            break;
+                        case 7:
+                            $this->ProcessOption7and10and11($inputs);
+                            break;
+                        case 10:
+                            // ColumnCount
+                            $this->ProcessOption7and10and11($inputs, 10);
+                            break;
+                        case 11:
+                            // ColumnCount
+                            $this->ProcessOption7and10and11($inputs, 11);
+                            break;
+                        case 12:
+                            // Multiple Image Upload
+                            $this->ProcessMultipleImageUpload($task, $checkListItem);
+                            break;
                     }
                 }
             }
@@ -113,6 +115,8 @@ class ManageSave extends BaseService
             return array(
                 'Status' => 'Success'
             );
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -265,10 +269,7 @@ class ManageSave extends BaseService
             $taskID = $content['TaskID'];
 
             // Check if Task ID is valid
-            $validTask = $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
-            if (empty($validTask)) {
-                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
-            }
+            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
 
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->find((int)$taskID);
             if (!$rsThisTask) {
