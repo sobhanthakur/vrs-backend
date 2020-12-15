@@ -12,6 +12,7 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\DatabaseViews\CheckLists;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstochecklistitems;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -251,5 +252,54 @@ class ManageSave extends BaseService
             }
         }
         $this->entityManager->flush();
+    }
+
+    /**
+     * @param $servicerID
+     * @param $content
+     * @return array
+     */
+    public function RemoveChecklist($servicerID, $content)
+    {
+        try {
+            $taskID = $content['TaskID'];
+
+            // Check if Task ID is valid
+            $validTask = $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+            if (empty($validTask)) {
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
+            }
+
+            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->find((int)$taskID);
+            if (!$rsThisTask) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
+
+            $taskToCheckListItem = (int)$content['TaskToChecklistItemID'];
+
+            $checkList = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
+                'taskid' => $rsThisTask,
+                'tasktochecklistitemid' => $taskToCheckListItem
+            ));
+
+            if ($checkList) {
+                $this->entityManager->remove($checkList);
+                $this->entityManager->flush();
+            }
+
+            return array(
+                'Status' => 'Success'
+            );
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Unable to Remove Checklist Item Due to: ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

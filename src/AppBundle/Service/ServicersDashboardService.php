@@ -15,6 +15,7 @@ use AppBundle\DatabaseViews\TimeClockDays;
 use AppBundle\Entity\Taskacceptdeclines;
 use AppBundle\Entity\Taskchanges;
 use AppBundle\Entity\Timeclockdays as TimeClock;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -473,10 +474,15 @@ class ServicersDashboardService extends BaseService
             $taskID = $content['TaskID'];
             $acceptDecline = $content['AcceptDecline'];
             $dateTime = $content['DateTime'];
+
+            // Check if the Task Belong to the Corresponding ServicerID
+//            $taskToServicer = $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+
             $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptDeclineTask($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
+//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
             switch ($acceptDecline) {
@@ -491,6 +497,8 @@ class ServicersDashboardService extends BaseService
 
             return $response;
 
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {

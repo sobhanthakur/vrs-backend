@@ -450,4 +450,68 @@ class ManageController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Deletes Checklist
+     * @SWG\Tag(name="Manage Tab")
+     * @Rest\Delete("/manage/delete", name="vrs_pwa_manage_delete")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="TaskID",
+     *              type="integer",
+     *              example=1801
+     *         ),
+     *         @SWG\Property(
+     *              property="TaskToChecklistItemID",
+     *              type="integer",
+     *              example=1801
+     *         )
+     *      )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Submits the issue form",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="ReasonCode",
+     *              type="integer",
+     *              example=0
+     *          )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function DeleteManageChecklist(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $manageService = $this->container->get('vrscheduler.manage_save');
+            $content = json_decode($request->getContent(),true);
+
+            // Send an empty array if content is blank
+            if (empty($content)) {
+                return [];
+            }
+
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $manageService->RemoveChecklist($servicerID,$content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

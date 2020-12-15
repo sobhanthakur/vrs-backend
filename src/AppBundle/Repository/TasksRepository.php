@@ -869,4 +869,21 @@ class TasksRepository extends EntityRepository
             ->execute();
 
     }
+
+    /**
+     * @param $servicerID
+     * @param $taskID
+     * @return mixed
+     */
+    public function DoesTaskBelongToServicer($servicerID, $taskID)
+    {
+        $result = $this->createQueryBuilder('t')
+            ->select('t.taskid AS TaskID')
+            ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
+            ->where('t.taskid='.$taskID)
+            ->andWhere('ts.servicerid='.$servicerID)
+            ->getQuery()
+            ->execute();
+        return $result;
+    }
 }
