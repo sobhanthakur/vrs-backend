@@ -273,21 +273,28 @@ class ManageSave extends BaseService
             // Check if Task ID is valid
             $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
 
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->find((int)$taskID);
-            if (!$rsThisTask) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
-            }
+            $checkListItems = $content['CheckListDetails'];
 
-            $taskToCheckListItem = (int)$content['TaskToChecklistItemID'];
+            foreach ($checkListItems as $checkListItem) {
+                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+                if (!$task) {
+                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                }
+                $inputs = $checkListItem['Input'];
 
-            $checkList = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
-                'taskid' => $rsThisTask,
-                'tasktochecklistitemid' => $taskToCheckListItem
-            ));
+                foreach ($inputs as $input) {
+                    // Find the TaskToCheckListItemID
+                    $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
+                        'taskid' => $task,
+                        'checklistitemid' => $this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checkListItem['ChecklistItemID']),
+                        'imageuploaded' => $input['ImageUploaded']
+                    ));
 
-            if ($checkList) {
-                $this->entityManager->remove($checkList);
-                $this->entityManager->flush();
+                    if ($taskToCheckListItem) {
+                        $this->entityManager->remove($taskToCheckListItem);
+                        $this->entityManager->flush();
+                    }
+                }
             }
 
             return array(
