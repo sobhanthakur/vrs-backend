@@ -106,8 +106,10 @@ class ManageSave extends BaseService
                             break;
                         case 12:
                             // Multiple Image Upload
-                            $this->ProcessMultipleImageUpload($task, $checkListItem);
-                            break;
+                            if (!$complete) {
+                                $this->ProcessMultipleImageUpload($task, $checkListItem);
+                                break;
+                            }
                     }
                 }
             }
