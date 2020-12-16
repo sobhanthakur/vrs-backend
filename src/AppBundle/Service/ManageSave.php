@@ -167,7 +167,7 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            $taskToCheckListItem->setChecked((int)$input['Checked'] === 1 ? true : false);
+            $taskToCheckListItem->setChecked($input['Checked'] && $input['Checked'] !== "" ? ((int)$input['Checked'] === 1 ? true : false) : false);
             $this->entityManager->persist($taskToCheckListItem);
         }
         $this->entityManager->flush();
