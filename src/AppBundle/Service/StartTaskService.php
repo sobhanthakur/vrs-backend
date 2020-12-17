@@ -38,6 +38,8 @@ class StartTaskService extends BaseService
             $isMobile = $mobileHeaders['IsMobile'];
             $now = new \DateTime($dateTime);
 
+            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
             (int)$servicer->getTimetrackinggps() ? $timeTrackingGps = true : $timeTrackingGps = false;
             array_key_exists('lat',$content) ? $lat = $content['lat'] : $lat = null;

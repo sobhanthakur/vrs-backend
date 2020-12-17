@@ -15,6 +15,7 @@ use AppBundle\DatabaseViews\Issues;
 use AppBundle\DatabaseViews\ServicesToProperties;
 use AppBundle\DatabaseViews\TaskWithServicers;
 use AppBundle\Entity\Taskstochecklistitems;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -78,8 +79,7 @@ class TabsService extends BaseService
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForInfoTab($taskID,$servicerID);
             if (empty($tasks)) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
-                return [];
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
             $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
@@ -130,6 +130,8 @@ class TabsService extends BaseService
             'CheckListDetails' => !empty($checkListItems) ? $checkListItems : [],
             'TaskImages' => $taskImages
         );
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
@@ -344,8 +346,10 @@ class TabsService extends BaseService
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
             if (empty($tasks)) {
-                return $response;
+//                return $response;
 //                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+                // Throw Error if the Task Does not belong to the Servicer.
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
 
             $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($tasks[0]['TaskID']);
@@ -475,6 +479,8 @@ class TabsService extends BaseService
 
             return $response;
 
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {

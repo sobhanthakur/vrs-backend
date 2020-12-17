@@ -9,11 +9,13 @@
 namespace AppBundle\Repository;
 
 
+use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\Tasks;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class TasksRepository
@@ -910,5 +912,31 @@ class TasksRepository extends EntityRepository
             ->getQuery()
             ->execute();
 
+    }
+
+    /**
+     * @param $servicerID
+     * @param $taskID
+     * @return mixed
+     */
+    public function DoesTaskBelongToServicer($servicerID, $taskID)
+    {
+        try {
+            $result = $this->createQueryBuilder('t')
+                ->select('t.taskid AS TaskID')
+                ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
+                ->where('t.taskid='.$taskID)
+                ->andWhere('ts.servicerid='.$servicerID)
+                ->getQuery()
+                ->execute();
+
+            if (empty($result)) {
+                // Throw Error if the Task Does not belong to the Servicer.
+                throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
+            }
+            return $result;
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        }
     }
 }
