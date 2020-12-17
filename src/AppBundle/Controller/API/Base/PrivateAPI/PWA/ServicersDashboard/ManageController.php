@@ -10,7 +10,6 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\PWA\ServicersDashboard;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -454,7 +453,7 @@ class ManageController extends FOSRestController
     /**
      * Deletes Checklist
      * @SWG\Tag(name="Manage Tab")
-     * @Rest\Delete("/manage/delete", name="vrs_pwa_manage_delete")
+     * @Post("/manage/delete", name="vrs_pwa_manage_delete")
      * @SWG\Parameter(
      *     name="body",
      *     in="body",
