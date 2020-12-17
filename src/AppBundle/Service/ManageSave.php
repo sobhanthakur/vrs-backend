@@ -269,32 +269,27 @@ class ManageSave extends BaseService
     {
         try {
             $taskID = $content['TaskID'];
+            $checkListItem = $content['ChecklistItemID'];
+            $imageUploaded = $content['ImageUploaded'];
 
             // Check if Task ID is valid
-            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID, $taskID);
 
-            $checkListItems = $content['CheckListDetails'];
+            $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+            if (!$task) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
+            }
 
-            foreach ($checkListItems as $checkListItem) {
-                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
-                if (!$task) {
-                    throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
-                }
-                $inputs = $checkListItem['Input'];
+            // Find the TaskToCheckListItemID
+            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
+                'taskid' => $task,
+                'checklistitemid' => $this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checkListItem),
+                'imageuploaded' => $imageUploaded
+            ));
 
-                foreach ($inputs as $input) {
-                    // Find the TaskToCheckListItemID
-                    $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
-                        'taskid' => $task,
-                        'checklistitemid' => $this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checkListItem['ChecklistItemID']),
-                        'imageuploaded' => $input['ImageUploaded']
-                    ));
-
-                    if ($taskToCheckListItem) {
-                        $this->entityManager->remove($taskToCheckListItem);
-                        $this->entityManager->flush();
-                    }
-                }
+            if ($taskToCheckListItem) {
+                $this->entityManager->remove($taskToCheckListItem);
+                $this->entityManager->flush();
             }
 
             return array(
