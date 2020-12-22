@@ -10,6 +10,7 @@ namespace AppBundle\Controller\API\Base\PrivateAPI\PWA\ServicersDashboard;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -258,6 +259,102 @@ class TranslationFiles extends FOSRestController
             $translationService = $this->container->get('vrscheduler.translation_service');
             $content = json_decode($request->getContent(),true);
             return $translationService->UpdateTranslation($content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Add new Locale
+     * @SWG\Tag(name="Translations")
+     * @Post("/translations/locales", name="vrs_pwa_translation_locales_post")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="Enter Request JSON",
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+                    {
+                    "Locale" : "en-de",
+                    "LocaleReadable" : "english-demo",
+                    "ActiveForDates" : "1"
+                    }
+     *     )
+     *  )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Creates a Locale",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function AddNewLocale(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $content = json_decode($request->getContent(),true);
+            $translationService = $this->container->get('vrscheduler.translation_service');
+            return $translationService->AddNewLocale($content);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * Add new English Word
+     * @SWG\Tag(name="Translations")
+     * @Post("/translations/english", name="vrs_pwa_translation_post_english")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     description="Enter Request JSON",
+     *         @SWG\Property(
+     *              property="Data",
+     *              example=
+    {
+    "EnglishText" : "Clock In"
+    }
+     *     )
+     *  )
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Creates a new English Word",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function AddNewEnglishWord(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $content = json_decode($request->getContent(),true);
+            $translationService = $this->container->get('vrscheduler.translation_service');
+            return $translationService->AddNewEnglishText($content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

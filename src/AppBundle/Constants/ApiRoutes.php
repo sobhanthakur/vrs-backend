@@ -57,7 +57,9 @@ final class ApiRoutes
         "vrs_pwa_translation_get_english",
         "vrs_pwa_translation_locales",
         "vrs_pwa_translation_get",
-        "vrs_pwa_translation_put"
+        "vrs_pwa_translation_put",
+        "vrs_pwa_translation_locales_post",
+        "vrs_pwa_translation_post_english",
     );
 
     const PUBLIC_ROUTES = array(

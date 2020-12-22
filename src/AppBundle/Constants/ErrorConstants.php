@@ -86,6 +86,8 @@ final class ErrorConstants
     const INVALID_ENGLISHTEXT_ID = 'INVALID_ENGLISHTEXT_ID';
     const WRONG_PASSWORD = 'WRONG_PASSWORD';
     const WRONG_LOGIN = 'WRONG_LOGIN';
+    const LOCALE_EXISTS = 'LOCALE_EXISTS';
+    const ENGLISH_EXISTS = 'ENGLISH_EXISTS';
 
 
     public static $errorCodeMap = [
@@ -152,6 +154,8 @@ final class ErrorConstants
         self::INVALID_ENGLISHTEXT_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_englishtext_id'],
         self::INVALID_TRANSLATION_ID  => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_translation_id'],
         self::WRONG_PASSWORD  => ['code' => 422, self::MESSAGE => 'api.response.error.wrong_password'],
-        self::WRONG_LOGIN  => ['code' => 400, self::MESSAGE => 'api.response.error.wrong_login']
+        self::WRONG_LOGIN  => ['code' => 400, self::MESSAGE => 'api.response.error.wrong_login'],
+        self::LOCALE_EXISTS  => ['code' => 422, self::MESSAGE => 'api.response.error.locale_exists'],
+        self::ENGLISH_EXISTS  => ['code' => 422, self::MESSAGE => 'api.response.error.english_exists']
     ];
 }
