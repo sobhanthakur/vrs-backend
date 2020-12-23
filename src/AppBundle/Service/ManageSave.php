@@ -232,7 +232,7 @@ class ManageSave extends BaseService
     public function ProcessMultipleImageUpload($task, $checklistDetails)
     {
         foreach ($checklistDetails['Input'] as $input) {
-            if ($input['TaskToChecklistItemID'] !== null) {
+            if ($input['TaskToChecklistItemID'] && (int)$input['TaskToChecklistItemID']) {
                 // Update an entry
                 $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
                 $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
