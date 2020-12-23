@@ -146,15 +146,17 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            if ($option === 7 || $option === 10) {
-                $taskToCheckListItem->setOptionselected((int)$input['OptionSelected']);
-            } else {
-                $taskToCheckListItem->setEnteredvalueamount($input['EnteredValueAmount']);
-            }
+            if ($taskToCheckListItem) {
+                if ($option === 7 || $option === 10) {
+                    $taskToCheckListItem->setOptionselected((int)$input['OptionSelected']);
+                } else {
+                    $taskToCheckListItem->setEnteredvalueamount($input['EnteredValueAmount']);
+                }
 
-            $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
+            }
         }
-        $this->entityManager->flush();
     }
 
     /**
@@ -167,10 +169,12 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            $taskToCheckListItem->setChecked($input['Checked'] && $input['Checked'] !== "" ? ((int)$input['Checked'] === 1 ? true : false) : false);
-            $this->entityManager->persist($taskToCheckListItem);
+            if ($taskToCheckListItem) {
+                $taskToCheckListItem->setChecked($input['Checked'] && $input['Checked'] !== "" ? ((int)$input['Checked'] === 1 ? true : false) : false);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
+            }
         }
-        $this->entityManager->flush();
     }
 
     /**
@@ -183,13 +187,15 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            if (array_key_exists('OptionSelected',$input) && $input['OptionSelected'] === 'Other') {
-                $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
+            if ($taskToCheckListItem) {
+                if (array_key_exists('OptionSelected',$input) && $input['OptionSelected'] === 'Other') {
+                    $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
+                }
+                $taskToCheckListItem->setOptionselected($input['OptionSelected']);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
             }
-            $taskToCheckListItem->setOptionselected($input['OptionSelected']);
-            $this->entityManager->persist($taskToCheckListItem);
         }
-        $this->entityManager->flush();
     }
 
     /**
@@ -202,10 +208,12 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
-            $this->entityManager->persist($taskToCheckListItem);
+            if ($taskToCheckListItem) {
+                $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
+            }
         }
-        $this->entityManager->flush();
     }
 
     /**
@@ -218,10 +226,12 @@ class ManageSave extends BaseService
         foreach ($inputs as $input) {
             // Update the record
             $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-            $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
-            $this->entityManager->persist($taskToCheckListItem);
+            if ($taskToCheckListItem) {
+                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $this->entityManager->persist($taskToCheckListItem);
+                $this->entityManager->flush();
+            }
         }
-        $this->entityManager->flush();
     }
 
     /**
@@ -232,7 +242,7 @@ class ManageSave extends BaseService
     public function ProcessMultipleImageUpload($task, $checklistDetails)
     {
         foreach ($checklistDetails['Input'] as $input) {
-            if ($input['TaskToChecklistItemID'] !== null) {
+            if ($input['TaskToChecklistItemID'] && (int)$input['TaskToChecklistItemID']) {
                 // Update an entry
                 $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
                 $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);

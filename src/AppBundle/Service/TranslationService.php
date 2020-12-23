@@ -11,7 +11,9 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
+use AppBundle\Entity\Locale;
 use AppBundle\Entity\Translations;
+use AppBundle\Entity\TranslationTexts;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -174,6 +176,87 @@ class TranslationService extends BaseService
             throw $exception;
         } catch (\Exception $exception) {
             $this->logger->error("Unable to Update Translation:" .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function AddNewLocale($content)
+    {
+        try {
+            $locale = $this->entityManager->getRepository('AppBundle:Locale')->findOneBy(array(
+                'locale' => $content['Locale'],
+                'activeforlanguages' => true
+            ));
+            if ($locale) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::LOCALE_EXISTS);
+            }
+
+            $locale = $content['Locale'];
+            $localeReadable = $content['LocaleReadable'];
+            $activeForDates = $content['ActiveForDates'] ? ((int)$content['ActiveForDates'] === 1 ? true : false) : false;
+            $activeForLanguages = true;
+
+            $localeID = new Locale();
+            $localeID->setActivefordates($activeForDates);
+            $localeID->setActiveforlanguages($activeForLanguages);
+            $localeID->setLocale($locale);
+            $localeID->setLocalereadable($localeReadable);
+            $this->entityManager->persist($localeID);
+            $this->entityManager->flush();
+
+            return array(
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => "Success",
+                'LocaleID' => $localeID->getLocaleid()
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error("Unable to add Locale due to :" .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    /**
+     * @param $content
+     * @return array
+     */
+    public function AddNewEnglishText($content)
+    {
+        try {
+            $english = $this->entityManager->getRepository('AppBundle:TranslationTexts')->findOneBy(array(
+                'englishtext' => $content['EnglishText']
+            ));
+            if ($english) {
+                throw new UnprocessableEntityHttpException(ErrorConstants::ENGLISH_EXISTS);
+            }
+
+            $english = $content['EnglishText'];
+
+            $translationText = new TranslationTexts();
+            $translationText->setEnglishtext($english);
+            $this->entityManager->persist($translationText);
+            $this->entityManager->flush();
+
+            return array(
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => "Success",
+                'TranslationTextID' => $translationText->getTranslationtextid()
+            );
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error("Unable to add new word due to: " .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
