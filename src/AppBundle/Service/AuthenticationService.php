@@ -378,6 +378,7 @@ class AuthenticationService extends BaseService
             $signer = new Sha256();
             $accessToken = (new Builder())
                 ->set(GeneralConstants::SERVICERID, $servicerID)
+                ->set(GeneralConstants::CUSTOMER_ID, (int)$servicer[0][GeneralConstants::CUSTOMER_ID])
                 ->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
                 ->setHeader('exp',GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
 
@@ -443,12 +444,13 @@ class AuthenticationService extends BaseService
             }
 
             // Checking That access_token must be used in API Calls.
-            if (!$token->hasClaim(GeneralConstants::SERVICERID)) {
+            if (!$token->hasClaim(GeneralConstants::SERVICERID) && !$token->hasClaim(GeneralConstants::CUSTOMER_ID)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
             }
 
             // Set token claims in authenticateResult array
             $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID] = $token->getClaim(GeneralConstants::SERVICERID);
+            $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID] = $token->getClaim(GeneralConstants::CUSTOMER_ID);
 
             if ($token->hasClaim(GeneralConstants::VENDORID)) {
                 $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::VENDORID] = $token->getClaim(GeneralConstants::VENDORID);
