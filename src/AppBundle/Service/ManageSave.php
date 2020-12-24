@@ -91,6 +91,8 @@ class ManageSave extends BaseService
                             // Image Upload
                         case 5:
                             // Image Verification
+                        case 13:
+                            // Video Upload
                             $this->ProcessImageUpload($inputs);
                             break;
                         case 7:
