@@ -107,6 +107,7 @@ class ManageSave extends BaseService
                             $this->ProcessOption7and10and11($inputs, 11);
                             break;
                         case 12:
+                        case 14:
                             // Multiple Image Upload
                             if (!$complete) {
                                 $this->ProcessMultipleImageUpload($task, $checkListItem);

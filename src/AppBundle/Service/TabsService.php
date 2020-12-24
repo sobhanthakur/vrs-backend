@@ -440,6 +440,7 @@ class TabsService extends BaseService
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                                     break;
                                 case 12:
+                                case 14:
                                     // Do Nothing
                                     break;
                             }
