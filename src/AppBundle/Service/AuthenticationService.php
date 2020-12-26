@@ -601,6 +601,8 @@ class AuthenticationService extends BaseService
                 $accessToken->set(GeneralConstants::VENDORID, $vendorID);
             }
 
+            $accessToken->set(GeneralConstants::CUSTOMER_ID, $servicer[0][GeneralConstants::CUSTOMER_ID]);
+
             $servicer[0]['Properties'] = $properties;
 
             // Create a new token

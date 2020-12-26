@@ -422,6 +422,8 @@ class TabsService extends BaseService
                                     // Image Upload
                                 case 5:
                                     // Image Verification
+                                case 13:
+                                    // Video Upload
                                     if (empty($rsThisResponse)) {
                                         $rsThisResponse = $this->InsertNewTaskToCheckList($taskObj, $rsChecklistItem);
                                     }
@@ -438,6 +440,7 @@ class TabsService extends BaseService
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                                     break;
                                 case 12:
+                                case 14:
                                     // Do Nothing
                                     break;
                             }
