@@ -478,4 +478,6 @@ final class GeneralConstants
     ];
 
     const LOCALEID = 'LocaleID';
+
+    const REGION = 'Region';
 }

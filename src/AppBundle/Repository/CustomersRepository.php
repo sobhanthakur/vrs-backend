@@ -51,9 +51,11 @@ class CustomersRepository extends \Doctrine\ORM\EntityRepository
             ->addSelect('c.connectedStripeAccountID AS ConnectedStripeAccountID')
             ->addSelect('c.tracklabormaterials AS TrackLaborOrMaterials')
             ->addSelect('l.locale AS LocaleID')
+            ->addSelect('t.region AS Region')
             ->where(GeneralConstants::CUSTOMER_ID_CONDITION)
             ->setParameter(GeneralConstants::CUSTOMER_ID, $customerID)
             ->leftJoin('AppBundle:Locale','l',Expr\Join::WITH, 'c.localeid=l.localeid')
+            ->leftJoin('c.timezoneid','t')
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
