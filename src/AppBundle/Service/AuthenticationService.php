@@ -127,6 +127,9 @@ class AuthenticationService extends BaseService
                 // Set Locale ID
                 $restrictions[GeneralConstants::LOCALEID] = $customerID[0][GeneralConstants::LOCALEID];
 
+                // Set Region
+                $restrictions[GeneralConstants::REGION] = $customerID[0][GeneralConstants::REGION];
+
                 // Region Groups and Regions Repository
                 $regionGroupRepo = $this->entityManager->getRepository('AppBundle:Regiongroups');
                 $regionsRepo = $this->entityManager->getRepository('AppBundle:Regions');

@@ -47,6 +47,7 @@ class ApiResponse extends BaseService
             GeneralConstants::REASON_TEXT => $this->translator->trans('api.response.success.message'),
             'LoggedInStaffID' => $result['LoggedInStaffID'],
             GeneralConstants::LOCALEID => $result[GeneralConstants::LOCALEID],
+            GeneralConstants::REGION => $result[GeneralConstants::REGION],
             GeneralConstants::LOGGED_IN_SERVICER_PASSWORD => $result[GeneralConstants::LOGGED_IN_SERVICER_PASSWORD],
             'AccessToken' => $result['AccessToken'],
             'Permissions' => $result['Restrictions'],
