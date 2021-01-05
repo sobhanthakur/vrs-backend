@@ -62,7 +62,7 @@ class ManageService extends BaseService
 
             // Create a new Issue
             $issues = new Issues();
-            $issues->setIssuetype(1);
+            $issues->setIssuetype(-1);
             $issues->setIssue($content['Issue']);
             $issues->setUrgent((int)$content['Urgent'] === 1 ? true : false);
             $issues->setPropertyid($propertyObj);
