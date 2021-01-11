@@ -153,7 +153,7 @@ class ManageSave extends BaseService
                 if ($option === 7 || $option === 10) {
                     $taskToCheckListItem->setOptionselected((int)$input['OptionSelected']);
                 } else {
-                    $taskToCheckListItem->setEnteredvalueamount($input['EnteredValueAmount']);
+                    $taskToCheckListItem->setEnteredvalueamount((float)eval('return '.$input['EnteredValueAmount'].';'));
                 }
 
                 $this->entityManager->persist($taskToCheckListItem);
