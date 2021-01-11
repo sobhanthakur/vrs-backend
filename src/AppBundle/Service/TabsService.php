@@ -555,9 +555,7 @@ class TabsService extends BaseService
         // Get All options
         $res1 = explode("\n", $checkListItem['Options']);
         foreach ($rsThisResponse as $value) {
-            if ($value['EnteredValue'] !== '') {
-                $res2[] = $value['EnteredValue'];
-            }
+            $res2[] = $value['EnteredValue'];
         }
 
         // Create entries if the option selected are not present in the DB
