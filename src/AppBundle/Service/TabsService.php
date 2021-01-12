@@ -25,6 +25,8 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 class TabsService extends BaseService
 {
+    private $globalResponse = [];
+
     /**
      * @param $content
      * @return array
@@ -398,6 +400,9 @@ class TabsService extends BaseService
                         'CheckListCount' => $checkListCount
                     );
 
+                    // Set a temporary flag
+                    $flag = 0;
+
                     // CheckList Response
                     $checkListResponse = [];
                     foreach ($rsChecklistItems as $rsChecklistItem) {
@@ -429,6 +434,10 @@ class TabsService extends BaseService
                                     }
                                     break;
                                 case 7:
+                                    $flag = 1;
+                                    if (trim($rsChecklistItem['Options']) === '') {
+                                        $rsChecklistItem['Options'] = '_';
+                                    }
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
                                     break;
                                 case 10:
@@ -447,7 +456,12 @@ class TabsService extends BaseService
                         }
 
                         $checkLists = array('CheckListItem' => $rsChecklistItem);
-                        $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
+                        if ($flag) {
+                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_diff(array_merge($rsThisResponse,$result),$this->globalResponse) : $rsThisResponse;
+                        } else {
+                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
+                        }
+
                         $checkListResponse[] = $checkLists;
                     }
 
@@ -560,6 +574,9 @@ class TabsService extends BaseService
 
         // Create entries if the option selected are not present in the DB
         if ($option === 7) {
+            // De-dup the entries
+            $this->DeDupEntries($rsThisResponse,$res1,$res2);
+
             $diff = array_diff($res1, $res2);
         } elseif ($option === 10) {
             if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
@@ -628,5 +645,35 @@ class TabsService extends BaseService
         }
 
         return $res;
+    }
+
+    /**
+     * @param $rsThisResponse
+     * @param $res1
+     * @param $res2
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function DeDupEntries($rsThisResponse, $res1, $res2)
+    {
+        // Re-initialize the Global Response array
+        $this->globalResponse = [];
+        
+        $diff = array_diff($res2,$res1);
+        foreach ($diff as $outer) {
+            foreach ($rsThisResponse as $inner) {
+                if ($outer === $inner['EnteredValue']) {
+
+                    // Append inner array to Global Response
+                    // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
+                    $this->globalResponse[] = $inner;
+                    // Remove the entry
+                    $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
+                    $this->entityManager->remove($taskToCheckListItemID);
+                    break;
+                }
+            }
+        }
+        $this->entityManager->flush();
     }
 }
