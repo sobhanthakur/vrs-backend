@@ -457,7 +457,16 @@ class TabsService extends BaseService
 
                         $checkLists = array('CheckListItem' => $rsChecklistItem);
                         if ($flag) {
-                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_diff(array_merge($rsThisResponse,$result),$this->globalResponse) : $rsThisResponse;
+                            $merged = array_merge($rsThisResponse,$result);
+                            for ($i=0; $i<count($merged);$i++) {
+                                foreach ($this->globalResponse as $value) {
+                                    if ($merged[$i]['EnteredValue'] === $value['EnteredValue']) {
+                                        unset($merged[$i]);
+                                        break;
+                                    }
+                                }
+                            }
+                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? $merged : $rsThisResponse;
                         } else {
                             $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                         }
@@ -565,6 +574,7 @@ class TabsService extends BaseService
         $res2 = [];
         $res = [];
         $diff = [];
+        $dedup = [];
 
         // Get All options
         $res1 = explode("\n", $checkListItem['Options']);
