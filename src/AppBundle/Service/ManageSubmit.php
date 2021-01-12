@@ -344,7 +344,7 @@ class ManageSubmit extends BaseService
             // Get Owner ID
             $thisOwnerID = 0;
             if ((int)$rsThisTask[0]['OwnerID'] !== 0 &&
-                ($content['NoteToOwner'] !== '' || (int)$rsThisTask[0]['IncludeToOwnerNote'] === 0)
+                ((int)$content['SendToOwnerNote'] !== 0 || (int)$rsThisTask[0]['IncludeToOwnerNote'] === 0)
             ) {
                 $thisOwnerID = $rsThisTask[0]['OwnerID'];
             }
