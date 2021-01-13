@@ -471,7 +471,7 @@ class TabsService extends BaseService
                                     $tempResult[] = $merged[$i];
                                 }
                             }
-                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? $tempResult : $rsThisResponse;
+                            $checkLists['CheckListItem']['ResponseInfo'] = $tempResult;
                         } else {
                             $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                         }
@@ -685,10 +685,10 @@ class TabsService extends BaseService
                     // Remove the entry
                     $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
                     $this->entityManager->remove($taskToCheckListItemID);
+                    $this->entityManager->flush();
                     break;
                 }
             }
         }
-        $this->entityManager->flush();
     }
 }
