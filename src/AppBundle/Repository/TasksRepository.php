@@ -12,6 +12,7 @@ namespace AppBundle\Repository;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\Tasks;
+use AppBundle\DatabaseViews\TaskWithServicers;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -896,5 +897,29 @@ class TasksRepository extends EntityRepository
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         }
+    }
+
+    /**
+     * @param $servicerID
+     * @param \DateTime $startDate
+     * @param \DateTime $endDate
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function GetTasksForBookingCalender($servicerID, $startDate, $endDate,$timeZone)
+    {
+        $timeZone = new \DateTimeZone($timeZone);
+        $startDateUTC = new \DateTime($startDate->format('Y-m-d H:i:s'));
+        $startDateUTC = $startDateUTC->setTimezone($timeZone);
+        $endDateUTC = new \DateTime($endDate->format('Y-m-d H:i:s'));
+        $endDateUTC = $endDateUTC->setTimezone($timeZone);
+
+        $query = "
+        SELECT Distinct Lat,Lon,BookingConfirmedDate,ReminderConfirmedDate,TaskID,TaskDate,TaskTime,TaskCompleteByDate,TaskCompleteByTime,CompleteConfirmedDate,PropertyBookingID,CheckIn,CheckInTime,CheckOut,CheckOutTime,Source,PropertyBookingCreateDate,Guest,GuestEmail,GuestPhone,IsOwner,NumberOfGuests,NumberOfChildren,NumberOfPets,PropertyName,Region,Name,IsLead,ServiceName,TaskAbbreviation,Abbreviation,OwnerName,OwnerEmail,OwnerPhone,OwnerID,ServicerID,TaskType,PropertyID,REQUESTACCEPTANCEONASSIGNMENT,INCLUDEGUESTNAME,INCLUDEGUESTNUMBERS, TaskStartDate,TaskStartTime,TaskTimeMinutes,isnull(MinTimeTocomplete,0) as MinTimeToComplete,isnull(maxtimetocomplete,0) as MaxTimeToComplete,IncludeToOwnerNote,ClosedDAte,NeedsMaintenance,HasDamage,HasLostAndFound,SupplyFlag,DefaultToOwnerNote,OwnerSendEmails,OwnerSendTexts,BackToBackEnd,BackToBackStart,Active,Priority,TaskDateTime,NumberOfServicers,Address,PropertyAbbreviation,ServicerAbbreviation,IncludeServicerNote,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnLostAndFound,NotifyCustomerOnServicerNote,NotifyOwnerOnCompletion,NotifyCustomerOnCompletion,CustomerID,TaskToServicerID,color,TaskName,PropertyFile,DoorCode,RegionSortOrder,RegionGroupSortORder,PropertySortOrder,RegionID,PropertyID,ServiceID,WorkDays,CreateDAte,PropertyBookingCreateDate,TaskImage1,TaskImage2,TaskImage3,LinkedPropertyID,LinkedVendor,LinkedCustomerID,AllowChangeTaskDate,AllowShareImagesWithOwners,AllowChangeTaskDate,Image1ShowOwner,Image2ShowOwner,Image3ShowOwner,GlobalNote,TaskDescription,InternalNotes,Description,ServicerNotes,InternalNote,ToOwnerNote,PiecePay,bookingcolor,ServiceColor,completedbyservicerid,PropertyBookingPropertyID,ScheduleVacantOnly,ParentTaskID,ParentServiceName,ParentStartDAte,ParentStartTIme,ParentMinTimeToComplete,ParentCompleteConfirmedDAte,ParentServiceAbbreviation,ParentTaskDAte,ShowTaskTimeEstimates,AcceptedDate,DeclinedDate,RequestAcceptTAsks,Instructions,InGlobalNote,OutGlobalNote,TimeZoneRegion,ClockIn,OnTheFlyTaskName,OwnerNote,ServiceGroup,ServiceGroupID,PropertiesCreateDate,Billable,PropertyItemTypeID,TimeZoneRegion,OneOffVacantOnly,TaskStartTimeMinutes,TaskCompleteByTimeMinutes,CheckInTimeMinutes,CheckOutTimeMinutes,Urgent,ShowTaskImage1OnOwnerReport,ShowTaskImage2OnOwnerReport,ShowTaskImage3OnOwnerReport,IncludeToOwnerNoteOnOwnerDashboard,ActiveForOwner,OwnerReportNote,TaskDescriptionImage2,TaskDescriptionImage1,TaskDescriptionImage3,CreatedByServicerID,DeactivatedByServicerID,Amount,ExpenseAmount,cast(dateadd(hour,timezone,CompleteConfirmedDate) as date) as CompleteConfirmedDateWithOffset FROM (".TaskWithServicers::vTasksWithServicers.") AS T WHERE T.ServicerID = ".$servicerID." AND (T.Active = 1 ) AND (T.TaskDateTime >= '".$startDate->format('Y-m-d H:i:s')."' OR T.CompleteConfirmedDate >= '".$startDateUTC->format('Y-m-d H:i:s')."') AND (T.TaskDateTime <= '".$endDate->format('Y-m-d H:i:s')."' OR T.CompleteConfirmedDate < '".$endDateUTC->format('Y-m-d H:i:s')."' ) ORDER BY T.Region,T.PropertyName,T.TaskDate,T.TaskID
+        ";
+
+        $result = $this->getEntityManager()->getConnection()->prepare($query);
+        $result->execute();
+        return $result->fetchAll();
     }
 }

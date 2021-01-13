@@ -17,6 +17,7 @@ class BookingCalenderService extends BaseService
     public function GetBookingCalenderDetails($servicerID,$content)
     {
         $bookings = [];
+        $allTasks = [];
         try {
             $rsServicers = $this->entityManager->getRepository('AppBundle:Servicers')->BookingsCalender($servicerID);
 
@@ -105,9 +106,80 @@ class BookingCalenderService extends BaseService
                 $bookings[] = $bookingDetails;
             }
 
+            // Fetch Tasks
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForBookingCalender($servicerID,$thisStartDate,$thisEndDate,$rsServicers['TimeZoneRegion']);
+
+            // Iterate through Tasks
+            foreach ($tasks as $task) {
+                $taskDetails = [];
+                $taskDetails['Region'] = "";
+                if ($task['Region'] !== $taskDetails['Region']) {
+                    $taskDetails['Region'] = $task['Region'];
+                }
+
+                $taskDetails['TaskName'] = "Unassigned";
+                if ($task['Name'] !== "") {
+                    $taskDetails['TaskName'] = $task['Name'];
+                }
+
+                if ((int)$task['TaskTime'] !== 99 && $task['TaskTime'] !== "") {
+                    $taskDetails['TaskTime'] = $task['TaskTime'];
+                } else {
+                    $taskDetails['TaskTime'] = 8;
+                }
+
+                $durationHours = floor((float)$task['MinTimeToComplete']);
+                $durationMinutes = ((float)$task['MinTimeToComplete'] - floor((float)$task['MinTimeToComplete']))*60;
+
+                if ($durationHours === 0 && $durationMinutes < 60) {
+                    $durationMinutes = 60;
+                }
+
+                $taskDetails['EndTime'] = (new \DateTime($task['TaskDateTime']))->modify('+'.$durationHours.' hour'.' +'.$durationMinutes.'minute');
+
+                if ($task['bookingcolor'] !== '' && (int)$task['PropertyID'] === (int)$task['PropertyBookingPropertyID']) {
+                    $taskDetails['Color'] = trim($task['bookingcolor']);
+                } elseif ($task['color'] !== '') {
+                    $taskDetails['Color'] = '#'.trim($task['color']);
+                } else {
+                    $taskDetails['Color'] = '##0275d8';
+                }
+
+                $taskDetails['TextColor'] = '##ffffff';
+
+                if((base_convert(substr($taskDetails['Color'],2,2),16,10)*0.299) +
+                    (base_convert(substr($taskDetails['Color'],4,2),16,10)*0.587) +
+                    (base_convert(substr($taskDetails['Color'],-2),16,10)*0.144) > 200
+                ) {
+                    $taskDetails['TextColor'] = '##000000';
+                }
+
+                if ((new \DateTime($task['TaskCompleteByDate'])) < $localDate->setTime(0,0,0) &&
+                    ($task['CompleteConfirmedDate'] === "")
+                ) {
+                    $taskDetails['TextColor'] = '##FFA500';
+                }
+
+                $taskDetails['CompleteConfirmedDate'] = $task['CompleteConfirmedDate'];
+                $taskDetails['Abbreviation'] = $task['Abbreviation'];
+                $taskDetails['TaskAbbreviation'] = $task['TaskAbbreviation'];
+                $taskDetails['TaskName'] = $task['TaskName'];
+                $taskDetails['TaskTime'] = $task['TaskTime'];
+                $taskDetails['TaskTimeMinutes'] = $task['TaskTimeMinutes'];
+                $taskDetails['PropertyName'] = $task['PropertyName'];
+                $taskDetails['TaskID'] = $task['TaskID'];
+                $taskDetails['TaskDateTime'] = $task['TaskDateTime'];
+                $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
+                $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];
+
+                $allTasks[] = $taskDetails;
+            }
+
+
             return array(
                 'Properties' => $properties,
-                'Bookings' => $bookings
+                'Bookings' => $bookings,
+                'Tasks' => $allTasks
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
