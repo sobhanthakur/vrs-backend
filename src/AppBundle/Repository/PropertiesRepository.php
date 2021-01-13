@@ -407,4 +407,28 @@ class PropertiesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed
+     */
+    public function PropertiesForBookingCalender($servicerID)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.propertyid AS PropertyID')
+            ->addSelect('p.propertyname AS PropertyName')
+            ->addSelect('IDENTITY(sp.servicerid) AS ServicerID')
+            ->addSelect('r.sortorder AS RegionSortOrder')
+            ->addSelect('r.region AS Region')
+            ->addSelect('r.color AS Color')
+            ->leftJoin('AppBundle:Servicerstoproperties', 'sp', Expr\Join::WITH, 'sp.propertyid=p.propertyid')
+            ->leftJoin('p.regionid','r')
+            ->where('sp.servicerid = :ServicerID')
+            ->setParameter('ServicerID',$servicerID)
+            ->andWhere('p.active=1')
+            ->orderBy('r.sortorder')
+            ->addOrderBy('p.propertyname')
+            ->getQuery()
+            ->execute();
+    }
 }

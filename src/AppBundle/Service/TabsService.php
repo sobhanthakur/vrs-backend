@@ -456,17 +456,22 @@ class TabsService extends BaseService
                         }
 
                         $checkLists = array('CheckListItem' => $rsChecklistItem);
+                        $tempResult = [];
                         if ($flag) {
                             $merged = array_merge($rsThisResponse,$result);
                             for ($i=0; $i<count($merged);$i++) {
+                                $tempFlag = 0;
                                 foreach ($this->globalResponse as $value) {
                                     if ($merged[$i]['EnteredValue'] === $value['EnteredValue']) {
-                                        unset($merged[$i]);
+                                        $tempFlag = 1;
                                         break;
                                     }
                                 }
+                                if ($tempFlag !== 1) {
+                                    $tempResult[] = $merged[$i];
+                                }
                             }
-                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? $merged : $rsThisResponse;
+                            $checkLists['CheckListItem']['ResponseInfo'] = $tempResult;
                         } else {
                             $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                         }
@@ -680,10 +685,10 @@ class TabsService extends BaseService
                     // Remove the entry
                     $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
                     $this->entityManager->remove($taskToCheckListItemID);
+                    $this->entityManager->flush();
                     break;
                 }
             }
         }
-        $this->entityManager->flush();
     }
 }

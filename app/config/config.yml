@@ -243,6 +243,7 @@ nelmio_api_doc:
                 -  /v1/vrs/pwa/authenticate/issues
                 -  /v1/vrs/pwa/issue/vendorandowner
                 -  /v1/vrs/pwa/manage/delete
+                -  /v1/vrs/pwa/calender/feed-booking
 
 monolog:
     handlers:
