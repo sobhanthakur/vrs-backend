@@ -11,6 +11,10 @@ namespace AppBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
+/**
+ * Class PropertybookingsRepository
+ * @package AppBundle\Repository
+ */
 class PropertybookingsRepository extends EntityRepository
 {
     /**
@@ -181,5 +185,53 @@ class PropertybookingsRepository extends EntityRepository
         $query = "pb.propertybookingid ";
         return $this->fetchPropertyBooking($customerDetails, $queryParameter, $propertyBookingID, $offset, $query);
 
+    }
+
+    /**
+     * @param $servicerID
+     * @param $endDate
+     * @param $startDate
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function GetBookingsForBookingCalender($servicerID, $endDate, $startDate)
+    {
+        $query = "
+                    SELECT 
+            Distinct Regions.SortOrder as RegionSortOrder,
+            CheckIn,CheckOut,CheckInTime,CheckOutTime,PropertyBookings.CreateDate as BookingCreateDate,PropertyName,Region,NumberOfGuests,NumberOfChildren,NumberOfPets,Guest,GuestEmail,GuestPhone,IsOwner,PropertyBookingID,Properties.PropertyID,InternalNote,GlobalNote,InGlobalNote,OutGlobalNote,Regions.Color,IsManuallyEntered,Propertybookings.color as BookingColor,BackToBackEnd ,ImportBookingID,PropertyBookings.PropertyID as PropertyBookingPropertyID
+            FROM PropertyBookings
+            LEFT JOIN Properties ON PropertyBookings.PropertyID = Properties.PropertyID
+            LEFT JOIN Customers ON Properties.CustomerID = Customers.CustomerID
+            LEFT JOIN ServicersToProperties ON Properties.PropertyID = ServicersToProperties.PropertyID
+            LEFT JOIN Regions ON Properties.RegionID = Regions.RegionID
+            WHERE ServicerID = ". $servicerID."
+            AND PropertyBookings.Active = 1
+            AND Properties.Active = 1
+            AND CheckIn <= '".$endDate."'
+            AND CheckOut >= '".$startDate."'
+            AND (GoLiveDate IS NULL OR CheckOut > GoLiveDate) 
+            UNION
+            SELECT 
+            Distinct Regions.SortOrder as RegionSortOrder,
+            CheckIn,CheckOut,CheckInTime,CheckOutTime,PropertyBookings.CreateDate as BookingCreateDate,PropertyName,Region,NumberOfGuests,NumberOfChildren,NumberOfPets,Guest,GuestEmail,GuestPhone,IsOwner,PropertyBookingID,Properties.PropertyID,InternalNote,GlobalNote,InGlobalNote,OutGlobalNote,Regions.Color,IsManuallyEntered,Propertybookings.color as BookingColor,BackToBackEnd ,ImportBookingID,PropertyBookings.PropertyID as PropertyBookingPropertyID
+            FROM PropertyBookings
+            LEFT JOIN Properties ON PropertyBookings.PropertyID = Properties.LinkedPropertyID
+            LEFT JOIN Customers ON Properties.CustomerID = Customers.CustomerID
+            LEFT JOIN ServicersToProperties ON Properties.PropertyID = ServicersToProperties.PropertyID
+            LEFT JOIN Regions ON Properties.RegionID = Regions.RegionID
+            WHERE ServicerID = ".$servicerID."
+            AND PropertyBookings.Active = 1
+            AND Properties.Active = 1
+            AND CheckIn <= '".$endDate."'
+            AND CheckOut >= '".$startDate."'
+            AND (GoLiveDate IS NULL OR CheckOut > GoLiveDate) 
+            ORDER BY  CheckIn
+        ";
+
+        $result = $this->getEntityManager()->getConnection()->prepare($query);
+
+        $result->execute();
+        return $result->fetchAll();
     }
 }

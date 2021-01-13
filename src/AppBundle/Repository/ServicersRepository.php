@@ -415,4 +415,24 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function BookingsCalender($servicerID)
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.servicerid AS ServicerID')
+            ->addSelect('s.viewbookingswithindays AS ViewBookingsWithinDays')
+            ->addSelect('s.includeguestnumbers AS IncludeGuestNumbers')
+            ->addSelect('s.includeguestname AS IncludeGuestName')
+            ->addSelect('t.region AS TimeZoneRegion')
+            ->leftJoin('s.timezoneid','t')
+            ->where('s.servicerid = :ServicerID')
+            ->setParameter('ServicerID',$servicerID)
+            ->getQuery()
+            ->execute();
+    }
 }
