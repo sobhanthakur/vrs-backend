@@ -199,16 +199,27 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
 
                 foreach ($timeclocks as $timeclock) {
                     $timeTracked = explode(":",$this->GMDateCalculation($timeclock['TimeTrackedSeconds']));
-                    $timeActivity = array(
-                        "NameOf" => "Employee",
+                    if ((int)$timeclock['IsContractor'] === 1) {
+                        $timeActivity = array(
+                            "NameOf" => "Vendor",
+                            "VendorRef" => [
+                                "Value" => $timeclock['QBDEmployeeListID']
+                            ]
+                        );
+                    } else {
+                        $timeActivity = array(
+                            "NameOf" => "Employee",
+                            "EmployeeRef" => [
+                                "Value" => $timeclock['QBDEmployeeListID']
+                            ]
+                        );
+                    }
+                    $timeActivity = array_merge($timeActivity,array(
                         "TxnDate" => $timeclock['Date']->format('Y-m-d'),
-                        "EmployeeRef" => [
-                            "Value" => $timeclock['QBDEmployeeListID']
-                        ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
                         "HourlyRate" => $timeclock['PayRate']
-                    );
+                    ));
 
                     $timeActivity = TimeActivity::create($timeActivity);
                     $result = $dataService->Add($timeActivity);
