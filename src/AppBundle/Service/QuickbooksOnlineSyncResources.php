@@ -143,7 +143,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         $incomingListIDs = [];
         foreach ($employees as $employee) {
             if ($isContractor) {
-                if ($employee->Vendor1099 === true) {
+                if ($employee->Vendor1099 === "true") {
                     $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
                     if (!$integrationQBDEmployees) {
                         $integrationQBDEmployees = new Integrationqbdemployees();
