@@ -144,7 +144,7 @@ class QuickbooksOnlineSyncResources extends BaseService
         foreach ($employees as $employee) {
             if ($isContractor) {
                 if ($employee->Vendor1099 === "true") {
-                    $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
+                    $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid(), 'isContractor' => true));
                     if (!$integrationQBDEmployees) {
                         $integrationQBDEmployees = new Integrationqbdemployees();
                     }
@@ -172,7 +172,7 @@ class QuickbooksOnlineSyncResources extends BaseService
 
         // Fetch available Employess to keep track of employees that are made inactive in QBO
         $qbdListIDs = [];
-        $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->GetAllEmployees($customerObj->getCustomerid());
+        $qbdEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->GetAllEmployees($customerObj->getCustomerid(),$isContractor);
         foreach ($qbdEmployees as $val) {
             $qbdListIDs[] = $val['QBDEmployeeListID'];
         }
