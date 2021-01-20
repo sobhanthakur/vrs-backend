@@ -60,6 +60,13 @@ class Integrationqbdemployees
      */
     private $customerid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="IsContractor", type="boolean", nullable=false)
+     */
+    private $isContractor = false;
+
 
 
     /**
@@ -201,5 +208,29 @@ class Integrationqbdemployees
             $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
             $this->setCreatedate($datetime);
         }
+    }
+
+    /**
+     * Set isContractor.
+     *
+     * @param bool $isContractor
+     *
+     * @return Integrationqbdemployees
+     */
+    public function setIsContractor($isContractor)
+    {
+        $this->isContractor = $isContractor;
+
+        return $this;
+    }
+
+    /**
+     * Get isContractor.
+     *
+     * @return bool
+     */
+    public function getIsContractor()
+    {
+        return $this->isContractor;
     }
 }

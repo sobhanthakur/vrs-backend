@@ -138,20 +138,36 @@ class QuickbooksOnlineSyncResources extends BaseService
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function StoreEmployees($employees, $customerObj)
+    public function StoreEmployees($employees, $customerObj,$isContractor=null)
     {
         $incomingListIDs = [];
         foreach ($employees as $employee) {
-            $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
-            if (!$integrationQBDEmployees) {
-                $integrationQBDEmployees = new Integrationqbdemployees();
+            if ($isContractor) {
+                if ($employee->Vendor1099 === true) {
+                    $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
+                    if (!$integrationQBDEmployees) {
+                        $integrationQBDEmployees = new Integrationqbdemployees();
+                    }
+                    $incomingListIDs[] = $employee->Id;
+                    $integrationQBDEmployees->setCustomerid($customerObj);
+                    $integrationQBDEmployees->setActive($employee->Active);
+                    $integrationQBDEmployees->setQbdemployeefullname($employee->DisplayName);
+                    $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
+                    $integrationQBDEmployees->setIsContractor(true);
+                    $this->entityManager->persist($integrationQBDEmployees);
+                }
+            } else {
+                $integrationQBDEmployees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->findOneBy(array('qbdemployeelistid' => $employee->Id,'customerid' => $customerObj->getCustomerid()));
+                if (!$integrationQBDEmployees) {
+                    $integrationQBDEmployees = new Integrationqbdemployees();
+                }
+                $incomingListIDs[] = $employee->Id;
+                $integrationQBDEmployees->setCustomerid($customerObj);
+                $integrationQBDEmployees->setActive($employee->Active);
+                $integrationQBDEmployees->setQbdemployeefullname($employee->DisplayName);
+                $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
+                $this->entityManager->persist($integrationQBDEmployees);
             }
-            $incomingListIDs[] = $employee->Id;
-            $integrationQBDEmployees->setCustomerid($customerObj);
-            $integrationQBDEmployees->setActive($employee->Active);
-            $integrationQBDEmployees->setQbdemployeefullname($employee->DisplayName);
-            $integrationQBDEmployees->setQbdemployeelistid($employee->Id);
-            $this->entityManager->persist($integrationQBDEmployees);
         }
 
         // Fetch available Employess to keep track of employees that are made inactive in QBO
@@ -245,10 +261,16 @@ class QuickbooksOnlineSyncResources extends BaseService
         }
 
         if($integrationsToCustomers->getQbdsyncpayroll()) {
-            // Fetch Customers
+            // Fetch Employees
             $employees = $dataService->Query('select Active,DisplayName,Id from Employee MAXRESULTS 1000');
             if(!empty($employees)) {
                 $this->StoreEmployees($employees,$customerObj);
+            }
+
+            // Fetch Vendors
+            $employees = $dataService->Query('select Vendor1099,Active,DisplayName,Id from Vendor MAXRESULTS 1000');
+            if(!empty($employees)) {
+                $this->StoreEmployees($employees,$customerObj,true);
             }
         }
 
