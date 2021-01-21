@@ -115,7 +115,7 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                 if (empty($timeclocks)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::NOTHING_TO_MAP);
                 }
-                
+
                 $batch = $this->CreateBatch($integrationsToCustomers);
 
                 // Create time activity object for Quickbooks Online
@@ -136,18 +136,30 @@ class QuickbooksOnlineSyncTimeTracking extends BaseService
                     }
 
                     $timeTracked = explode(":",$this->GMDateCalculation($timeclock['TimeTrackedSeconds']));
-                    $timeActivity = array(
-                        "NameOf" => "Employee",
+
+                    if ((int)$timeclock['IsContractor'] === 1) {
+                        $timeActivity = array(
+                            "NameOf" => "Vendor",
+                            "VendorRef" => [
+                                "Value" => $timeclock['EmployeeValue']
+                            ]
+                        );
+                    } else {
+                        $timeActivity = array(
+                            "NameOf" => "Employee",
+                            "EmployeeRef" => [
+                                "Value" => $timeclock['EmployeeValue']
+                            ]
+                        );
+                    }
+                    $timeActivity = array_merge($timeActivity,array(
                         "TxnDate" => $timeclock['Date']->format('Y-m-d'),
-                        "EmployeeRef" => [
-                            "Value" => $timeclock['EmployeeValue']
-                        ],
                         "Minutes" => $timeTracked[1],
                         "Hours" => $timeTracked[0],
                         "HourlyRate" =>$timeclock['PayRate'],
                         "Taxable" => "false",
                         "Description" => $description
-                    );
+                    ));
 
                     if(array_key_exists('CustomerValue',$timeclock) && $timeclock['CustomerValue']) {
                         $timeActivity = array_merge($timeActivity,array(
