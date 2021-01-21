@@ -148,6 +148,7 @@ final class ApiRoutes
     );
 
     const NO_ERROR_MESSAGES = array(
-        "NOTHINGTOMAP"
+        "NOTHINGTOMAP",
+        "INACTIVE"
     );
 }
