@@ -343,6 +343,8 @@ class AuthenticationService extends BaseService
             $servicer[0]['ActiveForDates'] = $servicer[0]['ActiveForDates'] ? 1 : 0;
             $servicer[0]['ActiveForLanguages'] = $servicer[0]['ActiveForLanguages'] ? 1 : 0;
             $servicer[0]['TimeTrackingGPS'] = (int)$servicer[0]['TimeTrackingGPS'];
+            $servicer[0]['ServicerActive'] = (int)$servicer[0]['ServicerActive'];
+            $servicer[0]['CustomerActive'] = (int)$servicer[0]['CustomerActive'];
 
             /*
              * Locale formats
