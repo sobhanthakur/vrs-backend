@@ -376,7 +376,8 @@ class TabsService extends BaseService
                         'IncludeSupplyFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
                         'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
                         'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
-                        'StandardServices' => $standardServices
+                        'StandardServices' => $standardServices,
+                        'IncludeHouseKeeping' => (int)$tasks[0]['IncludeHouseKeeping']
                     );
 
                     // Get CheckList Items
