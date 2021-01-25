@@ -487,6 +487,13 @@ class Tasks
     /**
      * @var bool|null
      *
+     * @ORM\Column(name="IncludeHouseKeeping", type="boolean", nullable=true)
+     */
+    private $includehousekeeping;
+
+    /**
+     * @var bool|null
+     *
      * @ORM\Column(name="Completed", type="boolean", nullable=true)
      */
     private $completed = false;
@@ -3747,5 +3754,29 @@ class Tasks
     public function getCompleted()
     {
         return $this->completed;
+    }
+
+    /**
+     * Set includehousekeeping.
+     *
+     * @param bool|null $includehousekeeping
+     *
+     * @return Tasks
+     */
+    public function setIncludehousekeeping($includehousekeeping = null)
+    {
+        $this->includehousekeeping = $includehousekeeping;
+
+        return $this;
+    }
+
+    /**
+     * Get includehousekeeping.
+     *
+     * @return bool|null
+     */
+    public function getIncludehousekeeping()
+    {
+        return $this->includehousekeeping;
     }
 }
