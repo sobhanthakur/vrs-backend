@@ -665,6 +665,83 @@ class Customers
     private $slackteamid;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueDamageAlt", type="string", length=20, nullable=true)
+     */
+    private $issueDamageAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueMaintenanceAlt", type="string", length=20, nullable=true)
+     */
+    private $issueMaintenanceAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueLostAndFoundAlt", type="string", length=20, nullable=true)
+     */
+    private $issueLostAndFoundAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueSupplyAlt", type="string", length=20, nullable=true)
+     */
+    private $issueSupplyAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueHousekeepingAlt", type="string", length=20, nullable=true)
+     */
+    private $issueHousekeepingAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueDamageAbbrAlt", type="string", length=5, nullable=true)
+     */
+    private $issueDamageAbbrAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueMaintenanceAbbrAlt", type="string", length=5, nullable=true)
+     */
+    private $issueMaintenanceAbbrAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueLostAndFoundAbbrAlt", type="string", length=5, nullable=true)
+     */
+    private $issueLostAndFoundAbbrAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueSupplyAbbrAlt", type="string", length=5, nullable=true)
+     */
+    private $issueSupplyAbbrAlt;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="IssueHousekeepingAbbrAlt", type="string", length=5, nullable=true)
+     */
+    private $issueHousekeepingAbbrAlt;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="IssueAllowVideoUpload", type="boolean", nullable=false)
+     */
+    private $issueAllowVideoUpload = false;
+
+    /**
      * @var \Timezones
      *
      * @ORM\ManyToOne(targetEntity="Locale")
@@ -2892,5 +2969,269 @@ class Customers
     public function getLocaleid()
     {
         return $this->localeid;
+    }
+
+    /**
+     * Set issueDamageAlt.
+     *
+     * @param string|null $issueDamageAlt
+     *
+     * @return Customers
+     */
+    public function setIssueDamageAlt($issueDamageAlt = null)
+    {
+        $this->issueDamageAlt = $issueDamageAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueDamageAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueDamageAlt()
+    {
+        return $this->issueDamageAlt;
+    }
+
+    /**
+     * Set issueMaintenanceAlt.
+     *
+     * @param string|null $issueMaintenanceAlt
+     *
+     * @return Customers
+     */
+    public function setIssueMaintenanceAlt($issueMaintenanceAlt = null)
+    {
+        $this->issueMaintenanceAlt = $issueMaintenanceAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueMaintenanceAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueMaintenanceAlt()
+    {
+        return $this->issueMaintenanceAlt;
+    }
+
+    /**
+     * Set issueLostAndFoundAlt.
+     *
+     * @param string|null $issueLostAndFoundAlt
+     *
+     * @return Customers
+     */
+    public function setIssueLostAndFoundAlt($issueLostAndFoundAlt = null)
+    {
+        $this->issueLostAndFoundAlt = $issueLostAndFoundAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueLostAndFoundAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueLostAndFoundAlt()
+    {
+        return $this->issueLostAndFoundAlt;
+    }
+
+    /**
+     * Set issueSupplyAlt.
+     *
+     * @param string|null $issueSupplyAlt
+     *
+     * @return Customers
+     */
+    public function setIssueSupplyAlt($issueSupplyAlt = null)
+    {
+        $this->issueSupplyAlt = $issueSupplyAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueSupplyAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueSupplyAlt()
+    {
+        return $this->issueSupplyAlt;
+    }
+
+    /**
+     * Set issueHousekeepingAlt.
+     *
+     * @param string|null $issueHousekeepingAlt
+     *
+     * @return Customers
+     */
+    public function setIssueHousekeepingAlt($issueHousekeepingAlt = null)
+    {
+        $this->issueHousekeepingAlt = $issueHousekeepingAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueHousekeepingAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueHousekeepingAlt()
+    {
+        return $this->issueHousekeepingAlt;
+    }
+
+    /**
+     * Set issueDamageAbbrAlt.
+     *
+     * @param string|null $issueDamageAbbrAlt
+     *
+     * @return Customers
+     */
+    public function setIssueDamageAbbrAlt($issueDamageAbbrAlt = null)
+    {
+        $this->issueDamageAbbrAlt = $issueDamageAbbrAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueDamageAbbrAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueDamageAbbrAlt()
+    {
+        return $this->issueDamageAbbrAlt;
+    }
+
+    /**
+     * Set issueMaintenanceAbbrAlt.
+     *
+     * @param string|null $issueMaintenanceAbbrAlt
+     *
+     * @return Customers
+     */
+    public function setIssueMaintenanceAbbrAlt($issueMaintenanceAbbrAlt = null)
+    {
+        $this->issueMaintenanceAbbrAlt = $issueMaintenanceAbbrAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueMaintenanceAbbrAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueMaintenanceAbbrAlt()
+    {
+        return $this->issueMaintenanceAbbrAlt;
+    }
+
+    /**
+     * Set issueLostAndFoundAbbrAlt.
+     *
+     * @param string|null $issueLostAndFoundAbbrAlt
+     *
+     * @return Customers
+     */
+    public function setIssueLostAndFoundAbbrAlt($issueLostAndFoundAbbrAlt = null)
+    {
+        $this->issueLostAndFoundAbbrAlt = $issueLostAndFoundAbbrAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueLostAndFoundAbbrAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueLostAndFoundAbbrAlt()
+    {
+        return $this->issueLostAndFoundAbbrAlt;
+    }
+
+    /**
+     * Set issueSupplyAbbrAlt.
+     *
+     * @param string|null $issueSupplyAbbrAlt
+     *
+     * @return Customers
+     */
+    public function setIssueSupplyAbbrAlt($issueSupplyAbbrAlt = null)
+    {
+        $this->issueSupplyAbbrAlt = $issueSupplyAbbrAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueSupplyAbbrAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueSupplyAbbrAlt()
+    {
+        return $this->issueSupplyAbbrAlt;
+    }
+
+    /**
+     * Set issueHousekeepingAbbrAlt.
+     *
+     * @param string|null $issueHousekeepingAbbrAlt
+     *
+     * @return Customers
+     */
+    public function setIssueHousekeepingAbbrAlt($issueHousekeepingAbbrAlt = null)
+    {
+        $this->issueHousekeepingAbbrAlt = $issueHousekeepingAbbrAlt;
+
+        return $this;
+    }
+
+    /**
+     * Get issueHousekeepingAbbrAlt.
+     *
+     * @return string|null
+     */
+    public function getIssueHousekeepingAbbrAlt()
+    {
+        return $this->issueHousekeepingAbbrAlt;
+    }
+
+    /**
+     * Set issueAllowVideoUpload.
+     *
+     * @param bool $issueAllowVideoUpload
+     *
+     * @return Customers
+     */
+    public function setIssueAllowVideoUpload($issueAllowVideoUpload)
+    {
+        $this->issueAllowVideoUpload = $issueAllowVideoUpload;
+
+        return $this;
+    }
+
+    /**
+     * Get issueAllowVideoUpload.
+     *
+     * @return bool
+     */
+    public function getIssueAllowVideoUpload()
+    {
+        return $this->issueAllowVideoUpload;
     }
 }
