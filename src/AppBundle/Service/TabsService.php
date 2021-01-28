@@ -427,7 +427,12 @@ class TabsService extends BaseService
                         'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
                         'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
                         'StandardServices' => $standardServices,
-                        'IssueAllowVideoUpload' => (int)$servicers[0]['IssueAllowVideoUpload']
+                        'IssueAllowVideoUpload' => (int)$servicers[0]['IssueAllowVideoUpload'],
+                        'IncludeDamage' => (int)$tasks[0]['IncludeDamage'],
+                        'IncludeMaintenance' => (int)$tasks[0]['IncludeMaintenance'],
+                        'IncludeLostAndFound' => (int)$tasks[0]['IncludeLostAndFound'],
+                        'IncludeSupplyFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
+                        'IncludeHouseKeeping' => (int)$tasks[0]['IncludeHouseKeeping']
                     );
 
                     // Get CheckList Items
