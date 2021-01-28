@@ -342,7 +342,7 @@ class TabsService extends BaseService
             $response = [];
             $team = 0;
             $taskID = $content['TaskID'];
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID);
+            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions($servicerID,true);
             $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
             $today->setTime(0,0,0);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers,$taskID);
@@ -368,16 +368,66 @@ class TabsService extends BaseService
                         $standardServices = $standardServices->fetchAll();
                     }
 
+                    // Create Issue Form Array
+                    $issueForm = [
+                        [
+                            'IssueType' => "IncludeDamage",
+                            'IssueFlag' => (int)$tasks[0]['IncludeDamage'],
+                            'IssueValue' => 0,
+                            'DefaultText' => 'Property Has Damage',
+                            'AlternativeText' => $servicers[0]['IssueDamageAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueDamageAbbrAlt']
+                        ],
+                        [
+                            'IssueType' => "IncludeMaintenance",
+                            'IssueFlag' => (int)$tasks[0]['IncludeMaintenance'],
+                            'IssueValue' => 1,
+                            'DefaultText' => 'Property Needs Maintenance',
+                            'AlternativeText' => $servicers[0]['IssueMaintenanceAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueMaintenanceAbbrAlt']
+                        ],
+                        [
+                            'IssueType' => "IncludeLostAndFound",
+                            'IssueFlag' => (int)$tasks[0]['IncludeLostAndFound'],
+                            'IssueValue' => 2,
+                            'DefaultText' => 'Lost and Found Item',
+                            'AlternativeText' => $servicers[0]['IssueLostAndFoundAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueLostAndFoundAbbrAlt']
+                        ],
+                        [
+                            'IssueType' => "IncludeSupplyFlag",
+                            'IssueFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
+                            'IssueValue' => 3,
+                            'DefaultText' => 'Set Supply Flag',
+                            'AlternativeText' => $servicers[0]['IssueSupplyAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueSupplyAbbrAlt']
+                        ],
+                        [
+                            'IssueType' => "IncludeHouseKeeping",
+                            'IssueFlag' => (int)$tasks[0]['IncludeHouseKeeping'],
+                            'IssueValue' => 4,
+                            'DefaultText' => 'Housekeeping',
+                            'AlternativeText' => $servicers[0]['IssueHousekeepingAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueHousekeepingAbbrAlt']
+                        ],
+                        [
+                            'IssueType' => "None or Other",
+                            'IssueFlag' => 1,
+                            'IssueValue' => -1,
+                            'DefaultText' => 'None or Other',
+                            'AlternativeText' => '',
+                            'AlternativeAbbreviationText' => ''
+                        ]
+                    ];
+
+
                     // Check Conditions for Issue Form
                     $response['IssueForm'] = array(
-                        'IncludeMaintenance' => (int)$tasks[0]['IncludeMaintenance'],
-                        'IncludeDamage' => (int)$tasks[0]['IncludeDamage'],
-                        'IncludeLostAndFound' => (int)$tasks[0]['IncludeLostAndFound'],
-                        'IncludeSupplyFlag' => (int)$tasks[0]['IncludeSupplyFlag'],
+                        'IssueTypeForm' => $issueForm,
                         'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
                         'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
                         'StandardServices' => $standardServices,
-                        'IncludeHouseKeeping' => (int)$tasks[0]['IncludeHouseKeeping']
+                        'IssueAllowVideoUpload' => (int)$servicers[0]['IssueAllowVideoUpload']
                     );
 
                     // Get CheckList Items
