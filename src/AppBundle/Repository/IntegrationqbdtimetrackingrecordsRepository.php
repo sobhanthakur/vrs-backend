@@ -211,12 +211,12 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeelistid AS QBDEmployeeListID,AVG(s2.payrate) AS PayRate')
+            ->select('ie.isContractor AS IsContractor,b1.day AS Date,SUM(b1.timetrackedseconds) AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeelistid AS QBDEmployeeListID,AVG(s2.payrate) AS PayRate')
             ->innerJoin('b1.timeclockdaysid','t2')
             ->innerJoin('t2.servicerid','s2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers','ies',Expr\Join::WITH, 't2.servicerid=ies.servicerid')
             ->innerJoin('ies.integrationqbdemployeeid','ie')
-            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeelistid')
+            ->groupBy('b1.day,t2.servicerid,ie.qbdemployeelistid,ie.isContractor')
             ->where('b1.status=1')
             ->andWhere('b1.txnid IS NULL')
             ->andWhere('b1.sentstatus=0 OR b1.sentstatus IS NULL')
@@ -359,7 +359,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('ii.qbditemlistid AS ItemListID,ii.unitprice AS UnitPrice,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
+            ->select('ie.isContractor AS IsContractor,ii.qbditemlistid AS ItemListID,ii.unitprice AS UnitPrice,serviceid.serviceid AS ServiceID,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
             ->innerJoin('b1.timeclocktasksid', 't2')
             ->innerJoin('t2.servicerid', 's2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')
@@ -469,7 +469,7 @@ class IntegrationqbdtimetrackingrecordsRepository extends EntityRepository
     {
         return $this
             ->createQueryBuilder('b1')
-            ->select('b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
+            ->select('ie.isContractor AS IsContractor,b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecordID,b1.day AS Date,b1.timetrackedseconds AS TimeTrackedSeconds,IDENTITY(t2.servicerid) AS ServicerID,ie.qbdemployeefullname AS EmployeeName,ie.qbdemployeelistid AS EmployeeValue,ic.qbdcustomerlistid AS CustomerValue,s2.payrate AS PayRate,propertyid.propertyname AS PropertyName,taskid.taskname AS TaskName,serviceid.servicename AS ServiceName, IDENTITY(b1.drivetimeclocktaskid) AS DriveTimeClockTaskID')
             ->innerJoin('b1.drivetimeclocktaskid', 't2')
             ->innerJoin('t2.servicerid', 's2')
             ->innerJoin('AppBundle:Integrationqbdemployeestoservicers', 'ies', Expr\Join::WITH, 't2.servicerid=ies.servicerid')

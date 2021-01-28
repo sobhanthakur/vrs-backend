@@ -34,14 +34,17 @@ class IntegrationqbdemployeesRepository extends EntityRepository
      * @param $customerID
      * @return mixed
      */
-    public function GetAllEmployees($customerID)
+    public function GetAllEmployees($customerID,$isContractor=null)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('c')
             ->select('c.qbdemployeelistid AS QBDEmployeeListID')
             ->where('c.customerid= :CustomerID')
-            ->setParameter('CustomerID', $customerID)
-            ->getQuery()
+            ->setParameter('CustomerID', $customerID);
+        if ($isContractor) {
+            $result->andWhere('c.isContractor=1');
+        }
+        return $result->getQuery()
             ->execute();
     }
 }
