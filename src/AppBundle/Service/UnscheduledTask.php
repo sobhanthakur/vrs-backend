@@ -140,6 +140,67 @@ class UnscheduledTask extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
             }
 
+            // Add new Query
+            $query = 'SELECT IssueAllowVideoUpload,AllowSendIssuesAsWorkOrders,AllowSendTasksAsWorkOrders,WorkOrderIntegrationCompanyStaffID,WorkOrderIntegrationCompanyID
+                    ,IssueDamageAlt,IssueDamageAbbrAlt,IssueMaintenanceAlt,IssueMaintenanceAbbrAlt,IssueLostandFoundAlt,IssueLostandFoundAbbrAlt,IssueSupplyAlt,IssueSupplyAbbrAlt,IssueHousekeepingAlt,IssueHousekeepingAbbrAlt
+                    FROM Customers
+                    WHERE CustomerID = '.$servicers[0]['CustomerID'];
+            $servicers1 = $this->entityManager->getConnection()->prepare($query);
+            $servicers1->execute();
+            $servicers1 = $servicers1->fetchAll();
+
+            // Create Issue Form Array
+            $issueForm = [
+                [
+                    'IssueType' => "IncludeDamage",
+                    'IssueFlag' => (int)$servicers[0]['IncludeDamage'],
+                    'IssueValue' => 0,
+                    'DefaultText' => 'Property Has Damage',
+                    'AlternativeText' => $servicers1[0]['IssueDamageAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueDamageAbbrAlt']
+                ],
+                [
+                    'IssueType' => "IncludeMaintenance",
+                    'IssueFlag' => (int)$servicers[0]['IncludeMaintenance'],
+                    'IssueValue' => 1,
+                    'DefaultText' => 'Property Needs Maintenance',
+                    'AlternativeText' => $servicers1[0]['IssueMaintenanceAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueMaintenanceAbbrAlt']
+                ],
+                [
+                    'IssueType' => "IncludeLostAndFound",
+                    'IssueFlag' => (int)$servicers[0]['IncludeLostAndFound'],
+                    'IssueValue' => 2,
+                    'DefaultText' => 'Lost and Found Item',
+                    'AlternativeText' => $servicers1[0]['IssueLostAndFoundAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueLostAndFoundAbbrAlt']
+                ],
+                [
+                    'IssueType' => "IncludeSupplyFlag",
+                    'IssueFlag' => (int)$servicers[0]['IncludeSupplyFlag'],
+                    'IssueValue' => 3,
+                    'DefaultText' => 'Set Supply Flag',
+                    'AlternativeText' => $servicers1[0]['IssueSupplyAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueSupplyAbbrAlt']
+                ],
+                [
+                    'IssueType' => "IncludeHouseKeeping",
+                    'IssueFlag' => (int)$servicers[0]['IncludeHouseKeeping'],
+                    'IssueValue' => 4,
+                    'DefaultText' => 'Housekeeping',
+                    'AlternativeText' => $servicers1[0]['IssueHousekeepingAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueHousekeepingAbbrAlt']
+                ],
+                [
+                    'IssueType' => "None or Other",
+                    'IssueFlag' => 1,
+                    'IssueValue' => -1,
+                    'DefaultText' => 'None or Other',
+                    'AlternativeText' => '',
+                    'AlternativeAbbreviationText' => ''
+                ]
+            ];
+
             // Get PropertyDetails
             $properties = $this->entityManager->getRepository('AppBundle:Properties')->PropertyDetailsForUnscheduledTasks($propertyID);
             if (empty($properties)) {
@@ -187,7 +248,9 @@ class UnscheduledTask extends BaseService
                 'IncludeSupplyFlag' => (int)$servicers[0]['IncludeSupplyFlag'],
                 'IncludeUrgentFlag' => (int)$servicers[0]['IncludeUrgentFlag'],
                 'AllowShareImagesWithOwners' => (int)$servicers[0]['AllowShareImagesWithOwners'],
-                'StandardServices' => $standardServices
+                'StandardServices' => $standardServices,
+                'IssueAllowVideoUpload' => (int)$servicers1[0]['IssueAllowVideoUpload'],
+                'IssueTypeForm' => $issueForm
             );
 
             // Create Tab Response
