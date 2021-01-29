@@ -130,7 +130,7 @@ class UnscheduledTask extends BaseService
             $manage = 1;
 
             // Get Servicers Details
-            $servicers = 'Select IncludeMaintenance,IncludeDamage,IncludeLostAndFound,IncludeSupplyFlag,IncludeUrgentFlag,AllowShareImagesWithOwners,CustomerID,AllowAddStandardTask,ShowIssuesLog,TaskName,IncludeServicerNote,IncludeToOwnerNote,DefaultToOwnerNote FROM ('.Servicers::vServicers.') AS S WHERE  S.ServicerID = '.$servicerID.'
+            $servicers = 'Select IncludeHouseKeeping,IncludeMaintenance,IncludeDamage,IncludeLostAndFound,IncludeSupplyFlag,IncludeUrgentFlag,AllowShareImagesWithOwners,CustomerID,AllowAddStandardTask,ShowIssuesLog,TaskName,IncludeServicerNote,IncludeToOwnerNote,DefaultToOwnerNote FROM ('.Servicers::vServicers.') AS S WHERE  S.ServicerID = '.$servicerID.'
              AND S.CustomerActive = 1 and S.Active = 1';
             $servicers = $this->entityManager->getConnection()->prepare($servicers);
             $servicers->execute();
