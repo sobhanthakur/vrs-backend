@@ -142,7 +142,7 @@ class UnscheduledTask extends BaseService
 
             // Add new Query
             $query = 'SELECT IssueAllowVideoUpload,AllowSendIssuesAsWorkOrders,AllowSendTasksAsWorkOrders,WorkOrderIntegrationCompanyStaffID,WorkOrderIntegrationCompanyID
-                    ,IssueDamageAlt,IssueDamageAbbrAlt,IssueMaintenanceAlt,IssueMaintenanceAbbrAlt,IssueLostandFoundAlt,IssueLostandFoundAbbrAlt,IssueSupplyAlt,IssueSupplyAbbrAlt,IssueHousekeepingAlt,IssueHousekeepingAbbrAlt
+                    ,IssueDamageAlt,IssueDamageAbbrAlt,IssueMaintenanceAlt,IssueMaintenanceAbbrAlt,IssueLostAndFoundAlt,IssueLostAndFoundAbbrAlt,IssueSupplyAlt,IssueSupplyAbbrAlt,IssueHousekeepingAlt,IssueHousekeepingAbbrAlt
                     FROM Customers
                     WHERE CustomerID = '.$servicers[0]['CustomerID'];
             $servicers1 = $this->entityManager->getConnection()->prepare($query);
