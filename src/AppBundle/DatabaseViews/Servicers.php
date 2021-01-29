@@ -35,7 +35,7 @@ final class Servicers
                          dbo.Servicers.ScheduleNote1Show, dbo.Servicers.ScheduleNote2Show, dbo.Servicers.ScheduleNote3Show, dbo.Servicers.ScheduleNote4Show, dbo.Servicers.ScheduleNote5Show, dbo.Servicers.ScheduleNote6Show, 
                          dbo.Servicers.ScheduleNote7Show, dbo.Servicers.AllowIssuesEdit, dbo.Servicers.AllowEditTaskPiecePay, dbo.Servicers.AllowServiceAssignmentAccess, dbo.Customers.SortQuickChangeToTop, dbo.Servicers.LanguageID, 
                          dbo.Servicers.IncludeGuestEmailPhone, dbo.Servicers.AllowSetupEmployees, dbo.Servicers.AllowViewRentDeposit, dbo.Servicers.AllowEditRentDeposit, dbo.Servicers.AllowAddStandardTask, dbo.Servicers.PayRate, 
-                         dbo.Customers.Active AS CustomerActive,dbo.Customers.IncludeHouseKeeping
+                         dbo.Customers.Active AS CustomerActive,dbo.Servicers.IncludeHouseKeeping
                          FROM dbo.Plans RIGHT OUTER JOIN
                          dbo.Customers ON dbo.Plans.PlanID = dbo.Customers.PlanID RIGHT OUTER JOIN
                          dbo.Countries RIGHT OUTER JOIN
