@@ -52,8 +52,7 @@ class SMSController extends FOSRestController
         $response = null;
         try {
             $smsService = $this->container->get('vrscheduler.sms_service');
-            $content = json_decode($request->getContent(),true);
-            return $smsService->SendSMS($content);
+            return $smsService->SendSMS($request);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

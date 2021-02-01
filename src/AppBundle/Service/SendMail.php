@@ -68,6 +68,7 @@ class SendMail extends BaseService
                 $message .= "<b>Method: </b>".$content['Method']."<br/>";
                 $message .= "<b>Content-Length: </b>".$contentLength." bytes<br/>";
                 $message .= "<b>User-Agent: </b>".$content['User-Agent']."<br/>";
+                $message .= "<b>AWS SMS Response: </b>".$content['SMS']."<br/>";
 
                 // Offline Header
                 if ($content['Offline'] !== null) {
