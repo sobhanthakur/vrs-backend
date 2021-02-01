@@ -168,6 +168,14 @@ class UnscheduledTask extends BaseService
                     'AlternativeAbbreviationText' => $servicers1[0]['IssueMaintenanceAbbrAlt']
                 ],
                 [
+                    'IssueType' => "IncludeHouseKeeping",
+                    'IssueFlag' => (int)$servicers[0]['IncludeHouseKeeping'],
+                    'IssueValue' => 4,
+                    'DefaultText' => 'Housekeeping',
+                    'AlternativeText' => $servicers1[0]['IssueHousekeepingAlt'],
+                    'AlternativeAbbreviationText' => $servicers1[0]['IssueHousekeepingAbbrAlt']
+                ],
+                [
                     'IssueType' => "IncludeLostAndFound",
                     'IssueFlag' => (int)$servicers[0]['IncludeLostAndFound'],
                     'IssueValue' => 2,
@@ -182,14 +190,6 @@ class UnscheduledTask extends BaseService
                     'DefaultText' => 'Set Supply Flag',
                     'AlternativeText' => $servicers1[0]['IssueSupplyAlt'],
                     'AlternativeAbbreviationText' => $servicers1[0]['IssueSupplyAbbrAlt']
-                ],
-                [
-                    'IssueType' => "IncludeHouseKeeping",
-                    'IssueFlag' => (int)$servicers[0]['IncludeHouseKeeping'],
-                    'IssueValue' => 4,
-                    'DefaultText' => 'Housekeeping',
-                    'AlternativeText' => $servicers1[0]['IssueHousekeepingAlt'],
-                    'AlternativeAbbreviationText' => $servicers1[0]['IssueHousekeepingAbbrAlt']
                 ],
                 [
                     'IssueType' => "None or Other",
