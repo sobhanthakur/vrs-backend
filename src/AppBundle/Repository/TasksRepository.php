@@ -73,7 +73,7 @@ class TasksRepository extends EntityRepository
             ->setMaxResults($limit);
         return $result
             ->getQuery()
-            ->getResult();
+            ->execute();
     }
 
     /**
@@ -95,7 +95,7 @@ class TasksRepository extends EntityRepository
 
         return $result
             ->getQuery()
-            ->getResult();
+            ->execute();
     }
 
     /**
