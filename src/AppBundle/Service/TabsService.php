@@ -387,6 +387,14 @@ class TabsService extends BaseService
                             'AlternativeAbbreviationText' => $servicers[0]['IssueMaintenanceAbbrAlt']
                         ],
                         [
+                            'IssueType' => "IncludeHouseKeeping",
+                            'IssueFlag' => (int)$tasks[0]['IncludeHouseKeeping'],
+                            'IssueValue' => 4,
+                            'DefaultText' => 'Housekeeping',
+                            'AlternativeText' => $servicers[0]['IssueHousekeepingAlt'],
+                            'AlternativeAbbreviationText' => $servicers[0]['IssueHousekeepingAbbrAlt']
+                        ],
+                        [
                             'IssueType' => "IncludeLostAndFound",
                             'IssueFlag' => (int)$tasks[0]['IncludeLostAndFound'],
                             'IssueValue' => 2,
@@ -401,14 +409,6 @@ class TabsService extends BaseService
                             'DefaultText' => 'Set Supply Flag',
                             'AlternativeText' => $servicers[0]['IssueSupplyAlt'],
                             'AlternativeAbbreviationText' => $servicers[0]['IssueSupplyAbbrAlt']
-                        ],
-                        [
-                            'IssueType' => "IncludeHouseKeeping",
-                            'IssueFlag' => (int)$tasks[0]['IncludeHouseKeeping'],
-                            'IssueValue' => 4,
-                            'DefaultText' => 'Housekeeping',
-                            'AlternativeText' => $servicers[0]['IssueHousekeepingAlt'],
-                            'AlternativeAbbreviationText' => $servicers[0]['IssueHousekeepingAbbrAlt']
                         ],
                         [
                             'IssueType' => "None or Other",
