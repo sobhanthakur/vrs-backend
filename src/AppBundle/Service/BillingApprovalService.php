@@ -82,22 +82,22 @@ class BillingApprovalService extends BaseService
                 $status = $filters['Status'];
             }
 
-//            if ($offset === 1) {
-//                $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
-//                if ($count) {
-//                    $count = (int)$count[0][1];
-//                }
-//            }
+            if ($offset === 1) {
+                $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
+                if ($count) {
+                    $count = (int)$count[0][1];
+                }
+            }
 
-//            $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
-//            $response = $this->processResponse($response);
+            $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
+            $response = $this->processResponse($response);
 
             return array(
                 'ReasonCode' => 0,
                 'ReasonText' => $this->translator->trans('api.response.success.message'),
                 'Data' => array(
                     'Count' => $count,
-                    'Details' => []
+                    'Details' => $response
                 )
             );
         } catch (UnprocessableEntityHttpException $exception) {
