@@ -68,7 +68,7 @@ class TasksRepository extends EntityRepository
 
         $result = $this->TrimMapTasks($result, $new, $properties, $completedDate, $timezones, $createDate, $customerID);
 
-        $result->orderBy('t2.taskid', 'DESC');
+        $result->orderBy('t2.completeconfirmeddate', 'ASC');
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
         return $result
