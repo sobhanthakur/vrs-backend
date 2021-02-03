@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Integrationqbdbillingrecords
  *
- * @ORM\Table(name="IntegrationQBDBillingRecords", indexes={@ORM\Index(name="IDX_A4DF0BDCEF8DEFC9", columns={"TaskID"}), @ORM\Index(name="IDX_A4DF0BDCED4D199A", columns={"IntegrationQBBatchID"})})
+ * @ORM\Table(name="IntegrationQBDBillingRecords", indexes={@ORM\Index(name="IDX_A4DF0BDCEF8DEFC9", columns={"TaskID"}), @ORM\Index(name="IDX_A4DF0BDCED4D199A", columns={"IntegrationQBBatchID"}),@ORM\Index(name="IntegrationQBDBillingRecords_Status_IDX", columns={"Status"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\IntegrationqbdbillingrecordsRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -41,7 +41,7 @@ class Integrationqbdbillingrecords
      *
      * @ORM\Column(name="Status", type="integer", nullable=false, options={"default"="1","comment"="0=Excluded,1=Approved,2=FailedToSend"})
      */
-    private $status = '1';
+    private $status = 1;
 
     /**
      * @var \DateTime
