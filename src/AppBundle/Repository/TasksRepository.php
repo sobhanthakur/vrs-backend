@@ -68,7 +68,7 @@ class TasksRepository extends EntityRepository
 
         $result = $this->TrimMapTasks($result, $new, $properties, $completedDate, $timezones, $createDate, $customerID);
 
-        $result->orderBy('t2.completeconfirmeddate', 'ASC');
+        $result->orderBy('t2.taskid', 'DESC');
         $result->setFirstResult(($offset - 1) * $limit)
             ->setMaxResults($limit);
         return $result
@@ -121,6 +121,7 @@ class TasksRepository extends EntityRepository
             ->innerJoin('r.timezoneid', 't')
             ->andWhere('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
+            ->andWhere('p2.active=1')
             ->andWhere('t2.billable=1')
             ->andWhere('t2.completeconfirmeddate IS NOT NULL');
         if (!empty($timezones)) {
@@ -162,7 +163,7 @@ class TasksRepository extends EntityRepository
                 $condition .= $condition2;
             }
             if (in_array(GeneralConstants::NEW, $new)) {
-                $condition3 = $condition1 || $condition2 ? ' OR b1.status IS NULL OR b1.status=2' : 'b1.status IS NULL OR b1.status=2';
+                $condition3 = $condition1 || $condition2 ? ' OR (b1.status IS NULL OR b1.status=2)' : 'b1.status IS NULL OR b1.status=2';
                 $condition .= $condition3;
             }
             $result->andWhere($condition);
