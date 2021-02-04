@@ -135,7 +135,10 @@ class RequestListener extends BaseService
             $authService->SMSAuthentication($request);
         }
 
-        $this->apiLogger->debug('API Request: ', [
+        // Stop Request logging temporarily
+        // uncomment this in future.
+
+        /*$this->apiLogger->debug('API Request: ', [
             'Request' => [
                 'headers' => $request->headers->all(),
                 'content' => $request->getContent(),
@@ -143,7 +146,7 @@ class RequestListener extends BaseService
                 'uri' => $request->getRequestUri(),
                 'method' => $request->getMethod()
             ]
-        ]);
+        ]);*/
 
     }
 }
