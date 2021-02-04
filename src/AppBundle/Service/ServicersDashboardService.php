@@ -531,7 +531,7 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            if ($tasksToServicers->getAccepteddate() !== null) {
+            if ($tasksToServicers->getAccepteddate() === null) {
                 $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
                 $this->entityManager->persist($tasksToServicers);
 
@@ -565,6 +565,8 @@ class ServicersDashboardService extends BaseService
                     'Notification' => $notification
                 );
             }
+
+            return [];
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -607,7 +609,7 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            if ($tasksToServicers->getDeclineddate() !== null) {
+            if ($tasksToServicers->getDeclineddate() === null) {
                 $tasksToServicers->setDeclineddate($currentTime);
                 $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
                 $this->entityManager->persist($tasksToServicers);
@@ -668,6 +670,7 @@ class ServicersDashboardService extends BaseService
                     'Notification' => $notification
                 );
             }
+            return [];
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
