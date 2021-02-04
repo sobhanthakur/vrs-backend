@@ -141,6 +141,13 @@ class ExceptionListener extends BaseService
                 $sendToDev = 1;
             }
             $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content,$sendToDev);
+
+            // Send SMS to Dev & Admin
+            $message = $request->getMethod()." - ".$this->serviceContainer->getParameter('api_host').$request->getRequestUri()." - ";
+            $message .= $exceptionMessage;
+            $content['Message'] = $message;
+            $content['PhoneNumber1'] = $this->serviceContainer->getParameter('PhoneNumber1');
+            $this->serviceContainer->get('vrscheduler.sms_service_for_errors')->ErrorSMS($content);
         }
 
         $event->setResponse($response);
