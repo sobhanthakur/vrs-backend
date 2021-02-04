@@ -443,7 +443,7 @@ class ServicersDashboardService extends BaseService
                     // Set TimeClock Tasks to Current UTC DateTime
                     $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
 
-                    // Set TimeClock Tasks to Current UTC DateTime
+                    // Set TimeClock Days to Current UTC DateTime
                     $timeClock = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockDays SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."', MileageOut=".$mileage." WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
                     $this->entityManager->flush();
                 }
