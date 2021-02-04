@@ -225,3 +225,7 @@ services:
             class: AppBundle\Service\BookingCalenderService
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.sms_service_for_errors:
+            class: AppBundle\Service\SendSMSForErrors
+            parent: vrscheduler.base_service
+            public: true
