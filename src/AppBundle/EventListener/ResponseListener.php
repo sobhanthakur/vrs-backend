@@ -50,7 +50,10 @@ class ResponseListener extends BaseService
         $response->headers->set('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Credentials', true);
 
-        $responseContent = $response->getContent();
+        // Stop Response logging temporarily
+        // uncomment this in future.
+
+        /*$responseContent = $response->getContent();
 
         $route = $request->attributes->get('_route');
 
@@ -64,6 +67,6 @@ class ResponseListener extends BaseService
                     ]
                 )
             );
-        }
+        }*/
     }
 }
