@@ -53,3 +53,5 @@ parameters:
     php-auth-user: ~
     php-auth-password: ~
     PhoneNumber1: ~
+    PhoneNumber2: ~
+    PhoneNumber3: ~
