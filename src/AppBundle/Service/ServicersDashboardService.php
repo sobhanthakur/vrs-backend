@@ -33,7 +33,6 @@ class ServicersDashboardService extends BaseService
     public function GetTasks($servicerID)
     {
         try {
-            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
             $response = [];
             $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions((int)$servicerID);
             $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard((int)$servicerID, $servicers);
