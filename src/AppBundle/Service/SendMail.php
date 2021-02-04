@@ -52,6 +52,13 @@ class SendMail extends BaseService
             if (array_key_exists('Source',$content) && $content['Source'] === 'FE') {
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
                 $message .= "<b>Error: </b>".$error."<br/>";
+
+                // Send SMS for FE Errors
+                $textMessage = (new \DateTime('now'))->format('Y-m-d H:i:s')." - ".$error;
+                $phoneNumbers = $this->serviceContainer->getParameter('PhoneNumbers');
+                foreach ($phoneNumbers as $phoneNumber) {
+                    $this->serviceContainer->get('vrscheduler.sms_service_for_errors')->ErrorSMS($textMessage,$phoneNumber);
+                }
             } else {
                 $requestHeader = $content['JWT'];
                 $requestBody = $content['RequestContent'];
