@@ -531,17 +531,18 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
-            $this->entityManager->persist($tasksToServicers);
+            if ($tasksToServicers->getAccepteddate() === null) {
+                $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
+                $this->entityManager->persist($tasksToServicers);
 
-            $taskAcceptDeclines = new Taskacceptdeclines();
-            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
-            $taskAcceptDeclines->setAcceptordecline(true);
-            $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
-            $this->entityManager->persist($taskAcceptDeclines);
+                $taskAcceptDeclines = new Taskacceptdeclines();
+                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $taskAcceptDeclines->setAcceptordecline(true);
+                $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
+                $this->entityManager->persist($taskAcceptDeclines);
 
-            $this->entityManager->flush();
+                $this->entityManager->flush();
 
 //            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
 //            if ((int)$taskNotification[0]['Count'] === 0) {
@@ -557,12 +558,15 @@ class ServicersDashboardService extends BaseService
 
 //            }
 
-            return array(
-                'Status' => 'Success',
-                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
-                'Notification' => $notification
-            );
+                return array(
+                    'Status' => 'Success',
+                    'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
+                    'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                    'Notification' => $notification
+                );
+            }
+
+            return [];
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -605,20 +609,21 @@ class ServicersDashboardService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
             }
 
-            $tasksToServicers->setDeclineddate($currentTime);
-            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
-            $this->entityManager->persist($tasksToServicers);
+            if ($tasksToServicers->getDeclineddate() === null) {
+                $tasksToServicers->setDeclineddate($currentTime);
+                $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
+                $this->entityManager->persist($tasksToServicers);
 
-            $taskAcceptDeclines = new Taskacceptdeclines();
-            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
-            $taskAcceptDeclines->setAcceptordecline(false);
-            $taskAcceptDeclines->setCreatedate($currentTime);
-            $this->entityManager->persist($taskAcceptDeclines);
+                $taskAcceptDeclines = new Taskacceptdeclines();
+                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $taskAcceptDeclines->setAcceptordecline(false);
+                $taskAcceptDeclines->setCreatedate($currentTime);
+                $this->entityManager->persist($taskAcceptDeclines);
 
-            $this->entityManager->flush();
+                $this->entityManager->flush();
 
-            // Manage Notifications for the task ID in last one minute
+                // Manage Notifications for the task ID in last one minute
 //            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
 //            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
@@ -633,37 +638,39 @@ class ServicersDashboardService extends BaseService
 
 //            }
 
-            // Deal with backup servicer notification
-            if (!empty($rsBackup)) {
-                $viewTaskDate = $localTime->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
-                if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
-                    if ($rsBackup[0]['RequestAcceptTasks']) {
-                        $thisAdditionalTextMessage = 'Please Accept or Decline';
-                        $thisAdditionalMessage = 'Please Accept or Decline';
+                // Deal with backup servicer notification
+                if (!empty($rsBackup)) {
+                    $viewTaskDate = $localTime->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
+                    if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
+                        if ($rsBackup[0]['RequestAcceptTasks']) {
+                            $thisAdditionalTextMessage = 'Please Accept or Decline';
+                            $thisAdditionalMessage = 'Please Accept or Decline';
+                        }
+
+                        $result = array(
+                            'MessageID' => 34,
+                            'CustomerID' => $rsThisTask[0]['CustomerID'],
+                            'TaskID' => $taskID,
+                            'SendToManagers' => 1,
+                            'BackupServicerID' => $backupServicer,
+                            'SubmittedByServicerID' => $servicerID,
+                            'AdditionalTextMessage' => $thisAdditionalTextMessage,
+                            'AdditionalMessage' => $thisAdditionalMessage
+                        );
+                        $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
+                        $notification['BackupServicerNotification'] = $taskNotification;
                     }
-
-                    $result = array(
-                        'MessageID' => 34,
-                        'CustomerID' => $rsThisTask[0]['CustomerID'],
-                        'TaskID' => $taskID,
-                        'SendToManagers' => 1,
-                        'BackupServicerID' => $backupServicer,
-                        'SubmittedByServicerID' => $servicerID,
-                        'AdditionalTextMessage' => $thisAdditionalTextMessage,
-                        'AdditionalMessage' => $thisAdditionalMessage
-                    );
-                    $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
-                    $notification['BackupServicerNotification'] = $taskNotification;
                 }
-            }
 
-            return array(
-                'Status' => 'Success',
-                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                'BackupServicerID' => $backupServicer,
-                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
-                'Notification' => $notification
-            );
+                return array(
+                    'Status' => 'Success',
+                    'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
+                    'BackupServicerID' => $backupServicer,
+                    'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                    'Notification' => $notification
+                );
+            }
+            return [];
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
