@@ -9,15 +9,15 @@ imports:
 
 monolog:
     handlers:
-        main:
-            type: rotating_file
-            action_level: error
-            handler: nested
-            max_files: 2
-#        nested:
-#            type: stream
-#            path: '%kernel.logs_dir%/%kernel.environment%.log'
-#            level: debug
+        # main:
+        #     type: rotating_file
+        #     action_level: error
+        #     handler: nested
+        #     max_files: 2
+       # nested:
+       #     type: stream
+       #     path: '%kernel.logs_dir%/%kernel.environment%.log'
+       #     level: debug
         # nested:
         #     type: rotating_file
         #     path: '%kernel.logs_dir%/%kernel.environment%.log'
