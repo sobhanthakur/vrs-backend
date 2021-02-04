@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class SendSMSForErrors extends BaseService
 {
-    public function ErrorSMS($content)
+    public function ErrorSMS($message,$phoneNumber)
     {
         $response = [];
         $aws = $this->serviceContainer->getParameter('aws')['sns'];
@@ -37,8 +37,8 @@ class SendSMSForErrors extends BaseService
                         'StringValue' => 'Transactional'
                     ]
                 ],
-                "Message" => $content['Message'],
-                "PhoneNumber" => $content['PhoneNumber1']
+                "Message" => $message,
+                "PhoneNumber" => $phoneNumber
             );
 
             $result = $sns->publish($args);
