@@ -786,6 +786,13 @@ class Services
      */
     private $checklistid;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="ShowPropertyStatusOnDashboards", type="boolean", nullable=false)
+     */
+    private $showPropertyStatusOnDashboards = false;
+
 
 
     /**
@@ -3388,5 +3395,29 @@ class Services
     public function getBeds24UnitStatusText()
     {
         return $this->beds24UnitStatusText;
+    }
+
+    /**
+     * Set showPropertyStatusOnDashboards.
+     *
+     * @param bool $showPropertyStatusOnDashboards
+     *
+     * @return Services
+     */
+    public function setShowPropertyStatusOnDashboards($showPropertyStatusOnDashboards)
+    {
+        $this->showPropertyStatusOnDashboards = $showPropertyStatusOnDashboards;
+
+        return $this;
+    }
+
+    /**
+     * Get showPropertyStatusOnDashboards.
+     *
+     * @return bool
+     */
+    public function getShowPropertyStatusOnDashboards()
+    {
+        return $this->showPropertyStatusOnDashboards;
     }
 }

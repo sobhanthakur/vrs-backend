@@ -214,6 +214,7 @@ class ServicersDashboardService extends BaseService
 
                 $response[$i]['Details'] = array(
                     'DoneCondition' => $doneCondition,
+                    'PropertyStatus' => (int)$tasks[$i]['ShowPropertyStatusOnDashboards'] ? $tasks[$i]['PropertyStatus'] : null,
                     'Status' => $status,
                     'AllowChangeTaskDate' => (int)$servicers[0]['AllowChangeTaskDate'],
                     'ParentTaskDate' => $tasks[$i]['ParentTaskDate'],
