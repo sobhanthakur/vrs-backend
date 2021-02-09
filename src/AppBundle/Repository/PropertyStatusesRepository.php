@@ -1,6 +1,7 @@
 <?php
 
 namespace AppBundle\Repository;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * PropertyStatusesRepository
@@ -10,4 +11,131 @@ namespace AppBundle\Repository;
  */
 class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Function to fetch property Status details
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     * @param $limit
+     *
+     * @return array
+     */
+    public function getItems($customerDetails, $queryParameter, $propertyID, $restriction, $offset, $limit)
+    {
+        $query = "";
+        $fields = array();
+
+        //Get all properties field
+        $propertiesField = GeneralConstants::PROPERTY_STATUS_MAPPING;
+
+        //Get properties restrict field
+        $propertiesRestrictField = GeneralConstants::PROPERTIES_RESTRICTION;
+
+        //Checking restrict personal data
+        $restrictionPersonalData = $restriction->restrictPersonalData;
+
+        //condition to set query for all or some required fields
+        if (sizeof($fields) > 0) {
+            foreach ($fields as $field) {
+                $query .= ',' . $propertiesField[$field];
+            }
+        } else {
+            if ($restrictionPersonalData) {
+                $propertiesField = array_diff_key($propertiesField, array_flip($propertiesRestrictField));
+            }
+            $query .= implode(',', $propertiesField);
+        }
+        $query = trim($query, ',');
+
+        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit);
+
+    }
+
+    /**
+     * Function to parse and fetch property details according to query parameter
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit = null)
+    {
+        $sortOrder = array();
+
+        $result = $this
+            ->createQueryBuilder('p');
+
+        $result->select($query);
+
+        //check for fields option in query paramter
+        (isset($queryParameter['fields'])) ? $fields = explode(',', $queryParameter['fields']) : null;
+
+        //check for sort option in query paramter
+        isset($queryParameter['sort']) ? $sortOrder = explode(',', $queryParameter['sort']) : null;
+
+        //condition to set sortorder
+        if (sizeof($sortOrder) > 0) {
+            foreach ($sortOrder as $field) {
+                $result->orderBy('p.' . $field);
+            }
+        }
+
+        //condition to filter by property id
+        if (isset($propertyID)) {
+            $result->andWhere('p.propertyid IN (:PropertyID)')
+                ->setParameter('PropertyID', $propertyID);
+        }
+
+        //condition to filter by owner id
+        if (isset($queryParameter['ownerid'])) {
+            $result->andWhere('p.ownerid IN (:Owners)')
+                ->setParameter('Owners', $queryParameter['ownerid']);
+        }
+
+        //condition to filter by region id
+        if (isset($queryParameter['regionid'])) {
+            $result->andWhere('p.regionid IN (:Region)')
+                ->setParameter('Region', $queryParameter['regionid']);
+        }
+
+        //condition to filter by customer details
+        if ($customerDetails) {
+            $result->andWhere('p.customerid IN (:CustomerID)')
+                ->setParameter('CustomerID', $customerDetails);
+        }
+
+        //condition to filter by customer details
+        if (isset($limit)) {
+            $result->setMaxResults($limit);
+        }
+
+        //return property details
+        return $result
+            ->andWhere('p.customerid='.(int)$customerDetails)
+            ->setFirstResult(($offset - 1) * $limit)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * Function to get no. of properties of the consumer
+     *
+     * @param $customerDetails
+     * @param $queryParameter
+     * @param $propertyID
+     * @param $offset
+     *
+     * @return array
+     */
+    public function getItemsCount($customerDetails, $queryParameter, $propertyID, $offset)
+    {
+        $query = "p.propertystatusid";
+        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query);
+
+    }
 }

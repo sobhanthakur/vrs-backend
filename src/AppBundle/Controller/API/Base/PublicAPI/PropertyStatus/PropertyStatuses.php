@@ -85,9 +85,9 @@ class PropertyStatuses extends FOSRestController
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
-            //Get property details
-            $propertiesService = $this->container->get('vrscheduler.public_properties_service');
-            $propertyDetails = $propertiesService->getProperties($authDetails, $queryParameter, $pathInfo, $restriction);
+            //Get PropertyStatus Details
+            $propertiesService = $this->container->get('vrscheduler.public_property_status_service');
+            $propertyDetails = $propertiesService->getPropertStatus($authDetails, $queryParameter, $pathInfo, $restriction);
             return $propertyDetails;
         } catch (BadRequestHttpException $exception) {
             throw $exception;

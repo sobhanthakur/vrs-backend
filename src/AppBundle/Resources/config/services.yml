@@ -190,3 +190,7 @@ services:
             class: AppBundle\Service\ManageSave
             parent: vrscheduler.base_service
             public: true
+    vrscheduler.public_property_status_service:
+       class: AppBundle\Service\PropertyStatusService
+       parent: vrscheduler.base_service
+       public: true
