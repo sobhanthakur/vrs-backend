@@ -187,6 +187,7 @@ nelmio_api_doc:
                 -  /api/v1/stafftasks/{id}
                 -  /api/v1/stafftasktimes
                 -  /api/v1/staffdaytimes
+                -  /api/v1/propertystatuses
         servicers_dashboard:
             path_patterns:
                 -  /v1/vrs/pwa/authenticate
