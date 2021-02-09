@@ -243,6 +243,14 @@ final class GeneralConstants
         'createdate' => 'p.createdate as CreateDate'
     ];
 
+    const PROPERTY_STATUS_MAPPING = [
+        'propertystatusid' => 'p.propertystatusid as PropertyStatusID',
+        'propertystatus' => 'p.propertystatus as PropertyStatus',
+        'setoncheckin' => 'p.setoncheckin as SetOnCheckIn',
+        'setoncheckout' => 'p.setoncheckout as SetOnCheckOut',
+        'createdate' => 'p.createdate as CreateDate',
+    ];
+
     const PROPERTIES_RESTRICTION = ['address'];
 
     const OWNERS_MAPPING = [
