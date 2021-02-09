@@ -16,13 +16,13 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $propertyID
+     * @param $propertyStatusID
      * @param $offset
      * @param $limit
      *
      * @return array
      */
-    public function getItems($customerDetails, $queryParameter, $propertyID, $restriction, $offset, $limit)
+    public function getItems($customerDetails, $queryParameter, $propertyStatusID, $restriction, $offset, $limit)
     {
         $query = "";
         $fields = array();
@@ -49,21 +49,21 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
         }
         $query = trim($query, ',');
 
-        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit);
+        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyStatusID, $offset, $query, $limit);
 
     }
 
     /**
-     * Function to parse and fetch property details according to query parameter
+     * Function to parse and fetch property status details according to query parameter
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $propertyID
+     * @param $propertyStatusID
      * @param $offset
      *
      * @return array
      */
-    public function fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query, $limit = null)
+    public function fetchPropertyStatus($customerDetails, $queryParameter, $propertyStatusID, $offset, $query, $limit = null)
     {
         $sortOrder = array();
 
@@ -86,21 +86,14 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
         }
 
         //condition to filter by property id
-        if (isset($propertyID)) {
+        if (isset($propertyStatusID)) {
             $result->andWhere('p.propertyid IN (:PropertyID)')
-                ->setParameter('PropertyID', $propertyID);
+                ->setParameter('PropertyID', $propertyStatusID);
         }
 
         //condition to filter by owner id
-        if (isset($queryParameter['ownerid'])) {
-            $result->andWhere('p.ownerid IN (:Owners)')
-                ->setParameter('Owners', $queryParameter['ownerid']);
-        }
-
-        //condition to filter by region id
-        if (isset($queryParameter['regionid'])) {
-            $result->andWhere('p.regionid IN (:Region)')
-                ->setParameter('Region', $queryParameter['regionid']);
+        if (isset($queryParameter['propertystatus'])) {
+            $result->andWhere("p.propertystatus = '".$queryParameter['propertystatus']."'");
         }
 
         //condition to filter by customer details
@@ -116,7 +109,6 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
 
         //return property details
         return $result
-            ->andWhere('p.customerid='.(int)$customerDetails)
             ->setFirstResult(($offset - 1) * $limit)
             ->getQuery()
             ->execute();
@@ -127,15 +119,15 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
      *
      * @param $customerDetails
      * @param $queryParameter
-     * @param $propertyID
+     * @param $propertyStatusID
      * @param $offset
      *
      * @return array
      */
-    public function getItemsCount($customerDetails, $queryParameter, $propertyID, $offset)
+    public function getItemsCount($customerDetails, $queryParameter, $propertyStatusID, $offset)
     {
         $query = "p.propertystatusid";
-        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyID, $offset, $query);
+        return $this->fetchPropertyStatus($customerDetails, $queryParameter, $propertyStatusID, $offset, $query);
 
     }
 }
