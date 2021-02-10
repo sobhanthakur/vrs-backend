@@ -499,6 +499,13 @@ class Properties
      */
     private $customerid;
 
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="PropertyStatusID", type="integer", nullable=true)
+     */
+    private $propertystatusid;
+
 
 
     /**
@@ -2117,5 +2124,29 @@ class Properties
     public function getCustomerid()
     {
         return $this->customerid;
+    }
+
+    /**
+     * Set propertystatusid.
+     *
+     * @param int|null $propertystatusid
+     *
+     * @return Properties
+     */
+    public function setPropertystatusid($propertystatusid = null)
+    {
+        $this->propertystatusid = $propertystatusid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertystatusid.
+     *
+     * @return int|null
+     */
+    public function getPropertystatusid()
+    {
+        return $this->propertystatusid;
     }
 }
