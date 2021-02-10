@@ -71,12 +71,9 @@ class Properties
     private $pointcentralid;
 
     /**
-     * @var \Regions
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="PropertyStatuses")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="PropertyStatusID", referencedColumnName="PropertyStatusID")
-     * })
+     * @ORM\Column(name="PropertyStatusID", type="integer", nullable=true)
      */
     private $propertystatusid;
 
@@ -2194,11 +2191,11 @@ class Properties
     /**
      * Set propertystatusid.
      *
-     * @param \AppBundle\Entity\PropertyStatuses|null $propertystatusid
+     * @param int|null $propertystatusid
      *
      * @return Properties
      */
-    public function setPropertystatusid(\AppBundle\Entity\PropertyStatuses $propertystatusid = null)
+    public function setPropertystatusid($propertystatusid = null)
     {
         $this->propertystatusid = $propertystatusid;
 
@@ -2208,7 +2205,7 @@ class Properties
     /**
      * Get propertystatusid.
      *
-     * @return \AppBundle\Entity\PropertyStatuses|null
+     * @return int|null
      */
     public function getPropertystatusid()
     {
