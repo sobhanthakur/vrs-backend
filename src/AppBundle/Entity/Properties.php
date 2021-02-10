@@ -71,9 +71,12 @@ class Properties
     private $pointcentralid;
 
     /**
-     * @var int|null
+     * @var \Regions
      *
-     * @ORM\Column(name="PropertyStatusID", type="integer", nullable=true)
+     * @ORM\ManyToOne(targetEntity="PropertyStatuses")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="PropertyStatusID", referencedColumnName="PropertyStatusID")
+     * })
      */
     private $propertystatusid;
 
@@ -2163,31 +2166,7 @@ class Properties
     {
         return $this->staffdashboardnote;
     }
-
-    /**
-     * Set propertystatusid.
-     *
-     * @param int|null $propertystatusid
-     *
-     * @return Properties
-     */
-    public function setPropertystatusid($propertystatusid = null)
-    {
-        $this->propertystatusid = $propertystatusid;
-
-        return $this;
-    }
-
-    /**
-     * Get propertystatusid.
-     *
-     * @return int|null
-     */
-    public function getPropertystatusid()
-    {
-        return $this->propertystatusid;
-    }
-
+    
     /**
      * Set slackchannelid.
      *
@@ -2210,5 +2189,29 @@ class Properties
     public function getSlackchannelid()
     {
         return $this->slackchannelid;
+    }
+
+    /**
+     * Set propertystatusid.
+     *
+     * @param \AppBundle\Entity\PropertyStatuses|null $propertystatusid
+     *
+     * @return Properties
+     */
+    public function setPropertystatusid(\AppBundle\Entity\PropertyStatuses $propertystatusid = null)
+    {
+        $this->propertystatusid = $propertystatusid;
+
+        return $this;
+    }
+
+    /**
+     * Get propertystatusid.
+     *
+     * @return \AppBundle\Entity\PropertyStatuses|null
+     */
+    public function getPropertystatusid()
+    {
+        return $this->propertystatusid;
     }
 }

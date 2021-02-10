@@ -789,6 +789,13 @@ class Services
     /**
      * @var bool
      *
+     * @ORM\Column(name="ShowPropertyStatusOnDashboards", type="boolean", nullable=false)
+     */
+    private $showPropertyStatusOnDashboards = false;
+
+    /**
+     * @var bool
+     *
      * @ORM\Column(name="Flag1", type="boolean", nullable=false)
      */
     private $flag1 = '0';
@@ -3450,5 +3457,29 @@ class Services
     public function getBeds24UnitStatusText()
     {
         return $this->beds24UnitStatusText;
+    }
+
+    /**
+     * Set showPropertyStatusOnDashboards.
+     *
+     * @param bool $showPropertyStatusOnDashboards
+     *
+     * @return Services
+     */
+    public function setShowPropertyStatusOnDashboards($showPropertyStatusOnDashboards)
+    {
+        $this->showPropertyStatusOnDashboards = $showPropertyStatusOnDashboards;
+
+        return $this;
+    }
+
+    /**
+     * Get showPropertyStatusOnDashboards.
+     *
+     * @return bool
+     */
+    public function getShowPropertyStatusOnDashboards()
+    {
+        return $this->showPropertyStatusOnDashboards;
     }
 }
