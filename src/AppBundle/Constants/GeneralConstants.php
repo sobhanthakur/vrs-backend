@@ -240,6 +240,7 @@ final class GeneralConstants
         'defaultcheckouttimeminutes' => 'p.defaultcheckouttimeminutes as DefaultCheckOutTimeMinutes',
         'ownerid' => 'o.ownerid as OwnerID',
         'regionid' => 'r.regionid as RegionID',
+        'propertystatusid' => 'p.propertystatusid AS PropertyStatusID',
         'createdate' => 'p.createdate as CreateDate'
     ];
 
