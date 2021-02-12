@@ -64,4 +64,37 @@ class BookingCalenderController extends FOSRestController
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
     }
+
+    /**
+     * Get Bookings for Booking Calender
+     * @SWG\Tag(name="Booking Calender")
+     * @Rest\Get("/calender/properties", name="vrs_pwa_calender_properties_get")
+     * @SWG\Response(
+     *     response=200,
+     *     description="List of properties",
+     * )
+     * @return array
+     * @param Request $request
+     */
+    public function BookingCalenderProperties(Request $request)
+    {
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+        $response = null;
+        try {
+            $bookingCalenderService = $this->container->get('vrscheduler.booking_calender_service');
+            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
+            return $bookingCalenderService->GetBookingCalenderProperties($servicerID);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }
