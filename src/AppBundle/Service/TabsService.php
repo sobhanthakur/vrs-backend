@@ -423,6 +423,7 @@ class TabsService extends BaseService
 
                     // Check Conditions for Issue Form
                     $response['IssueForm'] = array(
+                        'AllowImageUpload' => 1,
                         'IssueTypeForm' => $issueForm,
                         'IncludeUrgentFlag' => (int)$tasks[0]['IncludeUrgentFlag'],
                         'AllowShareImagesWithOwners' => (int)$tasks[0]['AllowShareImagesWithOwners'],
