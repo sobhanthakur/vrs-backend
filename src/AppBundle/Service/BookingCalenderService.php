@@ -52,14 +52,12 @@ class BookingCalenderService extends BaseService
                 $thisEndDate = $endDate;
             }
 
-            //Get Distinct Properties
-            $properties = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesForBookingCalender($servicerID);
-
             // Get PropertyBookings
             $propertyBookings = $this->entityManager->getRepository('AppBundle:Propertybookings')->GetBookingsForBookingCalender($servicerID,$thisEndDate->format('Y-m-d H:i:s'),$thisStartDate->format('Y-m-d H:i:s'));
 
             // Loop through Property Bookings
             foreach ($propertyBookings as $propertyBooking) {
+                $bookingDetails['ResourceID'] = $propertyBooking['PropertyID'];
                 $bookingDetails['PropertyID'] = $propertyBooking['PropertyID'];
                 $bookingDetails['Color'] = $propertyBooking['Color'];
                 $bookingDetails['TextColor'] = '##ffffff';
@@ -102,6 +100,7 @@ class BookingCalenderService extends BaseService
                 $bookingDetails['OutGlobalNote'] = trim($propertyBooking['OutGlobalNote']);
                 $bookingDetails['PropertyName'] = str_replace(array('&', '.','*','"',"'"),"",$propertyBooking['PropertyName']);
                 $bookingDetails['BackToBackEnd'] = $propertyBooking['BackToBackEnd'];
+                $bookingDetails['IsTask'] = 0;
 
                 $bookings[] = $bookingDetails;
             }
@@ -118,6 +117,7 @@ class BookingCalenderService extends BaseService
                 }
 
                 $taskDetails['TaskName'] = "Unassigned";
+                $taskDetails['ResourceID'] = $task['PropertyID']." ".$task['Name'];
                 if ($task['Name'] !== "") {
                     $taskDetails['TaskName'] = $task['Name'];
                 }
@@ -171,15 +171,35 @@ class BookingCalenderService extends BaseService
                 $taskDetails['TaskDateTime'] = $task['TaskDateTime'];
                 $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
                 $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];
+                $taskDetails['IsTask'] = 1;
 
                 $allTasks[] = $taskDetails;
             }
 
 
             return array(
-                'Properties' => $properties,
                 'Bookings' => $bookings,
                 'Tasks' => $allTasks
+            );
+
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error('Failed fetching booking calender details due to : ' .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
+
+    public function GetBookingCalenderProperties($servicerID)
+    {
+        try {
+            //Get Distinct Properties
+            $properties = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesForBookingCalender($servicerID);
+            return array(
+                'Properties' => $properties
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
