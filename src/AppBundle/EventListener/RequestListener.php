@@ -51,18 +51,22 @@ class RequestListener extends BaseService
     public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
 
-        // Cache Rate Limiting
-        $cache = new FilesystemCache();
-        // If IP doesn't exist
-        if(!$cache->has($request->getClientIp())) {
-            $cache->set($request->getClientIp(),1,GeneralConstants::RATE_LIMIT_TTL);
-        } else {
-            $count = $cache->get($request->getClientIp());
-            if($count >= GeneralConstants::RATE_LIMIT) {
-                throw new HttpException(429,ErrorConstants::LIMIT_EXHAUST);
+        // Rate limit only for Public APIs
+        if(in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
+            // Cache Rate Limiting
+            $cache = new FilesystemCache();
+            // If IP doesn't exist
+            if(!$cache->has($request->getClientIp())) {
+                $cache->set($request->getClientIp(),1,GeneralConstants::RATE_LIMIT_TTL);
+            } else {
+                $count = $cache->get($request->getClientIp());
+                if($count >= GeneralConstants::RATE_LIMIT) {
+                    throw new HttpException(429,ErrorConstants::LIMIT_EXHAUST);
+                }
+                $cache->set($request->getClientIp(),$count+1,GeneralConstants::RATE_LIMIT_TTL);
             }
-            $cache->set($request->getClientIp(),$count+1,GeneralConstants::RATE_LIMIT_TTL);
         }
 
         // If Request Method is OPTIONS, then send set the necessary headers.
@@ -77,7 +81,6 @@ class RequestListener extends BaseService
             );
             return ;
         }
-        $route = $request->attributes->get('_route');
 
         // Add authorization header
         if (!$request->headers->has(GeneralConstants::AUTHORIZATION) && function_exists('apache_request_headers')) {
