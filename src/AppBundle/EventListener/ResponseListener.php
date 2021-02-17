@@ -53,11 +53,11 @@ class ResponseListener extends BaseService
         // Stop Response logging temporarily
         // uncomment this in future.
 
-        /*$responseContent = $response->getContent();
+        $responseContent = $response->getContent();
 
         $route = $request->attributes->get('_route');
 
-        if (!in_array($route,ApiRoutes::RESTRICT_RESPONSE_LOGS)) {
+        if (!in_array($route,ApiRoutes::RESTRICT_RESPONSE_LOGS) && $request->getMethod() !== 'GET' && $request->getMethod() !== 'OPTIONS') {
             $this->apiLogger->debug('API Request/Response',
                 array_merge($request->headers->all(),
                     [
@@ -67,6 +67,6 @@ class ResponseListener extends BaseService
                     ]
                 )
             );
-        }*/
+        }
     }
 }
