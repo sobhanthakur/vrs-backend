@@ -61,6 +61,7 @@ class BookingCalenderService extends BaseService
                 $bookingDetails['PropertyID'] = $propertyBooking['PropertyID'];
                 $bookingDetails['Color'] = $propertyBooking['Color'];
                 $bookingDetails['TextColor'] = '##ffffff';
+                $bookingDetails['Editable'] = 1;
 
                 if (trim($propertyBooking['BookingColor']) !== '' &&
                     (int)$propertyBooking['PropertyID'] === (int)$propertyBooking['PropertyBookingPropertyID']
@@ -84,23 +85,47 @@ class BookingCalenderService extends BaseService
                 $bookingDetails['CheckOut'] = $propertyBooking['CheckOut'];
                 $bookingDetails['CheckOutTime'] = $propertyBooking['CheckOutTime'] >= 12 ? ($propertyBooking['CheckInTime'] % 12)." PM" : $propertyBooking['CheckOutTime']." AM";
 
-                // GuestDetails
-                (int)$rsServicers['IncludeGuestName'] ? $bookingDetails['GuestName'] = $propertyBooking['Guest'] : $bookingDetails['GuestName'] = "";
-                $bookingDetails['NumberOfGuests'] = 0;
-                $bookingDetails['NumberOfChildren'] = 0;
-                $bookingDetails['NumberOfPets'] = 0;
+                // Set Start Time
+                $start = new \DateTime($propertyBooking['CheckIn']);
+                $start->setTime((int)$propertyBooking['CheckInTime'],0);
+                $bookingDetails['Start'] = $start;
 
-                if ((int)$rsServicers['IncludeGuestNumbers']) {
-                    $bookingDetails['NumberOfGuests'] = (int)$propertyBooking['NumberOfGuests'];
-                    $bookingDetails['NumberOfChildren'] = (int)$propertyBooking['NumberOfChildren'];
-                    $bookingDetails['NumberOfPets'] = (int)$propertyBooking['NumberOfPets'];
+                // Set End Time
+                $end = new \DateTime($propertyBooking['CheckOut']);
+                $end->setTime((int)$propertyBooking['CheckOutTime'],0);
+                $bookingDetails['End'] = $end;
+
+                // Description
+                $description = "IN ".$propertyBooking['CheckIn'].", ".$propertyBooking['CheckInTime']."<br />";
+                $description .= "OUT ".$propertyBooking['CheckOut'].", ".$propertyBooking['CheckOutTime']."<br />";
+
+                // GuestDetails
+                if ((int)$rsServicers['IncludeGuestName']) {
+                    $description .= $propertyBooking['Guest']."<br />";
                 }
 
-                $bookingDetails['InGlobalNote'] = trim($propertyBooking['InGlobalNote']);
-                $bookingDetails['OutGlobalNote'] = trim($propertyBooking['OutGlobalNote']);
+                if ((int)$rsServicers['IncludeGuestNumbers']) {
+                    $description .= (int)$propertyBooking['NumberOfGuests']."G / ".(int)$propertyBooking['NumberOfChildren']." C / ".(int)$propertyBooking['NumberOfPets']." P"."<br />";
+                }
+
+                if ($propertyBooking['GlobalNote'] !== '') {
+                    $description .= "Booking Note: ".$propertyBooking['GlobalNote']." <br />";
+                }
+
+                if ($propertyBooking['InGlobalNote'] !== '') {
+                    $description .= "Check In Note: ".$propertyBooking['InGlobalNote']." <br />";
+                }
+
+                if ($propertyBooking['OutGlobalNote'] !== '') {
+                    $description .= "Check Out Note: ".$propertyBooking['OutGlobalNote']." <br />";
+                }
+
+                $bookingDetails['Description'] = $description;
+
                 $bookingDetails['PropertyName'] = str_replace(array('&', '.','*','"',"'"),"",$propertyBooking['PropertyName']);
                 $bookingDetails['BackToBackEnd'] = $propertyBooking['BackToBackEnd'];
                 $bookingDetails['IsTask'] = 0;
+                $bookingDetails['BorderColor'] = '';
 
                 $bookings[] = $bookingDetails;
             }
@@ -115,6 +140,7 @@ class BookingCalenderService extends BaseService
                 if ($task['Region'] !== $taskDetails['Region']) {
                     $taskDetails['Region'] = $task['Region'];
                 }
+                $taskDetails['Editable'] = 0;
 
                 $taskDetails['TaskName'] = "Unassigned";
                 $taskDetails['ResourceID'] = $task['PropertyID']." ".$task['Name'];
@@ -135,21 +161,24 @@ class BookingCalenderService extends BaseService
                     $durationMinutes = 60;
                 }
 
-                $taskDetails['EndTime'] = (new \DateTime($task['TaskDateTime']))->modify('+'.$durationHours.' hour'.' +'.$durationMinutes.'minute');
+                $taskDetails['Start'] = (new \DateTime($task['TaskDateTime']))->modify('+'.$durationHours.' hour'.' +'.$durationMinutes.'minute');
+                $taskDetails['End'] = null;
 
-                if ($task['bookingcolor'] !== '' && (int)$task['PropertyID'] === (int)$task['PropertyBookingPropertyID']) {
-                    $taskDetails['Color'] = trim($task['bookingcolor']);
+                $borderColor = null;
+                if ((string)$task['bookingcolor'] !== '' && (int)$task['PropertyID'] === (int)$task['PropertyBookingPropertyID']) {
+                    $borderColor = trim($task['bookingcolor']);
                 } elseif ($task['color'] !== '') {
-                    $taskDetails['Color'] = '#'.trim($task['color']);
+                    $borderColor = '#'.trim($task['color']);
                 } else {
-                    $taskDetails['Color'] = '##0275d8';
+                    $borderColor = '##0275d8';
                 }
+                $taskDetails['BorderColor'] = $borderColor;
 
                 $taskDetails['TextColor'] = '##ffffff';
 
-                if((base_convert(substr($taskDetails['Color'],2,2),16,10)*0.299) +
-                    (base_convert(substr($taskDetails['Color'],4,2),16,10)*0.587) +
-                    (base_convert(substr($taskDetails['Color'],-2),16,10)*0.144) > 200
+                if((base_convert(substr($borderColor,2,2),16,10)*0.299) +
+                    (base_convert(substr($borderColor,4,2),16,10)*0.587) +
+                    (base_convert(substr($borderColor,-2),16,10)*0.144) > 200
                 ) {
                     $taskDetails['TextColor'] = '##000000';
                 }
@@ -159,6 +188,8 @@ class BookingCalenderService extends BaseService
                 ) {
                     $taskDetails['TextColor'] = '##FFA500';
                 }
+
+                $taskDetails['Color'] = '';
 
                 $taskDetails['CompleteConfirmedDate'] = $task['CompleteConfirmedDate'];
                 $taskDetails['Abbreviation'] = $task['Abbreviation'];
@@ -172,14 +203,14 @@ class BookingCalenderService extends BaseService
                 $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
                 $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];
                 $taskDetails['IsTask'] = 1;
+                $taskDetails['Description'] = "";
 
                 $allTasks[] = $taskDetails;
             }
 
 
             return array(
-                'Bookings' => $bookings,
-                'Tasks' => $allTasks
+                'Details' => array_merge($bookings,$allTasks)
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
