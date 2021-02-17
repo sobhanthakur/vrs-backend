@@ -232,17 +232,17 @@ monolog:
             path: "%kernel.logs_dir%/apiRequestResponse.log"
             level: debug
             channels: [api]
-            max_files: 2
+            max_files: 3
         exception:
             type: rotating_file
             path: "%kernel.logs_dir%/exception.log"
             level: error
             channels: [exception]
-            max_files: 2
+            max_files: 3
         qb:
             type: rotating_file
             path: "%kernel.logs_dir%/qbResponse.log"
             level: debug
             channels: [qb]
-            max_files: 2
+            max_files: 3
     channels: [api,exception,qb]
