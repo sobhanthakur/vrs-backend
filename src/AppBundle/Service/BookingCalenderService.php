@@ -203,14 +203,14 @@ class BookingCalenderService extends BaseService
                 $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
                 $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];
                 $taskDetails['IsTask'] = 1;
+                $taskDetails['Description'] = "";
 
                 $allTasks[] = $taskDetails;
             }
 
 
             return array(
-                'Bookings' => $bookings,
-                'Tasks' => $allTasks
+                'Details' => array_merge($bookings,$allTasks)
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
