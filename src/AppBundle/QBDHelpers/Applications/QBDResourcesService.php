@@ -81,7 +81,7 @@ class QBDResourcesService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
-        $this->qbLogger->debug($object->response);
+//        $this->qbLogger->debug($object->response);
         $session = new Session();
         $response = simplexml_load_string($object->response);
         // Parse the XML and Store the records accordingly

@@ -173,7 +173,7 @@ class QBDBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
-        $this->qbLogger->debug($object->response);
+//        $this->qbLogger->debug($object->response);
         // Send Response as 100% Success
         $response = simplexml_load_string($object->response);
         if(isset($response->QBXMLMsgsRs)) {

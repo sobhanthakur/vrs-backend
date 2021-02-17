@@ -80,7 +80,7 @@ class QBDFailedBillingBatchService extends AbstractQBWCApplication
      */
     public function receiveResponseXML($object)
     {
-        $this->qbLogger->debug($object->response);
+//        $this->qbLogger->debug($object->response);
         $response = simplexml_load_string($object->response);
         if (isset($response->QBXMLMsgsRs)) {
             if(isset($response->QBXMLMsgsRs->EstimateQueryRs)) {

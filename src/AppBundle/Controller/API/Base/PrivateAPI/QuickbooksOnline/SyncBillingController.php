@@ -54,7 +54,7 @@ class SyncBillingController extends FOSRestController
         } catch (ServiceException $exception) {
             $qbLogger->debug('API Request: ', [
                 'Error' => [
-                    'TimeTracking' => $exception->getMessage()
+                    'Billing' => $exception->getMessage()
                 ]
             ]);
 
