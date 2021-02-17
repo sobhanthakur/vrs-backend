@@ -413,7 +413,7 @@ class ServicersDashboardService extends BaseService
         try {
             $dateTime = $content['DateTime'];
             $clockInOut = $content['ClockInOut'];
-            $mileage = $content['Mileage'] ? $content['Mileage'] : null;
+            $mileage = $content['Mileage'] ? (int)$content['Mileage'] : null;
 
             // ServicerObject
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
