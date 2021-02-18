@@ -141,8 +141,7 @@ class ServicersDashboardService extends BaseService
                     ($tasks[$i]['ManualBookingTags'] !== null ? $tasks[$i]['ManualBookingTags'] !== '' : null) ||
                     ($tasks[$i]['NextBookingTags'] !== null ? $tasks[$i]['NextBookingTags'] !== '' : null) ||
                     ($tasks[$i]['NextManualBookingTags'] !== null ? $tasks[$i]['NextManualBookingTags'] !== '' : null) ||
-                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null) ||
-                    ($tasks[$i]['ShortDescription'] !== null ? $tasks[$i]['ShortDescription'] !== '' : null)
+                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null)
                 ) {
                     $description = array(
                         'TaskDescription' => $tasks[$i]['TaskDescription'],
@@ -188,6 +187,13 @@ class ServicersDashboardService extends BaseService
                     }
                 }
 
+                // Set Currency
+                /*if ($piecePay) {
+                    $fmt = new \NumberFormatter( $servicers[0]['CustomersLocale'], \NumberFormatter::CURRENCY);
+                    $piecePay = $fmt->format($piecePay);
+                }*/
+
+
                 // Check Scheduling Notes
                 $schedulingNote = null;
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i]['AssignedDate']->format('N')];
@@ -215,6 +221,7 @@ class ServicersDashboardService extends BaseService
 
 
                 $response[$i]['Details'] = array(
+                    'ShortDescription' => $tasks[$i]['ShortDescription'],
                     'DoneCondition' => $doneCondition,
                     'PropertyStatus' => (int)$tasks[$i]['ShowPropertyStatusOnDashboards'] ? $tasks[$i]['PropertyStatus'] : null,
                     'Status' => $status,
