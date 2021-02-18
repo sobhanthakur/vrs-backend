@@ -41,7 +41,7 @@ class SendSMS extends BaseService
                 "MessageAttributes" => [
                     'AWS.SNS.SMS.SenderID' => [
                         'DataType' => 'String',
-                        'StringValue' => 'SENDERID'
+//                        'StringValue' => 'SENDERID'
                     ],
                     'AWS.SNS.SMS.SMSType' => [
                         'DataType' => 'String',
