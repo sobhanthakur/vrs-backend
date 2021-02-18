@@ -156,7 +156,8 @@ class ServicersDashboardService extends BaseService
                         'ShowPMSHousekeepingNoteOnDashboards' => $tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
                         'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote'],
                         'InGlobalNote' => $tasks[$i]['InGlobalNote'],
-                        'Instructions' => $tasks[$i]['Instructions']
+                        'Instructions' => $tasks[$i]['Instructions'],
+                        'ShortDescription' => $tasks[$i]['ShortDescription']
                     );
                 }
                 $response[$i]['Description'] = $description;
