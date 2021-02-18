@@ -516,7 +516,8 @@ final class GeneralConstants
         'TASKRULEID' => 'taskruleid',
         'FLAG1' => 'flag1',
         'FLAG2' => 'flag2',
-        'PROPERTYSTATUS' => 'propertystatus'
+        'PROPERTYSTATUS' => 'propertystatus',
+        'PROPERTYSTATUSID' => 'propertystatusid'
     ];
 
     const RATE_LIMIT = 300;
