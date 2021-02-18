@@ -141,7 +141,8 @@ class ServicersDashboardService extends BaseService
                     ($tasks[$i]['ManualBookingTags'] !== null ? $tasks[$i]['ManualBookingTags'] !== '' : null) ||
                     ($tasks[$i]['NextBookingTags'] !== null ? $tasks[$i]['NextBookingTags'] !== '' : null) ||
                     ($tasks[$i]['NextManualBookingTags'] !== null ? $tasks[$i]['NextManualBookingTags'] !== '' : null) ||
-                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null)
+                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null) ||
+                    ($tasks[$i]['ShortDescription'] !== null ? $tasks[$i]['ShortDescription'] !== '' : null)
                 ) {
                     $description = array(
                         'TaskDescription' => $tasks[$i]['TaskDescription'],
