@@ -39,10 +39,10 @@ class SendSMS extends BaseService
 
             $args = array(
                 "MessageAttributes" => [
-                    'AWS.SNS.SMS.SenderID' => [
-                        'DataType' => 'String',
+//                    'AWS.SNS.SMS.SenderID' => [
+//                        'DataType' => 'String',
 //                        'StringValue' => 'SENDERID'
-                    ],
+//                    ],
                     'AWS.SNS.SMS.SMSType' => [
                         'DataType' => 'String',
                         'StringValue' => 'Transactional'
