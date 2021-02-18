@@ -91,7 +91,12 @@ class PropertyStatusesRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('PropertyID', $propertyStatusID);
         }
 
-        //condition to filter by owner id
+        //condition to filter by propertystatusid
+        if (isset($queryParameter['propertystatusid'])) {
+            $result->andWhere("p.propertystatusid = ".(int)$queryParameter['propertystatusid']);
+        }
+
+        //condition to filter by property status
         if (isset($queryParameter['propertystatus'])) {
             $result->andWhere("p.propertystatus = '".$queryParameter['propertystatus']."'");
         }
