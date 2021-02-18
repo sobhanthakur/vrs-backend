@@ -188,6 +188,13 @@ class ServicersDashboardService extends BaseService
                     }
                 }
 
+                // Set Currency
+                if ($piecePay) {
+                    $fmt = new \NumberFormatter( $servicers[0]['CustomersLocale'], \NumberFormatter::CURRENCY);
+                    $piecePay = $fmt->format($piecePay);
+                }
+
+
                 // Check Scheduling Notes
                 $schedulingNote = null;
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i]['AssignedDate']->format('N')];

@@ -727,6 +727,13 @@ class Customers
      */
     private $issueAllowVideoUpload = false;
 
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="LocaleID", type="integer", nullable=false)
+     */
+    private $localeid = 53;
+
 
 
     /**
@@ -3137,5 +3144,29 @@ class Customers
     public function getIssueAllowVideoUpload()
     {
         return $this->issueAllowVideoUpload;
+    }
+
+    /**
+     * Set localeid.
+     *
+     * @param int $localeid
+     *
+     * @return Customers
+     */
+    public function setLocaleid($localeid)
+    {
+        $this->localeid = $localeid;
+
+        return $this;
+    }
+
+    /**
+     * Get localeid.
+     *
+     * @return int
+     */
+    public function getLocaleid()
+    {
+        return $this->localeid;
     }
 }

@@ -322,7 +322,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
     {
         $result = $this
             ->createQueryBuilder('s')
-            ->select('s.payrate AS PayRate,c.email AS CustomersEmail,s.allowchangetaskdate AS AllowChangeTaskDate,s.viewtaskswithindays AS ViewTaskWithinDays,c.showstarttimeondashboard AS ShowStartTimeOnDashboard,c.showpiecepayamountsonemployeedashboards AS ShowPiecePayAmountsOnEmployeeDashboards,c.sortquickchangetotop AS SortQuickChangeToTop,c.quickchangeabbreviation AS QuickChangeAbbreviation,IDENTITY(s.customerid) AS CustomerID,s.allowaddstandardtask AS AllowAddStandardTask,s.email AS Email,s.allowadminaccess AS AllowAdminAccess,s.allowstartearly AS AllowStartEarly,s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
+            ->select('cl.locale AS CustomersLocale,s.payrate AS PayRate,c.email AS CustomersEmail,s.allowchangetaskdate AS AllowChangeTaskDate,s.viewtaskswithindays AS ViewTaskWithinDays,c.showstarttimeondashboard AS ShowStartTimeOnDashboard,c.showpiecepayamountsonemployeedashboards AS ShowPiecePayAmountsOnEmployeeDashboards,c.sortquickchangetotop AS SortQuickChangeToTop,c.quickchangeabbreviation AS QuickChangeAbbreviation,IDENTITY(s.customerid) AS CustomerID,s.allowaddstandardtask AS AllowAddStandardTask,s.email AS Email,s.allowadminaccess AS AllowAdminAccess,s.allowstartearly AS AllowStartEarly,s.allowmanage AS AllowManage,s.showissueslog AS ShowIssueLog,t.region AS Region,s.timetracking AS TimeTracking,s.requestaccepttasks AS RequestAcceptTasks, (CASE WHEN s.showtasktimeestimates=1 THEN 1 ELSE 0 END) AS ShowTaskEstimates,(CASE WHEN s.includeguestnumbers=1 THEN 1 ELSE 0 END) AS IncludeGuestNumbers,(CASE WHEN s.includeguestemailphone=1 THEN 1 ELSE 0 END) AS IncludeGuestEmailPhone,(CASE WHEN s.includeguestname=1 THEN 1 ELSE 0 END) AS IncludeGuestName')
             ->addSelect('s.schedulenote1 AS ScheduleNote1,s.schedulenote2 AS ScheduleNote2,s.schedulenote3 AS ScheduleNote3,s.schedulenote4 AS ScheduleNote4,s.schedulenote5 AS ScheduleNote5,s.schedulenote6 AS ScheduleNote6,s.schedulenote7 AS ScheduleNote7')
             ->addSelect('s.schedulenote1show AS Schedulenote1Show,s.schedulenote2show AS Schedulenote2Show,s.schedulenote3show AS Schedulenote3Show,s.schedulenote4show AS Schedulenote4Show,s.schedulenote5show AS Schedulenote5Show,s.schedulenote6show AS Schedulenote6Show,s.schedulenote7show AS Schedulenote7Show')
             ->addSelect('c.issueAllowVideoUpload AS IssueAllowVideoUpload');
@@ -344,6 +344,7 @@ class ServicersRepository extends \Doctrine\ORM\EntityRepository
         $result->where('s.servicerid= :ServicerID')
             ->innerJoin('s.timezoneid', 't')
             ->leftJoin('s.customerid', 'c')
+            ->leftJoin('AppBundle:Locale', 'cl', Expr\Join::WITH, 'c.localeid=cl.localeid')
             ->setParameter('ServicerID', $servicerID)
             ->setMaxResults(1);
         return $result->getQuery()->execute();
