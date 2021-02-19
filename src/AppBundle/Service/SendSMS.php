@@ -28,7 +28,25 @@ class SendSMS extends BaseService
     {
         $response = [];
         $aws = $this->serviceContainer->getParameter('aws')['sns'];
-        $content = json_decode($request->getContent(),true);
+        $message = $request->getContent();
+
+        // Parse Phone Number from the content
+        $from1 = 'PhoneNumber';
+        $to1 = ',';
+        $phoneNumber = $this->get_string_between($message,$from1,$to1);
+        $phoneNumber = trim(str_replace([':','"'],['',''],$phoneNumber));
+
+        // Parse Message from the content
+        $from2 = 'Message"';
+        $msg = $this->get_string_between($message,$from2,null);
+        $msg = trim(str_replace(
+            ['"','}','\n','\"','\\','\/','\b','\f','\r','\t','\u'],
+            ['','',' . ','','','','','','','',''],
+                substr($msg,strpos($msg,'"'),-1))
+        );
+        // Sanitize Message
+
+
         try {
             $params = array(
                 'credentials' => ['key' => $aws['key'], 'secret' => $aws['secret']],
@@ -48,8 +66,8 @@ class SendSMS extends BaseService
                         'StringValue' => 'Transactional'
                     ]
                 ],
-                "Message" => $content['Message'],
-                "PhoneNumber" => $content['PhoneNumber']
+                "Message" => $msg,
+                "PhoneNumber" => $phoneNumber
             );
 
 
@@ -83,6 +101,9 @@ class SendSMS extends BaseService
         if ($ini == 0) return '';
         $ini += strlen($start);
         $len = strpos($string, $end, $ini) - $ini;
+        if ($end === null) {
+            $len = -1;
+        }
         return substr($string, $ini, $len);
     }
 }
