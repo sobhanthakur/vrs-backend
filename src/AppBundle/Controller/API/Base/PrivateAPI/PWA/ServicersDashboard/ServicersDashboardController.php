@@ -80,9 +80,8 @@ class ServicersDashboardController extends FOSRestController
     public function ServicersDashboard(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
+            $servicersDashboard = $this->container->get(GeneralConstants::SERVICERS_DASHBOARD_SERVICE);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->GetTasks($servicerID);
         } catch (BadRequestHttpException $exception) {
@@ -142,7 +141,6 @@ class ServicersDashboardController extends FOSRestController
     public function StartTask(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $servicersDashboard = $this->container->get('vrscheduler.starttask_service');
             $content = json_decode($request->getContent(),true);
@@ -211,9 +209,8 @@ class ServicersDashboardController extends FOSRestController
     public function ClockInOut(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
+            $servicersDashboard = $this->container->get(GeneralConstants::SERVICERS_DASHBOARD_SERVICE);
             $content = json_decode($request->getContent(),true);
             // Send an empty array if content is blank
             if (empty($content)) {
@@ -279,9 +276,8 @@ class ServicersDashboardController extends FOSRestController
     public function AcceptDeclineTask(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
+            $servicersDashboard = $this->container->get(GeneralConstants::SERVICERS_DASHBOARD_SERVICE);
             $content = json_decode($request->getContent(),true);
             // Send an empty array if content is blank
             if (empty($content)) {
@@ -342,9 +338,8 @@ class ServicersDashboardController extends FOSRestController
     public function ChangeTaskDate(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.servicers_dashboard');
+            $servicersDashboard = $this->container->get(GeneralConstants::SERVICERS_DASHBOARD_SERVICE);
             $content = json_decode($request->getContent(),true);
             // Send an empty array if content is blank
             if (empty($content)) {

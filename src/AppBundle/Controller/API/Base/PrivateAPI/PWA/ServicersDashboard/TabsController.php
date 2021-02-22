@@ -69,9 +69,8 @@ class TabsController extends FOSRestController
     public function LogTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetLog($content,$servicerID);
@@ -114,9 +113,8 @@ class TabsController extends FOSRestController
     public function InfoTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetInfo($servicerID,$content);
@@ -159,9 +157,8 @@ class TabsController extends FOSRestController
     public function BookingTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetBooking($servicerID,$content);
@@ -205,11 +202,9 @@ class TabsController extends FOSRestController
     public function ImagesTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
-            $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetImages($content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -250,9 +245,8 @@ class TabsController extends FOSRestController
     public function AssignmentsTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->GetAssignments($servicerID,$content);
@@ -295,9 +289,8 @@ class TabsController extends FOSRestController
     public function ManageTab(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $tabsService = $this->container->get('vrscheduler.tabs_service');
+            $tabsService = $this->container->get(GeneralConstants::TABS_SERVICE);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $tabsService->ManageTabDetails($servicerID,$content);

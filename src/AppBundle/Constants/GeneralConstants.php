@@ -477,4 +477,13 @@ final class GeneralConstants
         6 => 7,
         7 => 1
     ];
+
+    const REDIRECTURI = 'RedirectURI';
+    const SERVICERS_DASHBOARD_SERVICE = 'vrscheduler.servicers_dashboard';
+    const MANAGE_SERVICE = 'vrscheduler.manage_service';
+    const TABS_SERVICE = 'vrscheduler.tabs_service';
+    const TRANSLATIONS_SERVICE = 'vrscheduler.translation_service';
+    const UNSCHEDULED_TASK = 'vrscheduler.unscheduled_task';
+    const TRANSLATOR_DEFAULT = 'translator.default';
+    const QUICKBOOKS_CONFIGURATION = 'QuickBooksConfiguration';
 }

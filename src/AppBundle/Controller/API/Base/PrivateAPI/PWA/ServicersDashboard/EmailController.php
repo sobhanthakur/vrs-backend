@@ -49,7 +49,6 @@ class EmailController extends FOSRestController
     public function SendFEErrorMail(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $mailService = $this->container->get('vrscheduler.mail_service');
             $content = json_decode($request->getContent(),true);

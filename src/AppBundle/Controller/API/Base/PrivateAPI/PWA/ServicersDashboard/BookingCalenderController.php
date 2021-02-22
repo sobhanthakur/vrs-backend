@@ -45,7 +45,6 @@ class BookingCalenderController extends FOSRestController
     public function BookingCalenderDetails(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $bookingCalenderService = $this->container->get('vrscheduler.booking_calender_service');
             $content = json_decode(base64_decode($request->get('data')),true);
@@ -79,7 +78,6 @@ class BookingCalenderController extends FOSRestController
     public function BookingCalenderProperties(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $bookingCalenderService = $this->container->get('vrscheduler.booking_calender_service');
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];

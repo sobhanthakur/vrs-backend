@@ -37,7 +37,6 @@ class TranslationFiles extends FOSRestController
     public function GenerateTranslationFiles(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $translationService = $this->container->get('vrscheduler.translation_files');
             return $translationService->GenerateTranslationFiles();
@@ -98,7 +97,6 @@ class TranslationFiles extends FOSRestController
     public function CreateTranslationEntries(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $translationService = $this->container->get('vrscheduler.translation_files');
             $localeID = $request->get('TranslationLocaleID');
@@ -132,14 +130,13 @@ class TranslationFiles extends FOSRestController
     public function GetEnglishTexts(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             /*$data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }*/
 
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->GetEnglishTexts();
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -169,9 +166,8 @@ class TranslationFiles extends FOSRestController
     public function GetAllLocales(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->GetLocales();
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -201,13 +197,8 @@ class TranslationFiles extends FOSRestController
     public function GetLocalesByID(Request $request,$id)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-//        $data = json_decode(base64_decode($request->get('data')),true);
-//        if(empty($data)) {
-//            $data = [];
-//        }
-        $response = null;
         try {
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->GetLocalesByID($id);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -254,9 +245,8 @@ class TranslationFiles extends FOSRestController
     public function UpdateTranslation(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             $content = json_decode($request->getContent(),true);
             return $translationService->UpdateTranslation($content);
         } catch (BadRequestHttpException $exception) {
@@ -303,10 +293,9 @@ class TranslationFiles extends FOSRestController
     public function AddNewLocale(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $content = json_decode($request->getContent(),true);
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->AddNewLocale($content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -350,10 +339,9 @@ class TranslationFiles extends FOSRestController
     public function AddNewEnglishWord(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $content = json_decode($request->getContent(),true);
-            $translationService = $this->container->get('vrscheduler.translation_service');
+            $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->AddNewEnglishText($content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;

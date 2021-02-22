@@ -45,10 +45,9 @@ class UnscheduledTask extends FOSRestController
      */
     public function GetAllProperties(Request $request)
     {
-        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION); 
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $servicersDashboard = $this->container->get(GeneralConstants::UNSCHEDULED_TASK);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->GetProperties($servicerID);
         } catch (BadRequestHttpException $exception) {
@@ -113,10 +112,9 @@ class UnscheduledTask extends FOSRestController
      */
     public function PropertyTab(Request $request)
     {
-        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION); 
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $servicersDashboard = $this->container->get(GeneralConstants::UNSCHEDULED_TASK);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->PropertyTab($servicerID,$content);
@@ -175,10 +173,9 @@ class UnscheduledTask extends FOSRestController
      */
     public function ImagesTab(Request $request)
     {
-        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION); 
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $servicersDashboard = $this->container->get(GeneralConstants::UNSCHEDULED_TASK);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->ImageTab($servicerID,$content);
@@ -248,10 +245,9 @@ class UnscheduledTask extends FOSRestController
      */
     public function UnscheduledTaskDetails(Request $request)
     {
-        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION); 
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $servicersDashboard = $this->container->get(GeneralConstants::UNSCHEDULED_TASK);
             $content = json_decode(base64_decode($request->get('data')),true);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
             return $servicersDashboard->UnscheduledTaskDetails($servicerID,$content);
@@ -322,10 +318,9 @@ class UnscheduledTask extends FOSRestController
      */
     public function UnscheduledAssignTask(Request $request)
     {
-        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION); 
         try {
-            $servicersDashboard = $this->container->get('vrscheduler.unscheduled_task');
+            $servicersDashboard = $this->container->get(GeneralConstants::UNSCHEDULED_TASK);
             $content = json_decode($request->getContent(),true);
             // Send an empty array if content is blank
             if (empty($content)) {

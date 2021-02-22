@@ -10,10 +10,6 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
-use AppBundle\Constants\LocaleConstants;
-use AppBundle\CustomClasses\TimeZoneConverter;
-use AppBundle\DatabaseViews\TimeClockDays;
-use AppBundle\Entity\Integrationstocustomers;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
