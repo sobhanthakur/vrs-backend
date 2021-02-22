@@ -83,7 +83,7 @@ class NotificationService extends BaseService
         $notification->setMessageid($result[GeneralConstants::MESSAGE_ID]);
         $notification->setCustomerid($result[GeneralConstants::CUSTOMER_ID]);
         $notification->setSendtomanagers($result[GeneralConstants::SENDTOMANAGERS]);
-        $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
+        $notification->setSubmittedbyservicerid($result[GeneralConstants::SUBMITTEDBYSERVICERID]);
 
         if ($servicerID) {
             $notification->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($result['BackupServicerID']));
@@ -135,7 +135,7 @@ class NotificationService extends BaseService
         $notification->setOwnerid($ownerID);
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
         $notification->setSendtomanagers($result[GeneralConstants::SENDTOMANAGERS]);
-        $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
+        $notification->setSubmittedbyservicerid($result[GeneralConstants::SUBMITTEDBYSERVICERID]);
 
         $this->entityManager->persist($notification);
         $this->entityManager->flush();

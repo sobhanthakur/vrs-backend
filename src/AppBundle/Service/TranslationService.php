@@ -198,7 +198,7 @@ class TranslationService extends BaseService
 
             $locale = $content['Locale'];
             $localeReadable = $content['LocaleReadable'];
-            $activeForDates = $content['ActiveForDates'] ? ((int)$content['ActiveForDates'] === 1 ? true : false) : false;
+            $activeForDates = $content['ActiveForDates'] ? (int)$content['ActiveForDates'] === 1 : 0;
             $activeForLanguages = true;
 
             $localeID = new Locale();

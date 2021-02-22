@@ -212,7 +212,7 @@ class BillingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $timeZoneLocal = new \DateTimeZone($regions[$i]['Region']);
+            $timeZoneLocal = new \DateTimeZone($regions[$i][GeneralConstants::REGION]);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
 
@@ -236,7 +236,7 @@ class BillingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $region = $regions[$i]['Region'];
+            $region = $regions[$i][GeneralConstants::REGION];
             $timeZoneLocal = new \DateTimeZone($region);
             $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
             $timeZoneUTC = new \DateTimeZone('UTC');

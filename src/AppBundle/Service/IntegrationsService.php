@@ -247,7 +247,7 @@ class IntegrationsService extends BaseService
             }
 
             if (array_key_exists(GeneralConstants::TIMETRACKING_TYPE, $content)) {
-                $type = ((int)$content[GeneralConstants::TIMETRACKING_TYPE] === 1 ? true : false);
+                $type = ((int)$content[GeneralConstants::TIMETRACKING_TYPE]);
                 $integrationToCustomer->setTimetrackingtype($type);
             }
 

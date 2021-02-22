@@ -356,15 +356,15 @@ class ManageSubmit extends BaseService
                 GeneralConstants::OWNERID => $thisOwnerID,
                 'SendToMaintenanceStaff' => 1,
                 GeneralConstants::SENDTOMANAGERS => 1,
-                'SubmittedByServicerID' => $servicerID
+                GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID
             );
-            $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result, $now);
+            $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateManageCompleteNotification($result, $now);
             $notification['TaskNotification'] = $taskNotification;
 
             $this->entityManager->flush();
 
             return array(
-                'Status' => 'Success',
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
                 'Notification' => $notification,
                 'Details' => $details,
                 'SaveDetails' => $save

@@ -15,6 +15,7 @@ use QuickBooksOnline\API\Facades\Estimate;
 use QuickBooksOnline\API\Facades\Invoice;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class QuickbooksOnlineSyncBilling
@@ -113,10 +114,10 @@ class QuickbooksOnlineSyncBilling extends BaseService
             }
 
             foreach ($tasks as $task) {
-                $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
-                $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
-                $description[$task['QBDCustomerListID']][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
-                $amount[$task['QBDCustomerListID']][] = $task['Amount'];
+                $response[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['QBDListID'];
+                $billingRecordID[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['IntegrationQBDBillingRecordID'];
+                $description[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task[GeneralConstants::REGION]) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
+                $amount[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['Amount'];
             }
 
             // Create a Batch

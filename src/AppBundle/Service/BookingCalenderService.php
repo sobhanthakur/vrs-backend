@@ -54,7 +54,7 @@ class BookingCalenderService extends BaseService
             }
 
             // Get PropertyBookings
-            $propertyBookings = $this->entityManager->getRepository('AppBundle:Propertybookings')->GetBookingsForBookingCalender($servicerID,$thisEndDate->format('Y-m-d H:i:s'),$thisStartDate->format('Y-m-d H:i:s'));
+            $propertyBookings = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTYBOOKINGS)->GetBookingsForBookingCalender($servicerID,$thisEndDate->format('Y-m-d H:i:s'),$thisStartDate->format('Y-m-d H:i:s'));
 
             // Loop through Property Bookings
             foreach ($propertyBookings as $propertyBooking) {
@@ -109,16 +109,16 @@ class BookingCalenderService extends BaseService
                     $description .= (int)$propertyBooking['NumberOfGuests']."G / ".(int)$propertyBooking['NumberOfChildren']." C / ".(int)$propertyBooking['NumberOfPets']." P"."<br />";
                 }
 
-                if ($propertyBooking['GlobalNote'] !== '') {
-                    $description .= "Booking Note: ".$propertyBooking['GlobalNote']." <br />";
+                if ($propertyBooking[GeneralConstants::GLOBALNOTE] !== '') {
+                    $description .= "Booking Note: ".$propertyBooking[GeneralConstants::GLOBALNOTE]." <br />";
                 }
 
-                if ($propertyBooking['InGlobalNote'] !== '') {
-                    $description .= "Check In Note: ".$propertyBooking['InGlobalNote']." <br />";
+                if ($propertyBooking[GeneralConstants::INGLOBALNOTE] !== '') {
+                    $description .= "Check In Note: ".$propertyBooking[GeneralConstants::INGLOBALNOTE]." <br />";
                 }
 
-                if ($propertyBooking['OutGlobalNote'] !== '') {
-                    $description .= "Check Out Note: ".$propertyBooking['OutGlobalNote']." <br />";
+                if ($propertyBooking[GeneralConstants::OUTGLOBALNOTE] !== '') {
+                    $description .= "Check Out Note: ".$propertyBooking[GeneralConstants::OUTGLOBALNOTE]." <br />";
                 }
 
                 $bookingDetails['Description'] = $description;
@@ -182,7 +182,7 @@ class BookingCalenderService extends BaseService
                     $taskDetails[GeneralConstants::TEXTCOLOR] = '##000000';
                 }
 
-                if ((new \DateTime($task['TaskCompleteByDate'])) < $localDate->setTime(0,0,0) &&
+                if ((new \DateTime($task[GeneralConstants::TASKCOMPLETEBYDATE])) < $localDate->setTime(0,0,0) &&
                     ($task[GeneralConstants::COMPLETECONFIRMEDDATE] === "")
                 ) {
                     $taskDetails[GeneralConstants::TEXTCOLOR] = '##FFA500';

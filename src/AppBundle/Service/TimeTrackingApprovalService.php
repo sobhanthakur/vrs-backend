@@ -89,8 +89,8 @@ class TimeTrackingApprovalService extends BaseService
             }
 
 
-            if (array_key_exists('Status', $filters)) {
-                $status = $filters['Status'];
+            if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                $status = $filters[GeneralConstants::STATUS_CAP];
             }
 
             // Process Time tracking records
@@ -258,7 +258,7 @@ class TimeTrackingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if ($response[$i]['Status'] === null) {
+            if ($response[$i][GeneralConstants::STATUS_CAP] === null) {
                 $response[$i]["Status"] = 2;
             }
 
@@ -316,9 +316,9 @@ class TimeTrackingApprovalService extends BaseService
 
                 // Check If status is correct or not
                 if(
-                    ($data[$i]['Status'] !== 0) &&
-                    ($data[$i]['Status'] !== 1) &&
-                    ($data[$i]['Status'] !== 2)
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 0) &&
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 1) &&
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 2)
                 ) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
@@ -364,14 +364,14 @@ class TimeTrackingApprovalService extends BaseService
                         $timetrackingRecords->setTimeclockdaysid($timeclock);
                     }
 
-                    $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $timetrackingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $timetrackingRecords->setDay(new \DateTime($data[$i]['Date']));
                     $timetrackingRecords->setTimetrackedseconds($this->DateDiffCalculation($timeclock->getClockout()->diff($timeclock->getClockin())));
 
                     $this->entityManager->persist($timetrackingRecords);
                 } else {
                     // Update the record
-                    $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $timetrackingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $this->entityManager->persist($timetrackingRecords);
                 }
             }
@@ -402,7 +402,7 @@ class TimeTrackingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $timeZoneLocal = new \DateTimeZone($regions[$i]['Region']);
+            $timeZoneLocal = new \DateTimeZone($regions[$i][GeneralConstants::REGION]);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
 
@@ -426,7 +426,7 @@ class TimeTrackingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $region = $regions[$i]['Region'];
+            $region = $regions[$i][GeneralConstants::REGION];
             $timeZoneLocal = new \DateTimeZone($region);
             $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
             $timeZoneUTC = new \DateTimeZone('UTC');

@@ -66,14 +66,14 @@ class UnscheduledTask extends BaseService
 
             $servicers[0]['AllowAdminAccess'] = $servicers[0]['AllowAdminAccess'] ? 1 : 0;
 
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
 
             $properties = $this->entityManager->getRepository('AppBundle:Properties')->PropertyTabUnscheduledTasks($propertyID);
             if (empty($properties)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_ID);
             }
 
-            $properties[0]['SlackLink'] = ($properties[0]['SlackChannelID'] !== '' && trim($properties[0]['SlackTeamID'] !== '') && (int)$servicers[0]['UseSlack'] === 1) ? 1 : 0;
+            $properties[0]['SlackLink'] = ($properties[0][GeneralConstants::SLACKCHANNELID] !== '' && trim($properties[0][GeneralConstants::SLACKTEAMID] !== '') && (int)$servicers[0]['UseSlack'] === 1) ? 1 : 0;
 
             return array(
                 'PropertyDetails' => $properties[0],
@@ -98,7 +98,7 @@ class UnscheduledTask extends BaseService
     public function ImageTab($servicerID, $content)
     {
         try {
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
             $images = $this->entityManager->getRepository('AppBundle:Images')->GetImagesForImageTab($propertyID);
             return array(
                 'Images' => $images
@@ -124,7 +124,7 @@ class UnscheduledTask extends BaseService
     {
         try {
             $response = [];
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
             $log = 0;
             $property = 0;
             $image = 0;
@@ -284,7 +284,7 @@ class UnscheduledTask extends BaseService
     public function CompleteUnscheduledTask($servicerID, $content,$mobileHeaders)
     {
         try {
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
             $completeStatus = $content['CompleteStatus'];
             $details = $content['Details'];
             $dateTime = $content['DateTime'];
@@ -447,10 +447,10 @@ class UnscheduledTask extends BaseService
                     GeneralConstants::OWNERID => $thisOwnerID,
                     'SendToMaintenanceStaff' => 1,
                     GeneralConstants::SENDTOMANAGERS => 1,
-                    'SubmittedByServicerID' => $servicerID
+                    GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID
                 );
 
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result,$today);
+                $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateManageCompleteNotification($result,$today);
                 $response['TaskNotification'] = $taskNotification;
             }
 

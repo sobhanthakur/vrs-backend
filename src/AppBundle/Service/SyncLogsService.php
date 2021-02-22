@@ -42,7 +42,7 @@ class SyncLogsService extends BaseService
             // Get Time zone of that customer
             $timeZone = $this->entityManager->getRepository('AppBundle:Customers')->GetTimeZone($customerID);
             if($timeZone) {
-                $region = $timeZone[0]['Region'];
+                $region = $timeZone[0][GeneralConstants::REGION];
             }
 
             if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {

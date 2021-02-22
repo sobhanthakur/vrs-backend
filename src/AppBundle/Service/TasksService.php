@@ -73,8 +73,8 @@ class TasksService extends BaseService
                     $taskRulesData[$i][GeneralConstants::CREATEDATE] = $taskRulesData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
 
-                if (isset($taskRulesData[$i]['TaskDate'])) {
-                    $taskRulesData[$i]['TaskDate'] = $taskRulesData[$i]['TaskDate']->format('Ymd');
+                if (isset($taskRulesData[$i][GeneralConstants::TASKDATE])) {
+                    $taskRulesData[$i][GeneralConstants::TASKDATE] = $taskRulesData[$i][GeneralConstants::TASKDATE]->format('Ymd');
                 }
 
                 if (isset($taskRulesData[$i]['CompleteConfirmedDate'])) {

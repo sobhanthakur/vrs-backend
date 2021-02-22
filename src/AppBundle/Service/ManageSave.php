@@ -120,7 +120,7 @@ class ManageSave extends BaseService
             }
 
             return array(
-                'Status' => 'Success'
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS
             );
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -312,7 +312,7 @@ class ManageSave extends BaseService
             }
 
             return array(
-                'Status' => 'Success'
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS
             );
         } catch (BadRequestHttpException $exception) {
             throw $exception;

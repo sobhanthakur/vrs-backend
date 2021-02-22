@@ -50,7 +50,7 @@ class ManageService extends BaseService
 
             array_key_exists(GeneralConstants::DATETIME,$content) ? $dateTime = $content[GeneralConstants::DATETIME] : $dateTime='now';
             $currentDate = new \DateTime($dateTime);
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
 
             // Create a new Issue
@@ -85,7 +85,7 @@ class ManageService extends BaseService
             if ($issues && array_key_exists(GeneralConstants::FORM_SERVICE_ID,$content) ? $content[GeneralConstants::FORM_SERVICE_ID] !== '' : null) {
                 // Services To Properties
                 $fields = 'ServiceToPropertyID,DefaultServicerID,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,BackupServicerID7,WorkDays,MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
-                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content[GeneralConstants::FORM_SERVICE_ID].' AND sp.PropertyID='.$content['PropertyID'];
+                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content[GeneralConstants::FORM_SERVICE_ID].' AND sp.PropertyID='.$content[GeneralConstants::PROPERTY_ID];
                 $rsService = $this->entityManager->getConnection()->prepare($rsService);
                 $rsService->execute();
                 $rsService = $rsService->fetchAll();
@@ -119,7 +119,7 @@ class ManageService extends BaseService
                 $tasksToServicers->setTaskid($task);
                 $tasksToServicers->setServicerid($servicerObj ? $servicerObj : null);
                 $tasksToServicers->setIslead(true);
-                $tasksToServicers->setPiecepay($rsService[0]['PiecePay']);
+                $tasksToServicers->setPiecepay($rsService[0][GeneralConstants::PIECEPAY]);
                 $tasksToServicers->setPayrate($payRate);
                 $tasksToServicers->setPaytype($rsService[0]['PayType']);
                 $tasksToServicers->setCreatedate($currentDate);
@@ -158,7 +158,7 @@ class ManageService extends BaseService
                         $tasksToServicers->setTaskid($task);
                         $tasksToServicers->setServicerid($servicerObj ? $servicerObj : null);
                         $tasksToServicers->setIslead(false);
-                        $tasksToServicers->setPiecepay($rsAdditionalServicer['PiecePay']);
+                        $tasksToServicers->setPiecepay($rsAdditionalServicer[GeneralConstants::PIECEPAY]);
                         $tasksToServicers->setCreatedate($currentDate);
 
                         // Persist $tasksToServicers
@@ -206,7 +206,7 @@ class ManageService extends BaseService
                 GeneralConstants::SENDTOMANAGERS => 1,
                 GeneralConstants::SERVICERID => $servicerID
             );
-            $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification,$currentDate);
+            $result = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateIssueNotification($issueNotification,$currentDate);
             $this->notification['IssueNotificationID'] = $result;
 
             return array(
@@ -299,7 +299,7 @@ class ManageService extends BaseService
             );
 
             // Send Notification
-            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notificationTemp,$currentDate);
+            $notificationResult = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateTaskNotification($notificationTemp,$currentDate);
 
             // Return Task Object
             $this->notification['TaskNotification'] = $notificationResult;

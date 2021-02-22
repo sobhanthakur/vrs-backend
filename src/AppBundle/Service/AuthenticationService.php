@@ -202,7 +202,7 @@ class AuthenticationService extends BaseService
                  * Check if Servicer is active and time tracking
                  */
                 $servicersTimeTracking = $servicersRepo->GetTimeTrackingRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
-                $restrictions[GeneralConstants::RESTRICTIONS]['TimeTracking'] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
+                $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::TIMETRACKING] = $servicersTimeTracking[0]['timetracking'] === true ? 1 : 0;
 
 
                 /*
@@ -224,10 +224,10 @@ class AuthenticationService extends BaseService
 
                 $customerResponse = $customerRepo->PiecePayRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                 if (empty($customerResponse)) {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['PiecePay'] = 0;
+                    $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::PIECEPAY] = 0;
                     $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = 0;
                 } else {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['PiecePay'] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::PIECEPAY] = ($customerResponse[0]['piecepay'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['ICalAddOn'] = ($customerResponse[0]['icaladdon'] === true ? 1 : 0);
                 }
             }
@@ -314,10 +314,10 @@ class AuthenticationService extends BaseService
             }
 
             // Set TimeZone
-            $timeZone = new \DateTimeZone($servicer[0]['Region']);
+            $timeZone = new \DateTimeZone($servicer[0][GeneralConstants::REGION]);
 
             // TimeTracking Information from time clock tasks and time clock days
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0]['Region']);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicer[0][GeneralConstants::REGION]);
 
             // Check If Any TimeClockDay is present for current day
             $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->CheckTimeClockForCurrentDay($servicerID,$timeZone);
@@ -367,8 +367,6 @@ class AuthenticationService extends BaseService
             $formatter = new \IntlDateFormatter($servicer[0][GeneralConstants::LOCALEID], $dateType,$timeType);
             $localFormat['Medium'] = $formatter->getPattern();
 
-
-//            $servicer[0]['Locale'] = $this->serviceContainer->getParameter('locale_mapping')[$servicer[0]['TranslationLocaleID']];
             $servicer[0]['LocaleFormat'] = $localFormat;
 
             // Create a new token

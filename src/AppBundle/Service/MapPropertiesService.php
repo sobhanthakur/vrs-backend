@@ -60,8 +60,8 @@ class MapPropertiesService extends BaseService
                 if (array_key_exists('PropertyTag', $filters)) {
                     $propertyTags = $this->entityManager->getRepository('AppBundle:Propertiestopropertygroups')->PropertiestoPropertyGroupsJoinMatched($filters['PropertyTag']);
                 }
-                if (array_key_exists('Region', $filters)) {
-                    $region = $filters['Region'];
+                if (array_key_exists(GeneralConstants::REGION, $filters)) {
+                    $region = $filters[GeneralConstants::REGION];
                 }
                 if (array_key_exists('Owner', $filters)) {
                     $owner = $filters['Owner'];
@@ -74,8 +74,8 @@ class MapPropertiesService extends BaseService
                     $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
+                if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                    $status = $filters[GeneralConstants::STATUS_CAP];
 
                     // If status is only set to matched
                     if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
@@ -139,7 +139,7 @@ class MapPropertiesService extends BaseService
     public function FetchCustomers($customerID)
     {
         try {
-            $customers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->QBDCustomers($customerID);
+            $customers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDCUSTOMERS)->QBDCustomers($customerID);
             return array(
                 GeneralConstants::REASON_CODE => 0,
                 GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
@@ -190,7 +190,7 @@ class MapPropertiesService extends BaseService
 
 
                 if($data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]) {
-                    $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array(
+                    $integrationQBDCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDCUSTOMERS)->findOneBy(array(
                             'integrationqbdcustomerid' => $data[$i][GeneralConstants::INTEGRATION_QBD_CUSTOMER_ID]
                         )
                     );

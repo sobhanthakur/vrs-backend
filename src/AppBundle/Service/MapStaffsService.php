@@ -87,8 +87,8 @@ class MapStaffsService extends BaseService
                     $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
+                if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                    $status = $filters[GeneralConstants::STATUS_CAP];
 
 
                     // If status is only set to matched

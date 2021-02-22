@@ -31,7 +31,7 @@ class TaskRulesService extends BaseService
         $returnData = array();
         try {
             //Get issue Repo
-            $taskRulesRepo = $this->entityManager->getRepository('AppBundle:Services');
+            $taskRulesRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICES);
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);

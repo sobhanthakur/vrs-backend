@@ -67,8 +67,8 @@ class MapTaskRulesService extends BaseService
                     $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
+                if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                    $status = $filters[GeneralConstants::STATUS_CAP];
 
                     // If status is only set to matched
                     if (in_array(GeneralConstants::FILTER_MATCHED, $status) &&
@@ -88,7 +88,7 @@ class MapTaskRulesService extends BaseService
 
             // Show only labor items
             if ((int)$integrationToCustomers[0]['qbdsyncbilling'] !== 1 && (int)$integrationToCustomers[0]['timetrackingtype'] === 1) {
-                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
+                $result = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICES)->SyncServices($customerID, $department, $billable, $matched);
                 if ($offset === 1) {
                     $sql = $this->getEntityManager()->getConnection()->prepare($result[GeneralConstants::RESULT2]);
                     $sql->execute();
@@ -97,7 +97,7 @@ class MapTaskRulesService extends BaseService
                 $response = $this->getEntityManager()->getConnection()->prepare($result[GeneralConstants::RESULT2] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
             } else {
                 // Show both labor and material items
-                $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
+                $result = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICES)->SyncServices($customerID, $department, $billable, $matched);
                 if ($offset === 1) {
                     $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result[GeneralConstants::RESULT2]);
                     $sql->execute();
@@ -213,7 +213,7 @@ class MapTaskRulesService extends BaseService
                 // Integration QBD Items To TaskRules exist, then simply update the record with the new IntegrationQBDCustomerID
                 if (!$itemsToTaskrules) {
                     // Create New Record
-                    $taskRule = $this->entityManager->getRepository('AppBundle:Services')->findOneBy(array(
+                    $taskRule = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICES)->findOneBy(array(
                             $this->serviceid => $data[$i][GeneralConstants::TASKRULEID]
                         )
                     );

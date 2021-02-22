@@ -34,7 +34,7 @@ class TabsService extends BaseService
     public function GetLog($content,$servicerID)
     {
         try {
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
 
             array_key_exists(GeneralConstants::TASK_ID,$content) ? $taskID = $content[GeneralConstants::TASK_ID] : $taskID = null;
 
@@ -83,18 +83,18 @@ class TabsService extends BaseService
             if (empty($tasks)) {
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0]['Region']);
-            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID,$servicers[0][GeneralConstants::REGION]);
+            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0][GeneralConstants::REGION]);
             $today->setTime(0,0,0);
-            if( $tasks[0]['TaskStartDate'] >= $today ||
-                ((int)$servicers[0]['TimeTracking'] === 1 &&
+            if( $tasks[0][GeneralConstants::TASKSTARTDATE] >= $today ||
+                ((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 &&
                     (empty($timeClockTasks) || $timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[0][GeneralConstants::TASK_ID])
 
                 )
             ) {
                 // Sub CheckLists
                 $tasks[0]['ServiceID'] ? $serviceID = $tasks[0]['ServiceID'] : $serviceID = 0;
-                $tasks[0]['PropertyID'] ? $propertyID = $tasks[0]['PropertyID'] : $propertyID = 0;
+                $tasks[0][GeneralConstants::PROPERTY_ID] ? $propertyID = $tasks[0][GeneralConstants::PROPERTY_ID] : $propertyID = 0;
                 $subCheckListItems = 'SELECT DISTINCT SortOrder,Description,Image,required,ChecklistItem FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.PropertyID='.$propertyID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                 $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
                 $subCheckListItems->execute();
@@ -110,7 +110,7 @@ class TabsService extends BaseService
                 }
 
             }
-            if ((int)$servicers[0]['TimeTracking'] === 1 &&
+            if ((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 &&
                 (empty($timeClockTasks) || $timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[0][GeneralConstants::TASK_ID])
 
             ) {
@@ -120,11 +120,11 @@ class TabsService extends BaseService
 
             // unset tasks fields that are not required
             if(!empty($tasks)) {
-                unset($tasks[0]['TaskStartDate']);
+                unset($tasks[0][GeneralConstants::TASKSTARTDATE]);
                 unset($tasks[0]['ServiceID']);
-                unset($tasks[0]['PropertyID']);
+                unset($tasks[0][GeneralConstants::PROPERTY_ID]);
                 unset($tasks[0]['Servicers_CustomerID']);
-                unset($tasks[0]['TimeTracking']);
+                unset($tasks[0][GeneralConstants::TIMETRACKING]);
                 $tasks[0]['AllowAdminAccess'] = $servicers[0]['AllowAdminAccess'] ? 1 : 0;
             }
         return array(
@@ -194,8 +194,8 @@ class TabsService extends BaseService
                     }
                 }
             }
-            $response['Previous'] = $previous;
-            $response['Previous']['GuestDetails'] = $prevGuest;
+            $response[GeneralConstants::PREVIOUS] = $previous;
+            $response[GeneralConstants::PREVIOUS]['GuestDetails'] = $prevGuest;
             $response['Next'] = $next;
             $response['Next']['GuestDetails'] = $nextGuest;
             $response['Common'] = $common;
@@ -216,7 +216,7 @@ class TabsService extends BaseService
     public function GetImages($content)
     {
         try {
-            $propertyID = $content['PropertyID'];
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
             array_key_exists('ServiceID',$content) ? $serviceID = $content['ServiceID'] : $serviceID = null;
 
             $images = $this->entityManager->getRepository('AppBundle:Images')->GetImagesForImageTab($propertyID,$serviceID);
@@ -239,7 +239,7 @@ class TabsService extends BaseService
     public function GetAssignments($servicerID,$content)
     {
         try {
-            $propertyID = (int)$content['PropertyID'];
+            $propertyID = (int)$content[GeneralConstants::PROPERTY_ID];
             $propertyBookings = '';
             $propertiesCondition = '';
             $region = null;
@@ -251,7 +251,7 @@ class TabsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::SERVICER_NOT_FOUND);
             }
 
-            $region = $servicers[0]['Region'];
+            $region = $servicers[0][GeneralConstants::REGION];
             $timeZoneRegion = new \DateTimeZone($region);
 
 //            $now = (new \DateTime('now',$timeZoneRegion));
@@ -259,7 +259,7 @@ class TabsService extends BaseService
 
 //            $todaysBooking = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
-                $region = $servicers[0]['Region'];
+                $region = $servicers[0][GeneralConstants::REGION];
                 $timeZoneRegion = new \DateTimeZone($region);
 
                 // Get all PropertyBookings
@@ -267,9 +267,9 @@ class TabsService extends BaseService
 
                 if (!empty($pb)) {
                     foreach ($pb as $value) {
-                        $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
+                        $value[GeneralConstants::PROPERTYBOOKINGID] ? $propertyBookings .= $value[GeneralConstants::PROPERTYBOOKINGID].',' : false;
                         $value[GeneralConstants::TASK_ID] ? $taskIDs .= $value[GeneralConstants::TASK_ID].',' : false;
-                        $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
+                        $value[GeneralConstants::PROPERTY_ID] ? $properties[] = $value[GeneralConstants::PROPERTY_ID].',' : false;
                     }
                     $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
                     $taskIDs = preg_replace("/,$/", '', $taskIDs);
@@ -279,7 +279,7 @@ class TabsService extends BaseService
                 $rsCurrentTaskServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0][GeneralConstants::CUSTOMER_ID],$servicers);
                 if (!empty($rsCurrentTaskServicers)) {
                     foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
-                        $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
+                        $currentTaskServicer[GeneralConstants::PROPERTY_ID] ? $propertiesCondition .= $currentTaskServicer[GeneralConstants::PROPERTY_ID].',' : false;
                     }
                     $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
                 }
@@ -343,7 +343,7 @@ class TabsService extends BaseService
             $team = 0;
             $taskID = $content[GeneralConstants::TASK_ID];
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions($servicerID,true);
-            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $today = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0][GeneralConstants::REGION]);
             $today->setTime(0,0,0);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
@@ -358,12 +358,12 @@ class TabsService extends BaseService
 //            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks($servicerID);
 
             // START: TIME TRACKING
-            if ($tasks[0]['TaskStartDate']<= $today) {
-                if (((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[0]['TaskStartDate'] <= $today)) {
+            if ($tasks[0][GeneralConstants::TASKSTARTDATE]<= $today) {
+                if (((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[0][GeneralConstants::TASKSTARTDATE] <= $today)) {
                     // Initialize Standard Services
                     $standardServices = [];
                     if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
-                        $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0][GeneralConstants::CUSTOMER_ID].' AND stp.PropertyID='.$tasks[0]['PropertyID'].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
+                        $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0][GeneralConstants::CUSTOMER_ID].' AND stp.PropertyID='.$tasks[0][GeneralConstants::PROPERTY_ID].' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
                         $standardServices->execute();
                         $standardServices = $standardServices->fetchAll();
                     }
@@ -438,7 +438,7 @@ class TabsService extends BaseService
 
                     // Get CheckList Items
                     $tasks[0]['ServiceID'] ? $serviceID = $tasks[0]['ServiceID'] : $serviceID = 0;
-                    $tasks[0]['PropertyID'] ? $propertyID = $tasks[0]['PropertyID'] : $propertyID = 0;
+                    $tasks[0][GeneralConstants::PROPERTY_ID] ? $propertyID = $tasks[0][GeneralConstants::PROPERTY_ID] : $propertyID = 0;
                     $subCheckListItems = 'SELECT DISTINCT * FROM ('.CheckLists::vServicesToPropertiesChecklistItems.') AS SubQuery WHERE SubQuery.ServiceID='.$serviceID.' AND SubQuery.PropertyID='.$propertyID.' AND SubQuery.ChecklistID IS NOT NULL ORDER BY SubQuery.SortOrder';
                     $subCheckListItems = $this->entityManager->getConnection()->prepare($subCheckListItems);
                     $subCheckListItems->execute();
@@ -560,7 +560,7 @@ class TabsService extends BaseService
                         'ServiceName' => $tasks[0]['ServiceName'],
                         'TaskName' => $tasks[0]['TaskName'],
                         'Team' => $team,
-                        'TimeTracking' => (int)$servicers[0]['TimeTracking']
+                        GeneralConstants::TIMETRACKING => (int)$servicers[0][GeneralConstants::TIMETRACKING]
                     );
                 }
             }
