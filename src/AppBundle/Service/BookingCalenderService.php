@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -29,8 +30,8 @@ class BookingCalenderService extends BaseService
             $rsServicers = $rsServicers[0];
 
             // Get todays date in Local TimeZone
-            if ($rsServicers['TimeZoneRegion'] !== '') {
-                $localDate = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsServicers['TimeZoneRegion']);
+            if ($rsServicers[GeneralConstants::TIMEZONEREGION] !== '') {
+                $localDate = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsServicers[GeneralConstants::TIMEZONEREGION]);
             } else {
                 $localDate = new \DateTime('now');
             }
@@ -57,47 +58,47 @@ class BookingCalenderService extends BaseService
 
             // Loop through Property Bookings
             foreach ($propertyBookings as $propertyBooking) {
-                $bookingDetails['ResourceID'] = $propertyBooking['PropertyID'];
-                $bookingDetails['PropertyID'] = $propertyBooking['PropertyID'];
-                $bookingDetails['Color'] = $propertyBooking['Color'];
-                $bookingDetails['TextColor'] = '##ffffff';
+                $bookingDetails['ResourceID'] = $propertyBooking[GeneralConstants::PROPERTY_ID];
+                $bookingDetails[GeneralConstants::PROPERTY_ID] = $propertyBooking[GeneralConstants::PROPERTY_ID];
+                $bookingDetails[GeneralConstants::COLOR] = $propertyBooking[GeneralConstants::COLOR];
+                $bookingDetails[GeneralConstants::TEXTCOLOR] = '##ffffff';
                 $bookingDetails['Editable'] = 1;
 
                 if (trim($propertyBooking['BookingColor']) !== '' &&
-                    (int)$propertyBooking['PropertyID'] === (int)$propertyBooking['PropertyBookingPropertyID']
+                    (int)$propertyBooking[GeneralConstants::PROPERTY_ID] === (int)$propertyBooking['PropertyBookingPropertyID']
                 ) {
-                    $bookingDetails['Color'] = $propertyBooking['BookingColor'];
-                } elseif ($propertyBooking['Color'] !== '') {
-                    $bookingDetails['Color'] = '#'.$propertyBooking['Color'];
+                    $bookingDetails[GeneralConstants::COLOR] = $propertyBooking['BookingColor'];
+                } elseif ($propertyBooking[GeneralConstants::COLOR] !== '') {
+                    $bookingDetails[GeneralConstants::COLOR] = '#'.$propertyBooking[GeneralConstants::COLOR];
                 } else {
-                    $bookingDetails['Color'] = '##0275d8';
+                    $bookingDetails[GeneralConstants::COLOR] = '##0275d8';
                 }
 
-                if((base_convert(substr($bookingDetails['Color'],2,2),16,10)*0.299) +
-                    (base_convert(substr($bookingDetails['Color'],4,2),16,10)*0.587) +
-                    (base_convert(substr($bookingDetails['Color'],-2),16,10)*0.144) > 200
+                if((base_convert(substr($bookingDetails[GeneralConstants::COLOR],2,2),16,10)*0.299) +
+                    (base_convert(substr($bookingDetails[GeneralConstants::COLOR],4,2),16,10)*0.587) +
+                    (base_convert(substr($bookingDetails[GeneralConstants::COLOR],-2),16,10)*0.144) > 200
                 ) {
-                    $bookingDetails['TextColor'] = '##000000';
+                    $bookingDetails[GeneralConstants::TEXTCOLOR] = '##000000';
                 }
 
-                $bookingDetails['CheckIn'] = $propertyBooking['CheckIn'];
-                $bookingDetails['CheckInTime'] = $propertyBooking['CheckInTime'] >= 12 ? ($propertyBooking['CheckInTime'] % 12)." PM" : $propertyBooking['CheckInTime']." AM";
-                $bookingDetails['CheckOut'] = $propertyBooking['CheckOut'];
-                $bookingDetails['CheckOutTime'] = $propertyBooking['CheckOutTime'] >= 12 ? ($propertyBooking['CheckInTime'] % 12)." PM" : $propertyBooking['CheckOutTime']." AM";
+                $bookingDetails[GeneralConstants::CHECKIN] = $propertyBooking[GeneralConstants::CHECKIN];
+                $bookingDetails[GeneralConstants::CHECKINTIME] = $propertyBooking[GeneralConstants::CHECKINTIME] >= 12 ? ($propertyBooking[GeneralConstants::CHECKINTIME] % 12)." PM" : $propertyBooking[GeneralConstants::CHECKINTIME]." AM";
+                $bookingDetails[GeneralConstants::CHECKOUT] = $propertyBooking[GeneralConstants::CHECKOUT];
+                $bookingDetails[GeneralConstants::CHECKOUTTIME] = $propertyBooking[GeneralConstants::CHECKOUTTIME] >= 12 ? ($propertyBooking[GeneralConstants::CHECKINTIME] % 12)." PM" : $propertyBooking[GeneralConstants::CHECKOUTTIME]." AM";
 
                 // Set Start Time
-                $start = new \DateTime($propertyBooking['CheckIn']);
-                $start->setTime((int)$propertyBooking['CheckInTime'],0);
+                $start = new \DateTime($propertyBooking[GeneralConstants::CHECKIN]);
+                $start->setTime((int)$propertyBooking[GeneralConstants::CHECKINTIME],0);
                 $bookingDetails['Start'] = $start;
 
                 // Set End Time
-                $end = new \DateTime($propertyBooking['CheckOut']);
-                $end->setTime((int)$propertyBooking['CheckOutTime'],0);
+                $end = new \DateTime($propertyBooking[GeneralConstants::CHECKOUT]);
+                $end->setTime((int)$propertyBooking[GeneralConstants::CHECKOUTTIME],0);
                 $bookingDetails['End'] = $end;
 
                 // Description
-                $description = "IN ".$propertyBooking['CheckIn'].", ".$propertyBooking['CheckInTime']."<br />";
-                $description .= "OUT ".$propertyBooking['CheckOut'].", ".$propertyBooking['CheckOutTime']."<br />";
+                $description = "IN ".$propertyBooking[GeneralConstants::CHECKIN].", ".$propertyBooking[GeneralConstants::CHECKINTIME]."<br />";
+                $description .= "OUT ".$propertyBooking[GeneralConstants::CHECKOUT].", ".$propertyBooking[GeneralConstants::CHECKOUTTIME]."<br />";
 
                 // GuestDetails
                 if ((int)$rsServicers['IncludeGuestName']) {
@@ -121,51 +122,49 @@ class BookingCalenderService extends BaseService
                 }
 
                 $bookingDetails['Description'] = $description;
-
-                $bookingDetails['PropertyName'] = str_replace(array('&', '.','*','"',"'"),"",$propertyBooking['PropertyName']);
+                $bookingDetails[GeneralConstants::PROPERTYNAME] = str_replace(array('&', '.','*','"',"'"),"",$propertyBooking[GeneralConstants::PROPERTYNAME]);
                 $bookingDetails['BackToBackEnd'] = $propertyBooking['BackToBackEnd'];
                 $bookingDetails['IsTask'] = 0;
                 $bookingDetails['BorderColor'] = '';
-
                 $bookings[] = $bookingDetails;
             }
 
             // Fetch Tasks
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForBookingCalender($servicerID,$thisStartDate,$thisEndDate,$rsServicers['TimeZoneRegion']);
+            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForBookingCalender($servicerID,$thisStartDate,$thisEndDate,$rsServicers[GeneralConstants::TIMEZONEREGION]);
 
             // Iterate through Tasks
             foreach ($tasks as $task) {
                 $taskDetails = [];
-                $taskDetails['Region'] = "";
-                if ($task['Region'] !== $taskDetails['Region']) {
-                    $taskDetails['Region'] = $task['Region'];
+                $taskDetails[GeneralConstants::REGION] = "";
+                if ($task[GeneralConstants::REGION] !== $taskDetails[GeneralConstants::REGION]) {
+                    $taskDetails[GeneralConstants::REGION] = $task[GeneralConstants::REGION];
                 }
                 $taskDetails['Editable'] = 0;
 
-                $taskDetails['TaskName'] = "Unassigned";
-                $taskDetails['ResourceID'] = $task['PropertyID']." ".$task['Name'];
+                $taskDetails[GeneralConstants::TASKNAME] = "Unassigned";
+                $taskDetails['ResourceID'] = $task[GeneralConstants::PROPERTY_ID]." ".$task['Name'];
                 if ($task['Name'] !== "") {
-                    $taskDetails['TaskName'] = $task['Name'];
+                    $taskDetails[GeneralConstants::TASKNAME] = $task['Name'];
                 }
 
-                if ((int)$task['TaskTime'] !== 99 && $task['TaskTime'] !== "") {
-                    $taskDetails['TaskTime'] = $task['TaskTime'];
+                if ((int)$task[GeneralConstants::TASKTIME] !== 99 && $task[GeneralConstants::TASKTIME] !== "") {
+                    $taskDetails[GeneralConstants::TASKTIME] = $task[GeneralConstants::TASKTIME];
                 } else {
-                    $taskDetails['TaskTime'] = 8;
+                    $taskDetails[GeneralConstants::TASKTIME] = 8;
                 }
 
-                $durationHours = floor((float)$task['MinTimeToComplete']);
-                $durationMinutes = ((float)$task['MinTimeToComplete'] - floor((float)$task['MinTimeToComplete']))*60;
+                $durationHours = floor((float)$task[GeneralConstants::MINTIMETOCOMPLETE]);
+                $durationMinutes = ((float)$task[GeneralConstants::MINTIMETOCOMPLETE] - floor((float)$task[GeneralConstants::MINTIMETOCOMPLETE]))*60;
 
                 if ($durationHours === 0 && $durationMinutes < 60) {
                     $durationMinutes = 60;
                 }
 
-                $taskDetails['Start'] = (new \DateTime($task['TaskDateTime']))->modify('+'.$durationHours.' hour'.' +'.$durationMinutes.'minute');
+                $taskDetails['Start'] = (new \DateTime($task[GeneralConstants::TASKDATETIME]))->modify('+'.$durationHours.' hour'.' +'.$durationMinutes.'minute');
                 $taskDetails['End'] = null;
 
                 $borderColor = null;
-                if ((string)$task['bookingcolor'] !== '' && (int)$task['PropertyID'] === (int)$task['PropertyBookingPropertyID']) {
+                if ((string)$task['bookingcolor'] !== '' && (int)$task[GeneralConstants::PROPERTY_ID] === (int)$task['PropertyBookingPropertyID']) {
                     $borderColor = trim($task['bookingcolor']);
                 } elseif ($task['color'] !== '') {
                     $borderColor = '#'.trim($task['color']);
@@ -174,40 +173,37 @@ class BookingCalenderService extends BaseService
                 }
                 $taskDetails['BorderColor'] = $borderColor;
 
-                $taskDetails['TextColor'] = '##ffffff';
+                $taskDetails[GeneralConstants::TEXTCOLOR] = '##ffffff';
 
                 if((base_convert(substr($borderColor,2,2),16,10)*0.299) +
                     (base_convert(substr($borderColor,4,2),16,10)*0.587) +
                     (base_convert(substr($borderColor,-2),16,10)*0.144) > 200
                 ) {
-                    $taskDetails['TextColor'] = '##000000';
+                    $taskDetails[GeneralConstants::TEXTCOLOR] = '##000000';
                 }
 
                 if ((new \DateTime($task['TaskCompleteByDate'])) < $localDate->setTime(0,0,0) &&
-                    ($task['CompleteConfirmedDate'] === "")
+                    ($task[GeneralConstants::COMPLETECONFIRMEDDATE] === "")
                 ) {
-                    $taskDetails['TextColor'] = '##FFA500';
+                    $taskDetails[GeneralConstants::TEXTCOLOR] = '##FFA500';
                 }
 
-                $taskDetails['Color'] = '';
-
-                $taskDetails['CompleteConfirmedDate'] = $task['CompleteConfirmedDate'];
+                $taskDetails[GeneralConstants::COLOR] = '';
+                $taskDetails[GeneralConstants::COMPLETECONFIRMEDDATE] = $task[GeneralConstants::COMPLETECONFIRMEDDATE];
                 $taskDetails['Abbreviation'] = $task['Abbreviation'];
                 $taskDetails['TaskAbbreviation'] = $task['TaskAbbreviation'];
-                $taskDetails['TaskName'] = $task['TaskName'];
-                $taskDetails['TaskTime'] = $task['TaskTime'];
+                $taskDetails[GeneralConstants::TASKNAME] = $task[GeneralConstants::TASKNAME];
+                $taskDetails[GeneralConstants::TASKTIME] = $task[GeneralConstants::TASKTIME];
                 $taskDetails['TaskTimeMinutes'] = $task['TaskTimeMinutes'];
-                $taskDetails['PropertyName'] = $task['PropertyName'];
+                $taskDetails[GeneralConstants::PROPERTYNAME] = $task[GeneralConstants::PROPERTYNAME];
                 $taskDetails['TaskID'] = $task['TaskID'];
-                $taskDetails['TaskDateTime'] = $task['TaskDateTime'];
+                $taskDetails[GeneralConstants::TASKDATETIME] = $task[GeneralConstants::TASKDATETIME];
                 $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
                 $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];
                 $taskDetails['IsTask'] = 1;
                 $taskDetails['Description'] = "";
-
                 $allTasks[] = $taskDetails;
             }
-
 
             return array(
                 'Details' => array_merge($bookings,$allTasks)

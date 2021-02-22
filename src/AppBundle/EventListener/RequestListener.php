@@ -89,64 +89,41 @@ class RequestListener extends BaseService
 
         // Check if the incoming route is present in the array
         if(in_array($route, ApiRoutes::ROUTES)) {
-            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+            $authService = $this->serviceContainer->get(GeneralConstants::AUTH_SERVICE);
             $authenticateResult = $authService->VerifyAuthToken($request);
-            if($authenticateResult['status']) {
-                $request->attributes->set('AuthPayload',$authenticateResult);
+            if($authenticateResult[GeneralConstants::STATUS]) {
+                $request->attributes->set(GeneralConstants::AUTHPAYLOAD,$authenticateResult);
             }
-        }
-
-        // Check if the incoming route is for the translation APIs
-        if(in_array($route, ApiRoutes::TRANSLATION_ROUTES)) {
-            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+        } elseif (in_array($route, ApiRoutes::TRANSLATION_ROUTES)) {
+            // Check if the incoming request is for the translations application
+            $authService = $this->serviceContainer->get(GeneralConstants::AUTH_SERVICE);
             $authenticateResult = $authService->VerifyAuthToken($request,70);
-            if($authenticateResult['status']) {
-                $request->attributes->set('AuthPayload',$authenticateResult);
+            if($authenticateResult[GeneralConstants::STATUS]) {
+                $request->attributes->set(GeneralConstants::AUTHPAYLOAD,$authenticateResult);
             }
-        }
-
-
-        // Check if the incoming public route is present in the array
-        if(in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
+        } elseif (in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
+            // Check if the incoming public route is present in the array
             $authService = $this->serviceContainer->get('vrscheduler.public_authentication_service');
             $authenticateResult = $authService->VerifyAuthToken($request);
-            if($authenticateResult['status']) {
-                $request->attributes->set('AuthPayload',$authenticateResult);
+            if($authenticateResult[GeneralConstants::STATUS]) {
+                $request->attributes->set(GeneralConstants::AUTHPAYLOAD,$authenticateResult);
             }
-        }
-
-        // Check if the incoming request is for the PWA application
-        if(in_array($route, ApiRoutes::PWA_ROUTES)) {
-            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+        } elseif (in_array($route, ApiRoutes::PWA_ROUTES)) {
+            // Check if the incoming request is for the PWA application
+            $authService = $this->serviceContainer->get(GeneralConstants::AUTH_SERVICE);
             if(in_array($route, ApiRoutes::LOCATION_ROUTES)) {
                 $mobileHeaders = $authService->SetMobileHeaders($request);
                 $request->attributes->set(GeneralConstants::MOBILE_HEADERS,$mobileHeaders);
             }
 
             $authenticateResult = $authService->VerifyPWAAuthentication($request);
-            if($authenticateResult['status']) {
-                $request->attributes->set('AuthPayload',$authenticateResult);
+            if($authenticateResult[GeneralConstants::STATUS]) {
+                $request->attributes->set(GeneralConstants::AUTHPAYLOAD,$authenticateResult);
             }
-        }
-
-        // Check if the incoming route is present in the array
-        if(in_array($route, ApiRoutes::SMS_ROUTES)) {
-            $authService = $this->serviceContainer->get('vrscheduler.authentication_service');
+        } elseif (in_array($route, ApiRoutes::SMS_ROUTES)) {
+            // Check if the incoming route is present in the SMS routes array
+            $authService = $this->serviceContainer->get(GeneralConstants::AUTH_SERVICE);
             $authService->SMSAuthentication($request);
         }
-
-        // Stop Request logging temporarily
-        // uncomment this in future.
-
-        /*$this->apiLogger->debug('API Request: ', [
-            'Request' => [
-                'headers' => $request->headers->all(),
-                'content' => $request->getContent(),
-                'host' => $request->getSchemeAndHttpHost(),
-                'uri' => $request->getRequestUri(),
-                'method' => $request->getMethod()
-            ]
-        ]);*/
-
     }
 }

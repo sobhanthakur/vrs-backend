@@ -194,6 +194,8 @@ class FileExportService extends BaseService
                 case 1:
                     $fileName = $username . GeneralConstants::QWC_BILLING_FAIL;
                     break;
+                default:
+                    $fileName = '';
             }
             file_put_contents($filePath . $fileName, $xml->asXML());
         }
@@ -230,6 +232,8 @@ class FileExportService extends BaseService
                 case 1:
                     $fileName = $username . GeneralConstants::QWC_TIMETRACKING_FAIL;
                     break;
+                default:
+                    $fileName = '';
             }
             file_put_contents($filePath . $fileName, $xml->asXML());
         }

@@ -50,7 +50,7 @@ class AuthenticationService extends BaseService
             $signer = new Sha256();
 
             // Checking If Token passed in API Request Header is valid OR not.
-            if (!$token->verify($signer, $this->serviceContainer->getParameter('api_secret'))) {
+            if (!$token->verify($signer, $this->serviceContainer->getParameter(GeneralConstants::API_SECRET))) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
             }
 
@@ -129,7 +129,7 @@ class AuthenticationService extends BaseService
                  */
                 $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
                 if($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] === 0) {
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = 1;
+                    $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::ALLOW_ADMIN_ACCESS] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = 1;
@@ -145,11 +145,11 @@ class AuthenticationService extends BaseService
                     $regions = $regionsRepo->GetRegionIDLoggedInStaffID0($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID]);
                     $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID],$regions);
                     if(!empty($regionGroupResponse)) {
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP] = 1;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP_DETAILS] = $regionGroupResponse;
                     } else {
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP] = 0;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP_DETAILS] = null;
                     }
                 } else {
                     $servicersResponse = $servicersRepo->GetRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID]);
@@ -164,7 +164,7 @@ class AuthenticationService extends BaseService
                     $restrictions[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_NAME] = $servicersResponse['name'];
 
                     // Set Servicers Responses in the restrictions array.
-                    $restrictions[GeneralConstants::RESTRICTIONS]['AllowAdminAccess'] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
+                    $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::ALLOW_ADMIN_ACCESS] = ($servicersResponse['allowadminaccess'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = ($servicersResponse['allowmanage'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowReports'] = ($servicersResponse['allowreports'] === true ? 1 : 0);
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowSetupAccess'] = ($servicersResponse['allowsetupaccess'] === true ? 1 : 0);
@@ -190,11 +190,11 @@ class AuthenticationService extends BaseService
                     // Region Group Restrictions
                     $regionGroupResponse = $regionGroupRepo->GetRegionGroupsRestrictions($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID],$regions);
                     if(!empty($regionGroupResponse)) {
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 1;
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = $regionGroupResponse;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP] = 1;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP_DETAILS] = $regionGroupResponse;
                     } else {
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroup'] = 0;
-                        $restrictions[GeneralConstants::RESTRICTIONS]['RegionGroupDetails'] = null;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP] = 0;
+                        $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::REGION_GROUP_DETAILS] = null;
                     }
                 }
 
@@ -288,7 +288,7 @@ class AuthenticationService extends BaseService
             ->setHeader('exp',GeneralConstants::TOKEN_EXPIRY_TIME)
 
             // Creating Signature.
-            ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
+            ->sign($signer, $this->serviceContainer->getParameter(GeneralConstants::API_SECRET))
             ->getToken() // Retrieves Generated Token Object
             ->__toString(); // Converts Token into encoded String.
     }
@@ -305,8 +305,6 @@ class AuthenticationService extends BaseService
             $password = $content[GeneralConstants::PASS];
             $clockedIn = null;
             $timeZone = null;
-            $timeClockResponse = null;
-            $timeTaskResponse = null;
 
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
@@ -335,7 +333,7 @@ class AuthenticationService extends BaseService
             $servicer[0]['ClockedIn'] = $clockedIn;
             $servicer[0]['Phone'] = trim($servicer[0]['Phone']);
             $servicer[0]['AllowCreateCompletedTask'] = $servicer[0]['AllowCreateCompletedTask'] ? 1 : 0;
-            $servicer[0]['AllowAdminAccess'] = $servicer[0]['AllowAdminAccess'] ? 1 : 0;
+            $servicer[0][GeneralConstants::ALLOW_ADMIN_ACCESS] = $servicer[0][GeneralConstants::ALLOW_ADMIN_ACCESS] ? 1 : 0;
             $servicer[0]['ActiveForDates'] = $servicer[0]['ActiveForDates'] ? 1 : 0;
             $servicer[0]['ActiveForLanguages'] = $servicer[0]['ActiveForLanguages'] ? 1 : 0;
             $servicer[0]['TimeTrackingGPS'] = (int)$servicer[0]['TimeTrackingGPS'];
@@ -350,23 +348,23 @@ class AuthenticationService extends BaseService
 
             // Long Format
             $dateType = \IntlDateFormatter::LONG;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0][GeneralConstants::LOCALEID], $dateType,$timeType);
             $localFormat['Long'] = $formatter->getPattern();
 
 
             // Short Format
             $dateType = \IntlDateFormatter::SHORT;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0][GeneralConstants::LOCALEID], $dateType,$timeType);
             $localFormat['Short'] = $formatter->getPattern();
 
             // Full format
             $dateType = \IntlDateFormatter::FULL;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0][GeneralConstants::LOCALEID], $dateType,$timeType);
             $localFormat['Full'] = $formatter->getPattern();
 
             // Medium Format
             $dateType = \IntlDateFormatter::MEDIUM;
-            $formatter = new \IntlDateFormatter($servicer[0]['LocaleID'], $dateType,$timeType);
+            $formatter = new \IntlDateFormatter($servicer[0][GeneralConstants::LOCALEID], $dateType,$timeType);
             $localFormat['Medium'] = $formatter->getPattern();
 
 
@@ -382,7 +380,7 @@ class AuthenticationService extends BaseService
                 ->setHeader('exp',GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
 
                 // Creating Signature.
-                ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
+                ->sign($signer, $this->serviceContainer->getParameter(GeneralConstants::API_SECRET))
                 ->getToken() // Retrieves Generated Token Object
                 ->__toString(); // Converts Token into encoded String.
 
@@ -425,7 +423,7 @@ class AuthenticationService extends BaseService
             $signer = new Sha256();
 
             // Checking If Token passed in API Request Header is valid OR not.
-            if (!$token->verify($signer, $this->serviceContainer->getParameter('api_secret'))) {
+            if (!$token->verify($signer, $this->serviceContainer->getParameter(GeneralConstants::API_SECRET))) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_TOKEN);
             }
 
@@ -513,12 +511,12 @@ class AuthenticationService extends BaseService
     {
         try {
             // Check if basic Authorization is present
-            if (!$request->headers->has('php-auth-user') && !$request->headers->has('php-auth-pw')) {
+            if (!$request->headers->has(GeneralConstants::PHP_AUTH_USER) && !$request->headers->has(GeneralConstants::PHP_AUTH_PW)) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
             }
 
-            if ($request->headers->get('php-auth-user') !== $this->serviceContainer->getParameter('php-auth-user') &&
-                $request->headers->get('php-auth-pw') !== $this->serviceContainer->getParameter('php-auth-password')
+            if ($request->headers->get(GeneralConstants::PHP_AUTH_USER) !== $this->serviceContainer->getParameter(GeneralConstants::PHP_AUTH_USER) &&
+                $request->headers->get(GeneralConstants::PHP_AUTH_PW) !== $this->serviceContainer->getParameter('php-auth-password')
             ) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
             }
@@ -541,9 +539,9 @@ class AuthenticationService extends BaseService
     public function IssueFormAuthentication($content)
     {
         try {
-            array_key_exists('OwnerID',$content) && $content['OwnerID'] !== '' ? $ownerID = $content['OwnerID'] : $ownerID = null;
-            array_key_exists('VendorID',$content) && $content['VendorID'] !== '' ? $vendorID = $content['VendorID'] : $vendorID = null;
-            $password = $content['Password'];
+            array_key_exists(GeneralConstants::OWNERID,$content) && $content[GeneralConstants::OWNERID] !== '' ? $ownerID = $content[GeneralConstants::OWNERID] : $ownerID = null;
+            array_key_exists(GeneralConstants::VENDORID,$content) && $content[GeneralConstants::VENDORID] !== '' ? $vendorID = $content[GeneralConstants::VENDORID] : $vendorID = null;
+            $password = $content[GeneralConstants::PASS];
             $properties = [];
 
             // Set JWT Algo.
@@ -584,7 +582,7 @@ class AuthenticationService extends BaseService
             $accessToken = $accessToken->set(GeneralConstants::CREATEDATETIME, (new \DateTime("now", new \DateTimeZone("UTC")))->format('YmdHi'))
                 ->setHeader('exp', GeneralConstants::PWA_TOKEN_EXPIRY_TIME)
                 // Creating Signature.
-                ->sign($signer, $this->serviceContainer->getParameter('api_secret'))
+                ->sign($signer, $this->serviceContainer->getParameter(GeneralConstants::API_SECRET))
                 ->getToken()// Retrieves Generated Token Object
                 ->__toString(); // Converts Token into encoded String.
 

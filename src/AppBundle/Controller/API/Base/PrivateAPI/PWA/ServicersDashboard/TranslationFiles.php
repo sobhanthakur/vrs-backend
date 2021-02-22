@@ -131,11 +131,6 @@ class TranslationFiles extends FOSRestController
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
-            /*$data = json_decode(base64_decode($request->get('data')),true);
-            if(empty($data)) {
-                $data = [];
-            }*/
-
             $translationService = $this->container->get(GeneralConstants::TRANSLATIONS_SERVICE);
             return $translationService->GetEnglishTexts();
         } catch (BadRequestHttpException $exception) {

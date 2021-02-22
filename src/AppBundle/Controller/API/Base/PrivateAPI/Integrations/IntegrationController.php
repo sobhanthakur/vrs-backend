@@ -131,7 +131,6 @@ class IntegrationController extends FOSRestController
     public function QBDIntegration(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $content = json_decode($request->getContent(),true);

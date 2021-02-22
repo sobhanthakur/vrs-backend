@@ -68,54 +68,54 @@ class IssueService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($issuesData); $i++) {
-                if (isset($issuesData[$i]['CreateDate'])) {
-                    $issuesData[$i]['CreateDate'] = $issuesData[$i]['CreateDate']->format('Ymd');
+                if (isset($issuesData[$i][GeneralConstants::CREATEDATE])) {
+                    $issuesData[$i][GeneralConstants::CREATEDATE] = $issuesData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
 
-                if (isset($issuesData[$i]['ClosedDate'])) {
-                    $issuesData[$i]['ClosedDate'] = $issuesData[$i]['ClosedDate']->format('Ymd');
+                if (isset($issuesData[$i][GeneralConstants::CLOSEDDATE])) {
+                    $issuesData[$i][GeneralConstants::CLOSEDDATE] = $issuesData[$i][GeneralConstants::CLOSEDDATE]->format('Ymd');
                 }
 
                 //IssueType formating for response
-                if (isset($issuesData[$i]['IssueType'])) {
-                    switch ($issuesData[$i]['IssueType']) {
+                if (isset($issuesData[$i][GeneralConstants::ISSUETYPE])) {
+                    switch ($issuesData[$i][GeneralConstants::ISSUETYPE]) {
                         case 0:
-                            $issuesData[$i]['IssueType'] = "Damage";
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = "Damage";
                             break;
                         case 1:
-                            $issuesData[$i]['IssueType'] = "Maintenance";
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = "Maintenance";
                             break;
                         case 2:
-                            $issuesData[$i]['IssueType'] = "Lost and Found";
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = "Lost and Found";
                             break;
                         case 3:
-                            $issuesData[$i]['IssueType'] = "Supply Flag";
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = "Supply Flag";
                             break;
                         case -1:
-                            $issuesData[$i]['IssueType'] = "None";
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = "None";
                             break;
                         default:
-                            $issuesData[$i]['IssueType'] = null;
+                            $issuesData[$i][GeneralConstants::ISSUETYPE] = null;
                     }
                 }
 
                 //StatusID formating for response
-                if (isset($issuesData[$i]['StatusID'])) {
-                    switch ($issuesData[$i]['StatusID']) {
+                if (isset($issuesData[$i][GeneralConstants::STATUSID])) {
+                    switch ($issuesData[$i][GeneralConstants::STATUSID]) {
                         case 0:
-                            $issuesData[$i]['StatusID'] = "New";
+                            $issuesData[$i][GeneralConstants::STATUSID] = "New";
                             break;
                         case 1:
-                            $issuesData[$i]['StatusID'] = " In Progress";
+                            $issuesData[$i][GeneralConstants::STATUSID] = " In Progress";
                             break;
                         case 2:
-                            $issuesData[$i]['StatusID'] = "On Hold";
+                            $issuesData[$i][GeneralConstants::STATUSID] = "On Hold";
                             break;
                         case 3:
-                            $issuesData[$i]['StatusID'] = "Cataloged";
+                            $issuesData[$i][GeneralConstants::STATUSID] = "Cataloged";
                             break;
                         default:
-                            $issuesData[$i]['StatusID'] = null;
+                            $issuesData[$i][GeneralConstants::STATUSID] = null;
                     }
                 }
             }

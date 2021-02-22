@@ -39,16 +39,14 @@ class BillingApprovalService extends BaseService
             $integrationID = null;
             $count = null;
             $filters = [];
-            $flag = null;
             $status = [];
-            $new = null;
             $completedDate = [];
             $timezones = [];
 
-            if (!array_key_exists('IntegrationID', $data)) {
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
@@ -65,21 +63,21 @@ class BillingApprovalService extends BaseService
                 if (array_key_exists('Property', $filters)) {
                     $properties = $filters['Property'];
                 }
-                if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
-                    $completedDate = $filters['CompletedDate'];
+                if (array_key_exists(GeneralConstants::COMPLETED_DATE, $filters) && !empty($filters[GeneralConstants::COMPLETED_DATE]['From']) && !empty($filters[GeneralConstants::COMPLETED_DATE]['To'])) {
+                    $completedDate = $filters[GeneralConstants::COMPLETED_DATE];
                     $completedDate = $this->CompletedDateRequestCalculation($regions,$completedDate);
                 }
                 if (array_key_exists('CreateDate', $filters)) {
                     $createDate = $filters['CreateDate'];
                 }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
             }
 
-            if (array_key_exists('Status', $filters)) {
-                $status = $filters['Status'];
+            if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                $status = $filters[GeneralConstants::STATUS_CAP];
             }
 
             if ($offset === 1) {
@@ -119,11 +117,11 @@ class BillingApprovalService extends BaseService
     public function ApproveBilling($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
@@ -142,9 +140,9 @@ class BillingApprovalService extends BaseService
 
                 // Check If status is correct or not
                 if(
-                ($data[$i]['Status'] !== 0) &&
-                ($data[$i]['Status'] !== 1) &&
-                ($data[$i]['Status'] !== 2)
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 0) &&
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 1) &&
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 2)
                 ) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
@@ -156,9 +154,7 @@ class BillingApprovalService extends BaseService
                 );
 
                 // Throw Exception if the the record's txnID is not null
-                if(
-                    ($billingRecords !== null?($billingRecords->getTxnid() !== null):null)
-                ) {
+                if($billingRecords !== null?($billingRecords->getTxnid() !== null):null) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
                 }
 
@@ -180,12 +176,12 @@ class BillingApprovalService extends BaseService
                     $billingRecords = new Integrationqbdbillingrecords();
 
                     $billingRecords->setTaskid($tasks);
-                    $billingRecords->setStatus($data[$i]['Status']);
+                    $billingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
 
                     $this->entityManager->persist($billingRecords);
                 } else {
                     // Update the record
-                    $billingRecords->setStatus($data[$i]['Status']);
+                    $billingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $this->entityManager->persist($billingRecords);
                 }
             }
@@ -256,7 +252,7 @@ class BillingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if ($response[$i]['Status'] === null) {
+            if ($response[$i][GeneralConstants::STATUS_CAP] === null) {
                 $response[$i]["Status"] = 2;
             }
             $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['CompleteConfirmedDate']);

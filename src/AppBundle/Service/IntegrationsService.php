@@ -10,7 +10,6 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Entity\Integrationqbotokens;
 use AppBundle\Entity\Integrationstocustomers;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -32,10 +31,10 @@ class IntegrationsService extends BaseService
             $customerID = $authenticationResult['message']['CustomerID'];
 
             // Fetch All Integrations available
-            $integrations = $this->entityManager->getRepository('AppBundle:Integrations')->findBy(array('active'=>1));
+            $integrations = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS)->findBy(array('active'=>1));
 
             // Get All Integrations based on Customer ID
-            $integrationsToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers');
+            $integrationsToCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS_TO_CUSTOMERS);
             $integrationsToCustomers = $integrationsToCustomers->GetAllIntegrations($customerID);
 
             for ($i=0; $i<sizeof($integrations); $i++) {
@@ -84,7 +83,7 @@ class IntegrationsService extends BaseService
     public function InstalledIntegration($integrationId, $integrationToCustomers)
     {
         foreach ($integrationToCustomers as $key => $val) {
-            if ($val['integrationid'] == $integrationId) {
+            if ($val[GeneralConstants::integrationid] == $integrationId) {
                 return $integrationToCustomers[$key];
             }
         }
@@ -130,7 +129,7 @@ class IntegrationsService extends BaseService
             /*
              * Integration Object
              */
-            $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
+            $integration = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS)->find($integrationID);
             if(empty($integration)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
@@ -138,7 +137,7 @@ class IntegrationsService extends BaseService
             /*
              * Check if the customer has already installed the integration
              */
-            $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->CheckIntegration($integrationID, $customerID);
+            $integrationToCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS_TO_CUSTOMERS)->CheckIntegration($integrationID, $customerID);
             if($integrationToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INTEGRATION_ALREADY_PRESENT);
             }
@@ -146,7 +145,7 @@ class IntegrationsService extends BaseService
             /*
              * Customer Object
              */
-            $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+            $customer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_CUSTOMERS)->find($customerID);
             if(empty($customer)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
             }
@@ -170,7 +169,7 @@ class IntegrationsService extends BaseService
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
 
-            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+            return $this->serviceContainer->get(GeneralConstants::RESPONSE_SERVICE)->GenericSuccessResponse();
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -198,16 +197,16 @@ class IntegrationsService extends BaseService
             $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             // Check if the record is present or not
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+            $integrationToCustomer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS_TO_CUSTOMERS)->findOneBy(['customerid'=>$customerID,GeneralConstants::integrationid=>$integrationID]);
 
             // Create new entry
             if (!$integrationToCustomer) {
-                $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+                $customer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_CUSTOMERS)->find($customerID);
                 if (!$customer) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::CUSTOMER_NOT_FOUND);
                 }
 
-                $integration = $this->entityManager->getRepository('AppBundle:Integrations')->find($integrationID);
+                $integration = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS)->find($integrationID);
                 if (empty($integration)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
                 }
@@ -248,16 +247,16 @@ class IntegrationsService extends BaseService
             }
 
             if (array_key_exists(GeneralConstants::TIMETRACKING_TYPE, $content)) {
-                $type = ($content[GeneralConstants::TIMETRACKING_TYPE] === "1" ? true : false);
+                $type = ((int)$content[GeneralConstants::TIMETRACKING_TYPE] === 1 ? true : false);
                 $integrationToCustomer->setTimetrackingtype($type);
             }
 
             if (array_key_exists(GeneralConstants::REALMID, $content) && $content[GeneralConstants::REALMID] !== "") {
                 if(!$customer) {
-                    $customer = $this->entityManager->getRepository('AppBundle:Customers')->find($customerID);
+                    $customer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_CUSTOMERS)->find($customerID);
                 }
                 $tokens = new Integrationqbotokens();
-                $tokens->setRealmID($string = preg_replace('/\s+/', '', $content[GeneralConstants::REALMID]));
+                $tokens->setRealmID(preg_replace('/\s+/', '', $content[GeneralConstants::REALMID]));
                 $tokens->setCustomerid($customer);
                 $this->entityManager->persist($tokens);
             }
@@ -269,7 +268,7 @@ class IntegrationsService extends BaseService
             // Persist the record in DB.
             $this->entityManager->persist($integrationToCustomer);
             $this->entityManager->flush();
-            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+            return $this->serviceContainer->get(GeneralConstants::RESPONSE_SERVICE)->GenericSuccessResponse();
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
@@ -335,7 +334,7 @@ class IntegrationsService extends BaseService
             }
 
             // Remove PayrollItemwages to Customers Mapping and set active state to 0
-            $integrationToCustomer = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(['customerid'=>$customerID,'integrationid'=>$integrationID]);
+            $integrationToCustomer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS_TO_CUSTOMERS)->findOneBy(['customerid'=>$customerID,GeneralConstants::integrationid=>$integrationID]);
             if(!$integrationToCustomer) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
@@ -384,7 +383,7 @@ class IntegrationsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::UNABLE_TO_DELETE);
             }
 
-            return $this->serviceContainer->get('vrscheduler.api_response_service')->GenericSuccessResponse();
+            return $this->serviceContainer->get(GeneralConstants::RESPONSE_SERVICE)->GenericSuccessResponse();
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {

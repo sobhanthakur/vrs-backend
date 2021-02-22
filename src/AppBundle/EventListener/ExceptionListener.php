@@ -121,15 +121,15 @@ class ExceptionListener extends BaseService
             $request->attributes->has('SMS') ? $content['SMS'] = $request->attributes->get('SMS') : $content['SMS'] = null;
 
             $authPayload = [];
-            $authPayload['CustomerID'] = null;
-            $authPayload['ServicerID'] = null;
-            if ($request->attributes->get('AuthPayload'))
+            $authPayload[GeneralConstants::CUSTOMER_ID] = null;
+            $authPayload[GeneralConstants::SERVICERID] = null;
+            if ($request->attributes->get(GeneralConstants::AUTHPAYLOAD))
             {
-                $temp1 = $request->attributes->get('AuthPayload');
-                if (array_key_exists('message',$temp1)) {
-                    $temp2 = $temp1['message'];
-                    array_key_exists('ServicerID',$temp2) ? $authPayload['ServicerID'] = $temp2['ServicerID'] : $authPayload['ServicerID'] = null;
-                    array_key_exists('CustomerID',$temp2) ? $authPayload['CustomerID'] = $temp2['CustomerID'] : $authPayload['CustomerID'] = null;
+                $temp1 = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
+                if (array_key_exists(GeneralConstants::MESSAGE,$temp1)) {
+                    $temp2 = $temp1[GeneralConstants::MESSAGE];
+                    array_key_exists(GeneralConstants::SERVICERID,$temp2) ? $authPayload[GeneralConstants::SERVICERID] = $temp2[GeneralConstants::SERVICERID] : $authPayload[GeneralConstants::SERVICERID] = null;
+                    array_key_exists(GeneralConstants::CUSTOMER_ID,$temp2) ? $authPayload[GeneralConstants::CUSTOMER_ID] = $temp2[GeneralConstants::CUSTOMER_ID] : $authPayload[GeneralConstants::CUSTOMER_ID] = null;
                 }
             }
             $content['UserInfo'] = $authPayload;

@@ -81,7 +81,6 @@ class AuthController extends FOSRestController
     public function PWAAuthentication(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $authenticationService = $this->container->get('vrscheduler.authentication_service');
             $content = json_decode(base64_decode($request->get('data')),true);
@@ -143,7 +142,6 @@ class AuthController extends FOSRestController
     public function IssueFormAuthentication(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $authenticationService = $this->container->get('vrscheduler.authentication_service');
             $content = json_decode(base64_decode($request->get('data')),true);
