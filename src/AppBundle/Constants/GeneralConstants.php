@@ -533,4 +533,5 @@ final class GeneralConstants
     const OPTION_SELECTED = 'OptionSelected';
     const CHECKED = 'Checked';
     const IMAGE_UPLOADED = 'ImageUploaded';
+    const DATETIME = 'DateTime';
 }

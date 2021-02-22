@@ -43,28 +43,21 @@ class ManageService extends BaseService
         try {
             $taskID = null;
 
-            if (array_key_exists('TaskID',$content) && $content['TaskID']) {
-                $taskID = $content['TaskID'];
+            if (array_key_exists(GeneralConstants::TASK_ID,$content) && $content[GeneralConstants::TASK_ID]) {
+                $taskID = $content[GeneralConstants::TASK_ID];
             }
             $task = null;
 
-            array_key_exists('DateTime',$content) ? $dateTime = $content['DateTime'] : $dateTime='now';
+            array_key_exists(GeneralConstants::DATETIME,$content) ? $dateTime = $content[GeneralConstants::DATETIME] : $dateTime='now';
             $currentDate = new \DateTime($dateTime);
             $propertyID = $content['PropertyID'];
             $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($propertyID);
-
-            // get all issues submitted from this task in the last one minute
-//            $issues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinute($content['IssueType'],$content['Issue']);
-//            if (!empty($issues)) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::TRY1MINLATER);
-//            }
-
 
             // Create a new Issue
             $issues = new Issues();
             $issues->setIssuetype((int)$content['IssueType']);
             $issues->setIssue($content['Issue']);
-            $issues->setUrgent((int)$content['Urgent'] === 1 ? true : false);
+            $issues->setUrgent((int)$content['Urgent']);
             $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
             $issues->setCreatedate($currentDate);
@@ -85,10 +78,8 @@ class ManageService extends BaseService
                 $issues->setSubmittedbyownerid($servicer);
             }
 
-
             // Persist and flush Issue
             $this->entityManager->persist($issues);
-//            $this->entityManager->flush();
 
             // If ServiceID is present And Issue IS is present then create a task
             if ($issues && array_key_exists('FormServiceID',$content) ? $content['FormServiceID'] !== '' : null) {
@@ -101,7 +92,7 @@ class ManageService extends BaseService
 
                 // Create Task
                 $task = $this->CreateTask($content,$servicerID,$issues,$rsService,$propertyObj,$currentDate,$servicer);
-                $response['TaskID'] = $task->getTaskid();
+                $response[GeneralConstants::TASK_ID] = $task->getTaskid();
 
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
 
@@ -208,7 +199,7 @@ class ManageService extends BaseService
             $issueNotification = array(
                 'MessageID' => 22,
                 'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
-                'TaskID' => $taskID,
+                GeneralConstants::TASK_ID => $taskID,
                 'IssueID' => $issues->getIssueid(),
                 'OwnerID' => 0,
                 'SendToMaintenanceStaff' => 1,
@@ -248,7 +239,7 @@ class ManageService extends BaseService
      */
     public function CreateTask($content, $servicerID, $issues, $rsService, $propertyObj, $currentDate, $servicer)
     {
-        $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content['DateTime']);
+        $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content[GeneralConstants::DATETIME]);
         if ($rsService) {
             $task = new Tasks();
             $task->setPropertybookingid(null);
@@ -263,7 +254,7 @@ class ManageService extends BaseService
             $task->setTaskdate($localTime);
             $task->setTasktime(99);
             $task->setTaskdatetime($localTime);
-            $task->setTaskcompletebydate($this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content['DateTime'])->modify('+5 day'));
+            $task->setTaskcompletebydate($this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content[GeneralConstants::DATETIME])->modify('+5 day'));
             $task->setTaskcompletebytime(99);
             $task->setServiceid($content['FormServiceID']);
             $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
@@ -308,7 +299,7 @@ class ManageService extends BaseService
             $notification = array(
                 'MessageID' => 24,
                 'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
-                'TaskID' => $task
+                GeneralConstants::TASK_ID => $task
             );
 
             // Send Notification
