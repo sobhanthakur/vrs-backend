@@ -20,7 +20,7 @@ class BookingCalenderService extends BaseService
         $bookings = [];
         $allTasks = [];
         try {
-            $rsServicers = $this->entityManager->getRepository('AppBundle:Servicers')->BookingsCalender($servicerID);
+            $rsServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->BookingsCalender($servicerID);
 
             if (empty($rsServicers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
@@ -130,7 +130,7 @@ class BookingCalenderService extends BaseService
             }
 
             // Fetch Tasks
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->GetTasksForBookingCalender($servicerID,$thisStartDate,$thisEndDate,$rsServicers[GeneralConstants::TIMEZONEREGION]);
+            $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTasksForBookingCalender($servicerID,$thisStartDate,$thisEndDate,$rsServicers[GeneralConstants::TIMEZONEREGION]);
 
             // Iterate through Tasks
             foreach ($tasks as $task) {
@@ -196,7 +196,7 @@ class BookingCalenderService extends BaseService
                 $taskDetails[GeneralConstants::TASKTIME] = $task[GeneralConstants::TASKTIME];
                 $taskDetails['TaskTimeMinutes'] = $task['TaskTimeMinutes'];
                 $taskDetails[GeneralConstants::PROPERTYNAME] = $task[GeneralConstants::PROPERTYNAME];
-                $taskDetails['TaskID'] = $task['TaskID'];
+                $taskDetails[GeneralConstants::TASK_ID] = $task[GeneralConstants::TASK_ID];
                 $taskDetails[GeneralConstants::TASKDATETIME] = $task[GeneralConstants::TASKDATETIME];
                 $taskDetails['RegionSortOrder'] = $task['RegionSortOrder'];
                 $taskDetails['PropertySortOrder'] = $task['PropertySortOrder'];

@@ -45,10 +45,10 @@ class SyncLogsService extends BaseService
                 $region = $timeZone[0]['Region'];
             }
 
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid'=>$customerID,'integrationid'=>$integrationID));
             if(!$integrationToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
@@ -65,9 +65,9 @@ class SyncLogsService extends BaseService
                     $batchType = $filters['BatchType'];
                 }
 
-                if (array_key_exists('Pagination', $content)) {
-                    $limit = $content['Pagination']['Limit'];
-                    $offset = $content['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $content)) {
+                    $limit = $content[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $content[GeneralConstants::PAGINATION]['Offset'];
                 }
             }
 
@@ -88,12 +88,12 @@ class SyncLogsService extends BaseService
                     if(!$integrationQBBatches[$i]['BatchType']) {
                         $billingBatch[] = array(
                             'BatchID' => $integrationQBBatches[$i]['IntegrationQBBatchID'],
-                            'CreateDate' => $integrationQBBatches[$i]['CreateDate']
+                            GeneralConstants::CREATEDATE => $integrationQBBatches[$i][GeneralConstants::CREATEDATE]
                         );
                     } else {
                         $timeTrackingBatch[] = array(
                             'BatchID' => $integrationQBBatches[$i]['IntegrationQBBatchID'],
-                            'CreateDate' => $integrationQBBatches[$i]['CreateDate']
+                            GeneralConstants::CREATEDATE => $integrationQBBatches[$i][GeneralConstants::CREATEDATE]
                         );
                     }
                 }
@@ -117,10 +117,10 @@ class SyncLogsService extends BaseService
                     $failed = 0;
                 }
                 $timeZoneRegion = new \DateTimeZone($region);
-                $billingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
+                $billingBatch[$i][GeneralConstants::CREATEDATE]->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 0,
-                    'Sent' => $billingBatch[$i]['CreateDate'],
+                    'Sent' => $billingBatch[$i][GeneralConstants::CREATEDATE],
                     'Records' => array(
                         "Success" => $success,
                         "Failed" => $failed
@@ -148,10 +148,10 @@ class SyncLogsService extends BaseService
                 }
 
                 $timeZoneRegion = new \DateTimeZone($region);
-                $timeTrackingBatch[$i]['CreateDate']->setTimeZone($timeZoneRegion);
+                $timeTrackingBatch[$i][GeneralConstants::CREATEDATE]->setTimeZone($timeZoneRegion);
                 $response[] = array(
                     'BatchType' => 1,
-                    'Sent' => $timeTrackingBatch[$i]['CreateDate'],
+                    'Sent' => $timeTrackingBatch[$i][GeneralConstants::CREATEDATE],
                     'Records' => array(
                         "Success" => $success,
                         "Failed" => $failed
@@ -191,22 +191,22 @@ class SyncLogsService extends BaseService
             $count = null;
             $completedDate = null;
 
-            if (!array_key_exists('IntegrationID', $content) ||
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $content) ||
                 !array_key_exists('BatchID', $content) ||
                 !array_key_exists('BatchType', $content) ||
-                !array_key_exists('Pagination', $content)
+                !array_key_exists(GeneralConstants::PAGINATION, $content)
             ) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PAYLOAD);
             }
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array('customerid' => $customerID, 'integrationid' => $integrationID, 'active' => 1));
             if (!$integrationToCustomers) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_INTEGRATION);
             }
 
             $batchType = $content['BatchType'];
-            $limit = $content['Pagination']['Limit'];
-            $offset = $content['Pagination']['Offset'];
+            $limit = $content[GeneralConstants::PAGINATION]['Limit'];
+            $offset = $content[GeneralConstants::PAGINATION]['Offset'];
             $batchID = $content['BatchID'];
 
             // Batch Type = 0 Means Billing And Batch Type = 1 Means Time Tracking

@@ -37,17 +37,16 @@ class MapPropertiesService extends BaseService
             $createDate = null;
             $limit = 10;
             $offset = 1;
-            $customersToProperties = null;
             $integrationID = null;
             $count = null;
             $response = null;
             $flag = null;
             $unmatched = null;
 
-            if(!array_key_exists('IntegrationID',$data)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
@@ -67,12 +66,12 @@ class MapPropertiesService extends BaseService
                 if (array_key_exists('Owner', $filters)) {
                     $owner = $filters['Owner'];
                 }
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
+                if (array_key_exists(GeneralConstants::CREATEDATE, $filters)) {
+                    $createDate = $filters[GeneralConstants::CREATEDATE];
                 }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
                 if (array_key_exists('Status', $filters)) {
@@ -83,12 +82,12 @@ class MapPropertiesService extends BaseService
                         !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
                         if($offset === 1) {
-                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
+                            $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONSTOPROPERTIES)->CountPropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate);
                             if($count) {
                                 $count = (int)$count[0][1];
                             }
                         }
-                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
+                        $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONSTOPROPERTIES)->PropertiesJoinMatched($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset);
                         $flag = 1;
                     }
 
@@ -105,18 +104,18 @@ class MapPropertiesService extends BaseService
             // Default Case
             if(!$flag) {
                 if($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Properties')->CountPropertiesMap($customerID,$propertyTags, $region, $owner, $createDate,$unmatched);
+                    $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTIES)->CountPropertiesMap($customerID,$propertyTags, $region, $owner, $createDate,$unmatched);
 
                     if($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Properties')->PropertiesMap($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset,$unmatched);
+                $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTIES)->PropertiesMap($customerID,$propertyTags, $region, $owner, $createDate, $limit, $offset,$unmatched);
             }
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 'Data' => array(
                     'Count' => $count,
                     'Details' => $response
@@ -142,8 +141,8 @@ class MapPropertiesService extends BaseService
         try {
             $customers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->QBDCustomers($customerID);
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 'Data' => $customers
             );
         } catch (HttpException $exception) {
@@ -163,11 +162,11 @@ class MapPropertiesService extends BaseService
     public function MapPropertiesToCustomers($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
@@ -183,7 +182,7 @@ class MapPropertiesService extends BaseService
 
             // Traverse data to create/update mappings
             for ($i = 0; $i < count($data); $i++) {
-                $customersToProperties = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomerstoproperties')->findOneBy(
+                $customersToProperties = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONSTOPROPERTIES)->findOneBy(
                     array(
                         'propertyid' => $data[$i][GeneralConstants::PROPERTY_ID]
                     )
@@ -208,7 +207,7 @@ class MapPropertiesService extends BaseService
                 // Integration QBD Customers To Properties exist, then simply update the record with the new IntegrationQBDCustomerID
                 if (!$customersToProperties) {
                     // Create New Record
-                    $property = $this->entityManager->getRepository('AppBundle:Properties')->findOneBy(array(
+                    $property = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTIES)->findOneBy(array(
                             'propertyid' => $data[$i][GeneralConstants::PROPERTY_ID]
                         )
                     );
@@ -237,8 +236,8 @@ class MapPropertiesService extends BaseService
             $this->entityManager->flush();
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message')
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION)
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

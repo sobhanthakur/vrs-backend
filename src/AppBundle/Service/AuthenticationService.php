@@ -127,7 +127,7 @@ class AuthenticationService extends BaseService
                 /*
                  * Check restrictions from the Servicers Table.
                  */
-                $servicersRepo = $this->entityManager->getRepository('AppBundle:Servicers');
+                $servicersRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS);
                 if($authenticationResult[GeneralConstants::MESSAGE][GeneralConstants::LOGGEDINSTAFFID] === 0) {
                     $restrictions[GeneralConstants::RESTRICTIONS][GeneralConstants::ALLOW_ADMIN_ACCESS] = 1;
                     $restrictions[GeneralConstants::RESTRICTIONS]['AllowManage'] = 1;
@@ -307,7 +307,7 @@ class AuthenticationService extends BaseService
             $timeZone = null;
 
             // Check Servicer table to validate the servicerID and password
-            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->ValidateAuthentication($servicerID,$password);
+            $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ValidateAuthentication($servicerID,$password);
 
             if(empty($servicer)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::WRONG_PASSWORD);
@@ -560,7 +560,7 @@ class AuthenticationService extends BaseService
                 $accessToken->set(GeneralConstants::SERVICERID, $ownerID);
                 $accessToken->set(GeneralConstants::OWNERID, $ownerID);
             } else {
-                $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->VendorAuthForIssueForm($vendorID,$password);
+                $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->VendorAuthForIssueForm($vendorID,$password);
                 if(empty($servicer)) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_CREDENTIALS);
                 }

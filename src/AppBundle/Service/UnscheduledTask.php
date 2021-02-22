@@ -16,6 +16,7 @@ use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class UnscheduledTask
@@ -57,7 +58,7 @@ class UnscheduledTask extends BaseService
     public function PropertyTab($servicerID, $content)
     {
         try {
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->PropertyTabUnscheduledTasks($servicerID);
+            $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->PropertyTabUnscheduledTasks($servicerID);
 
             if (empty($servicers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
@@ -144,7 +145,7 @@ class UnscheduledTask extends BaseService
             $query = 'SELECT IssueAllowVideoUpload,AllowSendIssuesAsWorkOrders,AllowSendTasksAsWorkOrders,WorkOrderIntegrationCompanyStaffID,WorkOrderIntegrationCompanyID
                     ,IssueDamageAlt,IssueDamageAbbrAlt,IssueMaintenanceAlt,IssueMaintenanceAbbrAlt,IssueLostAndFoundAlt,IssueLostAndFoundAbbrAlt,IssueSupplyAlt,IssueSupplyAbbrAlt,IssueHousekeepingAlt,IssueHousekeepingAbbrAlt
                     FROM Customers
-                    WHERE CustomerID = '.$servicers[0]['CustomerID'];
+                    WHERE CustomerID = '.$servicers[0][GeneralConstants::CUSTOMER_ID];
             $servicers1 = $this->entityManager->getConnection()->prepare($query);
             $servicers1->execute();
             $servicers1 = $servicers1->fetchAll();
@@ -235,7 +236,7 @@ class UnscheduledTask extends BaseService
             // Standard Tasks
             $standardServices = null;
             if ((int)$servicers[0]['AllowAddStandardTask'] === 1) {
-                $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0]['CustomerID'].' AND stp.PropertyID='.$propertyID.' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
+                $standardServices = $this->entityManager->getConnection()->prepare('Select ServiceID,PropertyID,ServiceName,Name FROM ('.ServicesToProperties::vServicesToProperties.') AS stp WHERE stp.TaskType=9 AND stp.CustomerID='.$servicers[0][GeneralConstants::CUSTOMER_ID].' AND stp.PropertyID='.$propertyID.' AND stp.Active = 1 AND stp.ServiceActive = 1 And stp.IncludeOnIssueForm = 1');
                 $standardServices->execute();
                 $standardServices = $standardServices->fetchAll();
             }
@@ -291,7 +292,7 @@ class UnscheduledTask extends BaseService
 
             array_key_exists('UnscheduledTaskNote',$details) ? $details['UnscheduledTaskNote'] = trim($details['UnscheduledTaskNote']) : $details['UnscheduledTaskNote'] = '';
 
-            $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+            $servicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID);
 
             if (!$servicerObj) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
@@ -308,7 +309,7 @@ class UnscheduledTask extends BaseService
             }
 
             // MAKE SURE THIS TASK HAS NOT BEEN SUBMITTED IN THE LAST xx seconds to AVOID ACCIDENTAL DUPLICATES
-//            $lastTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskSubmittedInLast5Seconds($servicerID, $propertyID);
+//            $lastTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->TaskSubmittedInLast5Seconds($servicerID, $propertyID);
 //            if (!empty($lastTask)) {
 //                throw new UnprocessableEntityHttpException(ErrorConstants::TRYAFTERSOMETIME);
 //            }
@@ -355,7 +356,7 @@ class UnscheduledTask extends BaseService
             $this->entityManager->persist($task);
             $this->entityManager->flush();
 
-            $response['TaskID'] = $task->getTaskid();
+            $response[GeneralConstants::TASK_ID] = $task->getTaskid();
 
 
             $tasksToServicers = new Taskstoservicers();
@@ -373,7 +374,7 @@ class UnscheduledTask extends BaseService
 
             // Start Task If Mark Complete is false
             if (!$completeStatus) {
-//                $content['TaskID'] = $task->getTaskid();
+//                $content[GeneralConstants::TASK_ID] = $task->getTaskid();
 //                $content['StartPause'] = 1;
 //                $this->serviceContainer->get('vrscheduler.starttask_service')->StartTask($servicerID, $content, $mobileHeaders);
             } else {
@@ -439,13 +440,13 @@ class UnscheduledTask extends BaseService
                     $thisOwnerID = $propertyObj->getOwnerid()->getOwnerid();
                 }
                 $result = array(
-                    'MessageID' => 5,
-                    'CustomerID' => $servicerObj->getCustomerid()->getCustomerid(),
-                    'TaskID' => $task->getTaskid(),
+                    GeneralConstants::MESSAGE_ID => 5,
+                    GeneralConstants::CUSTOMER_ID => $servicerObj->getCustomerid()->getCustomerid(),
+                    GeneralConstants::TASK_ID => $task->getTaskid(),
                     'ToCustomerID' => $servicerObj->getCustomerid()->getCustomerid(),
-                    'OwnerID' => $thisOwnerID,
+                    GeneralConstants::OWNERID => $thisOwnerID,
                     'SendToMaintenanceStaff' => 1,
-                    'SendToManagers' => 1,
+                    GeneralConstants::SENDTOMANAGERS => 1,
                     'SubmittedByServicerID' => $servicerID
                 );
 

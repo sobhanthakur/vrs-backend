@@ -32,7 +32,7 @@ class StaffService extends BaseService
         try {
 
             //Get staff Repo
-            $staffRepo = $this->entityManager->getRepository('AppBundle:Servicers');
+            $staffRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS);
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
@@ -70,8 +70,8 @@ class StaffService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($staffData); $i++) {
-                if (isset($staffData[$i]['CreateDate'])) {
-                    $staffData[$i]['CreateDate'] = $staffData[$i]['CreateDate']->format('Ymd');
+                if (isset($staffData[$i][GeneralConstants::CREATEDATE])) {
+                    $staffData[$i][GeneralConstants::CREATEDATE] = $staffData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
             }
 

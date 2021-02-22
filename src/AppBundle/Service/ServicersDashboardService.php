@@ -34,8 +34,8 @@ class ServicersDashboardService extends BaseService
     {
         try {
             $response = [];
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions((int)$servicerID);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard((int)$servicerID, $servicers);
+            $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
+            $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0]['Region']);
 
             // Local Time
@@ -80,7 +80,7 @@ class ServicersDashboardService extends BaseService
                      ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) &&
                      (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
                 ) {
-                    if (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']) {
+                    if (empty($timeClockTasks) || (string)$timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[$i][GeneralConstants::TASK_ID]) {
                         $startTask = 1;
                     } else {
                         $pauseTask = 1;
@@ -91,7 +91,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 if (!((int)$servicers[0]['TimeTracking'] === 1
-                    && (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']))
+                    && (empty($timeClockTasks) || (string)$timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[$i][GeneralConstants::TASK_ID]))
                     && $tasks[$i]['TaskStartDate'] <= $localTime
                 ) {
                     if ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) {
@@ -99,7 +99,7 @@ class ServicersDashboardService extends BaseService
                     }
                 }
 
-                if ((int)$servicers[0]['TimeTracking'] === 1 && !empty($timeClockTasks) && (string)$timeClockTasks[0]['TaskID'] === (string)$tasks[$i]['TaskID']) {
+                if ((int)$servicers[0]['TimeTracking'] === 1 && !empty($timeClockTasks) && (string)$timeClockTasks[0][GeneralConstants::TASK_ID] === (string)$tasks[$i][GeneralConstants::TASK_ID]) {
                     $doneCondition = 1;
                 }
 
@@ -235,7 +235,7 @@ class ServicersDashboardService extends BaseService
                     'PiecePay' => $piecePay,
                     'QuickChangeAbbreviation' => $quickChangeAbbreviation,
                     'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
-                    'TaskID' => $tasks[$i]['TaskID'],
+                    GeneralConstants::TASK_ID => $tasks[$i][GeneralConstants::TASK_ID],
                     'TaskName' => $tasks[$i]['TaskName'],
                     'Region' => $tasks[$i]['Region'],
                     'RegionColor' => $regionColour,
@@ -293,7 +293,7 @@ class ServicersDashboardService extends BaseService
                 $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0';
                 $allIssues .= ' AND vIssues.ClosedDate IS NULL';
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
-                    $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
+                    $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i][GeneralConstants::TASK_ID];
                 }
                 $issues = $this->entityManager->getConnection()->prepare($allIssues);
                 $issues->execute();
@@ -326,20 +326,20 @@ class ServicersDashboardService extends BaseService
                 $propertiesCondition = '';
                 $taskIDs = '';
                 $temp = [];
-//                $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
+//                $todaysBooking = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers);
 //                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === (int)$tasks[$i]['PropertyID']) {
                     $pb = $tasks;
                     if (!empty($pb)) {
                         foreach ($pb as $value) {
                             $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
-                            $value['TaskID'] ? $taskIDs .= $value['TaskID'].',' : false;
+                            $value[GeneralConstants::TASK_ID] ? $taskIDs .= $value[GeneralConstants::TASK_ID].',' : false;
                             $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
                         }
                         $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
                         $taskIDs = preg_replace("/,$/", '', $taskIDs);
                     }
                     // Get All Properties
-                    $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID'],$servicers);
+                    $rsCurrentTaskServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0][GeneralConstants::CUSTOMER_ID],$servicers);
                     if (!empty($rsCurrentTaskServicers)) {
                         foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
                             $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
@@ -350,8 +350,8 @@ class ServicersDashboardService extends BaseService
                     empty($propertiesCondition) ? $propertiesCondition=0:false;
                     empty($propertyBookings) ? $propertyBookings=0:false;
 
-                    $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,$propertyBookings);
-                    $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,null,$propertiesCondition);
+                    $query1 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,$propertyBookings);
+                    $query2 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,null,$propertiesCondition);
 
                     $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
                     $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$tasks[$i]['PropertyID'].'  ORDER BY R.TaskDate desc';
@@ -397,7 +397,7 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
 
                 // Team for Each Task
-                $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID'],$servicers);
+                $team = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTeamByTask($tasks[$i][GeneralConstants::TASK_ID],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : [];
             }
             return array('Tasks' => $response);
@@ -425,7 +425,7 @@ class ServicersDashboardService extends BaseService
             $mileage = $content['Mileage'] ? (int)$content['Mileage'] : null;
 
             // ServicerObject
-            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+            $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID);
 
             $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
 
@@ -482,14 +482,14 @@ class ServicersDashboardService extends BaseService
     public function AcceptDeclineTask($servicerID, $content)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $acceptDecline = $content['AcceptDecline'];
             $dateTime = $content['DateTime'];
 
             // Check if the Task Belong to the Corresponding ServicerID
-//            $taskToServicer = $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+//            $taskToServicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->DoesTaskBelongToServicer($servicerID,$taskID);
 
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptDeclineTask($servicerID,$taskID);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AcceptDeclineTask($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
@@ -546,21 +546,21 @@ class ServicersDashboardService extends BaseService
                 $this->entityManager->persist($tasksToServicers);
 
                 $taskAcceptDeclines = new Taskacceptdeclines();
-                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID));
+                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID));
                 $taskAcceptDeclines->setAcceptordecline(true);
                 $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
                 $this->entityManager->persist($taskAcceptDeclines);
 
                 $this->entityManager->flush();
 
-//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
+//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0][GeneralConstants::CUSTOMER_ID],26);
 //            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
-                    'MessageID' => 26,
-                    'CustomerID' => $rsThisTask[0]['CustomerID'],
-                    'TaskID' => $taskID,
-                    'SendToManagers' => 1,
+                    GeneralConstants::MESSAGE_ID => 26,
+                    GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                    GeneralConstants::TASK_ID => $taskID,
+                    GeneralConstants::SENDTOMANAGERS => 1,
                     'SubmittedByServicerID' => $servicerID
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
@@ -598,7 +598,7 @@ class ServicersDashboardService extends BaseService
         try {
             $notification = [];
             $backupServicer = 0;
-            $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
+            $rsBackup = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->DeclineBackup($servicerID);
             $thisAdditionalMessage = '';
             $thisAdditionalTextMessage = '';
             $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsThisTask[0]['Region'],$dateTime);
@@ -621,12 +621,12 @@ class ServicersDashboardService extends BaseService
 
             if ($tasksToServicers->getDeclineddate() === null) {
                 $tasksToServicers->setDeclineddate($currentTime);
-                $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
+                $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer) : null);
                 $this->entityManager->persist($tasksToServicers);
 
                 $taskAcceptDeclines = new Taskacceptdeclines();
-                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID));
+                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID));
                 $taskAcceptDeclines->setAcceptordecline(false);
                 $taskAcceptDeclines->setCreatedate($currentTime);
                 $this->entityManager->persist($taskAcceptDeclines);
@@ -634,13 +634,13 @@ class ServicersDashboardService extends BaseService
                 $this->entityManager->flush();
 
                 // Manage Notifications for the task ID in last one minute
-//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
+//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0][GeneralConstants::CUSTOMER_ID],27);
 //            if ((int)$taskNotification[0]['Count'] === 0) {
                 $result = array(
-                    'MessageID' => 27,
-                    'CustomerID' => $rsThisTask[0]['CustomerID'],
-                    'TaskID' => $taskID,
-                    'SendToManagers' => 1,
+                    GeneralConstants::MESSAGE_ID => 27,
+                    GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                    GeneralConstants::TASK_ID => $taskID,
+                    GeneralConstants::SENDTOMANAGERS => 1,
                     'SubmittedByServicerID' => $servicerID
                 );
                 $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime);
@@ -658,10 +658,10 @@ class ServicersDashboardService extends BaseService
                         }
 
                         $result = array(
-                            'MessageID' => 34,
-                            'CustomerID' => $rsThisTask[0]['CustomerID'],
-                            'TaskID' => $taskID,
-                            'SendToManagers' => 1,
+                            GeneralConstants::MESSAGE_ID => 34,
+                            GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                            GeneralConstants::TASK_ID => $taskID,
+                            GeneralConstants::SENDTOMANAGERS => 1,
                             'BackupServicerID' => $backupServicer,
                             'SubmittedByServicerID' => $servicerID,
                             'AdditionalTextMessage' => $thisAdditionalTextMessage,
@@ -695,9 +695,9 @@ class ServicersDashboardService extends BaseService
     public function ChangeTaskDate($servicerID, $content)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $taskDate = new \DateTime($content['TaskDate']);
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->ChangeTaskDate($taskID,$servicerID);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->ChangeTaskDate($taskID,$servicerID);
             $thisTime = 8;
             $response = [];
             $schedulingNote = "";
@@ -730,7 +730,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Update Datetime
-                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+                $task = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID);
                 $task->setTaskdatetime($taskDateTime);
                 $task->setTaskdate($taskDate);
                 $task->setTasktime($thisTime);
@@ -748,7 +748,7 @@ class ServicersDashboardService extends BaseService
 
                 $this->entityManager->flush();
 
-                $response['TaskID'] = $task->getTaskid();
+                $response[GeneralConstants::TASK_ID] = $task->getTaskid();
                 $response['TaskChangesID'] = $taskChanges->getTaskchangeid();
                 $response['SchedulingNote'] = $schedulingNote;
             }

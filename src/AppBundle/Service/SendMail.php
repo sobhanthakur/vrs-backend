@@ -12,6 +12,7 @@ use AppBundle\Constants\ErrorConstants;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class SendMail
@@ -67,8 +68,8 @@ class SendMail extends BaseService
 
                 // Generate the Body
                 $message = "<b>Exception Timing: </b>".$today->format("Y-m-d H:i:s")."<br/>";
-                $message .= "<b>ServicerID: </b>".$content['UserInfo']['ServicerID']."<br/>";
-                $message .= "<b>CustomerID: </b>".$content['UserInfo']['CustomerID']."<br/>";
+                $message .= "<b>ServicerID: </b>".$content['UserInfo'][GeneralConstants::SERVICERID]."<br/>";
+                $message .= "<b>CustomerID: </b>".$content['UserInfo'][GeneralConstants::CUSTOMER_ID]."<br/>";
                 $message .= "<b>JWT: </b>".$requestHeader."<br/>";
 //                $message .= "<b>Request Body: </b>".$requestBody."<br/>";
                 $message .= "<b>URI: </b>".$uri."<br/>";

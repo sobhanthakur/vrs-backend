@@ -72,8 +72,8 @@ class RegionGroupsServices extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($regionGroupsData); $i++) {
-                if (isset($regionGroupsData[$i]['CreateDate'])) {
-                    $regionGroupsData[$i]['CreateDate'] = $regionGroupsData[$i]['CreateDate']->format('Ymd');
+                if (isset($regionGroupsData[$i][GeneralConstants::CREATEDATE])) {
+                    $regionGroupsData[$i][GeneralConstants::CREATEDATE] = $regionGroupsData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
             }
             

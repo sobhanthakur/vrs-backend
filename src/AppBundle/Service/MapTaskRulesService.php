@@ -90,20 +90,20 @@ class MapTaskRulesService extends BaseService
             if ((int)$integrationToCustomers[0]['qbdsyncbilling'] !== 1 && (int)$integrationToCustomers[0]['timetrackingtype'] === 1) {
                 $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
                 if ($offset === 1) {
-                    $sql = $this->getEntityManager()->getConnection()->prepare($result['Result2']);
+                    $sql = $this->getEntityManager()->getConnection()->prepare($result[GeneralConstants::RESULT2]);
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($result['Result2'] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($result[GeneralConstants::RESULT2] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
             } else {
                 // Show both labor and material items
                 $result = $this->entityManager->getRepository('AppBundle:Services')->SyncServices($customerID, $department, $billable, $matched);
                 if ($offset === 1) {
-                    $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2']);
+                    $sql = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result[GeneralConstants::RESULT2]);
                     $sql->execute();
                     $count = count($sql->fetchAll());
                 }
-                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result['Result2'] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
+                $response = $this->getEntityManager()->getConnection()->prepare($result['Result1'] . ' UNION ' . $result[GeneralConstants::RESULT2] . ' ORDER BY s0_.ServiceName OFFSET ' . (($offset - 1) * $limit) . ' ROWS FETCH NEXT ' . $limit . ' ROWS ONLY');
             }
 
             // Execute the result

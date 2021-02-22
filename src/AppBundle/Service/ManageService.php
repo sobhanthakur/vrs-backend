@@ -67,7 +67,7 @@ class ManageService extends BaseService
             }
 
             if ($taskID) {
-                $issues->setFromtaskid($this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array('taskid'=>$taskID)));
+                $issues->setFromtaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->findOneBy(array('taskid'=>$taskID)));
             }
 
             if (!$owner) {
@@ -203,7 +203,7 @@ class ManageService extends BaseService
                 GeneralConstants::ISSUE_ID => $issues->getIssueid(),
                 GeneralConstants::OWNERID => 0,
                 'SendToMaintenanceStaff' => 1,
-                'SendToManagers' => 1,
+                GeneralConstants::SENDTOMANAGERS => 1,
                 GeneralConstants::SERVICERID => $servicerID
             );
             $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification,$currentDate);

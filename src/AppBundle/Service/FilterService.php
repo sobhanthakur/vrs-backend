@@ -106,7 +106,7 @@ class FilterService extends BaseService
      */
     public function StaffFilter($customerID)
     {
-        $staff = $this->entityManager->getRepository('AppBundle:Servicers')->StaffFilter($customerID);
+        $staff = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->StaffFilter($customerID);
         return array(
             GeneralConstants::REASON_CODE => 0,
             GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),

@@ -74,8 +74,8 @@ class OwnerDetailsServices extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($ownerData); $i++) {
-                if (isset($ownerData[$i]['CreateDate'])) {
-                    $ownerData[$i]['CreateDate'] = $ownerData[$i]['CreateDate']->format('Ymd');
+                if (isset($ownerData[$i][GeneralConstants::CREATEDATE])) {
+                    $ownerData[$i][GeneralConstants::CREATEDATE] = $ownerData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
             }
 

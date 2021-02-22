@@ -71,8 +71,8 @@ class PropertyBookingsService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {
-                if (isset($propertyBookingData[$i]['CreateDate'])) {
-                    $propertyBookingData[$i]['CreateDate'] = $propertyBookingData[$i]['CreateDate']->format('Ymd');
+                if (isset($propertyBookingData[$i][GeneralConstants::CREATEDATE])) {
+                    $propertyBookingData[$i][GeneralConstants::CREATEDATE] = $propertyBookingData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
 
                 if (isset($propertyBookingData[$i]['CheckIn'])) {
@@ -309,8 +309,8 @@ class PropertyBookingsService extends BaseService
                 $checkout->format('Ymd') : $data['CheckOut'] = null;
 
             $createdDate = $propertyBooking->getCreatedate();
-            isset($createdDate) ? $data['CreateDate'] =
-                $createdDate->format('Ymd') : $data['CreateDate'] = null;
+            isset($createdDate) ? $data[GeneralConstants::CREATEDATE] =
+                $createdDate->format('Ymd') : $data[GeneralConstants::CREATEDATE] = null;
 
             $returnData['data'] = $data;
 

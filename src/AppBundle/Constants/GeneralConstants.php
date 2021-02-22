@@ -538,4 +538,18 @@ final class GeneralConstants
     const FORM_SERVICE_ID = 'FormServiceID';
     const MESSAGE_ID = 'MessageID';
     const ISSUE_ID = 'IssueID';
+    const TASKNOTE = 'TaskNote';
+    const PROPERTYSTATUSID = 'PropertyStatusID';
+    const PROPERTYBOOKINGID = 'PropertyBookingID';
+    const GUESTYSTATUS = 'GuestyStatus';
+    const BH247CLEANINGSTATE = 'BH247CleaningState';
+    const BH247QASTATE = 'BH247QAState';
+    const BH247MAINTANENCESTATE = 'BH247MaintenanceState';
+    const BH247CUSTOM_1STATE = 'BH247Custom_1State';
+    const BH247CUSTOM_2STATE = 'BH247Custom_2State';
+    const APPBUNDLE_INTEGRATIONSTOPROPERTIES = 'AppBundle:Integrationqbdcustomerstoproperties';
+    const APPBUNDLE_PROPERTIES = 'AppBundle:Properties';
+    const APPBUNDLE_INTEGRATIONQBDEMPLOYEESTOSERVICERS = 'AppBundle:Integrationqbdemployeestoservicers';
+    const RESULT2 = 'Result2';
+    const SENDTOMANAGERS = 'SendToManagers';
 }

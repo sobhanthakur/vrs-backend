@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Entity\Notifications;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class NotificationService
@@ -27,9 +28,9 @@ class NotificationService extends BaseService
     public function CreateTaskNotification($result, $currentDate=null)
     {
         $notification = new Notifications();
-        $notification->setTaskid($result['TaskID']);
-        $notification->setMessageid($result['MessageID']);
-        $notification->setCustomerid($result['CustomerID']);
+        $notification->setTaskid($result[GeneralConstants::TASK_ID]);
+        $notification->setMessageid($result[GeneralConstants::MESSAGE_ID]);
+        $notification->setCustomerid($result[GeneralConstants::CUSTOMER_ID]);
 
         if ($currentDate) {
             $notification->setCreatedate($currentDate);
@@ -49,16 +50,16 @@ class NotificationService extends BaseService
     public function CreateIssueNotification($result,$currentDate = null)
     {
         $notification = new Notifications();
-        if ($result['TaskID']) {
-            $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
+        if ($result[GeneralConstants::TASK_ID]) {
+            $notification->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($result[GeneralConstants::TASK_ID]));
         }
-        $notification->setMessageid($result['MessageID']);
-        $notification->setCustomerid($result['CustomerID']);
+        $notification->setMessageid($result[GeneralConstants::MESSAGE_ID]);
+        $notification->setCustomerid($result[GeneralConstants::CUSTOMER_ID]);
         $notification->setIssueid($result['IssueID']);
-        $notification->setOwnerid($result['OwnerID'] && $result['OwnerID'] !== 0 ? $result['OwnerID'] : null);
+        $notification->setOwnerid($result[GeneralConstants::OWNERID] && $result[GeneralConstants::OWNERID] !== 0 ? $result[GeneralConstants::OWNERID] : null);
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
-        $notification->setSendtomanagers($result['SendToManagers']);
-        $notification->setSubmittedbyservicerid($result['ServicerID']);
+        $notification->setSendtomanagers($result[GeneralConstants::SENDTOMANAGERS]);
+        $notification->setSubmittedbyservicerid($result[GeneralConstants::SERVICERID]);
 
         if ($currentDate) {
             $notification->setCreatedate($currentDate);
@@ -78,14 +79,14 @@ class NotificationService extends BaseService
     public function CreateTaskAcceptDeclineNotification($result,$currentTime=null,$servicerID=null,$additionalTextMessage = null,$additionalMessage = null)
     {
         $notification = new Notifications();
-        $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
-        $notification->setMessageid($result['MessageID']);
-        $notification->setCustomerid($result['CustomerID']);
-        $notification->setSendtomanagers($result['SendToManagers']);
+        $notification->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($result[GeneralConstants::TASK_ID]));
+        $notification->setMessageid($result[GeneralConstants::MESSAGE_ID]);
+        $notification->setCustomerid($result[GeneralConstants::CUSTOMER_ID]);
+        $notification->setSendtomanagers($result[GeneralConstants::SENDTOMANAGERS]);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
 
         if ($servicerID) {
-            $notification->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($result['BackupServicerID']));
+            $notification->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($result['BackupServicerID']));
         }
 
         if ($additionalMessage) {
@@ -115,13 +116,13 @@ class NotificationService extends BaseService
     public function CreateManageCompleteNotification($result,$currentDate=null)
     {
         $notification = new Notifications();
-        $notification->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($result['TaskID']));
-        $notification->setMessageid($result['MessageID']);
-        $notification->setCustomerid($result['CustomerID']);
+        $notification->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($result[GeneralConstants::TASK_ID]));
+        $notification->setMessageid($result[GeneralConstants::MESSAGE_ID]);
+        $notification->setCustomerid($result[GeneralConstants::CUSTOMER_ID]);
         $notification->setTocustomerid($result['ToCustomerID']);
 
-        if (array_key_exists('ServicerID',$result)) {
-            $notification->setServicerid($result['ServicerID']);
+        if (array_key_exists(GeneralConstants::SERVICERID,$result)) {
+            $notification->setServicerid($result[GeneralConstants::SERVICERID]);
         }
 
         if ($currentDate) {
@@ -129,11 +130,11 @@ class NotificationService extends BaseService
         }
 
         // Set null if owner ID is 0
-        $result['OwnerID'] !== 0 ? $ownerID= $this->entityManager->getRepository('AppBundle:Owners')->find($result['OwnerID']) : $ownerID = null;
+        $result[GeneralConstants::OWNERID] !== 0 ? $ownerID= $this->entityManager->getRepository('AppBundle:Owners')->find($result[GeneralConstants::OWNERID]) : $ownerID = null;
 
         $notification->setOwnerid($ownerID);
         $notification->setSendtomaintenancestaff($result['SendToMaintenanceStaff']);
-        $notification->setSendtomanagers($result['SendToManagers']);
+        $notification->setSendtomanagers($result[GeneralConstants::SENDTOMANAGERS]);
         $notification->setSubmittedbyservicerid($result['SubmittedByServicerID']);
 
         $this->entityManager->persist($notification);

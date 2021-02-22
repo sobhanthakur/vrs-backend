@@ -28,7 +28,7 @@ class IntegrationsService extends BaseService
         try {
             $integrationResponse = [];
             // Get Customer ID
-            $customerID = $authenticationResult['message']['CustomerID'];
+            $customerID = $authenticationResult['message'][GeneralConstants::CUSTOMER_ID];
 
             // Fetch All Integrations available
             $integrations = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONS)->findBy(array('active'=>1));
@@ -48,7 +48,7 @@ class IntegrationsService extends BaseService
                     $integrationDetails = array(
                         GeneralConstants::QBDSYNCBILLING => $installedObject['qbdsyncbilling'],
                         GeneralConstants::QBDSYNCTT => $installedObject['qbdsyncpayroll'],
-                        'CreateDate' => $installedObject['createdate'],
+                        GeneralConstants::CREATEDATE => $installedObject['createdate'],
                         'StartDate' => $installedObject['startdate'],
                         'Version' => $installedObject['version'],
                         'Type' => $installedObject['type'],

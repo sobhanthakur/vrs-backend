@@ -55,7 +55,7 @@ class BillingApprovalService extends BaseService
             }
 
             if (!empty($data)) {
-                $regions = $this->entityManager->getRepository('AppBundle:Tasks')->GetAllTimeZones($customerID);
+                $regions = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetAllTimeZones($customerID);
                 $timezones = $this->StartDateCalculation($regions,$integrationToCustomers[0]['startdate']);
 
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
@@ -67,8 +67,8 @@ class BillingApprovalService extends BaseService
                     $completedDate = $filters[GeneralConstants::COMPLETED_DATE];
                     $completedDate = $this->CompletedDateRequestCalculation($regions,$completedDate);
                 }
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
+                if (array_key_exists(GeneralConstants::CREATEDATE, $filters)) {
+                    $createDate = $filters[GeneralConstants::CREATEDATE];
                 }
                 if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
                     $limit = $data[GeneralConstants::PAGINATION]['Limit'];
@@ -81,13 +81,13 @@ class BillingApprovalService extends BaseService
             }
 
             if ($offset === 1) {
-                $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
+                $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
                 if ($count) {
                     $count = (int)$count[0][1];
                 }
             }
 
-            $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
+            $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
             $response = $this->processResponse($response);
 
             return array(
@@ -158,7 +158,7 @@ class BillingApprovalService extends BaseService
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
                 }
 
-                $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array(
+                $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->findOneBy(array(
                         'taskid' => $data[$i][GeneralConstants::TASK_ID]
                     )
                 );
