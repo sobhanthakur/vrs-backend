@@ -534,4 +534,8 @@ final class GeneralConstants
     const CHECKED = 'Checked';
     const IMAGE_UPLOADED = 'ImageUploaded';
     const DATETIME = 'DateTime';
+    const APPBUNDLE_SERVICERS = 'AppBundle:Servicers';
+    const FORM_SERVICE_ID = 'FormServiceID';
+    const MESSAGE_ID = 'MessageID';
+    const ISSUE_ID = 'IssueID';
 }

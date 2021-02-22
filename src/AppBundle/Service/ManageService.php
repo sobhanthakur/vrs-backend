@@ -71,7 +71,7 @@ class ManageService extends BaseService
             }
 
             if (!$owner) {
-                $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array('servicerid'=>$servicerID));
+                $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->findOneBy(array('servicerid'=>$servicerID));
                 $issues->setSubmittedbyservicerid($servicer);
             } else {
                 $servicer = $this->entityManager->getRepository('AppBundle:Owners')->findOneBy(array('ownerid'=>$servicerID));
@@ -82,10 +82,10 @@ class ManageService extends BaseService
             $this->entityManager->persist($issues);
 
             // If ServiceID is present And Issue IS is present then create a task
-            if ($issues && array_key_exists('FormServiceID',$content) ? $content['FormServiceID'] !== '' : null) {
+            if ($issues && array_key_exists(GeneralConstants::FORM_SERVICE_ID,$content) ? $content[GeneralConstants::FORM_SERVICE_ID] !== '' : null) {
                 // Services To Properties
                 $fields = 'ServiceToPropertyID,DefaultServicerID,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,BackupServicerID7,WorkDays,MinTimeToComplete,MaxTimeToComplete,NumberOfServicers,IncludeDamage,IncludeMaintenance,IncludeLostAndFound,IncludeSupplyFlag,IncludeServicerNote,NotifyCustomerOnCompletion,NotifyCustomerOnOverdue,NotifyCustomerOnDamage,NotifyCustomerOnMaintenance,NotifyCustomerOnServicerNote,NotifyCustomerOnLostAndFound,NotifyCustomerOnSupplyFlag,IncludeToOwnerNote,DefaultToOwnerNote,NotifyOwnerOnCompletion,AllowShareImagesWithOwners,NotifyServicerOnOverdue,NotifyCustomerOnNotYetDone,NotifyServicerOnNotYetDone,Billable,Amount,ExpenseAmount,PiecePay,PayType';
-                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content['FormServiceID'].' AND sp.PropertyID='.$content['PropertyID'];
+                $rsService = 'Select '.$fields.' from ('.ServicesToProperties::vServicesToProperties.') AS sp where sp.ServiceID='.$content[GeneralConstants::FORM_SERVICE_ID].' AND sp.PropertyID='.$content['PropertyID'];
                 $rsService = $this->entityManager->getConnection()->prepare($rsService);
                 $rsService->execute();
                 $rsService = $rsService->fetchAll();
@@ -108,7 +108,7 @@ class ManageService extends BaseService
                 $payRate = 0;
                 $servicerObj = null;
                 if ($thisDefaultServicerID) {
-                    $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                    $servicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($thisDefaultServicerID);
                     if ($servicerObj) {
                         $payRate = $servicerObj->getPayrate();
                     }
@@ -140,7 +140,7 @@ class ManageService extends BaseService
                 if (!empty($rsAdditionalServicers)) {
                     foreach ($rsAdditionalServicers as $rsAdditionalServicer) {
                         // Assign the default Servicer
-                        $thisDefaultServicerID = $rsAdditionalServicer['ServicerID'];
+                        $thisDefaultServicerID = $rsAdditionalServicer[GeneralConstants::SERVICERID];
 
                         // If the servicer is not working on this day, then assign a backup Servicer
                         if(strpos((string)$rsAdditionalServicer['WorkDays'],(string)$thisDayOfWeek) === false) {
@@ -150,7 +150,7 @@ class ManageService extends BaseService
                         $servicerObj = null;
                         if ($thisDefaultServicerID) {
                             // Servicer Object
-                            $servicerObj = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+                            $servicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($thisDefaultServicerID);
                         }
 
                         // INSERT ADDITIONAL EMPLOYEE
@@ -192,19 +192,19 @@ class ManageService extends BaseService
             }
             $this->entityManager->flush();
 
-            $response['IssueID'] = $issues->getIssueid();
+            $response[GeneralConstants::ISSUE_ID] = $issues->getIssueid();
 
 
             // Send notification for the issue created
             $issueNotification = array(
-                'MessageID' => 22,
-                'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
+                GeneralConstants::MESSAGE_ID => 22,
+                GeneralConstants::CUSTOMER_ID => $propertyObj->getCustomerid()->getCustomerid(),
                 GeneralConstants::TASK_ID => $taskID,
-                'IssueID' => $issues->getIssueid(),
-                'OwnerID' => 0,
+                GeneralConstants::ISSUE_ID => $issues->getIssueid(),
+                GeneralConstants::OWNERID => 0,
                 'SendToMaintenanceStaff' => 1,
                 'SendToManagers' => 1,
-                'ServicerID' => $servicerID
+                GeneralConstants::SERVICERID => $servicerID
             );
             $result = $this->serviceContainer->get('vrscheduler.notification_service')->CreateIssueNotification($issueNotification,$currentDate);
             $this->notification['IssueNotificationID'] = $result;
@@ -256,17 +256,17 @@ class ManageService extends BaseService
             $task->setTaskdatetime($localTime);
             $task->setTaskcompletebydate($this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicer->getTimezoneid()->getRegion(),$content[GeneralConstants::DATETIME])->modify('+5 day'));
             $task->setTaskcompletebytime(99);
-            $task->setServiceid($content['FormServiceID']);
+            $task->setServiceid($content[GeneralConstants::FORM_SERVICE_ID]);
             $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
             $task->setMaxtimetocomplete($rsService[0]['MaxTimeToComplete']);
             $task->setNumberofservicers($rsService[0]['NumberOfServicers']);
             $task->setMarked(1);
             $task->setEdited(1);
-            $task->setIncludedamage((int)$rsService[0]['IncludeDamage'] === 1 ? true : false);
-            $task->setIncludemaintenance((int)$rsService[0]['IncludeMaintenance'] === 1 ? true : false);
-            $task->setIncludelostandfound((int)$rsService[0]['IncludeLostAndFound'] === 1 ? true : false);
-            $task->setIncludesupplyflag((int)$rsService[0]['IncludeSupplyFlag'] === 1 ? true : false);
-            $task->setIncludeservicernote((int)$rsService[0]['IncludeServicerNote'] === 1 ? true : false);
+            $task->setIncludedamage((int)$rsService[0]['IncludeDamage']);
+            $task->setIncludemaintenance((int)$rsService[0]['IncludeMaintenance']);
+            $task->setIncludelostandfound((int)$rsService[0]['IncludeLostAndFound']);
+            $task->setIncludesupplyflag((int)$rsService[0]['IncludeSupplyFlag']);
+            $task->setIncludeservicernote((int)$rsService[0]['IncludeServicerNote']);
             $task->setNotifycustomeroncompletion($rsService[0]['NotifyCustomerOnCompletion']);
             $task->setNotifycustomeronoverdue($rsService[0]['NotifyServicerOnOverdue']);
             $task->setNotifycustomerondamage($rsService[0]['NotifyCustomerOnDamage']);
@@ -274,10 +274,10 @@ class ManageService extends BaseService
             $task->setNotifycustomeronservicernote($rsService[0]['NotifyCustomerOnServicerNote']);
             $task->setNotifycustomeronlostandfound($rsService[0]['NotifyCustomerOnLostAndFound']);
             $task->setNotifycustomeronsupplyflag($rsService[0]['NotifyCustomerOnSupplyFlag']);
-            $task->setIncludetoownernote((int)$rsService[0]['IncludeToOwnerNote'] === 1 ? true : false);
+            $task->setIncludetoownernote((int)$rsService[0]['IncludeToOwnerNote']);
             $task->setDefaulttoownernote(trim($rsService[0]['DefaultToOwnerNote']));
             $task->setNotifyowneroncompletion($rsService[0]['NotifyOwnerOnCompletion']);
-            $task->setAllowshareimageswithowners((int)$rsService[0]['AllowShareImagesWithOwners'] === 1 ? true : false);
+            $task->setAllowshareimageswithowners((int)$rsService[0]['AllowShareImagesWithOwners']);
             $task->setNotifyserviceronoverdue($rsService[0]['NotifyServicerOnOverdue']);
             $task->setNotifycustomeronnotyetdone($rsService[0]['NotifyCustomerOnNotYetDone']);
             $task->setNotifyserviceronnotyetdone($rsService[0]['NotifyServicerOnNotYetDone']);
@@ -285,25 +285,21 @@ class ManageService extends BaseService
             $task->setBillable($rsService[0]['Billable']);
             $task->setAmount($rsService[0]['Amount'] ? $rsService[0]['Amount'] : 0);
             $task->setExpenseamount($rsService[0]['ExpenseAmount'] ? $rsService[0]['ExpenseAmount'] : 0);
-//            $task->setPropertyitemid();
             $task->setCreatedbyservicerid($servicerID);
             $task->setCreatedate($currentDate);
             $task->setSchedulechangedate($currentDate);
-//            $task->setTaskdescriptionimage1($content['Images'][0]['Image']);
-//            $task->setTaskdescriptionimage2($content['Images'][1]['Image']);
-//            $task->setTaskdescriptionimage3($content['Images'][2]['Image']);
 
             $this->entityManager->persist($task);
             $this->entityManager->flush();
 
-            $notification = array(
-                'MessageID' => 24,
-                'CustomerID' => $propertyObj->getCustomerid()->getCustomerid(),
+            $notificationTemp = array(
+                GeneralConstants::MESSAGE_ID => 24,
+                GeneralConstants::CUSTOMER_ID => $propertyObj->getCustomerid()->getCustomerid(),
                 GeneralConstants::TASK_ID => $task
             );
 
             // Send Notification
-            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notification,$currentDate);
+            $notificationResult = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskNotification($notificationTemp,$currentDate);
 
             // Return Task Object
             $this->notification['TaskNotification'] = $notificationResult;
@@ -327,7 +323,7 @@ class ManageService extends BaseService
             if (empty($content)) {
                 return [];
             }
-            $customerID = $request->get('CustomerID');
+            $customerID = $request->get(GeneralConstants::CUSTOMER_ID);
             $imageName = $request->get('ImageName');
             $image = $request->get('Image');
 
