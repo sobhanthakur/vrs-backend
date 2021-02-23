@@ -509,15 +509,15 @@ class AuthenticationService extends BaseService
     {
         try {
             // Check if basic Authorization is present
-//            if (!$request->headers->has(GeneralConstants::PHP_AUTH_USER) && !$request->headers->has(GeneralConstants::PHP_AUTH_PW)) {
-//                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
-//            }
-//
-//            if ($request->headers->get(GeneralConstants::PHP_AUTH_USER) !== $this->serviceContainer->getParameter(GeneralConstants::PHP_AUTH_USER) &&
-//                $request->headers->get(GeneralConstants::PHP_AUTH_PW) !== $this->serviceContainer->getParameter('php-auth-password')
-//            ) {
-//                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
-//            }
+            if (!$request->headers->has(GeneralConstants::PHP_AUTH_USER) && !$request->headers->has(GeneralConstants::PHP_AUTH_PW)) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
+            }
+
+            if ($request->headers->get(GeneralConstants::PHP_AUTH_USER) !== $this->serviceContainer->getParameter(GeneralConstants::PHP_AUTH_USER) &&
+                $request->headers->get(GeneralConstants::PHP_AUTH_PW) !== $this->serviceContainer->getParameter('php-auth-password')
+            ) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTH_CONTENT);
+            }
             
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
