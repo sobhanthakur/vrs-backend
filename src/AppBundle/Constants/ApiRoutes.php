@@ -110,7 +110,6 @@ final class ApiRoutes
         "vrs_pwa_unscheduled_tasks",
         "vrs_pwa_unscheduled_tasks_complete",
         "vrs_pwa_upload_image_post",
-        "vrs_pwa_error_email_fe",
         "vrs_pwa_issue_post_vendor_owner",
         "vrs_pwa_manage_delete",
         "vrs_pwa_calender_feed_booking_get",
