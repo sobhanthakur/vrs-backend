@@ -57,14 +57,14 @@ class SendSMS extends BaseService
 
             $args = array(
                 "MessageAttributes" => [
-                    'AWS.SNS.SMS.SenderID' => [
-                        'DataType' => 'String',
-                        'StringValue' => 'VRSCHEDULER'
-                    ],
-                    'AWS.MM.SMS.OriginationNumber' => [
-                        'DataType' => 'String',
-                        'StringValue' => '+18335571169'
-                    ],
+//                    'AWS.SNS.SMS.SenderID' => [
+//                        'DataType' => 'String',
+//                        'StringValue' => 'VRSCHEDULER'
+//                    ],
+//                    'AWS.MM.SMS.OriginationNumber' => [
+//                        'DataType' => 'String',
+//                        'StringValue' => '+18335571169'
+//                    ],
                     'AWS.SNS.SMS.SMSType' => [
                         'DataType' => 'String',
                         'StringValue' => 'Transactional'
