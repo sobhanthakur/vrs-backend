@@ -10,10 +10,17 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\DatabaseViews\AdditionalDefaultServicers;
+use AppBundle\Entity\Tasks;
+use AppBundle\Entity\Taskstoservicers;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+/**
+ * Class TasksService
+ * @package AppBundle\Service
+ */
 class TasksService extends BaseService
 {
     /**
@@ -182,4 +189,192 @@ class TasksService extends BaseService
         return $returnData;
     }
 
+    /**
+     * Function to validate and create and update Tasks
+     *
+     * @param $content
+     * @param $authDetails
+     * @param $propertyBookingID
+     *
+     * @return array
+     */
+    public function insertTaskDetails($content, $authDetails)
+    {
+        $returnData = array();
+        $taskApiContent = array();
+
+        try {
+            // parse Content
+            $propertyID = $content[GeneralConstants::PROPERTY_ID];
+            $taskRuleID = $content[GeneralConstants::TASKRULEID];
+            $taskDescription = $content['TaskDescription'];
+            $taskStartDate = $content['TaskStartDate'];
+            $taskStartTime = $content['TaskStartTime'];
+            $taskCompleteByDate = $content['TaskCompleteByDate'];
+            $taskCompleteByTime = $content['TaskCompleteByTime'];
+            $taskDate = $content['TaskDate'];
+            $taskTime = $content['TaskTime'];
+
+            // Check if a TaskRuleID is a valid ServiceID
+            $checkValidTaskRule = $this->entityManager->getRepository('AppBundle:Servicestoproperties')->CheckValidTaskRule($taskRuleID,$propertyID,$authDetails);
+            if (empty($checkValidTaskRule)) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            // Check if the input body is already present
+            $checkValidTask = $this->entityManager->getRepository('AppBundle:Tasks')->CheckValidTask($content);
+            if (!empty($checkValidTask)) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            // Insert Task
+            $task = $this->CreateTask($content,$checkValidTaskRule);
+
+            $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[date('N')];
+
+            // Assign the default Servicer
+            $thisDefaultServicerID = $checkValidTaskRule[0]['DefaultServicerID'];
+
+            // If the servicer is not working on this day, then assign a backup Servicer
+            if(strpos((string)$checkValidTaskRule[0]['WorkDays'],(string)$thisDayOfWeek) === false) {
+                $thisDefaultServicerID = $checkValidTaskRule[0]['BackupServicerID'.(string)$thisDayOfWeek];
+            }
+
+            // Get Payrate of that Servicer
+            $payRate = 0;
+            $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+            if ($servicerID) {
+                $payRate = $servicerID->getPayrate();
+            }
+
+            // Insert Lead Employee
+            $tasksToServicers = new Taskstoservicers();
+            $tasksToServicers->setTaskid($task);
+            $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+            $tasksToServicers->setIslead(true);
+            $tasksToServicers->setPiecepay($checkValidTaskRule[0]['PiecePay']);
+            $tasksToServicers->setPayrate($payRate);
+            $tasksToServicers->setPaytype($checkValidTaskRule[0]['PayType']);
+
+            // persist taskstoservicers
+            $this->entityManager->persist($tasksToServicers);
+            $this->entityManager->flush();
+
+            $response['TasksToServicers'] = $tasksToServicers->getTasktoservicerid();
+            $response['DefaultServicerID'] = $thisDefaultServicerID;
+
+            // GET ADDITIONAL EMPLOYEES
+            $rsAdditionalServicers = 'SELECT ServicerID,ServiceToPropertyID,BackupServicerID7,BackupServicerID1,BackupServicerID2,BackupServicerID3,BackupServicerID4,BackupServicerID5,BackupServicerID6,WorkDays,PiecePay FROM ('.AdditionalDefaultServicers::vAdditionalDefaultServicers.') as S where S.ServiceToPropertyID='.$checkValidTaskRule[0]['ServiceToPropertyID'].' ORDER BY S.AdditionalDefaultServicerID';
+            $rsAdditionalServicers = $this->entityManager->getConnection()->prepare($rsAdditionalServicers);
+            $rsAdditionalServicers->execute();
+            $rsAdditionalServicers = $rsAdditionalServicers->fetchAll();
+
+            if (!empty($rsAdditionalServicers)) {
+                foreach ($rsAdditionalServicers as $rsAdditionalServicer) {
+                    // Assign the default Servicer
+                    $thisDefaultServicerID = $rsAdditionalServicer['DefaultServicerID'];
+
+                    // If the servicer is not working on this day, then assign a backup Servicer
+                    if(strpos((string)$rsAdditionalServicer['WorkDays'],(string)$thisDayOfWeek) === false) {
+                        $thisDefaultServicerID = $rsAdditionalServicer['BackupServicerID'.(string)$thisDayOfWeek];
+                    }
+
+                    // Servicer Object
+                    $servicerID = $this->entityManager->getRepository('AppBundle:Servicers')->find($thisDefaultServicerID);
+
+                    // INSERT ADDITIONAL EMPLOYEE
+                    $tasksToServicers = new Taskstoservicers();
+                    $tasksToServicers->setTaskid($task);
+                    $tasksToServicers->setServicerid($servicerID ? $servicerID : null);
+                    $tasksToServicers->setIslead(false);
+                    $tasksToServicers->setPiecepay($rsAdditionalServicer['PiecePay']);
+
+                    // Persist $tasksToServicers
+                    $this->entityManager->persist($tasksToServicers);
+                    $response['AdditionalEmployees'][] = $tasksToServicers->getTasktoservicerid();
+                }
+                $this->entityManager->flush();
+            }
+
+            return array(
+                GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS,
+                'TaskInfo' => $response
+            );
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::TASKS_API .
+                $exception->getMessage());
+            throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+        }
+
+        return $returnData;
+    }
+
+    /**
+     * @param $content
+     * @param $rsService
+     * @return Tasks
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function CreateTask($content, $rsService)
+    {
+        $task = new Tasks();
+        $task->setPropertybookingid(null);
+        $task->setPropertyid($this->entityManager->getRepository('AppBundle:Properties')->find($content[GeneralConstants::PROPERTY_ID]));
+//        $task->setIssueid($issues);
+//            $task->setNextpropertybookingid();
+//            $task->setParenttaskid(0);
+        $task->setTasktype(9);
+//        $task->setTaskname($content['Issue']);
+        $task->setTaskstartdate(new \DateTime($content['TaskStartDate']));
+        $task->setTaskstarttime($content['TaskStartTime']);
+        $task->setTaskdate(new \DateTime($content['TaskDate']));
+        $task->setTasktime($content['TaskTime']);
+        $task->setTaskdatetime(new \DateTime('now'));
+        $task->setTaskcompletebydate(new \DateTime($content['TaskCompleteByDate']));
+        $task->setTaskcompletebytime($content['TaskCompleteByTime']);
+        $task->setServiceid($content[GeneralConstants::TASKRULEID]);
+        $task->setMintimetocomplete($rsService[0]['MinTimeToComplete']);
+        $task->setMaxtimetocomplete($rsService[0]['MaxTimeToComplete']);
+        $task->setNumberofservicers($rsService[0]['NumberOfServicers']);
+        $task->setMarked(1);
+        $task->setEdited(1);
+        $task->setIncludedamage((int)$rsService[0]['IncludeDamage']);
+        $task->setIncludemaintenance((int)$rsService[0]['IncludeMaintenance']);
+        $task->setIncludelostandfound((int)$rsService[0]['IncludeLostAndFound']);
+        $task->setIncludesupplyflag((int)$rsService[0]['IncludeSupplyFlag']);
+        $task->setIncludeservicernote((int)$rsService[0]['IncludeServicerNote']);
+        $task->setNotifycustomeroncompletion((int)$rsService[0]['NotifyCustomerOnCompletion']);
+        $task->setNotifycustomeronoverdue((int)$rsService[0]['NotifyServicerOnOverdue']);
+        $task->setNotifycustomerondamage((int)$rsService[0]['NotifyCustomerOnDamage']);
+        $task->setNotifycustomeronmaintenance((int)$rsService[0]['NotifyCustomerOnMaintenance']);
+        $task->setNotifycustomeronservicernote((int)$rsService[0]['NotifyCustomerOnServicerNote']);
+        $task->setNotifycustomeronlostandfound((int)$rsService[0]['NotifyCustomerOnLostAndFound']);
+        $task->setNotifycustomeronsupplyflag((int)$rsService[0]['NotifyCustomerOnSupplyFlag']);
+        $task->setIncludetoownernote((int)$rsService[0]['IncludeToOwnerNote'] === 1 ? true : false);
+        $task->setDefaulttoownernote(trim($rsService[0]['DefaultToOwnerNote']));
+        $task->setNotifyowneroncompletion($rsService[0]['NotifyOwnerOnCompletion']);
+        $task->setAllowshareimageswithowners((int)$rsService[0]['AllowShareImagesWithOwners'] === 1 ? true : false);
+        $task->setNotifyserviceronoverdue($rsService[0]['NotifyServicerOnOverdue']);
+        $task->setNotifycustomeronnotyetdone($rsService[0]['NotifyCustomerOnNotYetDone']);
+        $task->setNotifyserviceronnotyetdone($rsService[0]['NotifyServicerOnNotYetDone']);
+        $task->setTaskdescription($content['TaskDescription']);
+        $task->setBillable($rsService[0]['Billable']);
+        $task->setAmount($rsService[0]['Amount'] ? $rsService[0]['Amount'] : 0);
+        $task->setExpenseamount($rsService[0]['ExpenseAmount'] ? $rsService[0]['ExpenseAmount'] : 0);
+//            $task->setPropertyitemid();
+        $task->setCreatedbyservicerid($rsService[0]['DefaultServicerID']);
+
+        $this->entityManager->persist($task);
+        $this->entityManager->flush();
+
+        // Return Task Object
+        return $task;
+    }
 }
