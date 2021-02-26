@@ -78,8 +78,8 @@ class QuickbooksOnlineAuthentication extends BaseService
     {
         $dataService = DataService::Configure(array(
             'auth_mode' => $quickbooksConfig['AuthMode'],
-            'ClientID' => $quickbooksConfig['ClientID'],
-            'ClientSecret' => $quickbooksConfig['ClientSecret'],
+            GeneralConstants::CLIENTID => $quickbooksConfig[GeneralConstants::CLIENTID],
+            GeneralConstants::CLIENTSECRET => $quickbooksConfig[GeneralConstants::CLIENTSECRET],
             'RedirectURI' => $quickbooksConfig['RedirectURI'],
             'scope' => $quickbooksConfig['Scope'],
             'baseUrl' => $quickbooksConfig['BaseURL']
@@ -98,8 +98,8 @@ class QuickbooksOnlineAuthentication extends BaseService
     {
         $dataService = DataService::Configure(array(
             'auth_mode' => $quickbooksConfig['AuthMode'],
-            'ClientID' => $quickbooksConfig['ClientID'],
-            'ClientSecret' => $quickbooksConfig['ClientSecret'],
+            GeneralConstants::CLIENTID => $quickbooksConfig[GeneralConstants::CLIENTID],
+            GeneralConstants::CLIENTSECRET => $quickbooksConfig[GeneralConstants::CLIENTSECRET],
             'accessTokenKey' => $integrationQBOTokens->getAccessToken(),
             'refreshTokenKey' => $integrationQBOTokens->getRefreshToken(),
             'QBORealmID' => $integrationQBOTokens->getRealmID(),
@@ -120,25 +120,21 @@ class QuickbooksOnlineAuthentication extends BaseService
      */
     public function RefreshAccessToken($dataService, $integrationQBOTokens)
     {
-        try {
-            $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
-            $refreshToken = $OAuth2LoginHelper->refreshAccessTokenWithRefreshToken($integrationQBOTokens->getRefreshToken());
+        $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
+        $refreshToken = $OAuth2LoginHelper->refreshAccessTokenWithRefreshToken($integrationQBOTokens->getRefreshToken());
 
-            // Find entry with RealmID
-            $tokenRepo = $this->entityManager->getRepository('AppBundle:Integrationqbotokens')->findOneBy(array('realmID' => $refreshToken->getRealmID()));
-            if (!$tokenRepo) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
-            }
-            $tokenRepo->setRefreshToken($refreshToken->getRefreshToken());
-            $tokenRepo->setAccessToken($refreshToken->getAccessToken());
-
-            $this->entityManager->persist($tokenRepo);
-            $this->entityManager->flush();
-
-            return true;
-        } catch (UnprocessableEntityHttpException $exception) {
-            throw $exception;
+        // Find entry with RealmID
+        $tokenRepo = $this->entityManager->getRepository('AppBundle:Integrationqbotokens')->findOneBy(array('realmID' => $refreshToken->getRealmID()));
+        if (!$tokenRepo) {
+            throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
         }
+        $tokenRepo->setRefreshToken($refreshToken->getRefreshToken());
+        $tokenRepo->setAccessToken($refreshToken->getAccessToken());
+
+        $this->entityManager->persist($tokenRepo);
+        $this->entityManager->flush();
+
+        return true;
     }
 
 }

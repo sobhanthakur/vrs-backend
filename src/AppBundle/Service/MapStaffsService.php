@@ -24,9 +24,9 @@ class MapStaffsService extends BaseService
         try {
             $employees = $this->entityManager->getRepository('AppBundle:Integrationqbdemployees')->QBDEmployees($customerID);
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Data' => $employees
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+                GeneralConstants::DATA => $employees
             );
         } catch (HttpException $exception) {
             throw $exception;
@@ -53,17 +53,16 @@ class MapStaffsService extends BaseService
             $createDate = null;
             $limit = 10;
             $offset = 1;
-            $employeeToServicers = null;
             $integrationID = null;
             $count = null;
             $response = null;
             $flag = null;
             $unmatched = null;
 
-            if(!array_key_exists('IntegrationID',$data)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToEmployees = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncTimeTrackingEnabled($integrationID,$customerID);
@@ -80,16 +79,16 @@ class MapStaffsService extends BaseService
                 if (array_key_exists('Department', $filters)) {
                     $department = $this->entityManager->getRepository('AppBundle:Servicerstoservicegroups')->ServicerstoServiceGroupsJoinMatched($filters['Department']);
                 }
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
+                if (array_key_exists(GeneralConstants::CREATEDATE, $filters)) {
+                    $createDate = $filters[GeneralConstants::CREATEDATE];
                 }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
 
-                if (array_key_exists('Status', $filters)) {
-                    $status = $filters['Status'];
+                if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                    $status = $filters[GeneralConstants::STATUS_CAP];
 
 
                     // If status is only set to matched
@@ -97,12 +96,12 @@ class MapStaffsService extends BaseService
                         !in_array(GeneralConstants::FILTER_NOT_MATCHED, $status)
                     ) {
                         if($offset === 1) {
-                            $count = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->CountStaffsJoinMatched($customerID,$staffTags, $department, $createDate);
+                            $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDEMPLOYEESTOSERVICERS)->CountStaffsJoinMatched($customerID,$staffTags, $department, $createDate);
                             if($count) {
                                 $count = (int)$count[0][1];
                             }
                         }
-                        $response = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->StaffsJoinMatched($customerID,$staffTags, $department, $createDate, $limit, $offset);
+                        $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDEMPLOYEESTOSERVICERS)->StaffsJoinMatched($customerID,$staffTags, $department, $createDate, $limit, $offset);
                         $flag = 1;
                     }
 
@@ -119,19 +118,19 @@ class MapStaffsService extends BaseService
             // Default Case
             if (!$flag) {
                 if ($offset === 1) {
-                    $count = $this->entityManager->getRepository('AppBundle:Servicers')->CountSyncServicers($customerID, $staffTags, $department, $createDate,$unmatched);
+                    $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->CountSyncServicers($customerID, $staffTags, $department, $createDate,$unmatched);
 
                     if ($count) {
                         $count = (int)$count[0][1];
                     }
                 }
-                $response = $this->entityManager->getRepository('AppBundle:Servicers')->SyncServicers($customerID, $staffTags, $department, $createDate, $limit, $offset,$unmatched);
+                $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->SyncServicers($customerID, $staffTags, $department, $createDate, $limit, $offset,$unmatched);
             }
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message'),
-                'Data' => array(
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+                GeneralConstants::DATA => array(
                     'Count' => $count,
                     'Details' => $response
                 )
@@ -155,11 +154,11 @@ class MapStaffsService extends BaseService
     public function MapStaffsToEmployees($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncTimeTracking is enabled.
             $integrationToEmployees = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncTimeTrackingEnabled($integrationID,$customerID);
@@ -167,15 +166,15 @@ class MapStaffsService extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INACTIVE);
             }
 
-            if(!array_key_exists('Data',$content)) {
+            if(!array_key_exists(GeneralConstants::DATA,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_DATA);
             }
 
-            $data = $content['Data'];
+            $data = $content[GeneralConstants::DATA];
 
             // Traverse data to create/update mappings
             for ($i = 0; $i < count($data); $i++) {
-                $employeesTostaffs = $this->entityManager->getRepository('AppBundle:Integrationqbdemployeestoservicers')->findOneBy(
+                $employeesTostaffs = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDEMPLOYEESTOSERVICERS)->findOneBy(
                     array(
                         'servicerid' => $data[$i][GeneralConstants::STAFFID]
                     )
@@ -198,7 +197,7 @@ class MapStaffsService extends BaseService
                 // Integration QBD Customers To Properties exist, then simply update the record with the new IntegrationQBDEmployeeID
                 if (!$employeesTostaffs) {
                     // Create New Record
-                    $staff = $this->entityManager->getRepository('AppBundle:Servicers')->findOneBy(array(
+                    $staff = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->findOneBy(array(
                             'servicerid' => $data[$i][GeneralConstants::STAFFID]
                         )
                     );
@@ -228,8 +227,8 @@ class MapStaffsService extends BaseService
             $this->entityManager->flush();
 
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->translator->trans('api.response.success.message')
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION)
             );
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;

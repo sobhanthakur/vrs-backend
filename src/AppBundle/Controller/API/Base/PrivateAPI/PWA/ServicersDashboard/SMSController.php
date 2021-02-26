@@ -49,7 +49,6 @@ class SMSController extends FOSRestController
     public function SendSMS(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $smsService = $this->container->get('vrscheduler.sms_service');
             return $smsService->SendSMS($request);

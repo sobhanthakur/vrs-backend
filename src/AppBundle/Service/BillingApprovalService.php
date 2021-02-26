@@ -39,16 +39,14 @@ class BillingApprovalService extends BaseService
             $integrationID = null;
             $count = null;
             $filters = [];
-            $flag = null;
             $status = [];
-            $new = null;
             $completedDate = [];
             $timezones = [];
 
-            if (!array_key_exists('IntegrationID', $data)) {
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID, $customerID);
@@ -57,7 +55,7 @@ class BillingApprovalService extends BaseService
             }
 
             if (!empty($data)) {
-                $regions = $this->entityManager->getRepository('AppBundle:Tasks')->GetAllTimeZones($customerID);
+                $regions = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetAllTimeZones($customerID);
                 $timezones = $this->StartDateCalculation($regions,$integrationToCustomers[0]['startdate']);
 
                 $filters = array_key_exists('Filters', $data) ? $data['Filters'] : [];
@@ -65,31 +63,31 @@ class BillingApprovalService extends BaseService
                 if (array_key_exists('Property', $filters)) {
                     $properties = $filters['Property'];
                 }
-                if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
-                    $completedDate = $filters['CompletedDate'];
+                if (array_key_exists(GeneralConstants::COMPLETED_DATE, $filters) && !empty($filters[GeneralConstants::COMPLETED_DATE]['From']) && !empty($filters[GeneralConstants::COMPLETED_DATE]['To'])) {
+                    $completedDate = $filters[GeneralConstants::COMPLETED_DATE];
                     $completedDate = $this->CompletedDateRequestCalculation($regions,$completedDate);
                 }
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
+                if (array_key_exists(GeneralConstants::CREATEDATE, $filters)) {
+                    $createDate = $filters[GeneralConstants::CREATEDATE];
                 }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
             }
 
-            if (array_key_exists('Status', $filters)) {
-                $status = $filters['Status'];
+            if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                $status = $filters[GeneralConstants::STATUS_CAP];
             }
 
             if ($offset === 1) {
-                $count = $this->entityManager->getRepository('AppBundle:Tasks')->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
+                $count = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->CountMapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $status);
                 if ($count) {
                     $count = (int)$count[0][1];
                 }
             }
 
-            $response = $this->entityManager->getRepository('AppBundle:Tasks')->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
+            $response = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->MapTasks($customerID, $properties, $createDate, $completedDate, $timezones, $limit, $offset, $status);
             $response = $this->processResponse($response);
 
             return array(
@@ -119,11 +117,11 @@ class BillingApprovalService extends BaseService
     public function ApproveBilling($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncBilling is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncBillingEnabled($integrationID,$customerID);
@@ -142,9 +140,9 @@ class BillingApprovalService extends BaseService
 
                 // Check If status is correct or not
                 if(
-                ($data[$i]['Status'] !== 0) &&
-                ($data[$i]['Status'] !== 1) &&
-                ($data[$i]['Status'] !== 2)
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 0) &&
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 1) &&
+                ($data[$i][GeneralConstants::STATUS_CAP] !== 2)
                 ) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
@@ -156,13 +154,11 @@ class BillingApprovalService extends BaseService
                 );
 
                 // Throw Exception if the the record's txnID is not null
-                if(
-                    ($billingRecords !== null?($billingRecords->getTxnid() !== null):null)
-                ) {
+                if($billingRecords !== null?($billingRecords->getTxnid() !== null):null) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
                 }
 
-                $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->findOneBy(array(
+                $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->findOneBy(array(
                         'taskid' => $data[$i][GeneralConstants::TASK_ID]
                     )
                 );
@@ -180,12 +176,12 @@ class BillingApprovalService extends BaseService
                     $billingRecords = new Integrationqbdbillingrecords();
 
                     $billingRecords->setTaskid($tasks);
-                    $billingRecords->setStatus($data[$i]['Status']);
+                    $billingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
 
                     $this->entityManager->persist($billingRecords);
                 } else {
                     // Update the record
-                    $billingRecords->setStatus($data[$i]['Status']);
+                    $billingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $this->entityManager->persist($billingRecords);
                 }
             }
@@ -216,7 +212,7 @@ class BillingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $timeZoneLocal = new \DateTimeZone($regions[$i]['Region']);
+            $timeZoneLocal = new \DateTimeZone($regions[$i][GeneralConstants::REGION]);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
 
@@ -240,7 +236,7 @@ class BillingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $region = $regions[$i]['Region'];
+            $region = $regions[$i][GeneralConstants::REGION];
             $timeZoneLocal = new \DateTimeZone($region);
             $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
             $timeZoneUTC = new \DateTimeZone('UTC');
@@ -256,7 +252,7 @@ class BillingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if ($response[$i]['Status'] === null) {
+            if ($response[$i][GeneralConstants::STATUS_CAP] === null) {
                 $response[$i]["Status"] = 2;
             }
             $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['CompleteConfirmedDate']);

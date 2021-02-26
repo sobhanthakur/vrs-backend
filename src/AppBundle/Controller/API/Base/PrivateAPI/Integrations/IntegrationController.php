@@ -35,10 +35,9 @@ class IntegrationController extends FOSRestController
     public function ListIntegrations(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
-            $response = $integrationService->GetAllIntegrations($request->attributes->get(GeneralConstants::AUTHPAYLOAD));
+            return $integrationService->GetAllIntegrations($request->attributes->get(GeneralConstants::AUTHPAYLOAD));
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -51,7 +50,6 @@ class IntegrationController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 
     /**
@@ -133,7 +131,6 @@ class IntegrationController extends FOSRestController
     public function QBDIntegration(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $content = json_decode($request->getContent(),true);
@@ -191,13 +188,11 @@ class IntegrationController extends FOSRestController
     public function DisconnectQBDIntegration(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $integrationService = $this->container->get(GeneralConstants::INTEGRATION_SERVICE);
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $response = $integrationService->DisconnectQBD($customerID,$content);
-            return $response;
+            return $integrationService->DisconnectQBD($customerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

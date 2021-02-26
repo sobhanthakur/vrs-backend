@@ -9,7 +9,7 @@
 namespace AppBundle\Service;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\CustomClasses\TimeZoneConverter;
-use AppBundle\DatabaseViews\TimeClockDays;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Timeclocktasks;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -31,16 +31,16 @@ class StartTaskService extends BaseService
     {
         try {
             $startPause = $content['StartPause'];
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $dateTime = $content['DateTime'];
             $response = [];
             $timeClockResponse = null;
             $isMobile = $mobileHeaders['IsMobile'];
             $now = new \DateTime($dateTime);
 
-            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
+            $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->DoesTaskBelongToServicer($servicerID,$taskID);
 
-            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+            $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID);
             (int)$servicer->getTimetrackinggps() ? $timeTrackingGps = true : $timeTrackingGps = false;
             array_key_exists('lat',$content) ? $lat = $content['lat'] : $lat = null;
             array_key_exists('long',$content) ? $long = $content['long'] : $long = null;
@@ -96,12 +96,12 @@ class StartTaskService extends BaseService
                     $response['TimeClockDaysID'] = $timeClockDays->getTimeclockdayid();
                 }
 
-                $task = $this->entityManager->getRepository('AppBundle:Tasks')->GetCompleteConfirmedDateForStartTask($taskID);
+                $task = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetCompleteConfirmedDateForStartTask($taskID);
                 if(!empty($task)) {
                     $timeClockTasks = new Timeclocktasks();
                     $timeClockTasks->setServicerid($servicer);
                     $timeClockTasks->setClockin($now);
-                    $timeClockTasks->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
+                    $timeClockTasks->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID));
                     if ($timeTrackingGps && $lat && $long && $accuracy) {
                         $timeClockTasks->setInlat($lat);
                         $timeClockTasks->setInlon($long);

@@ -93,9 +93,8 @@ class ManageController extends FOSRestController
     public function PostIssue(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $manageService = $this->container->get('vrscheduler.manage_service');
+            $manageService = $this->container->get(GeneralConstants::MANAGE_SERVICE);
             $content = json_decode($request->getContent(),true);
 
             // Send an empty array if content is blank
@@ -181,7 +180,6 @@ class ManageController extends FOSRestController
     public function SaveManage(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $manageService = $this->container->get('vrscheduler.manage_save');
             $content = json_decode($request->getContent(),true);
@@ -275,7 +273,6 @@ class ManageController extends FOSRestController
     public function SubmitManage(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $manageService = $this->container->get('vrscheduler.manage_submit');
             $content = json_decode($request->getContent(),true);
@@ -340,9 +337,8 @@ class ManageController extends FOSRestController
     public function UploadImage(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $manageService = $this->container->get('vrscheduler.manage_service');
+            $manageService = $this->container->get(GeneralConstants::MANAGE_SERVICE);
             return $manageService->UploadImage($request);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -417,9 +413,8 @@ class ManageController extends FOSRestController
     public function IssueFormForVendorAndOwner(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
-            $manageService = $this->container->get('vrscheduler.manage_service');
+            $manageService = $this->container->get(GeneralConstants::MANAGE_SERVICE);
             $content = json_decode($request->getContent(),true);
 
             // Send an empty array if content is blank
@@ -488,7 +483,6 @@ class ManageController extends FOSRestController
     public function DeleteManageChecklist(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $manageService = $this->container->get('vrscheduler.manage_save');
             $content = json_decode($request->getContent(),true);

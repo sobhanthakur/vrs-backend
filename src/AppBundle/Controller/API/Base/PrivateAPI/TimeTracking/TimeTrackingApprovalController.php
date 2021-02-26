@@ -72,7 +72,7 @@ class TimeTrackingApprovalController extends FOSRestController
                 $data = [];
             }
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $timetrackingApprovalService = $this->container->get('vrscheduler.timetracking_approval');
+            $timetrackingApprovalService = $this->container->get(GeneralConstants::TIMETRACKING_APPROVAL_SERVICE);
             return $timetrackingApprovalService->FetchTimeClock($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -140,7 +140,7 @@ class TimeTrackingApprovalController extends FOSRestController
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $timetrackingApprovalService = $this->container->get('vrscheduler.timetracking_approval');
+            $timetrackingApprovalService = $this->container->get(GeneralConstants::TIMETRACKING_APPROVAL_SERVICE);
             $content = json_decode($request->getContent(),true);
             return $timetrackingApprovalService->ApproveTimeTracking($customerID,$content);
         } catch (BadRequestHttpException $exception) {
@@ -185,7 +185,7 @@ class TimeTrackingApprovalController extends FOSRestController
                 $data = [];
             }
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $timetrackingApprovalService = $this->container->get('vrscheduler.timetracking_approval');
+            $timetrackingApprovalService = $this->container->get(GeneralConstants::TIMETRACKING_APPROVAL_SERVICE);
             return $timetrackingApprovalService->FetchDriveTimeForStaffs($customerID, $data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;

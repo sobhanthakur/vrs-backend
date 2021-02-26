@@ -23,49 +23,25 @@ class GeneralServices extends BaseService
         foreach ($queryParameter as $paramKey => $paramValue) {
             switch ($paramKey) {
                 case 'active':
+                case 'fields':
+                case 'sort':
                     if (is_string($paramValue) === false) {
                         return false;
                     }
                     break;
 
                 case 'ownerid':
-                    if ((is_numeric($paramValue)) === false) {
-                        return false;
-                    }
-                    break;
-
                 case 'regionid':
-                    if ((is_numeric($paramValue)) === false) {
-                        return false;
-                    }
-                    break;
-
-                case 'fields':
-                    if ((is_string($paramValue)) === false) {
-                        return false;
-                    }
-                    break;
-                case 'sort':
-                    if ((is_string($paramValue)) === false) {
-                        return false;
-                    }
-                    break;
-
                 case 'limit':
-                    if ((is_numeric($paramValue)) === false) {
-                        return false;
-                    }
-                    break;
                 case 'startingafter':
                     if ((is_numeric($paramValue)) === false) {
                         return false;
                     }
                     break;
+                default:
+                    break;
             }
-
         }
-
         return true;
     }
-
 }

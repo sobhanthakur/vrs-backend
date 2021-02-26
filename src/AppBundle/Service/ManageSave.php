@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\DatabaseViews\CheckLists;
 use AppBundle\Entity\Tasks;
 use AppBundle\Entity\Taskstochecklistitems;
@@ -30,9 +31,9 @@ class ManageSave extends BaseService
     public function SaveManageDetails($servicerID, $content, $complete=null)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $checkListItems = $content['CheckListDetails'];
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->TaskToSaveManage($taskID, $servicerID);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->TaskToSaveManage($taskID, $servicerID);
             if (empty($rsThisTask)) {
                 // Throw Error if the Task Does not belong to the Servicer.
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
@@ -43,7 +44,7 @@ class ManageSave extends BaseService
              * TaskNote = servicernotes
              * Note To Owner: = To Owner Note
              */
-            $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+            $task = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID);
             if (!$task) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
@@ -111,14 +112,15 @@ class ManageSave extends BaseService
                             // Multiple Image Upload
                             if (!$complete) {
                                 $this->ProcessMultipleImageUpload($task, $checkListItem);
-                                break;
                             }
+                            break;
+                        default: break;
                     }
                 }
             }
 
             return array(
-                'Status' => 'Success'
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS
             );
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -148,10 +150,10 @@ class ManageSave extends BaseService
         // Checked/See Notes/NA grid
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
             if ($taskToCheckListItem) {
                 if ($option === 7 || $option === 10) {
-                    $taskToCheckListItem->setOptionselected((int)$input['OptionSelected']);
+                    $taskToCheckListItem->setOptionselected((int)$input[GeneralConstants::OPTION_SELECTED]);
                 } else {
                     if(!preg_match("/[a-z]/i", $input['EnteredValueAmount'])) {
                         $taskToCheckListItem->setEnteredvalueamount(eval('return '.$input['EnteredValueAmount'].';'));
@@ -175,9 +177,9 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
             if ($taskToCheckListItem) {
-                $taskToCheckListItem->setChecked($input['Checked'] && $input['Checked'] !== "" ? ((int)$input['Checked'] === 1 ? true : false) : false);
+                $taskToCheckListItem->setChecked($input[GeneralConstants::CHECKED] && $input[GeneralConstants::CHECKED] !== "" ? (int)$input[GeneralConstants::CHECKED] : 0);
                 $this->entityManager->persist($taskToCheckListItem);
                 $this->entityManager->flush();
             }
@@ -193,12 +195,12 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
             if ($taskToCheckListItem) {
-                if (array_key_exists('OptionSelected',$input) && $input['OptionSelected'] === 'Other') {
+                if (array_key_exists(GeneralConstants::OPTION_SELECTED,$input) && $input[GeneralConstants::OPTION_SELECTED] === 'Other') {
                     $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
                 }
-                $taskToCheckListItem->setOptionselected($input['OptionSelected']);
+                $taskToCheckListItem->setOptionselected($input[GeneralConstants::OPTION_SELECTED]);
                 $this->entityManager->persist($taskToCheckListItem);
                 $this->entityManager->flush();
             }
@@ -214,7 +216,7 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
             if ($taskToCheckListItem) {
                 $taskToCheckListItem->setEnteredvalue($input['EnteredValue']);
                 $this->entityManager->persist($taskToCheckListItem);
@@ -232,9 +234,9 @@ class ManageSave extends BaseService
     {
         foreach ($inputs as $input) {
             // Update the record
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
             if ($taskToCheckListItem) {
-                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $taskToCheckListItem->setImageuploaded($input[GeneralConstants::IMAGE_UPLOADED]);
                 $this->entityManager->persist($taskToCheckListItem);
                 $this->entityManager->flush();
             }
@@ -249,10 +251,10 @@ class ManageSave extends BaseService
     public function ProcessMultipleImageUpload($task, $checklistDetails)
     {
         foreach ($checklistDetails['Input'] as $input) {
-            if ($input['TaskToChecklistItemID'] && (int)$input['TaskToChecklistItemID']) {
+            if ($input[GeneralConstants::TASKTOCHECKLISTITEMID] && (int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]) {
                 // Update an entry
-                $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$input['TaskToChecklistItemID']);
-                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->find((int)$input[GeneralConstants::TASKTOCHECKLISTITEMID]);
+                $taskToCheckListItem->setImageuploaded($input[GeneralConstants::IMAGE_UPLOADED]);
                 $this->entityManager->persist($taskToCheckListItem);
             } else {
                 // Create New Entry
@@ -266,10 +268,10 @@ class ManageSave extends BaseService
                 $taskToCheckListItem->setDescription(array_key_exists('Description',$checklistDetails) ? $checklistDetails['Description'] : '');
                 $taskToCheckListItem->setImage(array_key_exists('Image',$checklistDetails) ? $checklistDetails['Image'] : '');
                 $taskToCheckListItem->setEnteredvalue('');
-                $taskToCheckListItem->setShowonownerreport(array_key_exists('ShowOwnerReport',$checklistDetails) ? ((int)$checklistDetails['ShowOnOwnerReport'] === 1 ? true : false) : false);
+                $taskToCheckListItem->setShowonownerreport(array_key_exists('ShowOwnerReport',$checklistDetails) ? (int)$checklistDetails['ShowOnOwnerReport'] : 0);
                 $taskToCheckListItem->setChecked(false);
                 $taskToCheckListItem->setSortorder(array_key_exists('SortOrder',$checklistDetails) ? (int)$checklistDetails['SortOrder'] : 0);
-                $taskToCheckListItem->setImageuploaded($input['ImageUploaded']);
+                $taskToCheckListItem->setImageuploaded($input[GeneralConstants::IMAGE_UPLOADED]);
                 $this->entityManager->persist($taskToCheckListItem);
                 $this->entityManager->flush();
             }
@@ -285,20 +287,20 @@ class ManageSave extends BaseService
     public function RemoveChecklist($servicerID, $content)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $checkListItem = $content['ChecklistItemID'];
-            $imageUploaded = $content['ImageUploaded'];
+            $imageUploaded = $content[GeneralConstants::IMAGE_UPLOADED];
 
             // Check if Task ID is valid
-            $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID, $taskID);
+            $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->DoesTaskBelongToServicer($servicerID, $taskID);
 
-            $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+            $task = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID);
             if (!$task) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
             // Find the TaskToCheckListItemID
-            $taskToCheckListItem = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->findOneBy(array(
+            $taskToCheckListItem = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKSTOCHECKLISTITEMID)->findOneBy(array(
                 'taskid' => $task,
                 'checklistitemid' => $this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checkListItem),
                 'imageuploaded' => $imageUploaded
@@ -310,7 +312,7 @@ class ManageSave extends BaseService
             }
 
             return array(
-                'Status' => 'Success'
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS
             );
         } catch (BadRequestHttpException $exception) {
             throw $exception;

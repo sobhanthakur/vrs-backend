@@ -114,10 +114,10 @@ class PropertyBookingController extends FOSRestController
 
             //Get pathinfo
             $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION[GeneralConstants::PROPERTY_BOOKINGS];
 
             //Get auth service
-            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
 
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
@@ -128,7 +128,7 @@ class PropertyBookingController extends FOSRestController
             }
 
             //Get property booking details
-            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
             $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction);
 
         } catch (BadRequestHttpException $exception) {
@@ -220,8 +220,8 @@ class PropertyBookingController extends FOSRestController
             $pathInfo = $request->getPathInfo();
 
             //check accessbility of the consumer to the resource
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
-            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION[GeneralConstants::PROPERTY_BOOKINGS];
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
             //check resteiction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
@@ -230,7 +230,7 @@ class PropertyBookingController extends FOSRestController
             }
 
             //Get property booking details
-            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
             $propertyBooking = $propertyBookingService->getPropertyBookings($authDetails, $queryParameter, $pathInfo, $restriction, $propertyBookingID);
 
         } catch (BadRequestHttpException $exception) {
@@ -306,7 +306,7 @@ class PropertyBookingController extends FOSRestController
         try {
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
-            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
             //parse the json content from request
@@ -314,13 +314,12 @@ class PropertyBookingController extends FOSRestController
 
             //validate the request
             $apiRequest = $this->validatePropertyBookingRequest($content);
-            if ($apiRequest['status'] === false) {
+            if ($apiRequest[GeneralConstants::STATUS] === false) {
                 throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
             }
 
             //Get pathinfo
-            $pathInfo = $request->getPathInfo();
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION[GeneralConstants::PROPERTY_BOOKINGS];
 
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
@@ -331,7 +330,7 @@ class PropertyBookingController extends FOSRestController
             }
 
             //Get property booking details
-            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
+            $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
             $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails);
 
 
@@ -411,7 +410,7 @@ class PropertyBookingController extends FOSRestController
         try {
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
-            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
             //Getting properyId from parameter
@@ -421,7 +420,7 @@ class PropertyBookingController extends FOSRestController
             $content = $authService->parseContent($request->getContent(), "json");
 
             //Get pathinfo
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION[GeneralConstants::PROPERTY_BOOKINGS];
 
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
@@ -432,9 +431,8 @@ class PropertyBookingController extends FOSRestController
             }
 
             //Get property booking details
-            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
-            $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID);
-            return $insertPropertyBooking;
+            $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
+            return $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -484,14 +482,14 @@ class PropertyBookingController extends FOSRestController
         try {
             //collecting authdetails
             $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
-            $authService = $this->container->get('vrscheduler.public_authentication_service');
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
             $restriction = $authDetails[GeneralConstants::PROPERTIES];
 
             //Getting properyId from parameter
             $propertyBookingID = $request->get('id');
 
             //check restriction for the user
-            $baseName = GeneralConstants::CHECK_API_RESTRICTION['PROPERTY_BOOKINGS'];
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION[GeneralConstants::PROPERTY_BOOKINGS];
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             //check access level for read and write
             $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
@@ -500,10 +498,8 @@ class PropertyBookingController extends FOSRestController
             }
 
             //delete property booking details
-            $propertyBookingService = $this->container->get('vrscheduler.public_property_bookings_service');
-            $insertPropertyBooking = $propertyBookingService->deletePropertBookingDetails($propertyBookingID);
-            return $insertPropertyBooking;
-
+            $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
+            return $propertyBookingService->deletePropertBookingDetails($propertyBookingID);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -536,14 +532,14 @@ class PropertyBookingController extends FOSRestController
 
         //returns false if request object is not valid
         if ($propertyID) {
-            return ['status' => false];
+            return [GeneralConstants::STATUS => false];
         }
         if ($checkIn) {
-            return ['status' => false];
+            return [GeneralConstants::STATUS => false];
         }
 
         if ($checkOut) {
-            return ['status' => false];
+            return [GeneralConstants::STATUS => false];
         }
 
         //returns true if key in request object is valid

@@ -72,8 +72,8 @@ class propertyDetailsServices extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyData); $i++) {
-                if (isset($propertyData[$i]['CreateDate'])) {
-                    $propertyData[$i]['CreateDate'] = $propertyData[$i]['CreateDate']->format('Y-m-d');
+                if (isset($propertyData[$i][GeneralConstants::CREATEDATE])) {
+                    $propertyData[$i][GeneralConstants::CREATEDATE] = $propertyData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
             }
 

@@ -75,7 +75,7 @@ class StaffTasksService extends BaseService
 
             //calculating Timetracked for each staff
             foreach ($staffTasksData as $value) {
-                if (isset($value['ClockIn']) && isset($value['ClockIn'])) {
+                if (isset($value['ClockIn'])) {
                     $value['ClockIn'] = $value['ClockIn']->getTimestamp();
                     $value['ClockOut'] = $value['ClockOut']->getTimestamp();
                     $value['TimeTracked'] = $value['ClockOut'] - $value['ClockIn'];
@@ -121,10 +121,10 @@ class StaffTasksService extends BaseService
                             $result[$i]['Pay'] = 0;
                             break;
                         case 1:
-                            $result[$i]['Pay'] = $result[$i]['PiecePay'];
+                            $result[$i]['Pay'] = $result[$i][GeneralConstants::PIECEPAY];
                             break;
                         case 2:
-                            $result[$i]['Pay'] = $result[$i]['PiecePay'] * $result[$i]['ServicerPayRate'];
+                            $result[$i]['Pay'] = $result[$i][GeneralConstants::PIECEPAY] * $result[$i]['ServicerPayRate'];
                             break;
                         case 3:
                             $totalWorked = $timeWorkedInHour * $result[$i]['ServicerPayRate'];

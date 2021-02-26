@@ -56,15 +56,14 @@ class SyncLogsController extends FOSRestController
     public function ListSyncLogs(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $syncLogsService = $this->container->get('vrscheduler.sync_logs');
-            $response = $syncLogsService->FetchAllSyncLogs($customerID,$data);
+            $syncLogsService = $this->container->get(GeneralConstants::SYNC_LOGS_SERVICE);
+            return $syncLogsService->FetchAllSyncLogs($customerID,$data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -77,7 +76,6 @@ class SyncLogsController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 
     /**
@@ -112,15 +110,14 @@ class SyncLogsController extends FOSRestController
     public function BatchWiseSyncLogs(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
             $data = json_decode(base64_decode($request->get('data')),true);
             if(empty($data)) {
                 $data = [];
             }
-            $syncLogsService = $this->container->get('vrscheduler.sync_logs');
-            $response = $syncLogsService->BatchWiseLogs($customerID,$data);
+            $syncLogsService = $this->container->get(GeneralConstants::SYNC_LOGS_SERVICE);
+            return $syncLogsService->BatchWiseLogs($customerID,$data);
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -133,7 +130,6 @@ class SyncLogsController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 
     /**
@@ -179,11 +175,10 @@ class SyncLogsController extends FOSRestController
     public function ResetSyncBatch(Request $request)
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
-        $response = null;
         try {
             $content = json_decode($request->getContent(),true);
             $customerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID];
-            $syncLogsService = $this->container->get('vrscheduler.sync_logs');
+            $syncLogsService = $this->container->get(GeneralConstants::SYNC_LOGS_SERVICE);
             return $syncLogsService->ResetSyncLogs($customerID,$content);
         } catch (BadRequestHttpException $exception) {
             throw $exception;

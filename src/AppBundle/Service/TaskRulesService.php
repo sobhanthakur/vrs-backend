@@ -31,7 +31,7 @@ class TaskRulesService extends BaseService
         $returnData = array();
         try {
             //Get issue Repo
-            $taskRulesRepo = $this->entityManager->getRepository('AppBundle:Services');
+            $taskRulesRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICES);
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
@@ -69,8 +69,8 @@ class TaskRulesService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($taskRulesData); $i++) {
-                if (isset($taskRulesData[$i]['CreateDate'])) {
-                    $taskRulesData[$i]['CreateDate'] = $taskRulesData[$i]['CreateDate']->format('Y-m-d');
+                if (isset($taskRulesData[$i][GeneralConstants::CREATEDATE])) {
+                    $taskRulesData[$i][GeneralConstants::CREATEDATE] = $taskRulesData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
             }
 

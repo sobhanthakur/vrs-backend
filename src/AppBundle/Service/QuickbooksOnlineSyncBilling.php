@@ -15,6 +15,7 @@ use QuickBooksOnline\API\Facades\Estimate;
 use QuickBooksOnline\API\Facades\Invoice;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class QuickbooksOnlineSyncBilling
@@ -130,6 +131,10 @@ class QuickbooksOnlineSyncBilling extends BaseService
             }
 
             foreach ($tasks as $task) {
+                $response[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['QBDListID'];
+                $billingRecordID[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['IntegrationQBDBillingRecordID'];
+                $description[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task[GeneralConstants::REGION]) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
+                $amount[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['Amount'];
                 // Check If Both Labor & Material are mapped.
                 // If only either of them is mapped, then do not mention labor/material in the description
                 $itemMap = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(array(

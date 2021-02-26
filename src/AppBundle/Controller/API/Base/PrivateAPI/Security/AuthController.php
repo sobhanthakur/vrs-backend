@@ -11,14 +11,12 @@ use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Options;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Swagger\Annotations as SWG;
-use QuickBooksOnline\API\DataService\DataService;
 
 /**
  * Class AuthController
@@ -41,7 +39,6 @@ class AuthController extends FOSRestController
     {
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
         $authService = $this->container->get('vrscheduler.authentication_service');
-        $response = null;
         try {
             $authenticateResult = $authService->VerifyAuthToken($request);
             if($authenticateResult['status']) {
@@ -54,7 +51,7 @@ class AuthController extends FOSRestController
 
                 //Structure the API response
                 $authResponse = $this->container->get('vrscheduler.api_response_service');
-                $response = $authResponse->createAuthApiSuccessResponse($validateResponse, $authenticateResult);
+                return $authResponse->createAuthApiSuccessResponse($validateResponse, $authenticateResult);
             }
         } catch (BadRequestHttpException $exception) {
             throw $exception;
@@ -68,7 +65,6 @@ class AuthController extends FOSRestController
             // Throwing Internal Server Error Response In case of Unknown Errors.
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
-        return $response;
     }
 
     /**
@@ -90,8 +86,8 @@ class AuthController extends FOSRestController
             $authenticationResult = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
             $newToken = $authService->CreateNewToken($authenticationResult);
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_TEXT => $this->container->get(GeneralConstants::TRANSLATOR_DEFAULT)->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 'Token' => $newToken
             );
         } catch (BadRequestHttpException $exception) {
@@ -116,8 +112,8 @@ class AuthController extends FOSRestController
     public function QWCSupportURL(Request $request)
     {
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message')
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->container->get(GeneralConstants::TRANSLATOR_DEFAULT)->trans(GeneralConstants::SUCCESS_TRANSLATION)
         );
     }
 
@@ -139,16 +135,16 @@ class AuthController extends FOSRestController
             $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
             // Capture Quickbooks Config Parameters
-            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+            $quickbooksConfig = $this->container->getParameter(GeneralConstants::QUICKBOOKS_CONFIGURATION);
 
             // Configure Data Service
             $dataService = $this->container->get('vrscheduler.quickbooksonline_authentication')->Configure($quickbooksConfig);
             $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
             $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
             return array(
-                'ReasonCode' => 0,
-                'ReasonText' => $this->container->get('translator.default')->trans('api.response.success.message'),
-                'RedirectURI' => $authUrl
+                GeneralConstants::REASON_CODE => 0,
+                GeneralConstants::REASON_CODE => $this->container->get(GeneralConstants::TRANSLATOR_DEFAULT)->trans(GeneralConstants::SUCCESS_TRANSLATION),
+                GeneralConstants::REDIRECTURI => $authUrl
             );
         } catch (HttpException $exception) {
             throw $exception;
@@ -171,7 +167,7 @@ class AuthController extends FOSRestController
             $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
 
             // Capture Quickbooks Config Parameters
-            $quickbooksConfig = $this->container->getParameter('QuickBooksConfiguration');
+            $quickbooksConfig = $this->container->getParameter(GeneralConstants::QUICKBOOKS_CONFIGURATION);
 
             $authService = $this->container->get('vrscheduler.quickbooksonline_authentication')->QBOAuthentication($quickbooksConfig,$request);
 
@@ -180,7 +176,7 @@ class AuthController extends FOSRestController
             }
 
             // Redirect on success
-            return $this->redirect($this->container->getParameter('QuickBooksConfiguration')['RedirectAfterCallback']);
+            return $this->redirect($this->container->getParameter(GeneralConstants::QUICKBOOKS_CONFIGURATION)['RedirectAfterCallback']);
 
         } catch (HttpException $exception) {
             throw $exception;

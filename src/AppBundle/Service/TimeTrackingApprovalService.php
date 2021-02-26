@@ -43,10 +43,10 @@ class TimeTrackingApprovalService extends BaseService
             $new = null;
             $qbo = null;
 
-            if (!array_key_exists('IntegrationID', $data)) {
+            if (!array_key_exists(GeneralConstants::INTEGRATION_ID, $data)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncTimeTracking is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array(
@@ -75,22 +75,22 @@ class TimeTrackingApprovalService extends BaseService
                 $regions = $this->entityManager->getRepository('AppBundle:Timeclockdays')->GetAllTimeZones($customerID, $staff);
                 $timezones = $this->StartDateCalculation($regions,$integrationToCustomers->getStartdate());
 
-                if (array_key_exists('CreateDate', $filters)) {
-                    $createDate = $filters['CreateDate'];
+                if (array_key_exists(GeneralConstants::CREATEDATE, $filters)) {
+                    $createDate = $filters[GeneralConstants::CREATEDATE];
                 }
                 if (array_key_exists('CompletedDate', $filters) && !empty($filters['CompletedDate']['From']) && !empty($filters['CompletedDate']['To'])) {
                     $completedDate = $filters['CompletedDate'];
                     $completedDate = $this->CompletedDateRequestCalculation($regions,$completedDate);
                 }
-                if (array_key_exists('Pagination', $data)) {
-                    $limit = $data['Pagination']['Limit'];
-                    $offset = $data['Pagination']['Offset'];
+                if (array_key_exists(GeneralConstants::PAGINATION, $data)) {
+                    $limit = $data[GeneralConstants::PAGINATION]['Limit'];
+                    $offset = $data[GeneralConstants::PAGINATION]['Offset'];
                 }
             }
 
 
-            if (array_key_exists('Status', $filters)) {
-                $status = $filters['Status'];
+            if (array_key_exists(GeneralConstants::STATUS_CAP, $filters)) {
+                $status = $filters[GeneralConstants::STATUS_CAP];
             }
 
             // Process Time tracking records
@@ -258,7 +258,7 @@ class TimeTrackingApprovalService extends BaseService
     public function processResponse($response)
     {
         for ($i = 0; $i < count($response); $i++) {
-            if ($response[$i]['Status'] === null) {
+            if ($response[$i][GeneralConstants::STATUS_CAP] === null) {
                 $response[$i]["Status"] = 2;
             }
 
@@ -291,11 +291,11 @@ class TimeTrackingApprovalService extends BaseService
     public function ApproveTimeTracking($customerID, $content)
     {
         try {
-            if(!array_key_exists('IntegrationID',$content)) {
+            if(!array_key_exists(GeneralConstants::INTEGRATION_ID,$content)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::EMPTY_INTEGRATION_ID);
             }
 
-            $integrationID = $content['IntegrationID'];
+            $integrationID = $content[GeneralConstants::INTEGRATION_ID];
 
             //Check if the customer has enabled the integration or not and QBDSyncTimeTracking is enabled.
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->IsQBDSyncTimeTrackingEnabled($integrationID,$customerID);
@@ -316,9 +316,9 @@ class TimeTrackingApprovalService extends BaseService
 
                 // Check If status is correct or not
                 if(
-                    ($data[$i]['Status'] !== 0) &&
-                    ($data[$i]['Status'] !== 1) &&
-                    ($data[$i]['Status'] !== 2)
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 0) &&
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 1) &&
+                    ($data[$i][GeneralConstants::STATUS_CAP] !== 2)
                 ) {
                     throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STATUS);
                 }
@@ -364,14 +364,14 @@ class TimeTrackingApprovalService extends BaseService
                         $timetrackingRecords->setTimeclockdaysid($timeclock);
                     }
 
-                    $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $timetrackingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $timetrackingRecords->setDay(new \DateTime($data[$i]['Date']));
                     $timetrackingRecords->setTimetrackedseconds($this->DateDiffCalculation($timeclock->getClockout()->diff($timeclock->getClockin())));
 
                     $this->entityManager->persist($timetrackingRecords);
                 } else {
                     // Update the record
-                    $timetrackingRecords->setStatus($data[$i]['Status']);
+                    $timetrackingRecords->setStatus($data[$i][GeneralConstants::STATUS_CAP]);
                     $this->entityManager->persist($timetrackingRecords);
                 }
             }
@@ -402,7 +402,7 @@ class TimeTrackingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $timeZoneLocal = new \DateTimeZone($regions[$i]['Region']);
+            $timeZoneLocal = new \DateTimeZone($regions[$i][GeneralConstants::REGION]);
             $fromLocal = new \DateTime($completedDateRequest['From'],$timeZoneLocal);
             $toLocal = new \DateTime($completedDateRequest['To'],$timeZoneLocal);
 
@@ -426,7 +426,7 @@ class TimeTrackingApprovalService extends BaseService
     {
         $response = [];
         for($i=0;$i<count($regions);$i++) {
-            $region = $regions[$i]['Region'];
+            $region = $regions[$i][GeneralConstants::REGION];
             $timeZoneLocal = new \DateTimeZone($region);
             $startDateLocal = new \DateTime($startDate->format('Y-m-d'),$timeZoneLocal);
             $timeZoneUTC = new \DateTimeZone('UTC');
@@ -457,7 +457,7 @@ class TimeTrackingApprovalService extends BaseService
     public function FetchDriveTimeForStaffs($customerID, $data)
     {
         try {
-            $integrationID = $data['IntegrationID'];
+            $integrationID = $data[GeneralConstants::INTEGRATION_ID];
             $startDate = null;
 
             $integrationToCustomers = $this->entityManager->getRepository('AppBundle:Integrationstocustomers')->findOneBy(array(
@@ -483,7 +483,7 @@ class TimeTrackingApprovalService extends BaseService
                 $timeClockDays = $this->entityManager->getRepository('AppBundle:Timeclockdays')->TimeClockDaysForDriveTime($customerID,$startDate->format('Y-m-d'));
                 if(!empty($timeClockDays)) {
                     foreach ($timeClockDays as $timeClockDay) {
-                        $clockSortByID[$timeClockDay['ServicerID']][$timeClockDay['ClockIn']->format('Y-m-d')][] =
+                        $clockSortByID[$timeClockDay[GeneralConstants::SERVICERID]][$timeClockDay['ClockIn']->format('Y-m-d')][] =
                             $this->DateDiffCalculation($timeClockDay['ClockIn']->diff($timeClockDay['ClockOut']));
                     }
                     foreach ($clockSortByID as $outerKey => $outerValue) {
@@ -501,9 +501,9 @@ class TimeTrackingApprovalService extends BaseService
                 $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->TimeClockTasksForDriveTime($customerID,$startDate->format('Y-m-d'));
                 if (!empty($timeClockDays) && !empty($timeClockTasks)) {
                     foreach ($timeClockTasks as $timeClockTask) {
-                        $taskSortByID[$timeClockTask['ServicerID']][$timeClockTask['ClockIn']->format('Y-m-d')][] =
+                        $taskSortByID[$timeClockTask[GeneralConstants::SERVICERID]][$timeClockTask['ClockIn']->format('Y-m-d')][] =
                             $this->DateDiffCalculation($timeClockTask['ClockIn']->diff($timeClockTask['ClockOut']));
-                        $timeClockID[$timeClockTask['ServicerID']] = $timeClockTask['TimeClockTaskID'];
+                        $timeClockID[$timeClockTask[GeneralConstants::SERVICERID]] = $timeClockTask['TimeClockTaskID'];
                     }
                     foreach ($taskSortByID as $outerKey => $outerValue) {
                         foreach ($outerValue as $innerKey => $innerValue) {

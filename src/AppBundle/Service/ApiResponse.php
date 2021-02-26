@@ -51,7 +51,7 @@ class ApiResponse extends BaseService
             'AccessToken' => $result['AccessToken'],
             'Permissions' => $result['Restrictions'],
             'UserDetails' => array(
-                'CustomerID' => $authenticateResult[GeneralConstants::MESSAGE]['CustomerID'],
+                GeneralConstants::CUSTOMER_ID => $authenticateResult[GeneralConstants::MESSAGE][GeneralConstants::CUSTOMER_ID],
                 'CustomerName' => $result[GeneralConstants::MESSAGE]['CustomerName'],
                 GeneralConstants::LOCALEID => $result[GeneralConstants::LOCALEID],
                 GeneralConstants::REGION => $result[GeneralConstants::REGION]

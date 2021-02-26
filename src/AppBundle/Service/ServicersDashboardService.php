@@ -34,29 +34,25 @@ class ServicersDashboardService extends BaseService
     {
         try {
             $response = [];
-            $servicers = $this->entityManager->getRepository('AppBundle:Servicers')->ServicerDashboardRestrictions((int)$servicerID);
-            $tasks = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard((int)$servicerID, $servicers);
-            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0]['Region']);
+            $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
+            $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers);
+            $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0][GeneralConstants::REGION]);
 
             // Local Time
-            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0]['Region']);
+            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0][GeneralConstants::REGION]);
             $localHour = (int)ltrim($localTime->format('H'), '0');;
             $localTime->setTime(0,0,0);
             /*
              * Make Sure Local time is changed here
              */
-
             for ($i=0; $i<count($tasks); $i++) {
-//            for ($i=0; $i<1; $i++) {
-
-                    // Initialize local variables
+                // Initialize local variables
                 $taskEstimates = null;
                 $guestDetails = null;
                 $acceptDecline = 0;
                 $expand = 0;
                 $startTask = 0;
                 $pauseTask = 0;
-                $window = null;
                 $tabs = null;
                 $description = null;
                 $manage = 0;
@@ -64,42 +60,41 @@ class ServicersDashboardService extends BaseService
                 $doneCondition = 0;
 
                 // Show AcceptDecline
-                if($servicers[0]['RequestAcceptTasks'] && !$tasks[$i]['AcceptedDate']) {
+                if($servicers[0][GeneralConstants::REQUESTACCEPTTASK] && !$tasks[$i]['AcceptedDate']) {
                     $acceptDecline = 1;
                 }
                 $response[$i]['AcceptDecline'] = $acceptDecline;
 
                 // Show or hide expand
-                if(!$acceptDecline && (!$servicers[0]['TimeTracking'] || $servicers[0]['TimeTracking'] === 0)) {
+                if(!$acceptDecline && (!$servicers[0][GeneralConstants::TIMETRACKING] || $servicers[0][GeneralConstants::TIMETRACKING] === 0)) {
                     $expand = 1;
                 }
                 $response[$i]['Expand'] = $expand;
 
                 // Show or hide Start Task
-                if ( ((int)$servicers[0]['TimeTracking'] === 1 && $tasks[$i]['TaskStartDate'] <= $localTime) &&
-                     ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) &&
-                     (((int)$servicers[0]['RequestAcceptTasks']) !== 1 || ((int)$servicers[0]['RequestAcceptTasks'] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
+                if ( ((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 && $tasks[$i][GeneralConstants::TASKSTARTDATE] <= $localTime) &&
+                     ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i][GeneralConstants::ASSIGNEDDATE] <= $localTime) &&
+                     (((int)$servicers[0][GeneralConstants::REQUESTACCEPTTASK]) !== 1 || ((int)$servicers[0][GeneralConstants::REQUESTACCEPTTASK] === 1 && ($tasks[$i]['AcceptedDate'] !== '')))
                 ) {
-                    if (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']) {
+                    if (empty($timeClockTasks) || (string)$timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[$i][GeneralConstants::TASK_ID]) {
                         $startTask = 1;
                     } else {
                         $pauseTask = 1;
                         $started = new \DateTime($timeClockTasks[0]['ClockIn']);
-                        $started->setTimezone(new \DateTimeZone($servicers[0]['Region']));
+                        $started->setTimezone(new \DateTimeZone($servicers[0][GeneralConstants::REGION]));
                         $started = $started->format('h:i A');
                     }
                 }
 
-                if (!((int)$servicers[0]['TimeTracking'] === 1
-                    && (empty($timeClockTasks) || (string)$timeClockTasks[0]['TaskID'] !== (string)$tasks[$i]['TaskID']))
-                    && $tasks[$i]['TaskStartDate'] <= $localTime
+                if (!((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1
+                    && (empty($timeClockTasks) || (string)$timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[$i][GeneralConstants::TASK_ID]))
+                    && $tasks[$i][GeneralConstants::TASKSTARTDATE] <= $localTime
+                    && ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i][GeneralConstants::ASSIGNEDDATE] <= $localTime)
                 ) {
-                    if ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i]['AssignedDate'] <= $localTime) {
-                        $manage = 1;
-                    }
+                    $manage = 1;
                 }
 
-                if ((int)$servicers[0]['TimeTracking'] === 1 && !empty($timeClockTasks) && (string)$timeClockTasks[0]['TaskID'] === (string)$tasks[$i]['TaskID']) {
+                if ((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 && !empty($timeClockTasks) && (string)$timeClockTasks[0][GeneralConstants::TASK_ID] === (string)$tasks[$i][GeneralConstants::TASK_ID]) {
                     $doneCondition = 1;
                 }
 
@@ -116,14 +111,14 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['TaskEstimates'] = $taskEstimates;
 
                 // Assigned Date
-                $response[$i]['AssignedDate'] = $tasks[$i]['AssignedDate'];
+                $response[$i][GeneralConstants::ASSIGNEDDATE] = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
 
                 // Window Calculation
                 $response[$i]['Window'] = array(
-                    'FromDate' => $tasks[$i]['TaskStartDate'],
-                    'ToDate' => $tasks[$i]['TaskCompleteByDate'],
-                    'FromTime' => $tasks[$i]['TaskStartTime'],
-                    'ToTime' => $tasks[$i]['TaskCompleteByTime'],
+                    'FromDate' => $tasks[$i][GeneralConstants::TASKSTARTDATE],
+                    'ToDate' => $tasks[$i][GeneralConstants::TASKCOMPLETEBYDATE],
+                    'FromTime' => $tasks[$i][GeneralConstants::TASKSTARTTIME],
+                    'ToTime' => $tasks[$i][GeneralConstants::TASKCOMPLETEBYTIME],
                     'FromMinutes' => $tasks[$i]['TaskStartTimeMinutes'],
                     'ToMinutes' => $tasks[$i]['TaskCompleteByTimeMinutes'],
                     'TaskTime' => $tasks[$i]['TaskTime'],
@@ -132,99 +127,92 @@ class ServicersDashboardService extends BaseService
                 );
 
                 if (
-                    ($tasks[$i]['TaskDescription'] !== null ? $tasks[$i]['TaskDescription'] !== '' : null) ||
-                    ($tasks[$i]['GlobalNote'] !== null ? $tasks[$i]['GlobalNote'] !== '' : null) ||
-                    ($tasks[$i]['Instructions'] !== null ? $tasks[$i]['Instructions'] !== '' : null) ||
-                    ($tasks[$i]['InGlobalNote'] !== null ? $tasks[$i]['InGlobalNote'] !== '' : null) ||
-                    ($tasks[$i]['OutGlobalNote'] !== null ? $tasks[$i]['OutGlobalNote'] !== '' : null) ||
-                    ($tasks[$i]['BookingTags'] !== null ? $tasks[$i]['BookingTags'] !== '' : null) ||
-                    ($tasks[$i]['ManualBookingTags'] !== null ? $tasks[$i]['ManualBookingTags'] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::TASKDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::TASKDESCRIPTION] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::GLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::GLOBALNOTE] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::INSTRUCTIONS] !== null ? $tasks[$i][GeneralConstants::INSTRUCTIONS] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::INGLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::INGLOBALNOTE] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::OUTGLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::OUTGLOBALNOTE] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::BOOKINGTAGS] !== null ? $tasks[$i][GeneralConstants::BOOKINGTAGS] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::MANUALBOOKINGTAGS] !== null ? $tasks[$i][GeneralConstants::MANUALBOOKINGTAGS] !== '' : null) ||
                     ($tasks[$i]['NextBookingTags'] !== null ? $tasks[$i]['NextBookingTags'] !== '' : null) ||
-                    ($tasks[$i]['NextManualBookingTags'] !== null ? $tasks[$i]['NextManualBookingTags'] !== '' : null) ||
-                    ($tasks[$i]['PMSHousekeepingNote'] !== null ? $tasks[$i]['PMSHousekeepingNote'] !== '' : null)
+                    ($tasks[$i][GeneralConstants::NEXTMANUALBOOKINGTAGS] !== null ? $tasks[$i][GeneralConstants::NEXTMANUALBOOKINGTAGS] !== '' : null) ||
+                    ($tasks[$i][GeneralConstants::PMSHOUSEKEEPINGNOTE] !== null ? $tasks[$i][GeneralConstants::PMSHOUSEKEEPINGNOTE] !== '' : null)
                 ) {
                     $description = array(
-                        'TaskDescription' => $tasks[$i]['TaskDescription'],
-                        'GlobalNote' => $tasks[$i]['GlobalNote'],
-                        'TaskType' => $tasks[$i]['TaskType'],
-                        'OutGlobalNote' => $tasks[$i]['OutGlobalNote'],
+                        GeneralConstants::TASKDESCRIPTION => $tasks[$i][GeneralConstants::TASKDESCRIPTION],
+                        GeneralConstants::GLOBALNOTE => $tasks[$i][GeneralConstants::GLOBALNOTE],
+                        GeneralConstants::TASKTYPE => $tasks[$i][GeneralConstants::TASKTYPE],
+                        GeneralConstants::OUTGLOBALNOTE => $tasks[$i][GeneralConstants::OUTGLOBALNOTE],
                         'ShowAllTagsOnDashboards' => (int)$tasks[$i]['ShowAllTagsOnDashboards'],
-                        'BookingTags' => $tasks[$i]['BookingTags'],
-                        'ManualBookingTags' => $tasks[$i]['ManualBookingTags'],
+                        GeneralConstants::BOOKINGTAGS => $tasks[$i][GeneralConstants::BOOKINGTAGS],
+                        GeneralConstants::MANUALBOOKINGTAGS => $tasks[$i][GeneralConstants::MANUALBOOKINGTAGS],
                         'NextBookingTags' => $tasks[$i]['NextBookingTags'],
-                        'NextManualBookingTags' => $tasks[$i]['NextManualBookingTags'],
+                        GeneralConstants::NEXTMANUALBOOKINGTAGS => $tasks[$i][GeneralConstants::NEXTMANUALBOOKINGTAGS],
                         'ShowPMSHousekeepingNoteOnDashboards' => (int)$tasks[$i]['ShowPMSHousekeepingNoteOnDashboards'],
-                        'PMSHousekeepingNote' => $tasks[$i]['PMSHousekeepingNote'],
-                        'InGlobalNote' => $tasks[$i]['InGlobalNote'],
-                        'Instructions' => $tasks[$i]['Instructions'],
-                        'ShortDescription' => $tasks[$i]['ShortDescription']
+                        GeneralConstants::PMSHOUSEKEEPINGNOTE => $tasks[$i][GeneralConstants::PMSHOUSEKEEPINGNOTE],
+                        GeneralConstants::INGLOBALNOTE => $tasks[$i][GeneralConstants::INGLOBALNOTE],
+                        GeneralConstants::INSTRUCTIONS => $tasks[$i][GeneralConstants::INSTRUCTIONS],
+                        GeneralConstants::SHORTDESCRIPTION => $tasks[$i][GeneralConstants::SHORTDESCRIPTION]
                     );
                 }
                 $response[$i]['Description'] = $description;
 
                 // Task Details
                 $quickChangeAbbreviation = null;
-                if ((int)$tasks[$i]['BackToBackStart'] === 1 && $tasks[$i]['TaskType'] !== null && (int)$tasks[$i]['TaskType'] === 1) {
-                    $quickChangeAbbreviation = trim($servicers[0]['QuickChangeAbbreviation']);
+                if ((int)$tasks[$i]['BackToBackStart'] === 1 && $tasks[$i][GeneralConstants::TASKTYPE] !== null && (int)$tasks[$i][GeneralConstants::TASKTYPE] === 1) {
+                    $quickChangeAbbreviation = trim($servicers[0][GeneralConstants::QUICKCHANGEABBREVIATION]);
                 }
 
-                if ((int)$tasks[$i]['BackToBackEnd'] === 1 && $tasks[$i]['TaskType'] !== null && ((int)$tasks[$i]['TaskType'] === 0 ||
-                        (int)$tasks[$i]['TaskType'] === 4 ||
-                        (int)$tasks[$i]['TaskType'] === 8)
+                if ((int)$tasks[$i]['BackToBackEnd'] === 1 && $tasks[$i][GeneralConstants::TASKTYPE] !== null && ((int)$tasks[$i][GeneralConstants::TASKTYPE] === 0 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] === 4 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] === 8)
                 ) {
-                    $quickChangeAbbreviation = trim($servicers[0]['QuickChangeAbbreviation']);
+                    $quickChangeAbbreviation = trim($servicers[0][GeneralConstants::QUICKCHANGEABBREVIATION]);
                 }
 
                 $piecePay = null;
 
                 if ((int)$servicers[0]['ShowPiecePayAmountsOnEmployeeDashboards'] === 1) {
                     if ((int)$tasks[$i]['PayType'] === 1) {
-                        $piecePay = $tasks[$i]['PiecePay'];
+                        $piecePay = $tasks[$i][GeneralConstants::PIECEPAY];
                     }
 
                     if ((int)$tasks[$i]['PayType'] === 2) {
-                        $piecePay = $tasks[$i]['PiecePay'] * $servicers[0]['PayRate'];
+                        $piecePay = $tasks[$i][GeneralConstants::PIECEPAY] * $servicers[0]['PayRate'];
                     }
                 }
 
-                // Set Currency
-                /*if ($piecePay) {
-                    $fmt = new \NumberFormatter( $servicers[0]['CustomersLocale'], \NumberFormatter::CURRENCY);
-                    $piecePay = $fmt->format($piecePay);
-                }*/
-
-
                 // Check Scheduling Notes
                 $schedulingNote = null;
-                $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i]['AssignedDate']->format('N')];
+                $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i][GeneralConstants::ASSIGNEDDATE]->format('N')];
                 if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
                     $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
                 }
 
                 // Set Status
-                if ($tasks[$i]['TaskCompleteByDate'] < $localTime || ($tasks[$i]['TaskCompleteByDate'] === $localTime && $tasks['TaskCompleteByTime'] <=  $localHour)) {
+                if ($tasks[$i][GeneralConstants::TASKCOMPLETEBYDATE] < $localTime || ($tasks[$i][GeneralConstants::TASKCOMPLETEBYDATE] === $localTime && $tasks[GeneralConstants::TASKCOMPLETEBYTIME] <=  $localHour)) {
                     $status = 0;
-                } elseif ($tasks[$i]['AssignedDate'] <= $localTime) {
+                } elseif ($tasks[$i][GeneralConstants::ASSIGNEDDATE] <= $localTime) {
                     $status = 1;
                 } else {
                     $status = 2;
                 }
 
                 // Compute Region Colour
-                if ((string)$tasks[$i]['BookingColor'] !== '' && $tasks[$i]['PropertyID'] === $tasks[$i]['PropertyBookingPropertyID']) {
+                if ((string)$tasks[$i]['BookingColor'] !== '' && $tasks[$i][GeneralConstants::PROPERTY_ID] === $tasks[$i]['PropertyBookingPropertyID']) {
                     $regionColour = trim($tasks[$i]['BookingColor']);
-                } elseif ($tasks[$i]['RegionColor'] !== '') {
-                    $regionColour = trim($tasks[$i]['RegionColor']);
+                } elseif ($tasks[$i][GeneralConstants::REGIONCOLOR] !== '') {
+                    $regionColour = trim($tasks[$i][GeneralConstants::REGIONCOLOR]);
                 } else {
                     $regionColour = '#0275d8';
                 }
 
 
                 $response[$i]['Details'] = array(
-                    'ShortDescription' => $tasks[$i]['ShortDescription'],
+                    GeneralConstants::SHORTDESCRIPTION => $tasks[$i][GeneralConstants::SHORTDESCRIPTION],
                     'DoneCondition' => $doneCondition,
                     'PropertyStatus' => (int)$tasks[$i]['ShowPropertyStatusOnDashboards'] ? $tasks[$i]['PropertyStatus'] : null,
-                    'Status' => $status,
+                    GeneralConstants::STATUS_CAP => $status,
                     'AllowChangeTaskDate' => (int)$servicers[0]['AllowChangeTaskDate'],
                     'ParentTaskDate' => $tasks[$i]['ParentTaskDate'],
                     'ParentTaskID' => $tasks[$i]['ParenTaskID'],
@@ -232,56 +220,56 @@ class ServicersDashboardService extends BaseService
                     'ParentCompleteConfirmedDate' => $tasks[$i]['ParentCompleteConfirmedDate'],
                     'SchedulingNote' => $schedulingNote,
                     'ShowStartTimeOnDashboard' => (int)$servicers[0]['ShowStartTimeOnDashboard'] === 1 ? 1 : 0,
-                    'PiecePay' => $piecePay,
-                    'QuickChangeAbbreviation' => $quickChangeAbbreviation,
+                    GeneralConstants::PIECEPAY => $piecePay,
+                    GeneralConstants::QUICKCHANGEABBREVIATION => $quickChangeAbbreviation,
                     'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
-                    'TaskID' => $tasks[$i]['TaskID'],
+                    GeneralConstants::TASK_ID => $tasks[$i][GeneralConstants::TASK_ID],
                     'TaskName' => $tasks[$i]['TaskName'],
-                    'Region' => $tasks[$i]['Region'],
-                    'RegionColor' => $regionColour,
-                    'PropertyBookingID' => $tasks[$i]['PropertyBookingID'],
+                    GeneralConstants::REGION => $tasks[$i][GeneralConstants::REGION],
+                    GeneralConstants::REGIONCOLOR => $regionColour,
+                    GeneralConstants::PROPERTYBOOKINGID => $tasks[$i][GeneralConstants::PROPERTYBOOKINGID],
                     'Map' => array(
                         'Lat' => $tasks[$i]['Lon'],
                         'Lon' => $tasks[$i]['Lat']
                     ),
                     'ServiceName' => $tasks[$i]['ServiceName'],
-                    'PropertyID' => $tasks[$i]['PropertyID'],
+                    GeneralConstants::PROPERTY_ID => $tasks[$i][GeneralConstants::PROPERTY_ID],
                     'ServiceID' => $tasks[$i]['ServiceID'],
                     'PropertyName' => $tasks[$i]['PropertyName'],
                     'Started' => $started,
-                    'SlackLink' => (trim($tasks[$i]['SlackChannelID']) !== '' && trim($tasks[$i]['SlackTeamID'] !== '') && (int)$tasks[$i]['UseSlack'] === 1) ? 1 : 0,
-                    'SlackTeamID' => trim($tasks[$i]['SlackTeamID']),
-                    'SlackChannelID' => trim($tasks[$i]['SlackChannelID']),
-                    'Address' => $tasks[$i]['Address']
+                    'SlackLink' => (trim($tasks[$i][GeneralConstants::SLACKCHANNELID]) !== '' && trim($tasks[$i][GeneralConstants::SLACKTEAMID] !== '') && (int)$tasks[$i]['UseSlack'] === 1) ? 1 : 0,
+                    GeneralConstants::SLACKTEAMID => trim($tasks[$i][GeneralConstants::SLACKTEAMID]),
+                    GeneralConstants::SLACKCHANNELID => trim($tasks[$i][GeneralConstants::SLACKCHANNELID]),
+                    GeneralConstants::ADDRESS => $tasks[$i][GeneralConstants::ADDRESS]
                 );
 
                 // Guest Details
-                if ((int)$servicers[0]['IncludeGuestNumbers'] && ((int)$tasks[$i]['TaskType'] !== 0 ||
-                        (int)$tasks[$i]['TaskType'] !== 2 ||
-                        (int)$tasks[$i]['TaskType'] !== 3 ||
-                        (int)$tasks[$i]['TaskType'] !== 4 ||
-                        (int)$tasks[$i]['TaskType'] !== 8
+                if ((int)$servicers[0]['IncludeGuestNumbers'] && ((int)$tasks[$i][GeneralConstants::TASKTYPE] !== 0 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 2 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 3 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 4 ||
+                        (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 8
                     )
                 ) {
-                    $guestDetails['Previous']['NumberOfGuests'] = $tasks[$i]['PrevNumberOfGuests'];
-                    $guestDetails['Previous']['NumberOfChildren'] = $tasks[$i]['PrevNumberOfChildren'];
-                    $guestDetails['Previous']['NumberOfPets'] = $tasks[$i]['PrevNumberOfPets'];
+                    $guestDetails[GeneralConstants::PREVIOUS]['NumberOfGuests'] = $tasks[$i]['PrevNumberOfGuests'];
+                    $guestDetails[GeneralConstants::PREVIOUS]['NumberOfChildren'] = $tasks[$i]['PrevNumberOfChildren'];
+                    $guestDetails[GeneralConstants::PREVIOUS]['NumberOfPets'] = $tasks[$i]['PrevNumberOfPets'];
 
                     $guestDetails['Next']['NumberOfGuests'] = $tasks[$i]['NextNumberOfGuests'];
                     $guestDetails['Next']['NumberOfChildren'] = $tasks[$i]['NextNumberOfChildren'];
                     $guestDetails['Next']['NumberOfPets'] = $tasks[$i]['NextNumberOfPets'];
                 }
 
-                if((int)$servicers[0]['IncludeGuestEmailPhone'] && (int)$tasks[$i]['TaskType'] !== 3) {
-                    $guestDetails['Previous']['Email'] = $tasks[$i]['PrevEmail'];
-                    $guestDetails['Previous']['Phone'] = $tasks[$i]['PrevPhone'];
+                if((int)$servicers[0]['IncludeGuestEmailPhone'] && (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 3) {
+                    $guestDetails[GeneralConstants::PREVIOUS][GeneralConstants::EMAIL] = $tasks[$i]['PrevEmail'];
+                    $guestDetails[GeneralConstants::PREVIOUS]['Phone'] = $tasks[$i]['PrevPhone'];
 
-                    $guestDetails['Next']['Email'] = $tasks[$i]['NextEmail'];
+                    $guestDetails['Next'][GeneralConstants::EMAIL] = $tasks[$i]['NextEmail'];
                     $guestDetails['Next']['Phone'] = $tasks[$i]['NextPhone'];
                 }
 
-                if((int)$servicers[0]['IncludeGuestName'] && (int)$tasks[$i]['TaskType'] !== 3) {
-                    $guestDetails['Previous']['Name'] = $tasks[$i]['PrevName'];
+                if((int)$servicers[0]['IncludeGuestName'] && (int)$tasks[$i][GeneralConstants::TASKTYPE] !== 3) {
+                    $guestDetails[GeneralConstants::PREVIOUS]['Name'] = $tasks[$i]['PrevName'];
 
                     $guestDetails['Next']['Name'] = $tasks[$i]['NextName'];
                 }
@@ -290,10 +278,10 @@ class ServicersDashboardService extends BaseService
 
                 // Check if log tab has to be rendered
                 $log = 0;
-                $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i]['PropertyID'].' AND vIssues.PropertyID <> 0';
+                $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i][GeneralConstants::PROPERTY_ID].' AND vIssues.PropertyID <> 0';
                 $allIssues .= ' AND vIssues.ClosedDate IS NULL';
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
-                    $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i]['TaskID'];
+                    $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i][GeneralConstants::TASK_ID];
                 }
                 $issues = $this->entityManager->getConnection()->prepare($allIssues);
                 $issues->execute();
@@ -305,7 +293,7 @@ class ServicersDashboardService extends BaseService
 
                 // Check if image tab has to be rendered
                 $image = 0;
-                $img = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i]['PropertyID']);
+                $img = $this->entityManager->getRepository('AppBundle:Images')->GetImageCountForDashboard($tasks[$i][GeneralConstants::PROPERTY_ID]);
                 if(!empty($img)) {
                     $image = 1;
                 }
@@ -313,9 +301,9 @@ class ServicersDashboardService extends BaseService
                 // Check if info tab has to be rendered
                 $info =0;
                 if (trim($tasks[$i]['PropertyFile'] !== '')
-                    || trim($tasks[$i]['TaskDescription'])
+                    || trim($tasks[$i][GeneralConstants::TASKDESCRIPTION])
                     || trim($tasks[$i]['DoorCode'])
-                    || trim($tasks[$i]['Address'])
+                    || trim($tasks[$i][GeneralConstants::ADDRESS])
                 ) {
                     $info = 1;
                 }
@@ -325,44 +313,49 @@ class ServicersDashboardService extends BaseService
                 $propertyBookings = '';
                 $propertiesCondition = '';
                 $taskIDs = '';
-                $temp = [];
-//                $todaysBooking = $this->entityManager->getRepository('AppBundle:Tasks')->FetchTasksForDashboard($servicerID,$servicers);
-//                if (!empty($todaysBooking) && $todaysBooking[0]['PropertyID'] && (int)$todaysBooking[0]['PropertyID'] === (int)$tasks[$i]['PropertyID']) {
-                    $pb = $tasks;
-                    if (!empty($pb)) {
-                        foreach ($pb as $value) {
-                            $value['PropertyBookingID'] ? $propertyBookings .= $value['PropertyBookingID'].',' : false;
-                            $value['TaskID'] ? $taskIDs .= $value['TaskID'].',' : false;
-                            $value['PropertyID'] ? $properties[] = $value['PropertyID'].',' : false;
+
+                $pb = $tasks;
+                if (!empty($pb)) {
+                    foreach ($pb as $value) {
+                        if ($value[GeneralConstants::PROPERTYBOOKINGID]) {
+                            $propertyBookings .= $value[GeneralConstants::PROPERTYBOOKINGID] . ',';
                         }
-                        $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
-                        $taskIDs = preg_replace("/,$/", '', $taskIDs);
-                    }
-                    // Get All Properties
-                    $rsCurrentTaskServicers = $this->entityManager->getRepository('AppBundle:Tasks')->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0]['CustomerID'],$servicers);
-                    if (!empty($rsCurrentTaskServicers)) {
-                        foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
-                            $currentTaskServicer['PropertyID'] ? $propertiesCondition .= $currentTaskServicer['PropertyID'].',' : false;
+                        if ($value[GeneralConstants::TASK_ID]) {
+                            $taskIDs .= $value[GeneralConstants::TASK_ID] . ',';
                         }
-                        $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+                        if ($value[GeneralConstants::PROPERTY_ID]) {
+                            $properties[] = $value[GeneralConstants::PROPERTY_ID] . ',';
+                        }
                     }
+                    $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                    $taskIDs = preg_replace("/,$/", '', $taskIDs);
+                }
+                // Get All Properties
+                $rsCurrentTaskServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->getTaskServicers(!empty($taskIDs) ? $taskIDs : 0, $servicers[0][GeneralConstants::CUSTOMER_ID], $servicers);
+                if (!empty($rsCurrentTaskServicers)) {
+                    foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
+                        if ($currentTaskServicer[GeneralConstants::PROPERTY_ID]) {
+                            $propertiesCondition .= $currentTaskServicer[GeneralConstants::PROPERTY_ID] . ',';
+                        }
+                    }
+                    $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+                }
 
-                    empty($propertiesCondition) ? $propertiesCondition=0:false;
-                    empty($propertyBookings) ? $propertyBookings=0:false;
+                empty($propertiesCondition) ? $propertiesCondition = 0 : false;
+                empty($propertyBookings) ? $propertyBookings = 0 : false;
 
-                    $query1 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,$propertyBookings);
-                    $query2 = $this->entityManager->getRepository('AppBundle:Tasks')->AssignmentsTask($servicers[0]['CustomerID'],50,null,$propertiesCondition);
+                $query1 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID], 50, $propertyBookings);
+                $query2 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID], 50, null, $propertiesCondition);
 
-                    $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
-                    $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$tasks[$i]['PropertyID'].'  ORDER BY R.TaskDate desc';
-                    $temp = $this->entityManager->getConnection()->prepare($temp);
-                    $temp->execute();
-                    $temp = $temp->fetchAll();
-//                }
+                $rsAllEmployeesAndTasks = $query1 . ' UNION ' . $query2;
+                $temp = 'SELECT TOP 1 ServicerID,CompleteConfirmedDate,ServiceName,Abbreviation,TaskID,TaskDate  FROM (' . $rsAllEmployeesAndTasks . ') AS R  WHERE R.PropertyID = ' . $tasks[$i][GeneralConstants::PROPERTY_ID] . '  ORDER BY R.TaskDate desc';
+                $temp = $this->entityManager->getConnection()->prepare($temp);
+                $temp->execute();
+                $temp = $temp->fetchAll();
 
                 if (
                     ((int)$servicers[0]['AllowAdminAccess'] === 1 ||
-                        $servicers[0]['Email'] === $servicers[0]['CustomersEmail']) &&
+                        $servicers[0][GeneralConstants::EMAIL] === $servicers[0]['CustomersEmail']) &&
                     (!empty($temp))
                 ) {
                     $assignments = 1;
@@ -371,11 +364,11 @@ class ServicersDashboardService extends BaseService
                 // Check if Bookings tab has to be rendered or not
                 $bookings = 0;
                 $propertyAccessList = $this->entityManager->getRepository('AppBundle:Servicerstoproperties')->findOneBy(array(
-                    'propertyid' => $tasks[$i]['PropertyID'],
+                    'propertyid' => $tasks[$i][GeneralConstants::PROPERTY_ID],
                     'servicerid' => $servicerID
                 ));
                 if ($propertyAccessList &&
-                    ((int)$tasks[$i]['PropertyBookingID'] !== 0 || (int)$tasks[$i]['NextPropertyBookingID'] !== 0)
+                    ((int)$tasks[$i][GeneralConstants::PROPERTYBOOKINGID] !== 0 || (int)$tasks[$i]['NextPropertyBookingID'] !== 0)
                 ) {
                     $bookings = 1;
                 }
@@ -393,11 +386,11 @@ class ServicersDashboardService extends BaseService
                 $response[$i]['Tabs'] = $tabs;
 
                 // Scheduling Notes
-                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i]['AssignedDate']);
+                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i][GeneralConstants::ASSIGNEDDATE]);
                 $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
 
                 // Team for Each Task
-                $team = $this->entityManager->getRepository('AppBundle:Tasks')->GetTeamByTask($tasks[$i]['TaskID'],$servicers);
+                $team = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTeamByTask($tasks[$i][GeneralConstants::TASK_ID],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : [];
             }
             return array('Tasks' => $response);
@@ -425,7 +418,7 @@ class ServicersDashboardService extends BaseService
             $mileage = $content['Mileage'] ? (int)$content['Mileage'] : null;
 
             // ServicerObject
-            $servicer = $this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID);
+            $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID);
 
             $timeZone = new \DateTimeZone($servicer->getTimezoneid()->getRegion());
 
@@ -451,7 +444,7 @@ class ServicersDashboardService extends BaseService
                     }
 
                     // Set TimeClock Tasks to Current UTC DateTime
-                    $timeClockTasks = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
+                    $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockTasks SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."' WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
 
                     // Set TimeClock Days to Current UTC DateTime
                     $timeClock = $this->getEntityManager()->getConnection()->prepare("UPDATE TimeClockDays SET ClockOut = '".$dateTime->format('Y-m-d H:i:s')."', MileageOut=".$mileage." WHERE ClockOut IS NULL AND ServicerID=".$servicerID)->execute();
@@ -460,7 +453,7 @@ class ServicersDashboardService extends BaseService
             }
 
             return array(
-                'Status' => 'Success'
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS
             );
 
         } catch (UnprocessableEntityHttpException $exception) {
@@ -482,18 +475,14 @@ class ServicersDashboardService extends BaseService
     public function AcceptDeclineTask($servicerID, $content)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $acceptDecline = $content['AcceptDecline'];
             $dateTime = $content['DateTime'];
 
-            // Check if the Task Belong to the Corresponding ServicerID
-//            $taskToServicer = $this->entityManager->getRepository('AppBundle:Tasks')->DoesTaskBelongToServicer($servicerID,$taskID);
-
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->AcceptDeclineTask($servicerID,$taskID);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AcceptDeclineTask($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
-//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
             switch ($acceptDecline) {
@@ -503,6 +492,7 @@ class ServicersDashboardService extends BaseService
                 case 1:
                     $response = $this->AcceptTask($servicerID,$taskID,$dateTime,$rsThisTask);
                     break;
+                default: break;
             }
 
 
@@ -530,57 +520,47 @@ class ServicersDashboardService extends BaseService
      */
     public function AcceptTask($servicerID, $taskID,$dateTime, $rsThisTask)
     {
-        try {
-            $notification = [];
-            $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
-                'taskid' => $taskID,
-                'servicerid' => $servicerID
-            ));
+        $notification = [];
+        $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
+            'taskid' => $taskID,
+            'servicerid' => $servicerID
+        ));
 
-            if (!$tasksToServicers) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
-            }
-
-            if ($tasksToServicers->getAccepteddate() === null) {
-                $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
-                $this->entityManager->persist($tasksToServicers);
-
-                $taskAcceptDeclines = new Taskacceptdeclines();
-                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
-                $taskAcceptDeclines->setAcceptordecline(true);
-                $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
-                $this->entityManager->persist($taskAcceptDeclines);
-
-                $this->entityManager->flush();
-
-//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],26);
-//            if ((int)$taskNotification[0]['Count'] === 0) {
-                $result = array(
-                    'MessageID' => 26,
-                    'CustomerID' => $rsThisTask[0]['CustomerID'],
-                    'TaskID' => $taskID,
-                    'SendToManagers' => 1,
-                    'SubmittedByServicerID' => $servicerID
-                );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result);
-                $notification['TaskNotification'] = $taskNotification;
-
-//            }
-
-                return array(
-                    'Status' => 'Success',
-                    'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                    'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
-                    'Notification' => $notification
-                );
-            }
-
-            return [];
-
-        } catch (UnprocessableEntityHttpException $exception) {
-            throw $exception;
+        if (!$tasksToServicers) {
+            throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
         }
+
+        if ($tasksToServicers->getAccepteddate() === null) {
+            $tasksToServicers->setAccepteddate(new \DateTime($dateTime));
+            $this->entityManager->persist($tasksToServicers);
+
+            $taskAcceptDeclines = new Taskacceptdeclines();
+            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID));
+            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID));
+            $taskAcceptDeclines->setAcceptordecline(true);
+            $taskAcceptDeclines->setCreatedate(new \DateTime($dateTime));
+            $this->entityManager->persist($taskAcceptDeclines);
+
+            $this->entityManager->flush();
+
+            $result = array(
+                GeneralConstants::MESSAGE_ID => 26,
+                GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                GeneralConstants::TASK_ID => $taskID,
+                GeneralConstants::SENDTOMANAGERS => 1,
+                GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID
+            );
+            $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateTaskAcceptDeclineNotification($result);
+            $notification['TaskNotification'] = $taskNotification;
+
+            return array(
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
+                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                'Notification' => $notification
+            );
+        }
+        return [];
     }
 
     /**
@@ -595,96 +575,87 @@ class ServicersDashboardService extends BaseService
      */
     public function DeclineTask($servicerID, $taskID, $dateTime,$rsThisTask)
     {
-        try {
-            $notification = [];
-            $backupServicer = 0;
-            $rsBackup = $this->entityManager->getRepository('AppBundle:Servicers')->DeclineBackup($servicerID);
-            $thisAdditionalMessage = '';
-            $thisAdditionalTextMessage = '';
-            $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsThisTask[0]['Region'],$dateTime);
-            $currentTime = new \DateTime($dateTime);
+        $notification = [];
+        $backupServicer = 0;
+        $rsBackup = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->DeclineBackup($servicerID);
+        $thisAdditionalMessage = '';
+        $thisAdditionalTextMessage = '';
+        $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($rsThisTask[0][GeneralConstants::REGION], $dateTime);
+        $currentTime = new \DateTime($dateTime);
 
-            // Manage Backup Servicer.
-            // If Backup Servicer ID is present then assign the servicer ID to that task
-            if (!empty($rsBackup)) {
-                $backupServicer = $rsBackup[0]['DeclineBackupServicerID'];
-            }
-
-            $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
-                'taskid' => $taskID,
-                'servicerid' => $servicerID
-            ));
-
-            if (!$tasksToServicers) {
-                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
-            }
-
-            if ($tasksToServicers->getDeclineddate() === null) {
-                $tasksToServicers->setDeclineddate($currentTime);
-                $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository('AppBundle:Servicers')->find($backupServicer) : null);
-                $this->entityManager->persist($tasksToServicers);
-
-                $taskAcceptDeclines = new Taskacceptdeclines();
-                $taskAcceptDeclines->setTaskid($this->entityManager->getRepository('AppBundle:Tasks')->find($taskID));
-                $taskAcceptDeclines->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
-                $taskAcceptDeclines->setAcceptordecline(false);
-                $taskAcceptDeclines->setCreatedate($currentTime);
-                $this->entityManager->persist($taskAcceptDeclines);
-
-                $this->entityManager->flush();
-
-                // Manage Notifications for the task ID in last one minute
-//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsThisTask[0]['CustomerID'],27);
-//            if ((int)$taskNotification[0]['Count'] === 0) {
-                $result = array(
-                    'MessageID' => 27,
-                    'CustomerID' => $rsThisTask[0]['CustomerID'],
-                    'TaskID' => $taskID,
-                    'SendToManagers' => 1,
-                    'SubmittedByServicerID' => $servicerID
-                );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime);
-                $notification['TaskNotification'] = $taskNotification;
-
-//            }
-
-                // Deal with backup servicer notification
-                if (!empty($rsBackup)) {
-                    $viewTaskDate = $localTime->modify('+'.$rsBackup[0]['ViewTasksWithinDays'].' day');
-                    if ($viewTaskDate <= $rsThisTask[0]['TaskDate']) {
-                        if ($rsBackup[0]['RequestAcceptTasks']) {
-                            $thisAdditionalTextMessage = 'Please Accept or Decline';
-                            $thisAdditionalMessage = 'Please Accept or Decline';
-                        }
-
-                        $result = array(
-                            'MessageID' => 34,
-                            'CustomerID' => $rsThisTask[0]['CustomerID'],
-                            'TaskID' => $taskID,
-                            'SendToManagers' => 1,
-                            'BackupServicerID' => $backupServicer,
-                            'SubmittedByServicerID' => $servicerID,
-                            'AdditionalTextMessage' => $thisAdditionalTextMessage,
-                            'AdditionalMessage' => $thisAdditionalMessage
-                        );
-                        $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateTaskAcceptDeclineNotification($result,$currentTime,true,$thisAdditionalTextMessage,$thisAdditionalMessage);
-                        $notification['BackupServicerNotification'] = $taskNotification;
-                    }
-                }
-
-                return array(
-                    'Status' => 'Success',
-                    'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                    'BackupServicerID' => $backupServicer,
-                    'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
-                    'Notification' => $notification
-                );
-            }
-            return [];
-
-        } catch (UnprocessableEntityHttpException $exception) {
-            throw $exception;
+        // Manage Backup Servicer.
+        // If Backup Servicer ID is present then assign the servicer ID to that task
+        if (!empty($rsBackup)) {
+            $backupServicer = $rsBackup[0]['DeclineBackupServicerID'];
         }
+
+        $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
+            'taskid' => $taskID,
+            'servicerid' => $servicerID
+        ));
+
+        if (!$tasksToServicers) {
+            throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKSTOSERVICERS);
+        }
+
+        if ($tasksToServicers->getDeclineddate() === null) {
+            $tasksToServicers->setDeclineddate($currentTime);
+            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer) : null);
+            $this->entityManager->persist($tasksToServicers);
+
+            $taskAcceptDeclines = new Taskacceptdeclines();
+            $taskAcceptDeclines->setTaskid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID));
+            $taskAcceptDeclines->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID));
+            $taskAcceptDeclines->setAcceptordecline(false);
+            $taskAcceptDeclines->setCreatedate($currentTime);
+            $this->entityManager->persist($taskAcceptDeclines);
+
+            $this->entityManager->flush();
+
+            // Manage Notifications for the task ID in last one minute
+            $result = array(
+                GeneralConstants::MESSAGE_ID => 27,
+                GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                GeneralConstants::TASK_ID => $taskID,
+                GeneralConstants::SENDTOMANAGERS => 1,
+                GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID
+            );
+            $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateTaskAcceptDeclineNotification($result, $currentTime);
+            $notification['TaskNotification'] = $taskNotification;
+
+            // Deal with backup servicer notification
+            if (!empty($rsBackup)) {
+                $viewTaskDate = $localTime->modify('+' . $rsBackup[0]['ViewTasksWithinDays'] . ' day');
+                if ($viewTaskDate <= $rsThisTask[0][GeneralConstants::TASKDATE]) {
+                    if ($rsBackup[0][GeneralConstants::REQUESTACCEPTTASK]) {
+                        $thisAdditionalTextMessage = 'Please Accept or Decline';
+                        $thisAdditionalMessage = 'Please Accept or Decline';
+                    }
+
+                    $result = array(
+                        GeneralConstants::MESSAGE_ID => 34,
+                        GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                        GeneralConstants::TASK_ID => $taskID,
+                        GeneralConstants::SENDTOMANAGERS => 1,
+                        'BackupServicerID' => $backupServicer,
+                        GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID,
+                        'AdditionalTextMessage' => $thisAdditionalTextMessage,
+                        'AdditionalMessage' => $thisAdditionalMessage
+                    );
+                    $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateTaskAcceptDeclineNotification($result, $currentTime, true, $thisAdditionalTextMessage, $thisAdditionalMessage);
+                    $notification['BackupServicerNotification'] = $taskNotification;
+                }
+            }
+
+            return array(
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
+                'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
+                'BackupServicerID' => $backupServicer,
+                'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
+                'Notification' => $notification
+            );
+        }
+        return [];
     }
 
     /**
@@ -695,31 +666,30 @@ class ServicersDashboardService extends BaseService
     public function ChangeTaskDate($servicerID, $content)
     {
         try {
-            $taskID = $content['TaskID'];
-            $taskDate = new \DateTime($content['TaskDate']);
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->ChangeTaskDate($taskID,$servicerID);
+            $taskID = $content[GeneralConstants::TASK_ID];
+            $taskDate = new \DateTime($content[GeneralConstants::TASKDATE]);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->ChangeTaskDate($taskID,$servicerID);
             $thisTime = 8;
             $response = [];
             $schedulingNote = "";
 
             if(empty($rsThisTask)) {
-//                throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
                 // Throw Error if the Task Does not belong to the Servicer.
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
 
-            $taskDateTime = (new \DateTime($content['TaskDate']))->setTime($thisTime,0);
+            $taskDateTime = (new \DateTime($content[GeneralConstants::TASKDATE]))->setTime($thisTime,0);
 
             // make sure entered date falls within the window
-            if ($taskDate >= $rsThisTask[0]['TaskStartDate'] && $taskDate <= $rsThisTask[0]['TaskCompleteByDate']) {
-                if ($taskDate === $rsThisTask[0]['TaskStartDate'] && (int)$rsThisTask[0]['TaskStartTime'] !== 99) {
-                    $thisTime = max((int)$rsThisTask[0]['TaskStartTime'],$thisTime);
+            if ($taskDate >= $rsThisTask[0][GeneralConstants::TASKSTARTDATE] && $taskDate <= $rsThisTask[0][GeneralConstants::TASKCOMPLETEBYDATE]) {
+                if ($taskDate === $rsThisTask[0][GeneralConstants::TASKSTARTDATE] && (int)$rsThisTask[0][GeneralConstants::TASKSTARTTIME] !== 99) {
+                    $thisTime = max((int)$rsThisTask[0][GeneralConstants::TASKSTARTTIME],$thisTime);
                     $taskDateTime = $taskDateTime->setTime($thisTime,0);
                 }
 
-                if ($taskDate === $rsThisTask[0]['TaskCompleteByDate'] && (int)$rsThisTask[0]['TaskStartTime'] !== 99) {
-                    if ($thisTime > ($rsThisTask[0]['TaskCompleteByTime'] - $rsThisTask[0]['MaxTimeToComplete'])) {
-                        $thisTime = $rsThisTask[0]['TaskCompleteByTime'] - $rsThisTask[0]['MaxTimeToComplete'];
+                if ($taskDate === $rsThisTask[0][GeneralConstants::TASKCOMPLETEBYDATE] && (int)$rsThisTask[0][GeneralConstants::TASKSTARTTIME] !== 99) {
+                    if ($thisTime > ($rsThisTask[0][GeneralConstants::TASKCOMPLETEBYTIME] - $rsThisTask[0]['MaxTimeToComplete'])) {
+                        $thisTime = $rsThisTask[0][GeneralConstants::TASKCOMPLETEBYTIME] - $rsThisTask[0]['MaxTimeToComplete'];
                         $taskDateTime = $taskDateTime->setTime($thisTime,0);
                     }
                 }
@@ -730,7 +700,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 // Update Datetime
-                $task = $this->entityManager->getRepository('AppBundle:Tasks')->find($taskID);
+                $task = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($taskID);
                 $task->setTaskdatetime($taskDateTime);
                 $task->setTaskdate($taskDate);
                 $task->setTasktime($thisTime);
@@ -748,13 +718,13 @@ class ServicersDashboardService extends BaseService
 
                 $this->entityManager->flush();
 
-                $response['TaskID'] = $task->getTaskid();
+                $response[GeneralConstants::TASK_ID] = $task->getTaskid();
                 $response['TaskChangesID'] = $taskChanges->getTaskchangeid();
                 $response['SchedulingNote'] = $schedulingNote;
             }
 
             return array(
-                'Status' => 'Success',
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
                 'Details' => $response
             );
 

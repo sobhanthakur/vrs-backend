@@ -7,7 +7,7 @@
  */
 
 namespace AppBundle\Service;
-
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class FilterService
@@ -24,9 +24,9 @@ class FilterService extends BaseService
     {
         $propertyGroup = $this->entityManager->getRepository('AppBundle:Propertygroups')->GetPropertyGroupsRestrictions($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $propertyGroup
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $propertyGroup
         );
     }
 
@@ -38,9 +38,9 @@ class FilterService extends BaseService
     {
         $regionGroup = $this->entityManager->getRepository('AppBundle:Regiongroups')->GetRegionGroupsFilter($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $regionGroup
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $regionGroup
         );
     }
 
@@ -52,9 +52,9 @@ class FilterService extends BaseService
     {
         $owners = $this->entityManager->getRepository('AppBundle:Owners')->GetOwners($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $owners
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $owners
         );
     }
 
@@ -66,9 +66,9 @@ class FilterService extends BaseService
     {
         $staffTags = $this->entityManager->getRepository('AppBundle:Employeegroups')->GetEmployeeGroups($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $staffTags
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $staffTags
         );
     }
 
@@ -80,9 +80,9 @@ class FilterService extends BaseService
     {
         $departments = $this->entityManager->getRepository('AppBundle:Servicegroups')->GetServiceGroups($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $departments
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $departments
         );
     }
 
@@ -94,9 +94,9 @@ class FilterService extends BaseService
     {
         $properties = $this->entityManager->getRepository('AppBundle:Properties')->GetProperties($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $properties
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $properties
         );
     }
 
@@ -106,11 +106,11 @@ class FilterService extends BaseService
      */
     public function StaffFilter($customerID)
     {
-        $staff = $this->entityManager->getRepository('AppBundle:Servicers')->StaffFilter($customerID);
+        $staff = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->StaffFilter($customerID);
         return array(
-            'ReasonCode' => 0,
-            'ReasonText' => $this->translator->trans('api.response.success.message'),
-            'Data' => $staff
+            GeneralConstants::REASON_CODE => 0,
+            GeneralConstants::REASON_TEXT => $this->translator->trans(GeneralConstants::SUCCESS_TRANSLATION),
+            GeneralConstants::DATA => $staff
         );
     }
 }

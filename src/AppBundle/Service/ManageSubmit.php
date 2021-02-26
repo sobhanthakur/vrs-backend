@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Constants\GeneralConstants;
 use AppBundle\Entity\Gpstracking;
 use AppBundle\Entity\Issues;
 use AppBundle\Entity\Scheduledwebhooks;
@@ -31,7 +32,7 @@ class ManageSubmit extends BaseService
     public function SubmitManageForm($servicerID, $content,$mobileHeaders)
     {
         try {
-            $taskID = $content['TaskID'];
+            $taskID = $content[GeneralConstants::TASK_ID];
             $dateTime = $content['DateTime'];
             $taskObj = null;
             $propertyObj = null;
@@ -41,14 +42,14 @@ class ManageSubmit extends BaseService
             $now = new \DateTime($dateTime);
 
 
-            $rsThisTask = $this->entityManager->getRepository('AppBundle:Tasks')->SubmitManage($servicerID,$taskID);
+            $rsThisTask = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->SubmitManage($servicerID,$taskID);
 
             if (empty($rsThisTask)) {
                 // Throw Error if the Task Does not belong to the Servicer.
                 throw new BadRequestHttpException(ErrorConstants::WRONG_LOGIN);
             }
 
-            $rsServicers = $this->entityManager->getRepository('AppBundle:Servicers')->SubmitManageTab($servicerID);
+            $rsServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->SubmitManageTab($servicerID);
 
             if (empty($rsServicers)) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_STAFF_ID);
@@ -61,7 +62,7 @@ class ManageSubmit extends BaseService
 
             if ($timeTrackingGps && $lat && $long && $accuracy) {
                 $gpsTracking = new Gpstracking();
-                $gpsTracking->setServicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($servicerID));
+                $gpsTracking->setServicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($servicerID));
                 $gpsTracking->setAccuracy($accuracy);
                 $gpsTracking->setIsmobile($isMobile);
                 $gpsTracking->setLatitude($lat);
@@ -74,15 +75,13 @@ class ManageSubmit extends BaseService
             }
 
             // Task Object
-            $taskObj = $this->entityManager->getRepository('AppBundle:Tasks')->find($rsThisTask[0]['TaskID']);
+            $taskObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->find($rsThisTask[0][GeneralConstants::TASK_ID]);
 
-            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0]['PropertyID']);
+            $propertyObj = $this->entityManager->getRepository('AppBundle:Properties')->find($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
 
             // there is a SERVICER NOTE, Make it an Issue
-            if (((string)$taskObj->getServicernotes() !== "") || (trim($content['TaskNote']) !== "")) {
-//                $rsAllTaskIssues = $this->entityManager->getRepository('AppBundle:Issues')->GetIssuesFromLastOneMinuteManageSubmit($taskID,substr($content['TaskNote'], 0, 150));
-//                if (empty($rsAllTaskIssues)) {
-                trim($content['TaskNote']) !== "" ? $taskNote = $content['TaskNote'] : $taskNote = (string)$taskObj->getServicernotes();
+            if (((string)$taskObj->getServicernotes() !== "") || (trim($content[GeneralConstants::TASKNOTE]) !== "")) {
+                trim($content[GeneralConstants::TASKNOTE]) !== "" ? $taskNote = $content[GeneralConstants::TASKNOTE] : $taskNote = (string)$taskObj->getServicernotes();
                 $issues = new Issues();
                 $issues->setIssuetype(-1);
                 $issues->setUrgent(false);
@@ -96,31 +95,28 @@ class ManageSubmit extends BaseService
                 }
 
                 $issues->setFromtaskid($taskObj);
-                $issues->setSubmittedbyservicerid($this->entityManager->getRepository('AppBundle:Servicers')->find($rsServicers[0]['ServicerID']));
+                $issues->setSubmittedbyservicerid($this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($rsServicers[0][GeneralConstants::SERVICERID]));
                 $this->entityManager->persist($issues);
-//                }
                 $this->entityManager->flush();
             }
 
             // Save the manage form first
             $save = $this->serviceContainer->get('vrscheduler.manage_save')->SaveManageDetails($servicerID, $content,$dateTime);
 
-            if ($rsThisTask[0]['PropertyStatusID'] && (int)$rsThisTask[0]['PropertyStatusID'] !== 0) {
-                if ($propertyObj) {
-                    $propertyObj->setPropertystatusid($rsThisTask[0]['PropertyStatusID']);
-                    $this->entityManager->persist($propertyObj);
-                    $this->entityManager->flush();
-                }
+            if ($rsThisTask[0][GeneralConstants::PROPERTYSTATUSID] && (int)$rsThisTask[0][GeneralConstants::PROPERTYSTATUSID] !== 0 && $propertyObj) {
+                $propertyObj->setPropertystatusid($rsThisTask[0][GeneralConstants::PROPERTYSTATUSID]);
+                $this->entityManager->persist($propertyObj);
+                $this->entityManager->flush();
             }
 
             // Submit To CloudBeds
             if ((string)trim($rsThisTask[0]['CloudbedsHousekeepingStatus']) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(3);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['CloudbedsHousekeepingStatus']);
@@ -130,11 +126,11 @@ class ManageSubmit extends BaseService
             // Submit To WebRezProStatus
             if ((string)trim($rsThisTask[0]['WebRezProStatus']) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(11);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['WebRezProStatus']);
@@ -144,11 +140,11 @@ class ManageSubmit extends BaseService
             // Submit to Mews
             if ((string)trim($rsThisTask[0]['MewsStatus']) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(7);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['MewsStatus']);
@@ -158,11 +154,11 @@ class ManageSubmit extends BaseService
             // Submit to LMPM
             if ((int)$rsThisTask[0]['LMPMStatus'] !== 0) {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(9);
                 $schedulingWebHooks->setEventid(0);
                 $schedulingWebHooks->setValue($rsThisTask[0]['LMPMStatus']);
@@ -170,27 +166,27 @@ class ManageSubmit extends BaseService
             }
 
             // Submit to GUESTY
-            if ((int)$rsThisTask[0]['GuestyStatus'] !== 0 && (string)trim($rsThisTask[0]['GuestyStatus']) !== '') {
+            if ((int)$rsThisTask[0][GeneralConstants::GUESTYSTATUS] !== 0 && (string)trim($rsThisTask[0][GeneralConstants::GUESTYSTATUS]) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(10);
                 $schedulingWebHooks->setEventid(0);
-                $schedulingWebHooks->setValue($rsThisTask[0]['GuestyStatus']);
+                $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::GUESTYSTATUS]);
                 $this->entityManager->persist($schedulingWebHooks);
             }
 
             // Submit to Operto
             if ((string)trim($rsThisTask[0]['OpertoStatus']) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(4);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['OpertoStatus']);
@@ -200,11 +196,11 @@ class ManageSubmit extends BaseService
             // Submit to Trackhs
             if ((int)$rsThisTask[0]['TrackHSCleanTypeID'] !== 0) {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(6);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['TrackHSCleanTypeID']);
@@ -214,11 +210,11 @@ class ManageSubmit extends BaseService
             // Submit to Trackhs
             if ((int)$rsThisTask[0]['Beds24UnitStatusIndex'] !== 0) {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(8);
                 $schedulingWebHooks->setEventid($rsThisTask[0]['Beds24UnitStatusIndex']);
                 $schedulingWebHooks->setValue($rsThisTask[0]['Beds24UnitStatusText']);
@@ -228,11 +224,11 @@ class ManageSubmit extends BaseService
             // Submit to ESCAPIA
             if ((string)trim($rsThisTask[0]['EscapiaHousekeepingStatus']) !== '') {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(2);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['EscapiaHousekeepingStatus']);
@@ -242,11 +238,11 @@ class ManageSubmit extends BaseService
             // Submit to STREAMLINE
             if ((int)$rsThisTask[0]['StreamlineHousekeepingStatus'] !== 0) {
                 $schedulingWebHooks = new Scheduledwebhooks();
-                $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                 $schedulingWebHooks->setPartnerid(5);
                 $schedulingWebHooks->setEventid(1);
                 $schedulingWebHooks->setValue($rsThisTask[0]['StreamlineHousekeepingStatus']);
@@ -256,75 +252,75 @@ class ManageSubmit extends BaseService
             // Submit to BH247
             if ((int)$rsServicers[0]['UseBeHome247'] !== 0 &&
                 (int)$rsThisTask[0]['BeHome247ID'] !== 0 &&
-                ($rsThisTask[0]['BH247CleaningState'] !== '' ||
-                    $rsThisTask[0]['BH247QAState'] !== '' ||
-                    $rsThisTask[0]['BH247MaintenanceState'] !== '' ||
-                    $rsThisTask[0]['BH247Custom_1State'] !== '' ||
-                    $rsThisTask[0]['BH247Custom_2State'] !== ''
+                ($rsThisTask[0][GeneralConstants::BH247CLEANINGSTATE] !== '' ||
+                    $rsThisTask[0][GeneralConstants::BH247QASTATE] !== '' ||
+                    $rsThisTask[0][GeneralConstants::BH247MAINTANENCESTATE] !== '' ||
+                    $rsThisTask[0][GeneralConstants::BH247CUSTOM_1STATE] !== '' ||
+                    $rsThisTask[0][GeneralConstants::BH247CUSTOM_2STATE] !== ''
                 )
             ) {
-                if (trim($rsThisTask[0]['BH247CleaningState']) !== '') {
+                if (trim($rsThisTask[0][GeneralConstants::BH247CLEANINGSTATE]) !== '') {
                     $schedulingWebHooks = new Scheduledwebhooks();
-                    $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                    $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                    $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                    $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                    $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                    $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                    $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                    $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                     $schedulingWebHooks->setPartnerid(1);
                     $schedulingWebHooks->setEventid(1);
-                    $schedulingWebHooks->setValue($rsThisTask[0]['BH247CleaningState']);
+                    $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::BH247CLEANINGSTATE]);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
 
-                if (trim($rsThisTask[0]['BH247QAState']) !== '') {
+                if (trim($rsThisTask[0][GeneralConstants::BH247QASTATE]) !== '') {
                     $schedulingWebHooks = new Scheduledwebhooks();
-                    $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                    $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                    $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                    $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                    $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                    $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                    $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                    $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                     $schedulingWebHooks->setPartnerid(1);
                     $schedulingWebHooks->setEventid(2);
-                    $schedulingWebHooks->setValue($rsThisTask[0]['BH247QAState']);
+                    $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::BH247QASTATE]);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
 
-                if (trim($rsThisTask[0]['BH247MaintenanceState']) !== '') {
+                if (trim($rsThisTask[0][GeneralConstants::BH247MAINTANENCESTATE]) !== '') {
                     $schedulingWebHooks = new Scheduledwebhooks();
-                    $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                    $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                    $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                    $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                    $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                    $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                    $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                    $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                     $schedulingWebHooks->setPartnerid(1);
                     $schedulingWebHooks->setEventid(3);
-                    $schedulingWebHooks->setValue($rsThisTask[0]['BH247MaintenanceState']);
+                    $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::BH247MAINTANENCESTATE]);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
 
-                if (trim($rsThisTask[0]['BH247Custom_1State']) !== '') {
+                if (trim($rsThisTask[0][GeneralConstants::BH247CUSTOM_1STATE]) !== '') {
                     $schedulingWebHooks = new Scheduledwebhooks();
-                    $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                    $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                    $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                    $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                    $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                    $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                    $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                    $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                     $schedulingWebHooks->setPartnerid(1);
                     $schedulingWebHooks->setEventid(4);
-                    $schedulingWebHooks->setValue($rsThisTask[0]['BH247Custom_1State']);
+                    $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::BH247CUSTOM_1STATE]);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
 
-                if (trim($rsThisTask[0]['BH247Custom_2State']) !== '') {
+                if (trim($rsThisTask[0][GeneralConstants::BH247CUSTOM_2STATE]) !== '') {
                     $schedulingWebHooks = new Scheduledwebhooks();
-                    $schedulingWebHooks->setCustomerid($rsThisTask[0]['CustomerID']);
-                    $schedulingWebHooks->setTaskid($rsThisTask[0]['TaskID']);
-                    $schedulingWebHooks->setServicerid($rsServicers[0]['ServicerID']);
-                    $schedulingWebHooks->setPropertyid($rsThisTask[0]['PropertyID']);
-                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0]['PropertyBookingID']);
+                    $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                    $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                    $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                    $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                    $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
                     $schedulingWebHooks->setPartnerid(1);
                     $schedulingWebHooks->setEventid(5);
-                    $schedulingWebHooks->setValue($rsThisTask[0]['BH247Custom_2State']);
+                    $schedulingWebHooks->setValue($rsThisTask[0][GeneralConstants::BH247CUSTOM_2STATE]);
                     $this->entityManager->persist($schedulingWebHooks);
                 }
             }
@@ -339,39 +335,36 @@ class ManageSubmit extends BaseService
 
             $query .= " WHERE ClockOut IS NULL AND TaskID=".$taskID;
 
-            $timeClockTasks = $this->getEntityManager()->getConnection()->prepare($query)->execute();
+            $this->getEntityManager()->getConnection()->prepare($query)->execute();
 
             // Get Owner ID
             $thisOwnerID = 0;
-            if ((int)$rsThisTask[0]['OwnerID'] !== 0 &&
+            if ((int)$rsThisTask[0][GeneralConstants::OWNERID] !== 0 &&
                 ((array_key_exists('SendToOwnerNote', $content) && (int)$content['SendToOwnerNote'] !== 0) || (int)$rsThisTask[0]['IncludeToOwnerNote'] === 0)
             ) {
-                $thisOwnerID = $rsThisTask[0]['OwnerID'];
+                $thisOwnerID = $rsThisTask[0][GeneralConstants::OWNERID];
             }
-            $details['OwnerID'] = $thisOwnerID;
+            $details[GeneralConstants::OWNERID] = $thisOwnerID;
 
             // manage Notification
-//            $taskNotification = $this->entityManager->getRepository('AppBundle:Notifications')->TaskNotificationInLastOneMinute($taskID,$rsServicers[0]['CustomerID'],5);
-//            if ((int)$taskNotification[0]['Count'] === 0) {
-                $result = array(
-                    'MessageID' => 5,
-                    'CustomerID' => $rsServicers[0]['CustomerID'],
-                    'TaskID' => $taskID,
-                    'ToCustomerID' => $rsThisTask[0]['CustomerID'],
-                    'ServicerID' => $rsThisTask[0]['ManagerServicerID'],
-                    'OwnerID' => $thisOwnerID,
-                    'SendToMaintenanceStaff' => 1,
-                    'SendToManagers' => 1,
-                    'SubmittedByServicerID' => $servicerID
-                );
-                $taskNotification = $this->serviceContainer->get('vrscheduler.notification_service')->CreateManageCompleteNotification($result,$now);
-                $notification['TaskNotification'] = $taskNotification;
-//            }
+            $result = array(
+                GeneralConstants::MESSAGE_ID => 5,
+                GeneralConstants::CUSTOMER_ID => $rsServicers[0][GeneralConstants::CUSTOMER_ID],
+                GeneralConstants::TASK_ID => $taskID,
+                'ToCustomerID' => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
+                GeneralConstants::SERVICERID => $rsThisTask[0]['ManagerServicerID'],
+                GeneralConstants::OWNERID => $thisOwnerID,
+                'SendToMaintenanceStaff' => 1,
+                GeneralConstants::SENDTOMANAGERS => 1,
+                GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID
+            );
+            $taskNotification = $this->serviceContainer->get(GeneralConstants::NOTIFICATION_SERVICE)->CreateManageCompleteNotification($result, $now);
+            $notification['TaskNotification'] = $taskNotification;
 
             $this->entityManager->flush();
 
             return array(
-                'Status' => 'Success',
+                GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
                 'Notification' => $notification,
                 'Details' => $details,
                 'SaveDetails' => $save

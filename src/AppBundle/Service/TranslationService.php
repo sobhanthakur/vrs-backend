@@ -34,8 +34,8 @@ class TranslationService extends BaseService
             // Remove this in future
             /*$limit = 20;
             $offset = 1;
-            if (array_key_exists('Pagination',$data)) {
-                $pagination = $data['Pagination'];
+            if (array_key_exists(GeneralConstants::PAGINATION,$data)) {
+                $pagination = $data[GeneralConstants::PAGINATION];
                 $limit = $pagination['Limit'];
                 $offset = $pagination['Offset'];
             }*/
@@ -85,8 +85,8 @@ class TranslationService extends BaseService
 //            Remove comments in future
             /*$limit = 20;
             $offset = 1;
-            if (array_key_exists('Pagination',$data)) {
-                $pagination = $data['Pagination'];
+            if (array_key_exists(GeneralConstants::PAGINATION,$data)) {
+                $pagination = $data[GeneralConstants::PAGINATION];
                 $limit = $pagination['Limit'];
                 $offset = $pagination['Offset'];
             }*/
@@ -198,7 +198,7 @@ class TranslationService extends BaseService
 
             $locale = $content['Locale'];
             $localeReadable = $content['LocaleReadable'];
-            $activeForDates = $content['ActiveForDates'] ? ((int)$content['ActiveForDates'] === 1 ? true : false) : false;
+            $activeForDates = $content['ActiveForDates'] ? (int)$content['ActiveForDates'] === 1 : 0;
             $activeForLanguages = true;
 
             $localeID = new Locale();

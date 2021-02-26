@@ -33,7 +33,7 @@ class PropertyBookingsService extends BaseService
         $returnData = array();
         try {
             //Get propertyBooking Repo
-            $propertyBookingRepo = $this->entityManager->getRepository('AppBundle:Propertybookings');
+            $propertyBookingRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTYBOOKINGS);
 
             //cheking valid query parameters
             $checkParams = array_diff(array_keys($queryParameter), GeneralConstants::PARAMS);
@@ -71,16 +71,16 @@ class PropertyBookingsService extends BaseService
 
             //Formating Date to utc ymd format
             for ($i = 0; $i < count($propertyBookingData); $i++) {
-                if (isset($propertyBookingData[$i]['CreateDate'])) {
-                    $propertyBookingData[$i]['CreateDate'] = $propertyBookingData[$i]['CreateDate']->format('Y-m-d');
+                if (isset($propertyBookingData[$i][GeneralConstants::CREATEDATE])) {
+                    $propertyBookingData[$i][GeneralConstants::CREATEDATE] = $propertyBookingData[$i][GeneralConstants::CREATEDATE]->format('Ymd');
                 }
 
-                if (isset($propertyBookingData[$i]['CheckIn'])) {
-                    $propertyBookingData[$i]['CheckIn'] = $propertyBookingData[$i]['CheckIn']->format('Y-m-d');
+                if (isset($propertyBookingData[$i][GeneralConstants::CHECKIN])) {
+                    $propertyBookingData[$i][GeneralConstants::CHECKIN] = $propertyBookingData[$i][GeneralConstants::CHECKIN]->format('Ymd');
                 }
 
-                if (isset($propertyBookingData[$i]['CheckOut'])) {
-                    $propertyBookingData[$i]['CheckOut'] = $propertyBookingData[$i]['CheckOut']->format('Y-m-d');
+                if (isset($propertyBookingData[$i][GeneralConstants::CHECKOUT])) {
+                    $propertyBookingData[$i][GeneralConstants::CHECKOUT] = $propertyBookingData[$i][GeneralConstants::CHECKOUT]->format('Ymd');
                 }
             }
 
@@ -144,7 +144,7 @@ class PropertyBookingsService extends BaseService
 
             if (isset($propertyBookingID)) {
                 $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['UPDATE'];
-                $propertyBookingsRepo = $this->entityManager->getRepository('AppBundle:Propertybookings');
+                $propertyBookingsRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTYBOOKINGS);
                 $propertyBooking = $propertyBookingsRepo->findOneBy(array('propertybookingid' => $propertyBookingID));
                 $id = $propertyBooking->getPropertyid()->getPropertyid();
 
@@ -285,16 +285,16 @@ class PropertyBookingsService extends BaseService
             $this->entityManager->flush();
 
             //setting return data
-            $data['PropertyBookingID'] = $propertyBooking->getPropertybookingid();
-            $data['PropertyID'] = $propertyBooking->getPropertyid()->getPropertyid();
+            $data[GeneralConstants::PROPERTYBOOKINGID] = $propertyBooking->getPropertybookingid();
+            $data[GeneralConstants::PROPERTY_ID] = $propertyBooking->getPropertyid()->getPropertyid();
 
             $checkin = $propertyBooking->getCheckin();
-            isset($checkin) ? $data['CheckIn'] =
-                $checkin->format('Ymd') : $data['CheckIn'] = null;
+            isset($checkin) ? $data[GeneralConstants::CHECKIN] =
+                $checkin->format('Ymd') : $data[GeneralConstants::CHECKIN] = null;
 
             $data['CheckInTime'] = $propertyBooking->getCheckintime();
             $data['CheckInTimeMinutes'] = $propertyBooking->getCheckintimeminutes();
-            $data['CheckOut'] = $propertyBooking->getCheckout();
+            $data[GeneralConstants::CHECKOUT] = $propertyBooking->getCheckout();
             $data['CheckOutTime'] = $propertyBooking->getCheckouttime();
             $data['CheckOutTimeMinutes'] = $propertyBooking->getCheckouttimeminutes();
             $data['Guest'] = $propertyBooking->getGuest();
@@ -305,12 +305,12 @@ class PropertyBookingsService extends BaseService
             $data['IsOwner'] = $propertyBooking->getIsowner();
 
             $checkout = $propertyBooking->getCheckout();
-            isset($checkout) ? $data['CheckOut'] =
-                $checkout->format('Ymd') : $data['CheckOut'] = null;
+            isset($checkout) ? $data[GeneralConstants::CHECKOUT] =
+                $checkout->format('Ymd') : $data[GeneralConstants::CHECKOUT] = null;
 
             $createdDate = $propertyBooking->getCreatedate();
-            isset($createdDate) ? $data['CreateDate'] =
-                $createdDate->format('Ymd') : $data['CreateDate'] = null;
+            isset($createdDate) ? $data[GeneralConstants::CREATEDATE] =
+                $createdDate->format('Ymd') : $data[GeneralConstants::CREATEDATE] = null;
 
             $returnData['data'] = $data;
 
@@ -340,7 +340,7 @@ class PropertyBookingsService extends BaseService
     {
         $returnData = array();
         try {
-            $propertyBookingsRepo = $this->entityManager->getRepository('AppBundle:Propertybookings');
+            $propertyBookingsRepo = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_PROPERTYBOOKINGS);
             $propertyBooking = $propertyBookingsRepo->findOneBy(array('propertybookingid' => $propertyBookingID));
             if (!$propertyBooking) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_PROPERTY_BOOKING_ID);
