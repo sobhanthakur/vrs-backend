@@ -133,8 +133,8 @@ class QuickbooksOnlineSyncBilling extends BaseService
             foreach ($tasks as $task) {
                 $response[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['QBDListID'];
                 $billingRecordID[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['IntegrationQBDBillingRecordID'];
-                $description[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task[GeneralConstants::REGION]) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
-                $amount[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['Amount'];
+//                $description[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['PropertyName'] . ' - ' . $task['TaskName'] . ' - ' . $task['ServiceName'] . ' - ' . $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task[GeneralConstants::REGION]) . ' - ' . ($task['LaborOrMaterial'] === true ? "Materials" : "Labor");
+//                $amount[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['Amount'];
                 // Check If Both Labor & Material are mapped.
                 // If only either of them is mapped, then do not mention labor/material in the description
                 $itemMap = $this->entityManager->getRepository('AppBundle:Integrationqbditemstoservices')->findOneBy(array(
@@ -142,8 +142,6 @@ class QuickbooksOnlineSyncBilling extends BaseService
                     'laborormaterials' => !$task['LaborOrMaterial']
                 ));
 
-                $response[$task['QBDCustomerListID']][] = $task['QBDListID'];
-                $billingRecordID[$task['QBDCustomerListID']][] = $task['IntegrationQBDBillingRecordID'];
 
                 $emails[$task['QBDCustomerListID']] = $task['QBDCustomerEmail'] ? $task['QBDCustomerEmail']:$task['OwnerEmail'];
 
@@ -156,9 +154,9 @@ class QuickbooksOnlineSyncBilling extends BaseService
                 $des .= $task['ServiceName'] && $itemMap ? ' - ' : '';
                 $des .= $itemMap ? ($task['LaborOrMaterial'] === true ? "Material" : "Labor") : '';
 
-                $description[$task['QBDCustomerListID']][] =  $des;
-                $taskDate[$task['QBDCustomerListID']][] = $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']);
-                $amount[$task['QBDCustomerListID']][] = $task['Amount'];
+                $description[$task[GeneralConstants::QBDCUSTOMERLISTID]][] =  $des;
+                $taskDate[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $this->TimeZoneConversion($task['CompleteConfirmedDate']->format('Y-m-d'), $task['Region']);
+                $amount[$task[GeneralConstants::QBDCUSTOMERLISTID]][] = $task['Amount'];
             }
 
             // Create a Batch
