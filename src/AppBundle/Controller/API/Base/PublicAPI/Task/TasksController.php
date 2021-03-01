@@ -351,6 +351,11 @@ class TasksController extends FOSRestController
      *              example=1
      *         ),
      *         @SWG\Property(
+     *              property="TaskName",
+     *              type="string",
+     *              example="TaskName"
+     *         ),
+     *         @SWG\Property(
      *              property="TaskDescription",
      *              type="string",
      *              example="Some Description"
@@ -479,7 +484,7 @@ class TasksController extends FOSRestController
                         "Active": true
                         }
                         }
-                         *              }
+     *              }
      *         )
      *     )
      * )

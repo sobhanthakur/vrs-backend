@@ -706,6 +706,8 @@ class TasksRepository extends EntityRepository
             ->andWhere('t.serviceid='.(int)$content[GeneralConstants::TASKRULEID])
             ->andWhere('t.taskdescription = :TaskDescription')
             ->setParameter('TaskDescription',$content['TaskDescription'])
+            ->andWhere('t.taskname = :TaskName')
+            ->setParameter('TaskName',$content['TaskName'])
             ->andWhere('t.taskstartdate = :TaskStartDate')
             ->setParameter('TaskStartDate',$content['TaskStartDate'])
             ->andWhere('t.taskstarttime = '.(int)$content['TaskStartTime'])

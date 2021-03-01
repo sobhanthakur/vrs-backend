@@ -201,19 +201,11 @@ class TasksService extends BaseService
     public function insertTaskDetails($content, $authDetails)
     {
         $returnData = array();
-        $taskApiContent = array();
 
         try {
             // parse Content
             $propertyID = $content[GeneralConstants::PROPERTY_ID];
             $taskRuleID = $content[GeneralConstants::TASKRULEID];
-            $taskDescription = $content['TaskDescription'];
-            $taskStartDate = $content['TaskStartDate'];
-            $taskStartTime = $content['TaskStartTime'];
-            $taskCompleteByDate = $content['TaskCompleteByDate'];
-            $taskCompleteByTime = $content['TaskCompleteByTime'];
-            $taskDate = $content['TaskDate'];
-            $taskTime = $content['TaskTime'];
 
             // Check if a TaskRuleID is a valid ServiceID
             $checkValidTaskRule = $this->entityManager->getRepository('AppBundle:Servicestoproperties')->CheckValidTaskRule($taskRuleID,$propertyID,$authDetails);
@@ -296,10 +288,18 @@ class TasksService extends BaseService
                 $this->entityManager->flush();
             }
 
-            return array(
-                GeneralConstants::REASON_TEXT => GeneralConstants::SUCCESS,
-                'TaskInfo' => $response
-            );
+            //setting return data
+            $returnData[GeneralConstants::TASK_ID] = $task->getTaskid();
+            $returnData['TaskName'] = $task->getTaskname();
+            $returnData['TaskDescription'] = $task->getTaskdescription();
+            $returnData['CreateDate'] = ($task->getCreatedate())->format('Ymd');
+            $returnData['TaskStartDate'] = ($task->getTaskstartdate())->format('Ymd');
+            $returnData['TaskStartTime'] = $task->getTaskstarttime();
+            $returnData['TaskCompleteByDate'] = ($task->getTaskcompletebydate())->format('Ymd');
+            $returnData['TaskCompleteByTime'] = $task->getTaskcompletebytime();
+            $returnData['TaskDate'] = ($task->getTaskdate())->format('Ymd');
+            $returnData['TaskTime'] = $task->getTasktime();
+            $returnData[GeneralConstants::PROPERTY_ID] = $task->getPropertyid()->getPropertyid();
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {
@@ -331,7 +331,7 @@ class TasksService extends BaseService
 //            $task->setNextpropertybookingid();
 //            $task->setParenttaskid(0);
         $task->setTasktype(9);
-//        $task->setTaskname($content['Issue']);
+        $task->setTaskname($content['TaskName']);
         $task->setTaskstartdate(new \DateTime($content['TaskStartDate']));
         $task->setTaskstarttime($content['TaskStartTime']);
         $task->setTaskdate(new \DateTime($content['TaskDate']));
