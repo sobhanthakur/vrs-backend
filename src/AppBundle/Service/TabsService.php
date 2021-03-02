@@ -155,8 +155,8 @@ class TabsService extends BaseService
             $previous = [];
             $next = [];
             $common = [];
-            $prevGuest = [];
-            $nextGuest = [];
+            $prevGuest = null;
+            $nextGuest = null;
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions($servicerID);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTasksForBookingTab($content[GeneralConstants::TASK_ID],$servicers);
             if ($tasks) {
@@ -168,7 +168,7 @@ class TabsService extends BaseService
                             ));
                             if ($servicers[0]['IncludeGuestNumbers'] || $servicers[0]['IncludeGuestEmailPhone'] || $servicers[0]['IncludeGuestName']) {
                                 if (strpos($key, 'PrevGuest') !== false) {
-                                    $prevGuest = array_merge($prevGuest,array(
+                                    $prevGuest = array_merge($prevGuest ? $prevGuest : [],array(
                                         $key => $value
                                     ));
                                 }
@@ -180,7 +180,7 @@ class TabsService extends BaseService
                             ));
                             if ($servicers[0]['IncludeGuestNumbers'] || $servicers[0]['IncludeGuestEmailPhone'] || $servicers[0]['IncludeGuestName']) {
                                 if (strpos($key, 'NextGuest') !== false) {
-                                    $nextGuest = array_merge($nextGuest,array(
+                                    $nextGuest = array_merge($nextGuest ? $nextGuest : [],array(
                                         $key => $value
                                     ));
                                 }
@@ -195,9 +195,9 @@ class TabsService extends BaseService
                 }
             }
             $response[GeneralConstants::PREVIOUS] = $previous;
-            $response[GeneralConstants::PREVIOUS]['GuestDetails'] = empty($prevGuest) ? (object)$prevGuest : $prevGuest;
+            $response[GeneralConstants::PREVIOUS]['GuestDetails'] = $prevGuest;
             $response['Next'] = $next;
-            $response['Next']['GuestDetails'] = empty($nextGuest) ? (object)$nextGuest : $nextGuest;
+            $response['Next']['GuestDetails'] = $nextGuest;
             $response['Common'] = $common;
             return $response;
         } catch (HttpException $exception) {
