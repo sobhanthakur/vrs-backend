@@ -966,4 +966,32 @@ class TasksRepository extends EntityRepository
         $result->execute();
         return $result->fetchAll();
     }
+
+    /**
+     * Function to validate if Task already exists with input request body.
+     * @param $content
+     * @return mixed
+     */
+    public function CheckValidTask($content)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('t.taskid')
+            ->where('t.propertyid='.(int)$content[GeneralConstants::PROPERTY_ID])
+            ->andWhere('t.serviceid='.(int)$content[GeneralConstants::TASKRULEID])
+            ->andWhere('t.taskdescription = :TaskDescription')
+            ->setParameter('TaskDescription',$content['TaskDescription'])
+            ->andWhere('t.taskname = :TaskName')
+            ->setParameter('TaskName',$content['TaskName'])
+            ->andWhere('t.taskstartdate = :TaskStartDate')
+            ->setParameter('TaskStartDate',$content['TaskStartDate'])
+            ->andWhere('t.taskstarttime = '.(int)$content['TaskStartTime'])
+            ->andWhere('t.taskcompletebydate = :TaskCompleteByDate')
+            ->setParameter('TaskCompleteByDate',$content['TaskCompleteByDate'])
+            ->andWhere('t.taskdate = :TaskDate')
+            ->setParameter('TaskDate',$content['TaskDate'])
+            ->andWhere('t.tasktime = '.(int)$content['TaskTime'])
+            ->andWhere('t.taskcompletebytime = '.(int)$content['TaskCompleteByTime'])
+            ->getQuery()
+            ->execute();
+    }
 }

@@ -131,7 +131,7 @@ final class ErrorConstants
         self::INVALID_TIMECLOCKDAYSID => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_timeclockdaysid'],
         self::INVALID_PAYLOAD => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_payload'],
         self::INVALID_JSON => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_json'],
-        self::INVALID_REQUEST => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_request'],
+        self::INVALID_REQUEST => ['code' => 400, self::MESSAGE => 'api.response.error.invalid_request'],
         self::INVALID_CREDENTIALS => ['code' => 422, self::MESSAGE => 'api.response.error.invalid_credential'],
         self::LIMIT_EXHAUST => ['code' => 429, self::MESSAGE => 'api.response.error.limit_exhaust'],
         self::UNABLE_TO_DELETE => ['code' => 422, self::MESSAGE => 'api.response.error.unable_to_delete'],

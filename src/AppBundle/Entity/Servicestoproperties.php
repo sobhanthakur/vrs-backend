@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Servicestoproperties
  *
  * @ORM\Table(name="ServicesToProperties", indexes={@ORM\Index(name="defaultservicerid", columns={"DefaultServicerID"}), @ORM\Index(name="PropertyID", columns={"PropertyID"}), @ORM\Index(name="ServiceID", columns={"ServiceID"}), @ORM\Index(name="IDX_40044863B650950C", columns={"ChecklistID"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ServicesToPropertiesRepository")
  */
 class Servicestoproperties
 {
