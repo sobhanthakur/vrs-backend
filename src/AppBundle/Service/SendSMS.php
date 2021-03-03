@@ -36,6 +36,11 @@ class SendSMS extends BaseService
         $phoneNumber = $this->get_string_between($message,$from1,$to1);
         $phoneNumber = trim(str_replace([':','"'],['',''],$phoneNumber));
 
+        $secondOccurence = strpos($phoneNumber, '+', strpos($phoneNumber, '+') + 1);
+        if ((int)$secondOccurence) {
+            $phoneNumber = substr($phoneNumber,(int)$secondOccurence,strlen($phoneNumber));
+        }
+
         // Parse Message from the content
         $from2 = 'Message"';
         $msg = $this->get_string_between($message,$from2,null);
@@ -44,8 +49,6 @@ class SendSMS extends BaseService
             ['','',' . ','','','','','','','',''],
                 substr($msg,strpos($msg,'"'),-1))
         );
-        // Sanitize Message
-
 
         try {
             $params = array(
