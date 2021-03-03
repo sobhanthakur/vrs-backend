@@ -75,6 +75,7 @@ class SendMail extends BaseService
                 $message .= "<b>URI: </b>".$uri."<br/>";
                 $message .= "<b>Method: </b>".$content['Method']."<br/>";
                 $message .= "<b>Content-Length: </b>".$contentLength." bytes<br/>";
+                $message .= "<b>Content-Type: </b>".$content['Content-Type']." <br/>";
                 $message .= "<b>User-Agent: </b>".$content['User-Agent']."<br/>";
                 $message .= "<b>AWS SMS Response: </b>".$content['SMS']."<br/>";
 
