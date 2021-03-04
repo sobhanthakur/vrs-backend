@@ -112,7 +112,7 @@ class ExceptionListener extends BaseService
         // Send Mail on Error (422,500)
         $request = $event->getRequest();
         $route = $request->attributes->get('_route');
-        if (($status === 422 || $status === 500) &&
+        if (($status === 422 || $status === 500 || $status === 429) &&
             !in_array($route,ApiRoutes::NO_ERROR_ROUTES) &&
             !in_array($messageKey,ApiRoutes::NO_ERROR_MESSAGES)
         ) {
@@ -125,6 +125,7 @@ class ExceptionListener extends BaseService
             $content['Method'] = $request->getMethod();
             $content['Content-Length'] = $request->headers->get('Content-Length');
             $content['User-Agent'] = $request->headers->get('user-agent');
+            $content['Content-Type'] = $request->headers->get('Content-Type');
 
             $request->headers->has('Offline') ? $content['Offline'] = (strtolower($request->headers->get('Offline')) === 'true' ? 'true' : 'false') : $content['Offline'] = null;
             $request->attributes->has('SMS') ? $content['SMS'] = $request->attributes->get('SMS') : $content['SMS'] = null;
