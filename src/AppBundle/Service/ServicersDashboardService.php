@@ -207,7 +207,6 @@ class ServicersDashboardService extends BaseService
                     $regionColour = '#0275d8';
                 }
 
-
                 $response[$i]['Details'] = array(
                     GeneralConstants::SHORTDESCRIPTION => $tasks[$i][GeneralConstants::SHORTDESCRIPTION],
                     'DoneCondition' => $doneCondition,
@@ -242,6 +241,14 @@ class ServicersDashboardService extends BaseService
                     GeneralConstants::SLACKCHANNELID => trim($tasks[$i][GeneralConstants::SLACKCHANNELID]),
                     GeneralConstants::ADDRESS => $tasks[$i][GeneralConstants::ADDRESS]
                 );
+
+                // Fetch Parent Task Details
+                if ($tasks[$i]['ParenTaskID'] !== '' && (int)$tasks[$i]['ParenTaskID'] !== 0) {
+                    $parentTaskDetails = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->GetParentTaskServicerDetails($tasks[$i]['ParenTaskID']);
+                } else {
+                    $parentTaskDetails = null;
+                }
+                $response[$i]['ParentTaskDetails'] = $parentTaskDetails;
 
                 // Guest Details
                 if ((int)$servicers[0]['IncludeGuestNumbers'] && ((int)$tasks[$i][GeneralConstants::TASKTYPE] !== 0 ||
