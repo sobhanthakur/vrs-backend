@@ -182,6 +182,13 @@ class ServicersDashboardService extends BaseService
                     }
                 }
 
+                // Set Currency
+                if ($piecePay) {
+                    $fmt = new \NumberFormatter( $servicers[0]['CustomersLocale'], \NumberFormatter::CURRENCY);
+                    $piecePay = $fmt->format($piecePay);
+                }
+
+
                 // Check Scheduling Notes
                 $schedulingNote = null;
                 $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$tasks[$i][GeneralConstants::ASSIGNEDDATE]->format('N')];
@@ -243,10 +250,12 @@ class ServicersDashboardService extends BaseService
                 );
 
                 // Fetch Parent Task Details
+                $parentTaskDetails = null;
                 if ($tasks[$i]['ParenTaskID'] !== '' && (int)$tasks[$i]['ParenTaskID'] !== 0) {
                     $parentTaskDetails = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->GetParentTaskServicerDetails($tasks[$i]['ParenTaskID']);
-                } else {
-                    $parentTaskDetails = null;
+                }
+                if ($parentTaskDetails && !empty($parentTaskDetails)) {
+                    $parentTaskDetails = $parentTaskDetails[0];
                 }
                 $response[$i]['ParentTaskDetails'] = $parentTaskDetails;
 
