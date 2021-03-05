@@ -66,26 +66,6 @@ class PropertyBookingController extends FOSRestController
      *                      "BookingTags": "BeachChairs,MidClean",
      *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
      *                      "CreateDate": "20190302"
-     *                  },
-     *                 {
-     *                      "PropertyBookingID": 1322345    ,
-     *                      "PropertyID": 235,
-     *                      "CheckIn": "20190825",
-     *                      "CheckInTime": 14,
-     *                      "CheckInTimeMinutes": 30,
-     *                      "CheckOut": "20190826",
-     *                      "CheckOutTime": 10,
-     *                      "CheckOutTimeMinutes": 0,
-     *                      "Guest": "Fred Smith",
-     *                      "GuestEmail": "Fred@VRScheduler.com",
-     *                      "GuestPhone": "541-555-1212",
-     *                      "NumberOfGuest": 6,
-     *                      "NumberOfChildren": 1,
-     *                      "NumberOfPets": 1,
-     *                      "IsOwner": 0,
-     *                      "BookingTags": "Hre,Clean",
-     *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
-     *                      "CreateDate": "20190302"
      *                  }
      *              }
      *         )
@@ -186,6 +166,9 @@ class PropertyBookingController extends FOSRestController
      *                      "IsOwner": 0,
      *                      "BookingTags": "BeachChairs,MidClean",
      *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
+     *                      "ImportBookingID" : 123,
+     *                      "PMSNote" : "PMSNote",
+     *                      "PMSHousekeepingNote" : "PMSHousekeepingNote",
      *                      "CreateDate": "20190302"
      *                  }
      *              }
