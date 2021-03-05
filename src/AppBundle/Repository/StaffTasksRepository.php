@@ -286,4 +286,20 @@ class StaffTasksRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+    /**
+     * @param $parentTaskID
+     * @return mixed
+     */
+    public function GetParentTaskServicerDetails($parentTaskID)
+    {
+        return $this->createQueryBuilder('ts')
+            ->select('servicerid.name AS Name, servicerid.email AS Email, servicerid.phone AS Phone')
+            ->leftJoin('ts.servicerid', 'servicerid')
+            ->where('ts.taskid=' . (int)$parentTaskID)
+            ->andWhere('ts.islead=1')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
+
 }
