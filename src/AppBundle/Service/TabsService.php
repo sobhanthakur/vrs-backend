@@ -741,9 +741,11 @@ class TabsService extends BaseService
                     $this->globalResponse[] = $inner;
                     // Remove the entry
                     $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
-                    $this->entityManager->remove($taskToCheckListItemID);
-                    $this->entityManager->flush();
-                    break;
+                    if ($taskToCheckListItemID) {
+                        $this->entityManager->remove($taskToCheckListItemID);
+                        $this->entityManager->flush();
+                        break;
+                    }
                 }
             }
         }
