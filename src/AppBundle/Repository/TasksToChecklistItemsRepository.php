@@ -22,7 +22,7 @@ class TasksToChecklistItemsRepository extends EntityRepository
      * @param $checkListItemID
      * @return mixed
      */
-    public function GetCheckListItemsForManageTab($taskID, $checkListItemID,$limit=null)
+    public function GetCheckListItemsForManageTab($taskID, $checkListItemID,$limit=null,$checklistTypeID = null)
     {
         $result = $this->createQueryBuilder('c')
             ->select('c.enteredvalueamount AS EnteredValueAmount,c.columnvalue AS ColumnValue,c.tasktochecklistitemid AS TaskToChecklistItemID,c.optionselected AS OptionSelected,c.imageuploaded AS ImageUploaded,c.enteredvalue AS EnteredValue,(CASE WHEN c.checked=1 THEN 1 ELSE 0 END) AS Checked,cli.checklistitemid AS ChecklistItemID')
@@ -34,6 +34,9 @@ class TasksToChecklistItemsRepository extends EntityRepository
             $result->andWhere('c.checklistitemid=0');
         }
 
+        if ($checklistTypeID) {
+            $result->andWhere('c.checklisttypeid='.$checklistTypeID);
+        }
 
         if ($limit) {
             $result->setMaxResults($limit);
