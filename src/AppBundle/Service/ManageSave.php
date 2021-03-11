@@ -268,7 +268,7 @@ class ManageSave extends BaseService
                 $taskToCheckListItem->setDescription(array_key_exists('Description',$checklistDetails) ? $checklistDetails['Description'] : '');
                 $taskToCheckListItem->setImage(array_key_exists('Image',$checklistDetails) ? $checklistDetails['Image'] : '');
                 $taskToCheckListItem->setEnteredvalue('');
-                $taskToCheckListItem->setShowonownerreport(array_key_exists('ShowOwnerReport',$checklistDetails) ? (int)$checklistDetails['ShowOnOwnerReport'] : 0);
+                $taskToCheckListItem->setShowonownerreport(array_key_exists('ShowOnOwnerReport',$checklistDetails) ? (int)$checklistDetails['ShowOnOwnerReport'] : 0);
                 $taskToCheckListItem->setChecked(false);
                 $taskToCheckListItem->setSortorder(array_key_exists('SortOrder',$checklistDetails) ? (int)$checklistDetails['SortOrder'] : 0);
                 $taskToCheckListItem->setImageuploaded($input[GeneralConstants::IMAGE_UPLOADED]);
