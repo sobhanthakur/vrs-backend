@@ -19,6 +19,7 @@ use QuickBooksOnline\API\Exception\ServiceException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use AppBundle\Constants\GeneralConstants;
 
 /**
  * Class QuickbooksOnlineSyncResources
@@ -99,7 +100,7 @@ class QuickbooksOnlineSyncResources extends BaseService
     {
         $incomingListIDs = [];
         foreach ($customers as $customer) {
-            $integrationQBDCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid'=>$customer->Id,'customerid' => $customerObj->getCustomerid()));
+            $integrationQBDCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDCUSTOMERS)->findOneBy(array('qbdcustomerlistid'=>$customer->Id,'customerid' => $customerObj->getCustomerid()));
             if(!$integrationQBDCustomers) {
                 $integrationQBDCustomers = new Integrationqbdcustomers();
             }
@@ -116,15 +117,15 @@ class QuickbooksOnlineSyncResources extends BaseService
 
         // Fetch available Customers to keep track of customers that are made inactive in QBO
         $qbdListIDs = [];
-        $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->GetAllCustomers($customerObj->getCustomerid());
+        $qbdCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDCUSTOMERS)->GetAllCustomers($customerObj->getCustomerid());
         foreach ($qbdCustomers as $val) {
-            $qbdListIDs[] = $val['QBDCustomerListID'];
+            $qbdListIDs[] = $val[GeneralConstants::QBDCUSTOMERLISTID];
         }
 
         // Check if any record is deleted or not.
         $diffArray = array_diff($qbdListIDs, $incomingListIDs);
         foreach ($diffArray as $key => $value) {
-            $qbdCustomers = $this->entityManager->getRepository('AppBundle:Integrationqbdcustomers')->findOneBy(array('qbdcustomerlistid' => $value,'customerid' => $customerObj->getCustomerid()));
+            $qbdCustomers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_INTEGRATIONQBDCUSTOMERS)->findOneBy(array('qbdcustomerlistid' => $value));
             $qbdCustomers->setActive(false);
         }
         $this->entityManager->flush();
