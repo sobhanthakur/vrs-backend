@@ -730,8 +730,7 @@ class TabsService extends BaseService
     {
         // Re-initialize the Global Response array
         $this->globalResponse = [];
-        
-        $diff = array_diff($res2,$res1);
+        $diff = $this->subtract_array($res2,$res1);
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
@@ -749,5 +748,20 @@ class TabsService extends BaseService
                 }
             }
         }
+    }
+
+    /**
+     * @param $array1
+     * @param $array2
+     * @return array
+     */
+    public function subtract_array($array1, $array2){
+        foreach ($array2 as $item) {
+            $key = array_search($item, $array1);
+            if ( $key !== false ) {
+                unset($array1[$key]);
+            }
+        }
+        return array_values($array1);
     }
 }
