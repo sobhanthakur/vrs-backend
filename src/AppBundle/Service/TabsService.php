@@ -758,9 +758,7 @@ class TabsService extends BaseService
     public function subtract_array($array1, $array2){
         foreach ($array2 as $item) {
             $key = array_search($item, $array1);
-            if ( $key !== false ) {
-                unset($array1[$key]);
-            }
+            unset($array1[$key]);
         }
         return array_values($array1);
     }
