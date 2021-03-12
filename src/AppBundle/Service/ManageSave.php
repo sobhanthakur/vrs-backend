@@ -51,6 +51,8 @@ class ManageSave extends BaseService
             $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
             if (array_key_exists('NoteToOwner', $content) && $content['NoteToOwner'] !== '') {
                 $task->setToownernote(trim(substr($content['NoteToOwner'], 0, 5000)));
+            } else {
+                $task->setToownernote($task->getDefaulttoownernote());
             }
 
             // Update Completed Time if the task is completed.
