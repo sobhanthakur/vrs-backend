@@ -824,9 +824,13 @@ class TasksRepository extends EntityRepository
               AND Tasks.CompleteConfirmedDAte is NULL
               AND Tasks.TaskDAte <=   '" . $today . "' AND Tasks.TaskID IN (" . $taskIDs . ")";
 
-        $query .= " AND (Services.Active = 1 OR Services.Active IS NULL)
-              AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is NULL) Order By Tasks.TaskID,Name
+        if (array_key_exists('GoLiveDate',$servicers[0]) && $servicers[0]['GoLiveDate'] && gettype($servicers[0]['GoLiveDate']) === 'object') {
+            $goLiveDate = ($servicers[0]['GoLiveDate'])->format('Y-m-d H:i:s');
+            $query .= " AND (Services.Active = 1 OR Services.Active IS NULL)
+              AND (Tasks.TaskDate >= '".$goLiveDate."') Order By Tasks.TaskID,Name
               ";
+        }
+
         $tasks = $this->getEntityManager()->getConnection()->prepare($query);
         $tasks->execute();
         return $tasks->fetchAll();
