@@ -143,7 +143,6 @@ class AuthController extends FOSRestController
             $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
             return array(
                 GeneralConstants::REASON_CODE => 0,
-                GeneralConstants::REASON_CODE => $this->container->get(GeneralConstants::TRANSLATOR_DEFAULT)->trans(GeneralConstants::SUCCESS_TRANSLATION),
                 GeneralConstants::REDIRECTURI => $authUrl
             );
         } catch (HttpException $exception) {
