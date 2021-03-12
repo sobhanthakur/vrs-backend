@@ -33,6 +33,7 @@ class ServicersDashboardService extends BaseService
     public function GetTasks($servicerID)
     {
         try {
+            sleep(5);
             $response = [];
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers);
