@@ -649,7 +649,7 @@ class TabsService extends BaseService
             // De-dup the entries
             $this->DeDupEntries($rsThisResponse,$res1,$res2);
 
-            $diff = array_diff($res1, $res2);
+            $diff = $this->subtract_array($res1, $res2);
         } elseif ($option === 10) {
             if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
                 $res = [];
@@ -730,7 +730,7 @@ class TabsService extends BaseService
     {
         // Re-initialize the Global Response array
         $this->globalResponse = [];
-        $diff = $this->subtract_array($res2,$res1);
+        $diff = array_diff($res2,$res1);
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
