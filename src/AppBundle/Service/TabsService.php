@@ -730,7 +730,7 @@ class TabsService extends BaseService
     {
         // Re-initialize the Global Response array
         $this->globalResponse = [];
-        $diff = $this->subtract_array($res2,$res1);
+        $diff = array_diff($res2,$res1);
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
