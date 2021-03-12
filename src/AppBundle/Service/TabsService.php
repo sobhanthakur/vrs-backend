@@ -734,13 +734,13 @@ class TabsService extends BaseService
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
-
-                    // Append inner array to Global Response
-                    // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
-                    $this->globalResponse[] = $inner;
                     // Remove the entry
                     $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
                     if ($taskToCheckListItemID) {
+                        // Append inner array to Global Response
+                        // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
+                        $this->globalResponse[] = $inner;
+
                         $this->entityManager->remove($taskToCheckListItemID);
                         $this->entityManager->flush();
                         break;
