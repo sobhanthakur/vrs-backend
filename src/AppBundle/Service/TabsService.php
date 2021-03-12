@@ -744,8 +744,8 @@ class TabsService extends BaseService
                         $this->globalResponse[] = $inner;
                         $this->globalResponseValue[] = $inner['EnteredValue'];
 
-//                        $this->entityManager->remove($taskToCheckListItemID);
-//                        $this->entityManager->flush();
+                        $this->entityManager->remove($taskToCheckListItemID);
+                        $this->entityManager->flush();
                         break;
                     }
                 }
