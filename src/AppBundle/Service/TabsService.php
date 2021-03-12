@@ -521,7 +521,7 @@ class TabsService extends BaseService
                             for ($i=0; $i<count($merged);$i++) {
                                 $tempFlag = 0;
                                 foreach ($this->globalResponseID as $value) {
-                                    if ((int)$merged[$i]['TaskToChecklistItemID'] === (int)$value['TaskToChecklistItemID']) {
+                                    if ((int)$merged[$i]['TaskToChecklistItemID'] === (int)$value) {
                                         $tempFlag = 1;
                                         break;
                                     }
