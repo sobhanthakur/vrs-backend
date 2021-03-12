@@ -27,6 +27,7 @@ class TabsService extends BaseService
 {
     private $globalResponse = [];
     private $globalResponseValue = [];
+    private $globalResponseID = [];
 
     /**
      * @param $content
@@ -519,8 +520,8 @@ class TabsService extends BaseService
                             $merged = array_merge($rsThisResponse,$result);
                             for ($i=0; $i<count($merged);$i++) {
                                 $tempFlag = 0;
-                                foreach ($this->globalResponse as $value) {
-                                    if ($merged[$i]['EnteredValue'] === $value['EnteredValue']) {
+                                foreach ($this->globalResponseID as $value) {
+                                    if ($merged[$i]['TaskToChecklistItemID'] === $value['TaskToChecklistItemID']) {
                                         $tempFlag = 1;
                                         break;
                                     }
@@ -743,6 +744,7 @@ class TabsService extends BaseService
                         // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
                         $this->globalResponse[] = $inner;
                         $this->globalResponseValue[] = $inner['EnteredValue'];
+                        $this->globalResponseID[] = $inner['TaskToChecklistItemID'];
 
                         $this->entityManager->remove($taskToCheckListItemID);
                         $this->entityManager->flush();
