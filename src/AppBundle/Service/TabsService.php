@@ -26,6 +26,7 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 class TabsService extends BaseService
 {
     private $globalResponse = [];
+    private $globalResponseValue = [];
 
     /**
      * @param $content
@@ -648,8 +649,9 @@ class TabsService extends BaseService
         if ($option === 7) {
             // De-dup the entries
             $this->DeDupEntries($rsThisResponse,$res1,$res2);
+            $dedupDiff = $this->subtract_array($res2, $this->globalResponseValue);
 
-            $diff = $this->subtract_array($res1, $res2);
+            $diff = $this->subtract_array($res1, $dedupDiff);
         } elseif ($option === 10) {
             if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
                 $res = [];
@@ -730,7 +732,7 @@ class TabsService extends BaseService
     {
         // Re-initialize the Global Response array
         $this->globalResponse = [];
-        $diff = array_diff($res2,$res1);
+        $diff = $this->subtract_array($res2,$res1);
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
@@ -740,9 +742,10 @@ class TabsService extends BaseService
                         // Append inner array to Global Response
                         // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
                         $this->globalResponse[] = $inner;
+                        $this->globalResponseValue[] = $inner['EnteredValue'];
 
-                        $this->entityManager->remove($taskToCheckListItemID);
-                        $this->entityManager->flush();
+//                        $this->entityManager->remove($taskToCheckListItemID);
+//                        $this->entityManager->flush();
                         break;
                     }
                 }
@@ -758,7 +761,9 @@ class TabsService extends BaseService
     public function subtract_array($array1, $array2){
         foreach ($array2 as $item) {
             $key = array_search($item, $array1);
-            unset($array1[$key]);
+            if ( $key !== false ) {
+                unset($array1[$key]);
+            }
         }
         return array_values($array1);
     }
