@@ -459,12 +459,12 @@ class TabsService extends BaseService
                         'CheckListCount' => $checkListCount
                     );
 
-                    // Set a temporary flag
-                    $flag = 0;
-
                     // CheckList Response
                     $checkListResponse = [];
                     foreach ($rsChecklistItems as $rsChecklistItem) {
+                        // Set a temporary flag
+                        $flag = 0;
+
                         $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0][GeneralConstants::TASK_ID],$rsChecklistItem['ChecklistItemID'],null,$rsChecklistItem['ChecklistTypeID']);
                         $result = [];
 
@@ -493,6 +493,11 @@ class TabsService extends BaseService
                                     }
                                     break;
                                 case 7:
+                                    // Initialize global variables
+                                    $this->globalResponse = [];
+                                    $this->globalResponseID = [];
+                                    $this->globalResponseValue = [];
+
                                     $flag = 1;
                                     if (trim($rsChecklistItem['Options']) === '') {
                                         $rsChecklistItem['Options'] = '_';
@@ -504,7 +509,18 @@ class TabsService extends BaseService
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
                                     break;
                                 case 11:
-                                    // ColumnCount
+                                    // Number Grid
+
+                                    // Initialize global variables
+                                    $this->globalResponse = [];
+                                    $this->globalResponseID = [];
+                                    $this->globalResponseValue = [];
+
+                                    $flag = 1;
+                                    if (trim($rsChecklistItem['Options']) === '') {
+                                        $rsChecklistItem['Options'] = '_';
+                                    }
+
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                                     break;
                                 case 12:
@@ -664,7 +680,11 @@ class TabsService extends BaseService
                 $diff = array_diff_key($res, $res2);
             }
         } else {
-            $diff = array_diff_key($res1, $res2);
+            // De-dup the entries
+            $this->DeDupEntries($rsThisResponse,$res1,$res2);
+            $dedupDiff = $this->subtract_array($res2, $this->globalResponseValue);
+
+            $diff = $this->subtract_array($res1, $dedupDiff);
         }
 
         //
