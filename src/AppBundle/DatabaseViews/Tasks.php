@@ -55,7 +55,7 @@ class Tasks
       WHERE Tasks.Active = 1
       AND Properties.Active = 1
       AND (Services.Active = 1 OR Services.Active IS NULL)
-      AND Tasks.CompleteConfirmedDAte is NULL
+      AND Tasks.Completed=0
       AND (Tasks.TaskDate >= Customers.GoLiveDAte or Customers.GoLiveDate is null)
       AND Servicers.ServicerID=' . $servicerID.' AND Properties.CustomerID='.$customerID;
     }
