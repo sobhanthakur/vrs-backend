@@ -353,7 +353,7 @@ final class GeneralConstants
         'taskdescription' => 't.taskdescription as TaskDescription',
         'approved' => 't.approved as Approved',
         'approveddate' => 't.approveddate as ApprovedDate',
-        'completed' => '(CASE WHEN t.completeconfirmeddate IS NOT NULL THEN 1 ELSE 0 END) as Completed',
+        'completed' => '(CASE WHEN t.completed = 1 THEN 1 ELSE 0 END) as Completed',
         'billable' => 't.billable as Billable',
         'amount' => 't.amount as LaborAmount',
         'expenseamount' => 't.expenseamount as MaterialsAmount',

@@ -26,6 +26,8 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 class TabsService extends BaseService
 {
     private $globalResponse = [];
+    private $globalResponseValue = [];
+    private $globalResponseID = [];
 
     /**
      * @param $content
@@ -457,12 +459,12 @@ class TabsService extends BaseService
                         'CheckListCount' => $checkListCount
                     );
 
-                    // Set a temporary flag
-                    $flag = 0;
-
                     // CheckList Response
                     $checkListResponse = [];
                     foreach ($rsChecklistItems as $rsChecklistItem) {
+                        // Set a temporary flag
+                        $flag = 0;
+
                         $rsThisResponse = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->GetCheckListItemsForManageTab($tasks[0][GeneralConstants::TASK_ID],$rsChecklistItem['ChecklistItemID'],null,$rsChecklistItem['ChecklistTypeID']);
                         $result = [];
 
@@ -491,6 +493,11 @@ class TabsService extends BaseService
                                     }
                                     break;
                                 case 7:
+                                    // Initialize global variables
+                                    $this->globalResponse = [];
+                                    $this->globalResponseID = [];
+                                    $this->globalResponseValue = [];
+
                                     $flag = 1;
                                     if (trim($rsChecklistItem['Options']) === '') {
                                         $rsChecklistItem['Options'] = '_';
@@ -502,7 +509,18 @@ class TabsService extends BaseService
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
                                     break;
                                 case 11:
-                                    // ColumnCount
+                                    // Number Grid
+
+                                    // Initialize global variables
+                                    $this->globalResponse = [];
+                                    $this->globalResponseID = [];
+                                    $this->globalResponseValue = [];
+
+                                    $flag = 1;
+                                    if (trim($rsChecklistItem['Options']) === '') {
+                                        $rsChecklistItem['Options'] = '_';
+                                    }
+
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                                     break;
                                 case 12:
@@ -518,8 +536,8 @@ class TabsService extends BaseService
                             $merged = array_merge($rsThisResponse,$result);
                             for ($i=0; $i<count($merged);$i++) {
                                 $tempFlag = 0;
-                                foreach ($this->globalResponse as $value) {
-                                    if ($merged[$i]['EnteredValue'] === $value['EnteredValue']) {
+                                foreach ($this->globalResponseID as $value) {
+                                    if ((int)$merged[$i]['TaskToChecklistItemID'] === (int)$value) {
                                         $tempFlag = 1;
                                         break;
                                     }
@@ -648,8 +666,9 @@ class TabsService extends BaseService
         if ($option === 7) {
             // De-dup the entries
             $this->DeDupEntries($rsThisResponse,$res1,$res2);
+            $dedupDiff = $this->subtract_array($res2, $this->globalResponseValue);
 
-            $diff = array_diff($res1, $res2);
+            $diff = $this->subtract_array($res1, $dedupDiff);
         } elseif ($option === 10) {
             if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
                 $res = [];
@@ -661,7 +680,11 @@ class TabsService extends BaseService
                 $diff = array_diff_key($res, $res2);
             }
         } else {
-            $diff = array_diff_key($res1, $res2);
+            // De-dup the entries
+            $this->DeDupEntries($rsThisResponse,$res1,$res2);
+            $dedupDiff = $this->subtract_array($res2, $this->globalResponseValue);
+
+            $diff = $this->subtract_array($res1, $dedupDiff);
         }
 
         //
@@ -730,18 +753,19 @@ class TabsService extends BaseService
     {
         // Re-initialize the Global Response array
         $this->globalResponse = [];
-        
-        $diff = array_diff($res2,$res1);
+        $diff = $this->subtract_array($res2,$res1);
         foreach ($diff as $outer) {
             foreach ($rsThisResponse as $inner) {
                 if ($outer === $inner['EnteredValue']) {
-
-                    // Append inner array to Global Response
-                    // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
-                    $this->globalResponse[] = $inner;
                     // Remove the entry
                     $taskToCheckListItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$inner['TaskToChecklistItemID']);
                     if ($taskToCheckListItemID) {
+                        // Append inner array to Global Response
+                        // MAKE SURE TO MAKE CHANGES FOR OTHER CHECKLIST TYPES. THIS MIGHT CREATE DUPLICATES.
+                        $this->globalResponse[] = $inner;
+                        $this->globalResponseValue[] = $inner['EnteredValue'];
+                        $this->globalResponseID[] = $inner['TaskToChecklistItemID'];
+
                         $this->entityManager->remove($taskToCheckListItemID);
                         $this->entityManager->flush();
                         break;
@@ -749,5 +773,20 @@ class TabsService extends BaseService
                 }
             }
         }
+    }
+
+    /**
+     * @param $array1
+     * @param $array2
+     * @return array
+     */
+    public function subtract_array($array1, $array2){
+        foreach ($array2 as $item) {
+            $key = array_search($item, $array1);
+            if ( $key !== false ) {
+                unset($array1[$key]);
+            }
+        }
+        return array_values($array1);
     }
 }

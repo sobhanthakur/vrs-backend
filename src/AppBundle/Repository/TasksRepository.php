@@ -42,7 +42,7 @@ class TasksRepository extends EntityRepository
             ->andWhere('p2.customerid = :CustomerID')
             ->setParameter('CustomerID', $customerID)
             ->andWhere('t2.billable=1')
-            ->andWhere('t2.completeconfirmeddate IS NOT NULL');
+            ->andWhere('t2.completed=1');
 
         return $result
             ->getQuery()
@@ -123,7 +123,7 @@ class TasksRepository extends EntityRepository
             ->setParameter('CustomerID', $customerID)
             ->andWhere('p2.active=1')
             ->andWhere('t2.billable=1')
-            ->andWhere('t2.completeconfirmeddate IS NOT NULL');
+            ->andWhere('t2.completed=1');
         if (!empty($timezones)) {
             $size = count($timezones);
 
@@ -303,9 +303,9 @@ class TasksRepository extends EntityRepository
         //condition to check for completed task
         if (isset($completed)) {
             if ($completed == 1) {
-                $result->andWhere('t.completeconfirmeddate IS NOT NULL');
+                $result->andWhere('t.completed=1');
             } else {
-                $result->andWhere('t.completeconfirmeddate IS NULL');
+                $result->andWhere('t.completed=0');
             }
         }
 
@@ -482,7 +482,7 @@ class TasksRepository extends EntityRepository
             ->where('s2.servicerid='.$servicerID)
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
-            ->andWhere('t2.completeconfirmeddate IS NULL')
+            ->andWhere('t2.completed=0')
             ->andWhere('p2.customerid=s2.customerid')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL');
 
@@ -711,7 +711,7 @@ class TasksRepository extends EntityRepository
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
             ->andWhere('serviceid.active=1 OR serviceid.active IS NULL')
-            ->andWhere('t2.completeconfirmeddate IS NULL')
+            ->andWhere('t2.completed=0')
             ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL')
             ->andWhere("t2.taskdate <= :Today")
             ->andWhere('t2.taskid=' . $taskID)
@@ -737,7 +737,7 @@ class TasksRepository extends EntityRepository
         return $this->createQueryBuilder('t')
             ->select('t.completeconfirmeddate')
             ->where('t.taskid='.$taskID)
-            ->andWhere('t.completeconfirmeddate IS NULL')
+            ->andWhere('t.completed=0')
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
@@ -755,7 +755,7 @@ class TasksRepository extends EntityRepository
             ->leftJoin('AppBundle:Taskstoservicers', 'ts', Expr\Join::WITH, 'ts.taskid=t.taskid')
             ->where('t.taskid='.$taskID)
             ->andWhere('ts.servicerid='.$servicerID)
-            ->andWhere('t.completeconfirmeddate IS NULL')
+            ->andWhere('t.completed=0')
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
@@ -781,7 +781,7 @@ class TasksRepository extends EntityRepository
         }
 
         if ($properties) {
-            $query .= " AND t1_.PropertyID IN (".$properties.") and t1_.CompleteConfirmedDate IS NOT NULL 
+            $query .= " AND t1_.PropertyID IN (".$properties.") and t1_.Completed=1
             ORDER BY t1_.TaskDate DESC";
         }
 
@@ -821,7 +821,7 @@ class TasksRepository extends EntityRepository
               WHERE TAsks.Active = 1
               AND Properties.Active =1 
               anD Properties.CustomerID = " . $customerID . "
-              AND Tasks.CompleteConfirmedDAte is NULL
+              AND Tasks.Completed=0
               AND Tasks.TaskDAte <=   '" . $today . "' AND Tasks.TaskID IN (" . $taskIDs . ")";
 
         if (array_key_exists('GoLiveDate',$servicers[0]) && $servicers[0]['GoLiveDate'] && gettype($servicers[0]['GoLiveDate']) === 'object') {
@@ -895,7 +895,7 @@ class TasksRepository extends EntityRepository
                   LEFT JOIN Properties ON Tasks.PropertyID = Properties.PropertyID
                   LEFT JOIN Services ON Tasks.ServiceID = Services.ServiceID
                   LEFT JOIN TasksToServicers ON Tasks.TaskID = TasksToServicers.TaskID
-                  WHERE Tasks.TaskID = ' . $taskID . ' AND TasksToServicers.ServicerID = ' . $servicerID . ' and Tasks.CompleteConfirmedDate IS NULL';
+                  WHERE Tasks.TaskID = ' . $taskID . ' AND TasksToServicers.ServicerID = ' . $servicerID . ' and Tasks.Completed=0';
         $tasks = $this->getEntityManager()->getConnection()->prepare($query);
         $tasks->execute();
         return $tasks->fetchAll();
