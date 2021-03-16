@@ -35,4 +35,22 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
+
+    /**
+     * @param $servicerID
+     * @param \DateTime $today
+     * @return mixed
+     */
+    public function SchedulingNotesForAuthentication($servicerID, $today)
+    {
+        return $this->createQueryBuilder('n')
+            ->select('n.schedulingcalendarnoteid')
+            ->where('n.servicerid='.$servicerID)
+            ->andWhere('n.startdate >= :Today')
+            ->setParameter('Today',$today)
+            ->andWhere('n.showonemployeedashboard=1')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
+    }
 }
