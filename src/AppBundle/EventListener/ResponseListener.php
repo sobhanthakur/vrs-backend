@@ -68,6 +68,7 @@ class ResponseListener extends BaseService
             $this->apiLogger->debug('API Request/Response',
                 array_merge($request->headers->all(),
                     [
+                        'uri' => $request->getRequestUri(),
                         'request_content' => $request->getContent(),
                         'response_content' => $responseContent,
                         'response_status_code' => $response->getStatusCode()
