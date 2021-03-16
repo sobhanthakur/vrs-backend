@@ -330,6 +330,7 @@ class AuthenticationService extends BaseService
             $password = $content[GeneralConstants::PASS];
             $clockedIn = null;
             $timeZone = null;
+            $mobilePermissions = null;
 
             // Check Servicer table to validate the servicerID and password
             $servicer = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ValidateAuthentication($servicerID,$password);
@@ -366,15 +367,16 @@ class AuthenticationService extends BaseService
             $servicer[0]['TimeTrackingGPS'] = (int)$servicer[0]['TimeTrackingGPS'];
             $servicer[0]['ServicerActive'] = (int)$servicer[0]['ServicerActive'];
             $servicer[0]['CustomerActive'] = (int)$servicer[0]['CustomerActive'];
-            $servicer[0]['AlertOnMaintenance'] = (int)$servicer[0]['AlertOnMaintenance'];
-            $servicer[0]['AlertOnDamage'] = (int)$servicer[0]['AlertOnDamage'];
+
+            $mobilePermissions['AlertOnMaintenance'] = (int)$servicer[0]['AlertOnMaintenance'];
+            $mobilePermissions['AlertOnDamage'] = (int)$servicer[0]['AlertOnDamage'];
 
             // Check if entry is present in ServicersToProperties
             $properties = $this->entityManager->getRepository('AppBundle:Servicerstoproperties')->PropertiesForVendors($servicerID,1);
             if (empty($properties)) {
-                $servicer[0]['HasProperty'] = 0;
+                $mobilePermissions['HasProperty'] = 0;
             } else {
-                $servicer[0]['HasProperty'] = 1;
+                $mobilePermissions['HasProperty'] = 1;
             }
 
             // Check if a servicer has a SchedulingCalenderNote
@@ -383,9 +385,9 @@ class AuthenticationService extends BaseService
             $schedulingCalenderNote = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForAuthentication($servicerID,$today);
 
             if (empty($schedulingCalenderNote)) {
-                $servicer[0]['HasNote'] = 0;
+                $mobilePermissions['HasNote'] = 0;
             } else {
-                $servicer[0]['HasNote'] = 1;
+                $mobilePermissions['HasNote'] = 1;
             }
 
 
@@ -434,7 +436,8 @@ class AuthenticationService extends BaseService
             // Return response
             return array(
                 "AccessToken" => $accessToken,
-                "Details" => $servicer[0]
+                "Details" => $servicer[0],
+                "MobilePermissions" => $mobilePermissions
             );
         } catch (UnauthorizedHttpException $exception) {
             throw $exception;
