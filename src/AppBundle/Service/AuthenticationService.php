@@ -366,6 +366,28 @@ class AuthenticationService extends BaseService
             $servicer[0]['TimeTrackingGPS'] = (int)$servicer[0]['TimeTrackingGPS'];
             $servicer[0]['ServicerActive'] = (int)$servicer[0]['ServicerActive'];
             $servicer[0]['CustomerActive'] = (int)$servicer[0]['CustomerActive'];
+            $servicer[0]['AlertOnMaintenance'] = (int)$servicer[0]['AlertOnMaintenance'];
+            $servicer[0]['AlertOnDamage'] = (int)$servicer[0]['AlertOnDamage'];
+
+            // Check if entry is present in ServicersToProperties
+            $properties = $this->entityManager->getRepository('AppBundle:Servicerstoproperties')->PropertiesForVendors($servicerID,1);
+            if (empty($properties)) {
+                $servicer[0]['HasProperty'] = 0;
+            } else {
+                $servicer[0]['HasProperty'] = 1;
+            }
+
+            // Check if a servicer has a SchedulingCalenderNote
+            $dateTime = 'now';
+            $today = (new \DateTime($dateTime))->setTimezone($timeZone)->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
+            $schedulingCalenderNote = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForAuthentication($servicerID,$today);
+
+            if (empty($schedulingCalenderNote)) {
+                $servicer[0]['HasNote'] = 0;
+            } else {
+                $servicer[0]['HasNote'] = 1;
+            }
+
 
             /*
              * Locale formats

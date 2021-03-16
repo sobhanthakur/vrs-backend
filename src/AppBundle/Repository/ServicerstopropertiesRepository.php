@@ -21,14 +21,19 @@ class ServicerstopropertiesRepository extends EntityRepository
      * @param $vendorID
      * @return mixed
      */
-    public function PropertiesForVendors($vendorID)
+    public function PropertiesForVendors($vendorID, $limit = null)
     {
-        return $this->createQueryBuilder('v')
+        $result = $this->createQueryBuilder('v')
             ->select('p.propertyid AS PropertyID,p.propertyname AS PropertyName')
-            ->leftJoin('v.propertyid','p')
+            ->leftJoin('v.propertyid', 'p')
             ->where('p.active=1')
             ->andWhere('v.servicerid= :VendorID')
-            ->setParameter('VendorID',$vendorID)
+            ->setParameter('VendorID', (int)$vendorID);
+        if ($limit) {
+            $result->setMaxResults($limit);
+        }
+
+        return $result
             ->getQuery()
             ->execute();
     }
