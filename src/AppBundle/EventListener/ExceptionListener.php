@@ -147,9 +147,9 @@ class ExceptionListener extends BaseService
             // Restrict Admin Mail
             // Remove this later
             $sendToDev = null;
-            if (in_array($route,ApiRoutes::RESTRICT_ADMIN_ROUTES_MAIL)) {
-                $sendToDev = 1;
-            }
+//            if (in_array($route,ApiRoutes::RESTRICT_ADMIN_ROUTES_MAIL)) {
+//                $sendToDev = 1;
+//            }
             $this->serviceContainer->get('vrscheduler.mail_service')->SendMailFunction($content,$sendToDev);
 
             // Send SMS to Dev & Admin
