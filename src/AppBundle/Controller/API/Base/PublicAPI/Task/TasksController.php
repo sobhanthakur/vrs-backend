@@ -492,7 +492,7 @@ class TasksController extends FOSRestController
      * @param Request $request
      * @Post("/tasks", name="tasks_post")
      */
-    public function postPropertyBooking(Request $request)
+    public function postTask(Request $request)
     {
         //setting logger
         $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
@@ -521,9 +521,9 @@ class TasksController extends FOSRestController
 
             //check access level for read and write
             $accessLevel = ($restriction->accessLevel !== 2) ? false : true;
-            /*if (!$accessLevel) {
+            if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
-            }*/
+            }
 
             //Get property booking details
             $taskService = $this->container->get('vrscheduler.public_tasks_service');
