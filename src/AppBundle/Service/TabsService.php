@@ -722,19 +722,11 @@ class TabsService extends BaseService
                 );
             }
 
-//            $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
-            $originalVal !== $dbVal ? $diffOriginal = 1 : $diffOriginal = 0;
-            
-            if ($diffOriginal) {
+            $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
+
+            if (!empty($diffOriginal)) {
                 // Delete TaskToCheckListItem entries
-                $deleteTaskToChecklistItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
-                foreach ($deleteTaskToChecklistItemID as $item) {
-                    $removeEntry = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find((int)$item['TaskToChecklistItemID']);
-                    if ($removeEntry) {
-                        $this->entityManager->remove($removeEntry);
-                        $this->entityManager->flush();
-                    }
-                }
+                $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
 
                 // Empty res2 and create all entries
                 $res2 = [];
