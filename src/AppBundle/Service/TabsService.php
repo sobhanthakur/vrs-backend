@@ -28,6 +28,7 @@ class TabsService extends BaseService
     private $globalResponse = [];
     private $globalResponseValue = [];
     private $globalResponseID = [];
+    private $dupFlag = 0;
 
     /**
      * @param $content
@@ -129,11 +130,11 @@ class TabsService extends BaseService
                 unset($tasks[0][GeneralConstants::TIMETRACKING]);
                 $tasks[0]['AllowAdminAccess'] = $servicers[0]['AllowAdminAccess'] ? 1 : 0;
             }
-        return array(
-            'TaskDetails' => $tasks[0],
-            'CheckListDetails' => !empty($checkListItems) ? $checkListItems : [],
-            'TaskImages' => $taskImages
-        );
+            return array(
+                'TaskDetails' => $tasks[0],
+                'CheckListDetails' => !empty($checkListItems) ? $checkListItems : [],
+                'TaskImages' => $taskImages
+            );
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
@@ -261,43 +262,43 @@ class TabsService extends BaseService
 
 //            $todaysBooking = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers,$taskID);
 
-                $region = $servicers[0][GeneralConstants::REGION];
-                $timeZoneRegion = new \DateTimeZone($region);
+            $region = $servicers[0][GeneralConstants::REGION];
+            $timeZoneRegion = new \DateTimeZone($region);
 
-                // Get all PropertyBookings
-                $pb = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers);
+            // Get all PropertyBookings
+            $pb = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard($servicerID,$servicers);
 
-                if (!empty($pb)) {
-                    foreach ($pb as $value) {
-                        $value[GeneralConstants::PROPERTYBOOKINGID] ? $propertyBookings .= $value[GeneralConstants::PROPERTYBOOKINGID].',' : false;
-                        $value[GeneralConstants::TASK_ID] ? $taskIDs .= $value[GeneralConstants::TASK_ID].',' : false;
-                        $value[GeneralConstants::PROPERTY_ID] ? $properties[] = $value[GeneralConstants::PROPERTY_ID].',' : false;
-                    }
-                    $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
-                    $taskIDs = preg_replace("/,$/", '', $taskIDs);
+            if (!empty($pb)) {
+                foreach ($pb as $value) {
+                    $value[GeneralConstants::PROPERTYBOOKINGID] ? $propertyBookings .= $value[GeneralConstants::PROPERTYBOOKINGID].',' : false;
+                    $value[GeneralConstants::TASK_ID] ? $taskIDs .= $value[GeneralConstants::TASK_ID].',' : false;
+                    $value[GeneralConstants::PROPERTY_ID] ? $properties[] = $value[GeneralConstants::PROPERTY_ID].',' : false;
                 }
+                $propertyBookings = preg_replace("/,$/", '', $propertyBookings);
+                $taskIDs = preg_replace("/,$/", '', $taskIDs);
+            }
 
-                // Get All Properties
-                $rsCurrentTaskServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0][GeneralConstants::CUSTOMER_ID],$servicers);
-                if (!empty($rsCurrentTaskServicers)) {
-                    foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
-                        $currentTaskServicer[GeneralConstants::PROPERTY_ID] ? $propertiesCondition .= $currentTaskServicer[GeneralConstants::PROPERTY_ID].',' : false;
-                    }
-                    $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+            // Get All Properties
+            $rsCurrentTaskServicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->getTaskServicers(!empty($taskIDs)?$taskIDs:0,$servicers[0][GeneralConstants::CUSTOMER_ID],$servicers);
+            if (!empty($rsCurrentTaskServicers)) {
+                foreach ($rsCurrentTaskServicers as $currentTaskServicer) {
+                    $currentTaskServicer[GeneralConstants::PROPERTY_ID] ? $propertiesCondition .= $currentTaskServicer[GeneralConstants::PROPERTY_ID].',' : false;
                 }
+                $propertiesCondition = preg_replace("/,$/", '', $propertiesCondition);
+            }
 
-                empty($propertiesCondition) ? $propertiesCondition='0':false;
-                empty($propertyBookings) ? $propertyBookings='0':false;
+            empty($propertiesCondition) ? $propertiesCondition='0':false;
+            empty($propertyBookings) ? $propertyBookings='0':false;
 
-                $query1 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,$propertyBookings);
+            $query1 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,$propertyBookings);
 
-                $query2 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,null,$propertiesCondition);
+            $query2 = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->AssignmentsTask($servicers[0][GeneralConstants::CUSTOMER_ID],50,null,$propertiesCondition);
 
-                $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
-                $response = 'SELECT TOP 5 *  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
-                $response = $this->entityManager->getConnection()->prepare($response);
-                $response->execute();
-                $response = $response->fetchAll();
+            $rsAllEmployeesAndTasks = $query1.' UNION '.$query2;
+            $response = 'SELECT TOP 5 *  FROM ('.$rsAllEmployeesAndTasks.') AS R  WHERE R.PropertyID = '.$propertyID.'  ORDER BY R.TaskDate desc';
+            $response = $this->entityManager->getConnection()->prepare($response);
+            $response->execute();
+            $response = $response->fetchAll();
 
             for ($i = 0; $i < count($response); $i++) {
                 if ($response[$i]['CompleteConfirmedDate']) {
@@ -318,9 +319,9 @@ class TabsService extends BaseService
                 unset($response[$i]['ServicersName']);
             }
 
-        return array(
-            'Assignments' => $response
-        );
+            return array(
+                'Assignments' => $response
+            );
 
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -470,6 +471,12 @@ class TabsService extends BaseService
 
                         // Create check Lists if empty
                         if ($rsChecklistItem['ChecklistTypeID'] !== null) {
+                            if (trim($rsChecklistItem['Options']) === '') {
+                                $rsChecklistItem['Options'] = '_';
+                            }
+
+                            $checkLists = array('CheckListItem' => $rsChecklistItem);
+
                             switch ((int)$rsChecklistItem['ChecklistTypeID']) {
                                 case 0:
                                     // CheckBox
@@ -499,14 +506,41 @@ class TabsService extends BaseService
                                     $this->globalResponseValue = [];
 
                                     $flag = 1;
-                                    if (trim($rsChecklistItem['Options']) === '') {
-                                        $rsChecklistItem['Options'] = '_';
-                                    }
+
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,7);
                                     break;
                                 case 10:
                                     // ColumnCount
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,10);
+
+                                    $finalResponse = [];
+                                    if ($this->dupFlag) {
+                                        $type10Response = !empty($result) ? $result : $rsThisResponse;
+                                        $this->dupFlag = 0;
+                                    } else {
+                                        $type10Response = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
+                                    }
+
+                                    $options = explode("\n", $rsChecklistItem['Options']);
+                                    $columnCount = (int)$rsChecklistItem['ColumnCount'];
+
+                                    // Iterate through responses
+                                    $tempCounter = 0;
+                                    for ($i = 0; $i < count($options); $i++) {
+                                        $tempResponse = [];
+                                        $j = 0;
+                                        while ($j < $columnCount) {
+                                            $tempResponse[] = $type10Response[$tempCounter];
+                                            $j++;
+                                            $tempCounter++;
+                                        }
+                                        $finalResponse[] = array(
+                                            $i => $options[$i],
+                                            'Details' => $tempResponse
+                                        );
+                                    }
+
+                                    $checkLists['CheckListItem']['ResponseInfo'] = $finalResponse;
                                     break;
                                 case 11:
                                     // Number Grid
@@ -517,9 +551,6 @@ class TabsService extends BaseService
                                     $this->globalResponseValue = [];
 
                                     $flag = 1;
-                                    if (trim($rsChecklistItem['Options']) === '') {
-                                        $rsChecklistItem['Options'] = '_';
-                                    }
 
                                     $result = $this->ProcessOption7and10and11($taskObj,$rsChecklistItem,$rsThisResponse,11);
                                     break;
@@ -530,25 +561,26 @@ class TabsService extends BaseService
                             }
                         }
 
-                        $checkLists = array('CheckListItem' => $rsChecklistItem);
-                        $tempResult = [];
-                        if ($flag) {
-                            $merged = array_merge($rsThisResponse,$result);
-                            for ($i=0; $i<count($merged);$i++) {
-                                $tempFlag = 0;
-                                foreach ($this->globalResponseID as $value) {
-                                    if ((int)$merged[$i]['TaskToChecklistItemID'] === (int)$value) {
-                                        $tempFlag = 1;
-                                        break;
+                        if ((int)$rsChecklistItem['ChecklistTypeID'] !== 10) {
+                            $tempResult = [];
+                            if ($flag) {
+                                $merged = array_merge($rsThisResponse,$result);
+                                for ($i=0; $i<count($merged);$i++) {
+                                    $tempFlag = 0;
+                                    foreach ($this->globalResponseID as $value) {
+                                        if ((int)$merged[$i]['TaskToChecklistItemID'] === (int)$value) {
+                                            $tempFlag = 1;
+                                            break;
+                                        }
+                                    }
+                                    if ($tempFlag !== 1) {
+                                        $tempResult[] = $merged[$i];
                                     }
                                 }
-                                if ($tempFlag !== 1) {
-                                    $tempResult[] = $merged[$i];
-                                }
+                                $checkLists['CheckListItem']['ResponseInfo'] = $tempResult;
+                            } else {
+                                $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                             }
-                            $checkLists['CheckListItem']['ResponseInfo'] = $tempResult;
-                        } else {
-                            $checkLists['CheckListItem']['ResponseInfo'] = !empty($result) ? array_merge($rsThisResponse,$result) : $rsThisResponse;
                         }
 
                         $checkListResponse[] = $checkLists;
@@ -653,8 +685,6 @@ class TabsService extends BaseService
         // Initialise Results
         $res2 = [];
         $res = [];
-        $diff = [];
-        $dedup = [];
 
         // Get All options
         $res1 = explode("\n", $checkListItem['Options']);
@@ -670,14 +700,41 @@ class TabsService extends BaseService
 
             $diff = $this->subtract_array($res1, $dedupDiff);
         } elseif ($option === 10) {
-            if (count($res2) !== count($res1) * (int)$checkListItem['ColumnCount']) {
-                $res = [];
-                for ($i = 0; $i < count($res1); $i++) {
-                    for ($j = 0; $j < (int)$checkListItem['ColumnCount']; $j++) {
-                        $res[] = $res1[$i];
-                    }
+            $originalVal = [];
+            $dbVal = [];
+            $res3 = [];
+            $diff = [];
+
+            for ($i = 0; $i < count($res1); $i++) {
+                for ($j=1;$j<=(int)$checkListItem['ColumnCount'];$j++) {
+                    $originalVal[] = array(
+                        'EV' => $res1[$i],
+                        'CV' => $j
+                    );
+                    $res3[] = $res1[$i];
                 }
-                $diff = array_diff_key($res, $res2);
+            }
+
+            foreach ($rsThisResponse as $item) {
+                $dbVal[] = array(
+                    'EV' => $item['EnteredValue'],
+                    'CV' => $item['ColumnValue']
+                );
+            }
+
+            $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
+
+            if (!empty($diffOriginal)) {
+                // Delete TaskToCheckListItem entries
+                $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
+
+                // Empty res2 and create all entries
+                $res2 = [];
+
+                // Set Temp Flag to 1
+                $this->dupFlag = 1;
+
+                $diff = array_diff_key($res3, $res2);
             }
         } else {
             // De-dup the entries
