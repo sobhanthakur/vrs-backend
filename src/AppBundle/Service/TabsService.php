@@ -727,7 +727,12 @@ class TabsService extends BaseService
             
             if ($diffOriginal) {
                 // Delete TaskToCheckListItem entries
-                $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
+                $deleteTaskToChecklistItemID = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
+                foreach ($deleteTaskToChecklistItemID as $item) {
+                    $removeEntry = $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->find($item['TaskToChecklistItemID']);
+                    $this->entityManager->remove($removeEntry);
+                    $this->entityManager->flush();
+                }
 
                 // Empty res2 and create all entries
                 $res2 = [];

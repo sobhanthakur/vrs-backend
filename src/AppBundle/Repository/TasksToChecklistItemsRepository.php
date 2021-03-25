@@ -48,12 +48,18 @@ class TasksToChecklistItemsRepository extends EntityRepository
     /**
      * @param $taskID
      * @param $checklistItemID
-     * @throws \Doctrine\DBAL\DBALException
+     * @return mixed
      */
     public function DeleteDuplicateChecklistItems($taskID, $checklistItemID)
     {
-        $query = 'Delete from TasksToChecklistItems where TaskID='.(int)$taskID.' AND ChecklistItemID='.(int)$checklistItemID;
-        $result = $this->getEntityManager()->getConnection()->prepare($query);
-        $result->execute();
+//        $query = 'Delete from TasksToChecklistItems where TaskID='.(int)$taskID.' AND ChecklistItemID='.(int)$checklistItemID;
+//        $result = $this->getEntityManager()->getConnection()->prepare($query);
+//        $result->execute();
+        return $this->createQueryBuilder('t')
+            ->select('t.tasktochecklistitemid AS TaskToChecklistItemID')
+            ->where('t.taskid='.(int)$taskID)
+            ->andWhere('t.checklistitemid='.(int)$checklistItemID)
+            ->getQuery()
+            ->execute();
     }
 }
