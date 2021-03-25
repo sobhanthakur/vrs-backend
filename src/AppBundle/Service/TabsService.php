@@ -724,7 +724,7 @@ class TabsService extends BaseService
 
             $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
 
-            if (!empty($diffOriginal)) {
+            if (!empty($diffOriginal) || count($dbVal) !== count($originalVal)) {
                 // Delete TaskToCheckListItem entries
                 $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
 
