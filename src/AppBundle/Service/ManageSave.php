@@ -157,6 +157,7 @@ class ManageSave extends BaseService
                 if ($option === 7 || $option === 10) {
                     $taskToCheckListItem->setOptionselected((int)$input[GeneralConstants::OPTION_SELECTED]);
                 } else {
+                    $input['EnteredValueAmount'] = ltrim($input['EnteredValueAmount'], '0');
                     if(!preg_match("/[a-z]/i", $input['EnteredValueAmount'])) {
                         $taskToCheckListItem->setEnteredvalueamount(eval('return '.$input['EnteredValueAmount'].';'));
                     } else {
