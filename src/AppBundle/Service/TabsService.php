@@ -722,9 +722,10 @@ class TabsService extends BaseService
                 );
             }
 
-            $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
-
-            if (!empty($diffOriginal) || count($dbVal) !== count($originalVal)) {
+//            $diffOriginal = array_map('json_decode', array_merge(array_diff(array_map('json_encode', $originalVal), array_map('json_encode', $dbVal)),array_diff(array_map('json_encode', $dbVal), array_map('json_encode', $originalVal))));
+            $originalVal !== $dbVal ? $diffOriginal = 1 : $diffOriginal = 0;
+            
+            if ($diffOriginal) {
                 // Delete TaskToCheckListItem entries
                 $this->entityManager->getRepository('AppBundle:Taskstochecklistitems')->DeleteDuplicateChecklistItems($task->getTaskid(),$checkListItem['ChecklistItemID']);
 
