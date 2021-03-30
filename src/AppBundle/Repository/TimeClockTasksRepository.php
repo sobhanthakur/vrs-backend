@@ -283,10 +283,21 @@ class TimeClockTasksRepository extends EntityRepository
 //        $today = (new \DateTime($dateTime))->setTime(0,0,0);
 //        $todayEOD = (new \DateTime($dateTime))->modify('+1 day')->setTime(0,0,0);
 
-        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
+//        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
+        return $this->createQueryBuilder('tct')
+            ->select('IDENTITY(tct.taskid) AS TaskID,tct.clockout AS ClockOut,tct.clockin AS ClockIn,tct.timeclocktaskid AS TimeClockTaskID')
+            ->where('tct.clockout IS NULL')
+            ->andWhere('tct.servicerid='.(int)$servicerID)
+            ->andWhere('tct.clockin >= :ClockIn')
+            ->setParameter('ClockIn',$today)
+            ->andWhere('tct.clockout <= :ClockOut')
+            ->setParameter('ClockOut',$todayEOD)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
 
-        $result->execute();
-        return $result->fetchAll();
+//        $result->execute();
+//        return $result->fetchAll();
     }
 
     /**

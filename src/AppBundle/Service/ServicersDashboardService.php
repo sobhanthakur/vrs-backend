@@ -294,7 +294,7 @@ class ServicersDashboardService extends BaseService
 
                 // Check if log tab has to be rendered
                 $log = 0;
-                $allIssues = 'SELECT TOP 1 CreateDate FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i][GeneralConstants::PROPERTY_ID].' AND vIssues.PropertyID <> 0';
+                $allIssues = 'SELECT TOP 1 CreateDate,FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i][GeneralConstants::PROPERTY_ID].' AND vIssues.PropertyID <> 0';
                 $allIssues .= ' AND vIssues.ClosedDate IS NULL';
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
                     $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i][GeneralConstants::TASK_ID];
