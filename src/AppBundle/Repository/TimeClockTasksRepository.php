@@ -266,10 +266,11 @@ class TimeClockTasksRepository extends EntityRepository
 
     /**
      * @param $servicerID
-     * @return mixed[]
-     * @throws \Doctrine\DBAL\DBALException
+     * @param $region
+     * @param null $dateTime
+     * @return mixed
      */
-    public function CheckOtherStartedTasks($servicerID,$region,$dateTime = null)
+    public function CheckOtherStartedTasks($servicerID, $region, $dateTime = null)
     {
         if (!$dateTime) {
             $dateTime = 'now';
@@ -280,24 +281,23 @@ class TimeClockTasksRepository extends EntityRepository
         $today = (new \DateTime($dateTime))->setTimezone($timeZone)->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
         $todayEOD = (new \DateTime($dateTime))->setTimezone($timeZone)->modify('+1 day')->setTime(0,0,0)->setTimezone(new \DateTimeZone('UTC'));
 
-//        $today = (new \DateTime($dateTime))->setTime(0,0,0);
-//        $todayEOD = (new \DateTime($dateTime))->modify('+1 day')->setTime(0,0,0);
-
-//        $result = $this->getEntityManager()->getConnection()->prepare("SELECT TOP 1 TimeClockTaskID,ClockIn,ClockOut,TaskID,TimeZoneRegion FROM (".TimeClockTasks::vTimeClockTasks.") AS tct where tct.ClockOut IS NULL AND tct.ServicerID=".$servicerID." AND tct.ClockIn>='".$today->format('Y-m-d H:i:s')."' AND tct.ClockIn<='".$todayEOD->format('Y-m-d H:i:s')."'");
-        return $this->createQueryBuilder('tct')
+        $result  = $this->createQueryBuilder('tct')
             ->select('IDENTITY(tct.taskid) AS TaskID,tct.clockout AS ClockOut,tct.clockin AS ClockIn,tct.timeclocktaskid AS TimeClockTaskID')
             ->where('tct.clockout IS NULL')
             ->andWhere('tct.servicerid='.(int)$servicerID)
             ->andWhere('tct.clockin >= :ClockIn')
             ->setParameter('ClockIn',$today)
-            ->andWhere('tct.clockout <= :ClockOut')
-            ->setParameter('ClockOut',$todayEOD)
+            ->andWhere('tct.clockin <= :ClockInEOD')
+            ->setParameter('ClockInEOD',$todayEOD)
             ->setMaxResults(1)
             ->getQuery()
             ->execute();
 
-//        $result->execute();
-//        return $result->fetchAll();
+        if (!empty($result) && $result[0]['ClockIn']) {
+            $result[0]['ClockIn'] = $result[0]['ClockIn']->format('Y-m-d H:i:s');
+        }
+
+        return $result;
     }
 
     /**
