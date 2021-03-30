@@ -304,4 +304,29 @@ class IssueRepository extends EntityRepository
             ->execute();
 
     }
+
+    /**
+     * @param $propertyID
+     * @param $servicers
+     * @param $taskID
+     * @return mixed
+     */
+    public function LogTabForTasksAPI($propertyID, $servicers, $taskID)
+    {
+        $result = $this->createQueryBuilder('i')
+            ->select('i.createdate AS CreateDate')
+            ->addSelect('IDENTITY(i.fromtaskid) AS FromTaskID')
+            ->where('i.propertyid='.(int)$propertyID)
+            ->andWhere('i.propertyid != 0')
+            ->andWhere('i.closeddate IS NULL')
+            ->setMaxResults(1);
+        if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
+            $result->andWhere('i.fromtaskid='.(int)$taskID);
+        }
+        $result = $result->getQuery()->execute();
+        if (!empty($result) && $result[0]['CreateDate']) {
+            $result[0]['CreateDate'] = $result[0]['CreateDate']->format('Y-m-d H:i:s');
+        }
+        return $result;
+    }
 }

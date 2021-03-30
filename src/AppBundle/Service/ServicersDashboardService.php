@@ -294,14 +294,16 @@ class ServicersDashboardService extends BaseService
 
                 // Check if log tab has to be rendered
                 $log = 0;
-                $allIssues = 'SELECT TOP 1 CreateDate,FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i][GeneralConstants::PROPERTY_ID].' AND vIssues.PropertyID <> 0';
+                $issues = $this->entityManager->getRepository('AppBundle:Issues')->LogTabForTasksAPI($tasks[$i][GeneralConstants::PROPERTY_ID],$servicers,$tasks[$i][GeneralConstants::TASK_ID]);
+
+                /*$allIssues = 'SELECT TOP 1 CreateDate,FromTaskID FROM  ('.Issues::vIssues.') AS vIssues  WHERE vIssues.PropertyID='.$tasks[$i][GeneralConstants::PROPERTY_ID].' AND vIssues.PropertyID <> 0';
                 $allIssues .= ' AND vIssues.ClosedDate IS NULL';
                 if ((int)$servicers[0]['ShowIssueLog'] !== 1) {
                     $allIssues .= ' AND vIssues.FromTaskID='.$tasks[$i][GeneralConstants::TASK_ID];
                 }
                 $issues = $this->entityManager->getConnection()->prepare($allIssues);
                 $issues->execute();
-                $issues = $issues->fetchAll();
+                $issues = $issues->fetchAll();*/
 
                 if (!empty($issues)) {
                     $log = 1;
