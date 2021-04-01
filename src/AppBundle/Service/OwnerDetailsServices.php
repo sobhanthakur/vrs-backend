@@ -10,6 +10,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Entity\Owners;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -103,4 +104,47 @@ class OwnerDetailsServices extends BaseService
         return $returnData;
     }
 
+    /**
+     * @param $content
+     * @param $authDetails
+     * @return array
+     */
+    public function InsertOwner($content, $authDetails)
+    {
+        try {
+            // Check if the owner already exists
+            $owner = $this->entityManager->getRepository('AppBundle:Owners')->findOneBy(array(
+                'ownername' => $content['OwnerName']
+            ));
+            if ($owner) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            // Insert Owner
+            $owner = new Owners();
+            $owner->setCustomerid($this->entityManager->getRepository('AppBundle:Customers')->find($authDetails['customerID']));
+            $owner->setOwnername($content['OwnerName']);
+            $owner->setOwneremail($content['OwnerEmail']);
+            $this->entityManager->persist($owner);
+            $this->entityManager->flush();
+
+            // Format Response
+            return array(
+                "OwnerID" => $owner->getOwnerid(),
+                "OwnerName" => $owner->getOwnername(),
+                "OwnerEmail" => $owner->getOwneremail(),
+                'CreateDate' => $owner->getCreatedate()->format('YmdHis')
+            );
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::PROPERTY_API .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
+    }
 }

@@ -10,6 +10,7 @@ namespace AppBundle\Controller\API\Base\PublicAPI\Owners;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Constants\ErrorConstants;
 use AppBundle\Constants\GeneralConstants;
@@ -115,4 +116,124 @@ class OwnersController extends FOSRestController
         return $ownerDetails;
     }
 
+    /**
+     * Insert new Owner
+     *
+     * @SWG\Tag(name="Owners")
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     required=true,
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="OwnerName",
+     *              type="string",
+     *              example="OwnerName"
+     *         ),
+     *         @SWG\Property(
+     *              property="OwnerEmail",
+     *              type="string",
+     *              example="owner@email.com"
+     *         )
+     *     )
+     *  )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Insert new property",
+     *     @SWG\Schema(
+     *         @SWG\Property(
+     *              property="OwnerID",
+     *              type="string",
+     *              example=1
+     *         ),
+     *         @SWG\Property(
+     *              property="OwnerName",
+     *              type="string",
+     *              example="OwnerName"
+     *         ),
+     *         @SWG\Property(
+     *              property="OwnerEmail",
+     *              type="string",
+     *              example="owner@email.com"
+     *         ),
+     *         @SWG\Property(
+     *              property="CreateDate",
+     *              type="string",
+     *              example="2019-02-01"
+     *         )
+     *         )
+     *     )
+     * )
+     * @return array
+     * @param Request $request
+     * @Post("/owners", name="owner_post")
+     */
+    public function postOwner(Request $request)
+    {
+        //setting logger
+        $logger = $this->container->get(GeneralConstants::MONOLOG_EXCEPTION);
+
+        try {
+            //collecting authdetails
+            $authDetails = $request->attributes->get(GeneralConstants::AUTHPAYLOAD);
+            $authService = $this->container->get(GeneralConstants::AUTH_PUBLIC_SERVICE);
+            $restriction = $authDetails[GeneralConstants::PROPERTIES];
+
+            //parse the json content from request
+            $content = $authService->parseContent($request->getContent(), "json");
+
+            //validate the request
+            $apiRequest = $this->validateOwnerRequest($content);
+            if ($apiRequest[GeneralConstants::STATUS] === false) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            //Get pathinfo
+            $baseName = GeneralConstants::CHECK_API_RESTRICTION['OWNERS'];
+
+            //check restriction for the user
+            $restriction = $authService->resourceRestriction($restriction, $baseName);
+            //check access level for read and write
+            $accessLevel = ($restriction->accessLevel !== 2) ? $accessLevel = false : $accessLevel = true;
+            if (!$accessLevel) {
+                throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
+            }
+
+            //Add Owner
+            $ownerService = $this->container->get('vrscheduler.public_owners_service');
+            return $ownerService->InsertOwner($content,$authDetails);
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $logger->error(__FUNCTION__ . GeneralConstants::FUNCTION_LOG .
+                $exception->getMessage());
+            // Throwing Internal Server Error Response In case of Unknown Errors.
+            throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+        }
+    }
+
+    /**
+     * Function to validate the request object
+     *
+     * @param $content
+     *
+     * @return mixed
+     */
+    private function validateOwnerRequest($content)
+    {
+        //validate request key for processing
+        if (
+            (!isset($content['OwnerName']) && !(gettype($content['OwnerName']) == "string")) ||
+            (!isset($content['OwnerEmail']) && !(gettype($content['OwnerEmail']) == "string"))
+        ) {
+            return [GeneralConstants::STATUS => false];
+        }
+
+        //returns true if key in request object is valid
+        return true;
+    }
 }

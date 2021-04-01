@@ -88,7 +88,8 @@ final class ApiRoutes
         "property_bookings_delete",
         "property_statuses_get",
         "tasks_post",
-        "property_post"
+        "property_post",
+        "owner_post"
     );
 
     const PWA_ROUTES = array(

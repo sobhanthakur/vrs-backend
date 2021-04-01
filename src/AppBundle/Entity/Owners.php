@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Owners", indexes={@ORM\Index(name="IDX_45DE97CC854CF4BD", columns={"CustomerID"}), @ORM\Index(name="IDX_45DE97CC423D04DF", columns={"CountryID"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\OwnersRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Owners
 {
@@ -171,16 +172,16 @@ class Owners
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="UpdateDate", type="datetime", nullable=false)
      */
-    private $updatedate = 'getutcdate()';
+    private $updatedate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="getutcdate()"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'getutcdate()';
+    private $createdate;
 
     /**
      * @var \Customers
@@ -812,5 +813,18 @@ class Owners
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
     }
 }

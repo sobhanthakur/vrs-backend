@@ -242,7 +242,7 @@ class PropertiesController extends FOSRestController
     }
 
     /**
-     * Insert new Property property
+     * Insert new Property
      *
      * @SWG\Tag(name="Properties")
      * @SWG\Parameter(
@@ -268,7 +268,7 @@ class PropertiesController extends FOSRestController
      *         @SWG\Property(
      *              property="RegionID",
      *              type="string",
-     *              example="Some RegionID"
+     *              example=10
      *         ),
      *         @SWG\Property(
      *              property="DefaultCheckInTime",
@@ -297,33 +297,49 @@ class PropertiesController extends FOSRestController
      *     description="Insert new property",
      *     @SWG\Schema(
      *         @SWG\Property(
-     *              property="url",
+     *              property="PropertyName",
      *              type="string",
-     *              example="/api/v1/properties"
-     *          ),
-     *          @SWG\Property(
-     *              property="has_more",
-     *              type="boolean",
-     *              example="true"
-     *          ),
-     *       @SWG\Property(
-     *              property="data",
-     *              example=
-     *               {
-     *                  {
-     *                      "PropertyID": 1,
-     *                      "PropertyName": "property_name",
-     *                      "Abbreviation": "pn",
-     *                      "Address": "Property Address",
-     *                      "OwnerID":10,
-     *                      "RegionID": 14,
-     *                      "DefaultCheckInTime": 14,
-     *                      "DefaultCheckInTimeInMinutes": "30",
-     *                      "DefaultCheckOutTime": 14,
-     *                      "DefaultCheckOutTimeInMinutes": "30",
-     *                      "CreateDate": "20190302"
-     *                  }
-     *              }
+     *              example="PropertyName"
+     *         ),
+     *         @SWG\Property(
+     *              property="Abbreviation",
+     *              type="string",
+     *              example="PN"
+     *         ),
+     *         @SWG\Property(
+     *              property="Address",
+     *              type="string",
+     *              example="Property Address"
+     *         ),
+     *         @SWG\Property(
+     *              property="RegionID",
+     *              type="string",
+     *              example=10
+     *         ),
+     *         @SWG\Property(
+     *              property="DefaultCheckInTime",
+     *              type="string",
+     *              example="16"
+     *         ),
+     *         @SWG\Property(
+     *              property="DefaultCheckInTimeInMinutes",
+     *              type="string",
+     *              example=30
+     *         ),
+     *         @SWG\Property(
+     *              property="DefaultCheckOutTime",
+     *              type="string",
+     *              example="16"
+     *         ),
+     *         @SWG\Property(
+     *              property="DefaultCheckOutTimeInMinutes",
+     *              type="string",
+     *              example=30
+     *         ),
+     *         @SWG\Property(
+     *              property="CreateDate",
+     *              type="string",
+     *              example="2019-02-01"
      *         )
      *     )
      * )
