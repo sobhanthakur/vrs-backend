@@ -23,16 +23,20 @@ class OwnersRepository extends EntityRepository
      * @param $customerID
      * @return mixed
      */
-    public function GetOwners($customerID)
+    public function GetOwners($customerID,$ownerID = null)
     {
-        return $this
+        $result = $this
             ->createQueryBuilder('p')
             ->select('p.ownerid as OwnerID, p.ownername as OwnerName')
             ->where('p.customerid= :CustomerID')
+            ->andWhere('p.active=1')
             ->setParameter('CustomerID', $customerID)
-            ->orderBy('p.ownername','ASC')
-            ->getQuery()
-            ->execute();
+            ->orderBy('p.ownername','ASC');
+        if ($ownerID) {
+            $result->andWhere('p.ownerid='.(int)$ownerID);
+        }
+
+        return $result->getQuery()->execute();
     }
 
     /**

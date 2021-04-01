@@ -11,6 +11,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Constants\GeneralConstants;
 use AppBundle\Constants\ErrorConstants;
+use AppBundle\Entity\Properties;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -100,5 +101,91 @@ class propertyDetailsServices extends BaseService
 
         return $returnData;
 
+    }
+
+    /**
+     * @param $content
+     * @param $authDetails
+     * @return array
+     */
+    public function InsertProperty($content, $authDetails)
+    {
+        try {
+            // Find Owner Object
+            $owner = $this->entityManager->getRepository('AppBundle:Owners')->findOneBy(array(
+                'ownerid' => $content['OwnerID'],
+                'customerid' => $authDetails['customerID'],
+                'active' => true
+            ));
+            if (!$owner) {
+                throw new HttpException(404);
+            }
+
+            // Find Region Object
+            $region = $this->entityManager->getRepository('AppBundle:Regions')->findOneBy(array(
+                'regionid' => $content['RegionID'],
+                'customerid' => $authDetails['customerID']
+            ));
+            if (!$region) {
+                throw new HttpException(404);
+            }
+
+            // Check if duplicate entry exists with same payload
+            $checkDuplicateProperty = $this->entityManager->getRepository('AppBundle:Properties')->findOneBy(array(
+                'propertyname' => $content['PropertyName'],
+                'propertyabbreviation' => $content['Abbreviation'],
+                'address' => $content['Address'],
+                'ownerid' => $content['OwnerID'],
+                'regionid' => $content['RegionID'],
+                'defaultcheckintime' => $content['DefaultCheckInTime'],
+                'defaultcheckintimeminutes' => $content['DefaultCheckInTimeInMinutes'],
+                'defaultcheckouttime' => $content['DefaultCheckOutTime'],
+                'defaultcheckouttimeminutes' => $content['DefaultCheckOutTimeInMinutes'],
+                'customerid' => $authDetails['customerID']
+            ));
+            if ($checkDuplicateProperty) {
+                throw new BadRequestHttpException(ErrorConstants::INVALID_REQUEST);
+            }
+
+            // Insert Property
+            $property = new Properties();
+            $property->setPropertyname($content['PropertyName']);
+            $property->setPropertyabbreviation($content['Abbreviation']);
+            $property->setAddress($content['Address']);
+            $property->setOwnerid($owner);
+            $property->setRegionid($region);
+            $property->setDefaultcheckintime($content['DefaultCheckInTime']);
+            $property->setDefaultcheckintimeminutes($content['DefaultCheckInTimeInMinutes']);
+            $property->setDefaultcheckouttime($content['DefaultCheckOutTime']);
+            $property->setDefaultcheckouttimeminutes($content['DefaultCheckOutTimeInMinutes']);
+            $property->setCustomerid($this->entityManager->getRepository('AppBundle:Customers')->find($authDetails['customerID']));
+            $this->entityManager->persist($property);
+            $this->entityManager->flush();
+
+            // Format Response
+            return array(
+                "PropertyID" => $property->getPropertyid(),
+                "Abbreviation" => $property->getPropertyabbreviation(),
+                "Address" => $property->getAddress(),
+                "OwnerID" => $property->getOwnerid()->getOwnerid(),
+                "RegionID" => $property->getRegionid()->getRegion(),
+                "DefaultCheckInTime" => $property->getDefaultcheckintime(),
+                "DefaultCheckInTimeInMinutes" => $property->getDefaultcheckintimeminutes(),
+                "DefaultCheckOutTime" => $property->getDefaultcheckouttime(),
+                "DefaultCheckOutTimeInMinutes" => $property->getDefaultcheckouttimeminutes(),
+                'CreateDate' => $property->getCreatedate()->format('YmdHis')
+            );
+
+        } catch (BadRequestHttpException $exception) {
+            throw $exception;
+        } catch (UnprocessableEntityHttpException $exception) {
+            throw $exception;
+        } catch (HttpException $exception) {
+            throw $exception;
+        } catch (\Exception $exception) {
+            $this->logger->error(GeneralConstants::PROPERTY_API .
+                $exception->getMessage());
+            throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
+        }
     }
 }

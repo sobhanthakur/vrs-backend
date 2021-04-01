@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Properties", indexes={@ORM\Index(name="active", columns={"Active"}), @ORM\Index(name="CustomerID", columns={"CustomerID"}), @ORM\Index(name="LinkedPropertyID", columns={"LinkedPropertyID"}), @ORM\Index(name="OwnerID", columns={"OwnerID"}), @ORM\Index(name="Performing_Import", columns={"PerformingImport"}), @ORM\Index(name="Performing_Import_Date", columns={"PerformingImportDate"}), @ORM\Index(name="PropertyName", columns={"PropertyName"}), @ORM\Index(name="RegionID", columns={"RegionID"}), @ORM\Index(name="sortorder", columns={"SortOrder"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\PropertiesRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class Properties
 {
@@ -31,16 +32,16 @@ class Properties
     /**
      * @var string
      *
-     * @ORM\Column(name="UUID", type="guid", nullable=false, options={"default"="newid()"})
+     * @ORM\Column(name="UUID", type="guid", nullable=false)
      */
-    private $uuid = 'newid()';
+    private $uuid;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="OpertoFlag", type="boolean", nullable=false)
      */
-    private $opertoflag = '0';
+    private $opertoflag = false;
 
     /**
      * @var \DateTime|null
@@ -82,7 +83,7 @@ class Properties
      *
      * @ORM\Column(name="PointCentralConnected", type="boolean", nullable=false)
      */
-    private $pointcentralconnected = '0';
+    private $pointcentralconnected = false;
 
     /**
      * @var string|null
@@ -131,7 +132,7 @@ class Properties
      *
      * @ORM\Column(name="ImportBlocks", type="boolean", nullable=true)
      */
-    private $importblocks = '0';
+    private $importblocks = false;
 
     /**
      * @var string|null
@@ -152,14 +153,14 @@ class Properties
      *
      * @ORM\Column(name="iCalLinkTry4", type="integer", nullable=true)
      */
-    private $icallinktry4 = '0';
+    private $icallinktry4 = 0;
 
     /**
      * @var bool|null
      *
      * @ORM\Column(name="ImportBlocks4", type="boolean", nullable=true)
      */
-    private $importblocks4 = '0';
+    private $importblocks4 = false;
 
     /**
      * @var string|null
@@ -180,14 +181,14 @@ class Properties
      *
      * @ORM\Column(name="iCalLinkTry3", type="integer", nullable=true)
      */
-    private $icallinktry3 = '0';
+    private $icallinktry3 = 0;
 
     /**
      * @var bool|null
      *
      * @ORM\Column(name="ImportBlocks3", type="boolean", nullable=true)
      */
-    private $importblocks3 = '0';
+    private $importblocks3 = false;
 
     /**
      * @var string|null
@@ -208,14 +209,14 @@ class Properties
      *
      * @ORM\Column(name="iCalLinkTry2", type="integer", nullable=true)
      */
-    private $icallinktry2 = '0';
+    private $icallinktry2 = 0;
 
     /**
      * @var bool|null
      *
      * @ORM\Column(name="ImportBlocks2", type="boolean", nullable=true)
      */
-    private $importblocks2 = '0';
+    private $importblocks2 = false;
 
     /**
      * @var string|null
@@ -236,14 +237,14 @@ class Properties
      *
      * @ORM\Column(name="JsonTry", type="integer", nullable=true)
      */
-    private $jsontry = '0';
+    private $jsontry = 0;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="PerformingImport", type="boolean", nullable=false)
      */
-    private $performingimport = '0';
+    private $performingimport = false;
 
     /**
      * @var \DateTime|null
@@ -257,7 +258,7 @@ class Properties
      *
      * @ORM\Column(name="ImportIssueCount", type="integer", nullable=false)
      */
-    private $importissuecount = '0';
+    private $importissuecount = 0;
 
     /**
      * @var string|null
@@ -299,7 +300,7 @@ class Properties
      *
      * @ORM\Column(name="DefaultCheckInTimeMinutes", type="integer", nullable=false)
      */
-    private $defaultcheckintimeminutes = '0';
+    private $defaultcheckintimeminutes = 0;
 
     /**
      * @var int
@@ -313,7 +314,7 @@ class Properties
      *
      * @ORM\Column(name="DefaultCheckOutTimeMinutes", type="integer", nullable=false)
      */
-    private $defaultcheckouttimeminutes = '0';
+    private $defaultcheckouttimeminutes = 0;
 
     /**
      * @var string|null
@@ -341,7 +342,7 @@ class Properties
      *
      * @ORM\Column(name="CantFindLatLon", type="boolean", nullable=false)
      */
-    private $cantfindlatlon = '0';
+    private $cantfindlatlon = false;
 
     /**
      * @var string|null
@@ -397,35 +398,35 @@ class Properties
      *
      * @ORM\Column(name="OnboardingBookingsChecked", type="boolean", nullable=false)
      */
-    private $onboardingbookingschecked = '0';
+    private $onboardingbookingschecked = false;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="HasNoBookings", type="boolean", nullable=false)
      */
-    private $hasnobookings = '0';
+    private $hasnobookings = false;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="BookingImportLinksUnavailable", type="boolean", nullable=false)
      */
-    private $bookingimportlinksunavailable = '0';
+    private $bookingimportlinksunavailable = false;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="OnboardingOwnerVerified", type="boolean", nullable=false)
      */
-    private $onboardingownerverified = '0';
+    private $onboardingownerverified = false;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="SetupComplete", type="boolean", nullable=false)
      */
-    private $setupcomplete = '0';
+    private $setupcomplete = false;
 
     /**
      * @var string|null
@@ -439,28 +440,28 @@ class Properties
      *
      * @ORM\Column(name="ImportCount", type="integer", nullable=false)
      */
-    private $importcount = '0';
+    private $importcount = 0;
 
     /**
      * @var int
      *
      * @ORM\Column(name="SortOrder", type="integer", nullable=false)
      */
-    private $sortorder = '0';
+    private $sortorder = 0;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="Active", type="boolean", nullable=false, options={"default"="1"})
      */
-    private $active = '1';
+    private $active = 1;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="CreateDate", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
+     * @ORM\Column(name="CreateDate", type="datetime", nullable=false)
      */
-    private $createdate = 'CURRENT_TIMESTAMP';
+    private $createdate;
 
     /**
      * @var \DateTime|null
@@ -2210,5 +2211,46 @@ class Properties
     public function getPropertystatusid()
     {
         return $this->propertystatusid;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps()
+    {
+        $this->setUpdatedate(new \DateTime('now', new \DateTimeZone('UTC')));
+        if ($this->getCreatedate() == null) {
+            $datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+            $this->setCreatedate($datetime);
+        }
+        if ($this->getUuid() === null) {
+            $this->setUuid($this->gen_uuid());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    function gen_uuid() {
+        return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            // 32 bits for "time_low"
+            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+
+            // 16 bits for "time_mid"
+            mt_rand( 0, 0xffff ),
+
+            // 16 bits for "time_hi_and_version",
+            // four most significant bits holds version number 4
+            mt_rand( 0, 0x0fff ) | 0x4000,
+
+            // 16 bits, 8 bits for "clk_seq_hi_res",
+            // 8 bits for "clk_seq_low",
+            // two most significant bits holds zero and one for variant DCE1.1
+            mt_rand( 0, 0x3fff ) | 0x8000,
+
+            // 48 bits for "node"
+            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+        );
     }
 }

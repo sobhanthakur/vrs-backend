@@ -12,6 +12,10 @@ namespace AppBundle\Repository;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Constants\GeneralConstants;
 
+/**
+ * Class RegionsRepository
+ * @package AppBundle\Repository
+ */
 class RegionsRepository extends EntityRepository
 {
     /**
@@ -150,5 +154,21 @@ class RegionsRepository extends EntityRepository
         $query = "r.regionid";
         return $this->fetchRegions($customerDetails, $queryParameter, $regionID, $offset, $query);
 
+    }
+
+    /**
+     * @param $regionID
+     * @param $customerID
+     * @return mixed
+     */
+    public function ValidateRegion($regionID, $customerID)
+    {
+        return $this->createQueryBuilder('r')
+            ->select('r.regionid AS RegionID')
+            ->where('r.regionid='.(int)$regionID)
+            ->andWhere('r.customerid='.(int)$customerID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->execute();
     }
 }
