@@ -29,7 +29,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->addSelect('n.longdescription AS LongDescription')
             ->addSelect('n.shortnote AS Shortnote')
             ->where('n.servicerid='.$servicerID)
-            ->andWhere('n.startdate>= :Today')
+            ->andWhere('n.startdate = :Today')
             ->andWhere('n.showonemployeedashboard = 1')
             ->setParameter('Today',$today)
             ->setMaxResults(1)
