@@ -69,7 +69,6 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->andWhere('n.showonemployeedashboard = 1')
             ->setParameter('After7Days',$currentDateTime7Days)
             ->setParameter('Today',$today)
-            ->setMaxResults(1)
             ->getQuery()
             ->execute();
     }
