@@ -34,6 +34,7 @@ class ServicersDashboardService extends BaseService
     {
         try {
             $response = [];
+            $currentTaskDate = null;
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0][GeneralConstants::REGION]);
@@ -112,6 +113,7 @@ class ServicersDashboardService extends BaseService
 
                 // Assigned Date
                 $response[$i][GeneralConstants::ASSIGNEDDATE] = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
+                $currentTaskDate = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
 
                 // Window Calculation
                 $response[$i]['Window'] = array(
@@ -411,7 +413,11 @@ class ServicersDashboardService extends BaseService
                 $team = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTeamByTask($tasks[$i][GeneralConstants::TASK_ID],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : [];
             }
-            return array('Tasks' => $response);
+
+            // Scheduling Notes
+            $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicers,$currentTaskDate);
+
+            return array('Tasks' => $response,'Notes' => $schedulingCalenderNotes);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
