@@ -183,6 +183,8 @@ class QuickbooksOnlineSyncBilling extends BaseService
                         $lineDetails = array_merge($lineDetails,array(
                             "ServiceDate" =>  $taskDate[$key][$key1]
                         ));
+                    } elseif ($version === 2 && $type === 1) {
+                        $description[$key][$key1] .= " - ".$taskDate[$key][$key1];
                     }
                     $lineItems = array(
                         "DetailType" => "SalesItemLineDetail",
