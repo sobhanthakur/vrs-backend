@@ -40,10 +40,11 @@ class SchedulingcalendarnotesRepository extends EntityRepository
 
     /**
      * @param $servicerID
-     * @param \DateTime $today
+     * @param $servicers
+     * @param $currentTaskDate
      * @return mixed
      */
-    public function SchedulingNotesForDashboard2($servicerID,$servicers, $currentTaskDate)
+    public function SchedulingNotesForDashboard2($servicerID, $servicers, $currentTaskDate)
     {
         $currentDateTime = new \DateTime('now');
         $currentDateTime->setTimezone(new \DateTimeZone($servicers[0][GeneralConstants::REGION]));
