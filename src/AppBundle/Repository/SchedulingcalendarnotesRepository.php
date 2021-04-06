@@ -53,7 +53,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
         $currentDateTime7Days->modify('+7 days');
         $currentDateTime7Days->setTime(0,0,0);
 
-        if (!$currentTaskDate && $currentTaskDate < $currentDateTime) {
+        if ($currentTaskDate && $currentTaskDate < $currentDateTime) {
             $today = $currentTaskDate;
         } else {
             $today = $currentDateTime;
@@ -63,6 +63,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->select('n.hovernote AS HoverNote')
             ->addSelect('n.longdescription AS LongDescription')
             ->addSelect('n.shortnote AS Shortnote')
+            ->addSelect('n.startdate AS StartDate')
             ->where('n.servicerid='.(int)$servicerID)
             ->andWhere('n.startdate <= :After7Days')
             ->andWhere('n.startdate >= :Today')

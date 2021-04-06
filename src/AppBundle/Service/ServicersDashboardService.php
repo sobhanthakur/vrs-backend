@@ -113,7 +113,6 @@ class ServicersDashboardService extends BaseService
 
                 // Assigned Date
                 $response[$i][GeneralConstants::ASSIGNEDDATE] = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
-                $currentTaskDate = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
 
                 // Window Calculation
                 $response[$i]['Window'] = array(
@@ -415,9 +414,16 @@ class ServicersDashboardService extends BaseService
             }
 
             // Scheduling Notes
+            if (!empty($tasks)) {
+                $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE];
+            }
             $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicerID,$servicers,$currentTaskDate);
+            $notes = [];
+            foreach ($schedulingCalenderNotes as $calenderNote) {
+                $notes[$calenderNote['StartDate']][] = $calenderNote;
+            }
 
-            return array('Tasks' => $response,'Notes' => $schedulingCalenderNotes);
+            return array('Tasks' => $response,'Notes' => $notes);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
