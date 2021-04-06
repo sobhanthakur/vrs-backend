@@ -43,7 +43,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
      * @param \DateTime $today
      * @return mixed
      */
-    public function SchedulingNotesForDashboard2($servicers, $currentTaskDate)
+    public function SchedulingNotesForDashboard2($servicerID,$servicers, $currentTaskDate)
     {
         $currentDateTime = new \DateTime('now');
         $currentDateTime->setTimezone(new \DateTimeZone($servicers[0][GeneralConstants::REGION]));
@@ -63,7 +63,7 @@ class SchedulingcalendarnotesRepository extends EntityRepository
             ->select('n.hovernote AS HoverNote')
             ->addSelect('n.longdescription AS LongDescription')
             ->addSelect('n.shortnote AS Shortnote')
-            ->where('n.servicerid='.$servicers[0]['ServicerID'])
+            ->where('n.servicerid='.(int)$servicerID)
             ->andWhere('n.startdate <= :After7Days')
             ->andWhere('n.startdate >= :Today')
             ->andWhere('n.showonemployeedashboard = 1')

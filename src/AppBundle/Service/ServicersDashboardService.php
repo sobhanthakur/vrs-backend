@@ -415,7 +415,7 @@ class ServicersDashboardService extends BaseService
             }
 
             // Scheduling Notes
-            $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicers,$currentTaskDate);
+            $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicerID,$servicers,$currentTaskDate);
 
             return array('Tasks' => $response,'Notes' => $schedulingCalenderNotes);
         } catch (UnprocessableEntityHttpException $exception) {
