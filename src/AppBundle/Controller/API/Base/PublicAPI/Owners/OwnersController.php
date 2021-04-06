@@ -193,6 +193,7 @@ class OwnersController extends FOSRestController
 
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
+
             //check access level for read and write
             $accessLevel = ($restriction->accessLevel !== 2) ? $accessLevel = false : $accessLevel = true;
             if (!$accessLevel) {

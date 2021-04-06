@@ -48,7 +48,7 @@ class AuthenticationPublicService extends BaseService
      *
      * @return array
      */
-    public function authDetails($content)
+    public function authDetails($content,$zapier=null)
     {
         $returnData = [];
         $authenticationResult = [];
@@ -81,6 +81,7 @@ class AuthenticationPublicService extends BaseService
             $authenticationResult[GeneralConstants::PAYLOAD['CUSTOMER_ID']] = $customerid;
             $authenticationResult[GeneralConstants::PAYLOAD['CUSTOMER_NAME']] = $customerName;
             $authenticationResult[GeneralConstants::PAYLOAD['PROPERTIES']] = $restriction;
+            $authenticationResult[GeneralConstants::STATUS] = true;
 
             //create authToken
             $authToken = $this->createJWTToken($authenticationResult, GeneralConstants::PUBLIC_AUTH_TOKEN['TOKEN_EXPIRY_TIME']);
@@ -98,6 +99,9 @@ class AuthenticationPublicService extends BaseService
             $returnData[GeneralConstants::REFRESH_TOKEN][GeneralConstants::RETURN_DATA['CREATED']] = gmdate("YmdHi");
             $returnData[GeneralConstants::REFRESH_TOKEN][GeneralConstants::RETURN_DATA['EXPIRY']] = GeneralConstants::PUBLIC_AUTH_TOKEN['REFRESH_TOKEN_EXPIRY_TIME'];
 
+            if ($zapier) {
+                return $authenticationResult;
+            }
             return $returnData;
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
@@ -295,10 +299,11 @@ class AuthenticationPublicService extends BaseService
     public function resourceRestriction($restrictions, $baseName)
     {
         foreach ($restrictions as $restriction) {
-            if (strtolower($restriction->resourseName) == $baseName) {
+            if (gettype($restriction) === 'object' && isset($restriction->resourseName) && strtolower($restriction->resourseName) == $baseName) {
                 return $restriction;
-            };
-
+            } elseif (gettype($restriction) === 'array' && array_key_exists('resourseName',$restriction) && strtolower($restriction['resourseName']) === $baseName) {
+                return json_decode(json_encode($restriction));
+            }
         }
     }
 }

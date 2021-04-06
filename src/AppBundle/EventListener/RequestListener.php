@@ -107,7 +107,13 @@ class RequestListener extends BaseService
         } elseif (in_array($route, ApiRoutes::PUBLIC_ROUTES)) {
             // Check if the incoming public route is present in the array
             $authService = $this->serviceContainer->get('vrscheduler.public_authentication_service');
-            $authenticateResult = $authService->VerifyAuthToken($request);
+            if (in_array($route,ApiRoutes::ZAPIER_ROUTES) && $request->headers->has(GeneralConstants::PHP_AUTH_USER) && $request->headers->has(GeneralConstants::PHP_AUTH_PW)) {
+                $content['API_Key'] = $request->headers->get(GeneralConstants::PHP_AUTH_USER);
+                $content['API_Value'] = $request->headers->get(GeneralConstants::PHP_AUTH_PW);
+                $authenticateResult = $authService->authDetails($content,true);
+            } else {
+                $authenticateResult = $authService->VerifyAuthToken($request);
+            }
             if($authenticateResult[GeneralConstants::STATUS]) {
                 $request->attributes->set(GeneralConstants::AUTHPAYLOAD,$authenticateResult);
             }

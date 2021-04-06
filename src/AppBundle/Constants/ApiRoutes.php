@@ -155,4 +155,8 @@ final class ApiRoutes
         "NOTHINGTOMAP",
         "INACTIVE"
     );
+
+    const ZAPIER_ROUTES = array(
+        "owner_post"
+    );
 }
