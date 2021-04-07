@@ -142,6 +142,8 @@ class TimeTrackingApprovalService extends BaseService
     /**
      * @param $response
      * @return mixed
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function ProcessTimeClockTasksResponse($response)
     {
@@ -155,14 +157,26 @@ class TimeTrackingApprovalService extends BaseService
             }
             unset($response[$i]["Status_6"]);
 
+            $clockin = (new \DateTime($response[$i]['ClockIn_11']));
+            $clockout = (new \DateTime($response[$i]['ClockOut_12']));
+            $originalDateDiff = $this->DateDiffCalculation($clockin->diff($clockout));
+
             // Process TimeTracked
             if($response[$i]['TimeTrackedSeconds_8'] !== null) {
-                $response[$i]["TimeTracked"] = (int)$response[$i]['TimeTrackedSeconds_8'] >=0 ? $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]) : $response[$i]['TimeTrackedSeconds_8'];
+                if ($originalDateDiff !== $response[$i]["TimeTrackedSeconds_8"]) {
+                    // Update TimeTracked Second
+                    $timeTrackingRecordID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->find((int)$response[$i]['IntegrationQBDTimeTrackingRecords_0']);
+                    $timeTrackingRecordID->setTimetrackedseconds($originalDateDiff);
+                    $this->entityManager->persist($timeTrackingRecordID);
+                    $this->entityManager->flush();
+                    $response[$i]["TimeTracked"] = $this->GMDateCalculation($originalDateDiff);
+                } else {
+                    $response[$i]["TimeTracked"] = (int)$response[$i]['TimeTrackedSeconds_8'] >=0 ? $this->GMDateCalculation($response[$i]["TimeTrackedSeconds_8"]) : $response[$i]['TimeTrackedSeconds_8'];
+                }
+
                 $response[$i]["Date"] = $response[$i]["Day_7"];
             } else {
-                $clockin = (new \DateTime($response[$i]['ClockIn_11']));
-                $clockout = (new \DateTime($response[$i]['ClockOut_12']));
-                $response[$i]["TimeTracked"] = $this->GMDateCalculation($this->DateDiffCalculation($clockin->diff($clockout)));
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($originalDateDiff);
                 $time = $this->TimeZoneCalculation($response[$i]['Region_10'], $clockin);
                 $response[$i]["Date"] = $time->format('Y-m-d');
             }
