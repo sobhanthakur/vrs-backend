@@ -264,10 +264,12 @@ class TimeTrackingApprovalService extends BaseService
         $totalTime = ($days*24*60*60)+($hours*60*60)+($minutes*60)+$seconds;
         return $totalTime;
     }
-
+    
     /**
      * @param $response
      * @return mixed
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function processResponse($response)
     {
@@ -276,11 +278,23 @@ class TimeTrackingApprovalService extends BaseService
                 $response[$i]["Status"] = 2;
             }
 
-            if($response[$i]['TimeTracked']) {
-                $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTracked"]);
+            $clockIn = $response[$i]['ClockIn'];
+            $clockOut = $response[$i]['ClockOut'];
+            $originalDateDiff = $this->DateDiffCalculation($clockIn->diff($clockOut));
+
+            if($response[$i]['TimeTracked'] !== null) {
+                if ($originalDateDiff !== $response[$i]["TimeTracked"]) {
+                    $timeTrackingRecordID = $this->entityManager->getRepository('AppBundle:Integrationqbdtimetrackingrecords')->find((int)$response[$i]['IntegrationQBDTimeTrackingRecords']);
+                    $timeTrackingRecordID->setTimetrackedseconds($originalDateDiff);
+                    $this->entityManager->persist($timeTrackingRecordID);
+                    $this->entityManager->flush();
+                    $response[$i]["TimeTracked"] = $this->GMDateCalculation($originalDateDiff);
+                } else {
+                    $response[$i]["TimeTracked"] = $this->GMDateCalculation($response[$i]["TimeTracked"]);
+                }
                 $response[$i]["Date"] = $response[$i]["Date"]->format('Y-m-d');
             } else {
-                $response[$i]["TimeTracked"] = $this->GMDateCalculation($this->DateDiffCalculation($response[$i]['ClockIn']->diff($response[$i]['ClockOut'])));
+                $response[$i]["TimeTracked"] = $this->GMDateCalculation($originalDateDiff);
                 $time = $this->TimeZoneCalculation($response[$i]['TimeZoneRegion'], $response[$i]['ClockIn']);
                 $response[$i]["Date"] = $time->format('Y-m-d');
             }

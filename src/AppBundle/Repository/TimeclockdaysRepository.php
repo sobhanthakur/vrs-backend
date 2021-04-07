@@ -35,7 +35,7 @@ class TimeclockdaysRepository extends EntityRepository
     {
         $result = $this
             ->createQueryBuilder('t1')
-            ->select('t1.timeclockdayid as TimeClockDaysID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
+            ->select('b1.integrationqbdtimetrackingrecords AS IntegrationQBDTimeTrackingRecords,t1.timeclockdayid as TimeClockDaysID,b1.status AS Status,b1.day As Date,b1.timetrackedseconds AS TimeTracked, s2.name AS StaffName,t2.region AS TimeZoneRegion, t1.clockin AS ClockIn, t1.clockout AS ClockOut');
         $result = $this->TrimMapTimeClockDays($result, $completedDate,$timezones, $new, $staff,$customerID,$qbo);
 
         $result->setFirstResult(($offset - 1) * $limit)
