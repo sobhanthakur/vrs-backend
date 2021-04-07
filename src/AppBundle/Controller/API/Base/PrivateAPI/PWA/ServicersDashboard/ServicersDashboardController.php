@@ -24,6 +24,17 @@ class ServicersDashboardController extends FOSRestController
      * Shows Task Details that needs to be shown in the servicers dashboard
      * @SWG\Tag(name="Servicers Dashboard")
      * @Get("/tasks", name="vrs_pwa_tasks")
+     * @SWG\Parameter(
+     *     name="data",
+     *     in="query",
+     *     required=true,
+     *     type="string",
+     *     description="Base64 the following request format:
+                {
+                ""Limit"":20,""Offset"":1
+                }"
+     *     )
+     *  )
      * @SWG\Response(
      *     response=200,
      *     description="Authenticates the servicer and returns a JWT in return.",
@@ -83,7 +94,14 @@ class ServicersDashboardController extends FOSRestController
         try {
             $servicersDashboard = $this->container->get(GeneralConstants::SERVICERS_DASHBOARD_SERVICE);
             $servicerID = $request->attributes->get(GeneralConstants::AUTHPAYLOAD)[GeneralConstants::MESSAGE][GeneralConstants::SERVICERID];
-            return $servicersDashboard->GetTasks($servicerID);
+
+            $content = [];
+            if ($request->query->has('data')) {
+                $content = json_decode(base64_decode($request->get('data')),true);
+            }
+
+            return $servicersDashboard->GetTasks($servicerID,$content);
+
         } catch (BadRequestHttpException $exception) {
             throw $exception;
         } catch (UnprocessableEntityHttpException $exception) {

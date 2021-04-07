@@ -30,13 +30,13 @@ class ServicersDashboardService extends BaseService
      * @param $servicerID
      * @return array
      */
-    public function GetTasks($servicerID)
+    public function GetTasks($servicerID,$content)
     {
         try {
             $response = [];
             $currentTaskDate = null;
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
-            $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers);
+            $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers,null,$content);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0][GeneralConstants::REGION]);
 
             // Local Time

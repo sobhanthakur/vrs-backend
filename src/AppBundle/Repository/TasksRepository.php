@@ -439,10 +439,36 @@ class TasksRepository extends EntityRepository
      * @param $servicerID
      * @return mixed
      */
-    public function FetchTasksForDashboard($servicerID, $servicers,$taskID=null)
+    public function FetchTasksForDashboard($servicerID, $servicers,$taskID=null,$pagination=[])
     {
+        $limit = 30;
+        $offset = 1;
+        $thisEndDate = null;
+        $thisMinDate = null;
+        if (!empty($pagination)) {
+            $limit = $pagination['Limit'];
+            $offset = $pagination['Offset'];
+        }
+
         // The dashboard should limit tasks to Servicers.ViewTasksWithinDays
         $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
+
+        // Future Task Computation
+        $today = (new \DateTime('now'))->setTimezone(new \DateTimeZone($servicers[0]['Region']))->setTime(0,0,0);
+        if ($offset > 1) {
+            $rsMinDate = $this->MinDateForFutureTasks($servicerID);
+            if (!empty($rsMinDate) && $rsMinDate[0]['TaskDate']) {
+                $thisMinDate = $rsMinDate[0]['TaskDate'];
+            } else {
+                $thisMinDate = $today;
+            }
+            if ($viewTaskWithinDays === 0) {
+                $thisEndDate = $today->modify('+1 year');
+            } else {
+                $thisEndDate = $today->modify('+'.$viewTaskWithinDays.' days');
+            }
+            $thisEndDate->modify('+1 days');
+        }
 
         if ($viewTaskWithinDays === 0) {
             $viewTaskWithinDays = 7;
@@ -483,8 +509,22 @@ class TasksRepository extends EntityRepository
             ->andWhere('p2.active=1')
             ->andWhere('t2.active=1')
             ->andWhere('t2.completed=0')
-            ->andWhere('p2.customerid=s2.customerid')
-            ->andWhere('t2.taskdate >= c2.golivedate OR c2.golivedate IS NULL');
+            ->andWhere('p2.customerid=s2.customerid');
+
+        if (array_key_exists('GoLiveDate',$servicers[0]) && $servicers[0]['GoLiveDate'] !== '') {
+            $result->andWhere('t2.taskdate >= c2.golivedate');
+        }
+
+        // Condition For Future Tasks
+        if ($offset > 1) {
+            $result->andWhere('t2.taskdatetime <= :SearchEndDate')
+                ->setParameter('SearchEndDate',$thisEndDate)
+                ->andWhere('t2.taskdatetime >= :SearchStartDate')
+                ->setParameter('SearchStartDate',$thisMinDate);
+        } else {
+            $result->andWhere("t2.taskdate < :Today")
+                ->setParameter('Today',$today);
+        }
 
         $result->andWhere("t2.taskdate < :Today")
             ->setParameter('Today',$today);
@@ -529,7 +569,13 @@ class TasksRepository extends EntityRepository
             $result->andWhere('t2.taskid='.$taskID);
         }
 
-        return $result->setMaxResults(31)->getQuery()
+        if ($offset > 1) {
+            $result->setMaxResults($limit)
+                ->setFirstResult(($offset-2)*$limit);
+        } else {
+            $result->setMaxResults(31);
+        }
+        return $result->getQuery()
             ->getResult();
     }
 
