@@ -72,6 +72,20 @@ class ServicersDashboardService extends BaseService
                 }
                 $response[$i]['Expand'] = $expand;
 
+                // Condition for Show Checklist Preview in Info Tab
+                $checkListPreview = 0;
+                if ($tasks[$i][GeneralConstants::TASKSTARTDATE] > $localTime ||
+                    (
+                    (int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 &&
+                    (
+                    empty($timeClockTasks) || (string)$timeClockTasks[0][GeneralConstants::TASK_ID] !== (string)$tasks[$i][GeneralConstants::TASK_ID]
+                    )
+                    )
+                ) {
+                    $checkListPreview = 1;
+                }
+                $response[$i]['InfoChecklistPreview'] = $checkListPreview;
+
                 // Show or hide Start Task
                 if ( ((int)$servicers[0][GeneralConstants::TIMETRACKING] === 1 && $tasks[$i][GeneralConstants::TASKSTARTDATE] <= $localTime) &&
                      ((int)$servicers[0]['AllowStartEarly'] === 1 || $tasks[$i][GeneralConstants::ASSIGNEDDATE] <= $localTime) &&
