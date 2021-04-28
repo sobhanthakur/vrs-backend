@@ -302,7 +302,9 @@ final class GeneralConstants
         'active' => 'CASE WHEN pb.active = 1 THEN 1 ELSE 0 END as Active',
         'importbookingid' => 'pb.importbookingid AS ImportBookingID',
         'pmsnote' => 'pb.pmsnote AS PMSNote',
-        'pmshousekeepingnote' => 'pb.pmshousekeepingnote AS PMSHousekeepingNote'
+        'pmshousekeepingnote' => 'pb.pmshousekeepingnote AS PMSHousekeepingNote',
+        'globalnote' => 'pb.globalnote AS BookingNote',
+        'internalnote' => 'pb.internalnote AS InternalNote'
     ];
     const PROPERTY_BOOKINGS_RESTRICTION = ['guest', 'guestemail', 'guestphone'];
 
