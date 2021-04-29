@@ -249,6 +249,20 @@ class ManageSubmit extends BaseService
                 $this->entityManager->persist($schedulingWebHooks);
             }
 
+            // Submit to New Book
+            if ((string)trim($rsThisTask[0]['NewbookStatus']) !== '') {
+                $schedulingWebHooks = new Scheduledwebhooks();
+                $schedulingWebHooks->setCustomerid($rsThisTask[0][GeneralConstants::CUSTOMER_ID]);
+                $schedulingWebHooks->setTaskid($rsThisTask[0][GeneralConstants::TASK_ID]);
+                $schedulingWebHooks->setServicerid($rsServicers[0][GeneralConstants::SERVICERID]);
+                $schedulingWebHooks->setPropertyid($rsThisTask[0][GeneralConstants::PROPERTY_ID]);
+                $schedulingWebHooks->setPropertybookingid($rsThisTask[0][GeneralConstants::PROPERTYBOOKINGID]);
+                $schedulingWebHooks->setPartnerid(12);
+                $schedulingWebHooks->setEventid(1);
+                $schedulingWebHooks->setValue($rsThisTask[0]['NewbookStatus']);
+                $this->entityManager->persist($schedulingWebHooks);
+            }
+
             // Submit to BH247
             if ((int)$rsServicers[0]['UseBeHome247'] !== 0 &&
                 (int)$rsThisTask[0]['BeHome247ID'] !== 0 &&

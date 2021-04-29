@@ -731,6 +731,13 @@ class Services
     /**
      * @var string|null
      *
+     * @ORM\Column(name="NewbookStatus", type="string", length=20, nullable=true, options={"fixed"=true})
+     */
+    private $newBookStatus;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(name="LMPMStatus", type="string", length=20, nullable=true, options={"fixed"=true})
      */
     private $lmpmStatus;
@@ -3481,5 +3488,29 @@ class Services
     public function getShowPropertyStatusOnDashboards()
     {
         return $this->showPropertyStatusOnDashboards;
+    }
+
+    /**
+     * Set newBookStatus.
+     *
+     * @param string|null $newBookStatus
+     *
+     * @return Services
+     */
+    public function setNewBookStatus($newBookStatus = null)
+    {
+        $this->newBookStatus = $newBookStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get newBookStatus.
+     *
+     * @return string|null
+     */
+    public function getNewBookStatus()
+    {
+        return $this->newBookStatus;
     }
 }
