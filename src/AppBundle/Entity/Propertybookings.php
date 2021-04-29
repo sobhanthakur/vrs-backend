@@ -257,13 +257,6 @@ class Propertybookings
     /**
      * @var string|null
      *
-     * @ORM\Column(name="NextLinenCounts", type="string", length=2000, nullable=true)
-     */
-    private $nextlinencounts;
-
-    /**
-     * @var string|null
-     *
      * @ORM\Column(name="PMSHousekeepingNote", type="string", length=2000, nullable=true)
      */
     private $pmshousekeepingnote;

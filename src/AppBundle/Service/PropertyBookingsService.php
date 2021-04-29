@@ -141,6 +141,11 @@ class PropertyBookingsService extends BaseService
             isset($propertyBookingApiContent['numberofpets']) ? $numberOfPets = $propertyBookingApiContent['numberofpets'] : $numberOfPets = null;
             isset($propertyBookingApiContent['isowner']) ? $isOwner = $propertyBookingApiContent['isowner'] : $isOwner = null;
             isset($propertyBookingApiContent['bookingtags']) ? $bookingTags = $propertyBookingApiContent['bookingtags'] : $bookingTags = null;
+            isset($propertyBookingApiContent['importbookingid']) ? $importBookingID = $propertyBookingApiContent['importbookingid'] : $importBookingID = null;
+            isset($propertyBookingApiContent['bookingnote']) ? $boookingNote = $propertyBookingApiContent['bookingnote'] : $boookingNote = null;
+            isset($propertyBookingApiContent['internalnote']) ? $internalNote = $propertyBookingApiContent['internalnote'] : $internalNote = null;
+            isset($propertyBookingApiContent['pmsnote']) ? $pmsNote = $propertyBookingApiContent['pmsnote'] : $pmsNote = null;
+            isset($propertyBookingApiContent['pmshousekeepingnote']) ? $pmsHouekeepingNote = $propertyBookingApiContent['pmshousekeepingnote'] : $pmsHouekeepingNote = null;
 
             if (isset($propertyBookingID)) {
                 $returnData['msg'] = GeneralConstants::PROPERTIES_BOOKING_MESSEGE['UPDATE'];
@@ -281,6 +286,31 @@ class PropertyBookingsService extends BaseService
                 $propertyBooking->setBookingtags($bookingTags);
             }
 
+            // Set ImportBookingID
+            if (isset($importBookingID)) {
+                $propertyBooking->setImportbookingid($importBookingID);
+            }
+
+            // Set Booking Note
+            if (isset($boookingNote)) {
+                $propertyBooking->setGlobalnote($boookingNote);
+            }
+
+            // Set Internal Note
+            if (isset($internalNote)) {
+                $propertyBooking->setInternalnote($internalNote);
+            }
+
+            // Set PMS Note
+            if (isset($pmsNote)) {
+                $propertyBooking->setPmsnote($pmsNote);
+            }
+
+            // Set PMS Housekeeping Note
+            if (isset($pmsHouekeepingNote)) {
+                $propertyBooking->setPmshousekeepingnote($pmsHouekeepingNote);
+            }
+
             $this->entityManager->persist($propertyBooking);
             $this->entityManager->flush();
 
@@ -303,6 +333,12 @@ class PropertyBookingsService extends BaseService
             $data['NumberOfGuest'] = $propertyBooking->getNumberofguests();
             $data['NumberOfPets'] = $propertyBooking->getNumberofpets();
             $data['IsOwner'] = $propertyBooking->getIsowner();
+
+            $data['ImportBookingID'] = $propertyBooking->getImportbookingid();
+            $data['BookingNote'] = $propertyBooking->getGlobalnote();
+            $data['InternalNote'] = $propertyBooking->getInternalnote();
+            $data['PMSNote'] = $propertyBooking->getPmsnote();
+            $data['PMSHousekeepingNote'] = $propertyBooking->getPmshousekeepingnote();
 
             $checkout = $propertyBooking->getCheckout();
             isset($checkout) ? $data[GeneralConstants::CHECKOUT] =

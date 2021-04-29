@@ -48,7 +48,7 @@ class PropertyBookingController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyBookingID": 1322343    ,
+     *                      "PropertyBookingID": 1322343,
      *                      "PropertyID": 234,
      *                      "CheckIn": "20190824",
      *                      "CheckInTime": 14,
@@ -65,7 +65,13 @@ class PropertyBookingController extends FOSRestController
      *                      "IsOwner": 0,
      *                      "BookingTags": "BeachChairs,MidClean",
      *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
-     *                      "CreateDate": "20190302"
+     *                      "CreateDate": "20190302",
+     *                      "Active": 1,
+     *                      "ImportBookingID": "10",
+     *                      "PMSNote": "NOTE",
+     *                      "PMSHousekeepingNote": "HKN",
+     *                      "BookingNote": "BN",
+     *                      "InternalNote": "IN"
      *                  }
      *              }
      *         )
@@ -149,7 +155,7 @@ class PropertyBookingController extends FOSRestController
      *              example=
      *               {
      *                  {
-     *                      "PropertyBookingID": 1322343    ,
+     *                      "PropertyBookingID": 1322343,
      *                      "PropertyID": 234,
      *                      "CheckIn": "20190824",
      *                      "CheckInTime": 14,
@@ -169,7 +175,13 @@ class PropertyBookingController extends FOSRestController
      *                      "ImportBookingID" : 123,
      *                      "PMSNote" : "PMSNote",
      *                      "PMSHousekeepingNote" : "PMSHousekeepingNote",
-     *                      "CreateDate": "20190302"
+     *                      "CreateDate": "20190302",
+     *                      "Active": 1,
+     *                      "ImportBookingID": "10",
+     *                      "PMSNote": "NOTE",
+     *                      "PMSHousekeepingNote": "HKN",
+     *                      "BookingNote": "BN",
+     *                      "InternalNote": "IN"
      *                  }
      *              }
      *         )
@@ -271,6 +283,11 @@ class PropertyBookingController extends FOSRestController
      *                      "IsOwner": 0,
      *                      "BookingTags": "BeachChairs,MidClean",
      *                      "ManualBookingTags": "PoolHeat,AllBedsAsKing",
+     *                      "ImportBookingID": "imp",
+     *                      "BookingNote": "BN",
+     *                      "InternalNote": "IN",
+     *                      "PMSNote": "PMS",
+     *                      "PMSHousekeepingNote": "PMSH",
      *                      "CreateDate": "20190302"
      *                  }
      *              }
