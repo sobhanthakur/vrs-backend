@@ -117,7 +117,7 @@ class PropertyBookingsService extends BaseService
      *
      * @return array
      */
-    public function insertPropertBookingDetails($content, $authDetails, $propertyBookingID = null)
+    public function insertPropertBookingDetails($content, $authDetails, $propertyBookingID = null,$restriction = null)
     {
         $returnData = array();
         $propertyBookingApiContent = array();
@@ -327,9 +327,13 @@ class PropertyBookingsService extends BaseService
             $data[GeneralConstants::CHECKOUT] = $propertyBooking->getCheckout();
             $data['CheckOutTime'] = $propertyBooking->getCheckouttime();
             $data['CheckOutTimeMinutes'] = $propertyBooking->getCheckouttimeminutes();
-            $data['Guest'] = $propertyBooking->getGuest();
-            $data['GuestEmail'] = $propertyBooking->getGuestemail();
-            $data['GuestPhone'] = $propertyBooking->getGuestphone();
+
+            if ((int)$restriction->restrictPersonalData !== 1) {
+                $data['Guest'] = $propertyBooking->getGuest();
+                $data['GuestEmail'] = $propertyBooking->getGuestemail();
+                $data['GuestPhone'] = $propertyBooking->getGuestphone();
+            }
+
             $data['NumberOfGuest'] = $propertyBooking->getNumberofguests();
             $data['NumberOfPets'] = $propertyBooking->getNumberofpets();
             $data['IsOwner'] = $propertyBooking->getIsowner();

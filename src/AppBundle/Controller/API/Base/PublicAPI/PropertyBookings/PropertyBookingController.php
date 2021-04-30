@@ -411,14 +411,14 @@ class PropertyBookingController extends FOSRestController
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             //check access level for read and write
-            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
+            $accessLevel = ($restriction->accessLevel == 2) ? $accessLevel = true : $accessLevel = false;
             if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //Get property booking details
             $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
-            $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails);
+            $insertPropertyBooking = $propertyBookingService->insertPropertBookingDetails($content, $authDetails,null,$restriction);
 
 
         } catch (BadRequestHttpException $exception) {
@@ -512,14 +512,14 @@ class PropertyBookingController extends FOSRestController
             //check restriction for the user
             $restriction = $authService->resourceRestriction($restriction, $baseName);
             //check access level for read and write
-            $accessLevel = ($restriction->accessLevel == 0) ? $accessLevel = false : $accessLevel = true;
+            $accessLevel = ($restriction->accessLevel == 2) ? $accessLevel = true : $accessLevel = false;
             if (!$accessLevel) {
                 throw new UnauthorizedHttpException(null, ErrorConstants::INVALID_AUTHORIZATION);
             }
 
             //Get property booking details
             $propertyBookingService = $this->container->get(GeneralConstants::PROPERTY_BOOKING_PUBLIC);
-            return $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID);
+            return $propertyBookingService->insertPropertBookingDetails($content, $authDetails, $propertyBookingID, $restriction);
 
         } catch (BadRequestHttpException $exception) {
             throw $exception;
