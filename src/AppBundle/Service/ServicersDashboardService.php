@@ -633,6 +633,21 @@ class ServicersDashboardService extends BaseService
             $backupServicer = $rsBackup[0]['DeclineBackupServicerID'];
         }
 
+        $backupServicerObj = $backupServicer !==0 ? $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer) : null;
+        $backupWorkDays = null;
+        if ($backupServicerObj) {
+            $backupWorkDays = $backupServicerObj->getWorkdays();
+        }
+
+        $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$rsThisTask[0]['TaskDate']->format('N')];
+
+        // Find backup servicer if the current backup servicer is not working on that day
+        if ($backupWorkDays && strpos((string)$thisDayOfWeek, $backupWorkDays) === false) {
+            $funcName = 'getBackupservicerid'.$thisDayOfWeek;
+            $backupServicer2 = $backupServicerObj->$funcName();
+            $backupServicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer2);
+        }
+
         $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
             'taskid' => $taskID,
             'servicerid' => $servicerID
@@ -644,7 +659,7 @@ class ServicersDashboardService extends BaseService
 
         if ($tasksToServicers->getDeclineddate() === null) {
             $tasksToServicers->setDeclineddate($currentTime);
-            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer) : null);
+            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $backupServicerObj : null);
             $this->entityManager->persist($tasksToServicers);
 
             $taskAcceptDeclines = new Taskacceptdeclines();
@@ -681,7 +696,7 @@ class ServicersDashboardService extends BaseService
                         GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
                         GeneralConstants::TASK_ID => $taskID,
                         GeneralConstants::SENDTOMANAGERS => 1,
-                        'BackupServicerID' => $backupServicer,
+                        'BackupServicerID' => $backupServicerObj->getServicerid(),
                         GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID,
                         'AdditionalTextMessage' => $thisAdditionalTextMessage,
                         'AdditionalMessage' => $thisAdditionalMessage
