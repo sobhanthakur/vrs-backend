@@ -709,7 +709,7 @@ class ServicersDashboardService extends BaseService
             return array(
                 GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
                 'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                'BackupServicerID' => $backupServicer,
+                'BackupServicerID' => $backupServicerObj->getServicerid(),
                 'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
                 'Notification' => $notification
             );
