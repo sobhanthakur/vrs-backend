@@ -696,7 +696,7 @@ class ServicersDashboardService extends BaseService
                         GeneralConstants::CUSTOMER_ID => $rsThisTask[0][GeneralConstants::CUSTOMER_ID],
                         GeneralConstants::TASK_ID => $taskID,
                         GeneralConstants::SENDTOMANAGERS => 1,
-                        'BackupServicerID' => $backupServicerObj->getServicerid(),
+                        'BackupServicerID' => $backupServicerObj ? $backupServicerObj->getServicerid() : null,
                         GeneralConstants::SUBMITTEDBYSERVICERID => $servicerID,
                         'AdditionalTextMessage' => $thisAdditionalTextMessage,
                         'AdditionalMessage' => $thisAdditionalMessage
@@ -709,7 +709,7 @@ class ServicersDashboardService extends BaseService
             return array(
                 GeneralConstants::STATUS_CAP => GeneralConstants::SUCCESS,
                 'TasksToServicerID' => $tasksToServicers->getTasktoservicerid(),
-                'BackupServicerID' => $backupServicerObj->getServicerid(),
+                'BackupServicerID' => $backupServicerObj ? $backupServicerObj->getServicerid() : null,
                 'TaskAcceptDeclineID' => $taskAcceptDeclines->getTaskacceptdeclineid(),
                 'Notification' => $notification
             );
