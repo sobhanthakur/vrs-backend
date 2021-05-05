@@ -43,6 +43,7 @@ class ServicersDashboardService extends BaseService
             $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0][GeneralConstants::REGION]);
             $localHour = (int)ltrim($localTime->format('H'), '0');;
             $localTime->setTime(0,0,0);
+
             /*
              * Make Sure Local time is changed here
              */
@@ -141,9 +142,23 @@ class ServicersDashboardService extends BaseService
                     'TaskDateTime' => $tasks[$i]['TaskDateTime']
                 );
 
+                $globalNote = null;
+                if ((int)$tasks[$i]['ShowNextBookingNotes'] === 1) {
+                    if ((string)$tasks[$i]['NextGlobalNote'] !== '' &&
+                        $tasks[$i]['NextCheckIn'] &&
+                        ($localTime->diff($tasks[$i]['NextCheckIn'])->format('%a')) <= 14
+                    ) {
+                        $globalNote = 'Next Booking Note '.$tasks[$i]['NextCheckIn']->format('m-d-y').' '.$tasks[$i]['NextGlobalNote'];
+                    }
+                } else {
+                    if ((string)$tasks[$i]['GlobalNote'] !== '') {
+                        $globalNote = 'Booking Note: '.$tasks[$i]['GlobalNote'];
+                    }
+                }
+
                 if (
                     ($tasks[$i][GeneralConstants::TASKDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::TASKDESCRIPTION] !== '' : null) ||
-                    ($tasks[$i][GeneralConstants::GLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::GLOBALNOTE] !== '' : null) ||
+                    ($globalNote) ||
                     ($tasks[$i][GeneralConstants::INSTRUCTIONS] !== null ? $tasks[$i][GeneralConstants::INSTRUCTIONS] !== '' : null) ||
                     ($tasks[$i][GeneralConstants::INGLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::INGLOBALNOTE] !== '' : null) ||
                     ($tasks[$i][GeneralConstants::OUTGLOBALNOTE] !== null ? $tasks[$i][GeneralConstants::OUTGLOBALNOTE] !== '' : null) ||
@@ -155,7 +170,7 @@ class ServicersDashboardService extends BaseService
                 ) {
                     $description = array(
                         GeneralConstants::TASKDESCRIPTION => $tasks[$i][GeneralConstants::TASKDESCRIPTION],
-                        GeneralConstants::GLOBALNOTE => $tasks[$i][GeneralConstants::GLOBALNOTE],
+                        GeneralConstants::GLOBALNOTE => $globalNote,
                         GeneralConstants::TASKTYPE => $tasks[$i][GeneralConstants::TASKTYPE],
                         GeneralConstants::OUTGLOBALNOTE => $tasks[$i][GeneralConstants::OUTGLOBALNOTE],
                         'ShowAllTagsOnDashboards' => (int)$tasks[$i]['ShowAllTagsOnDashboards'],

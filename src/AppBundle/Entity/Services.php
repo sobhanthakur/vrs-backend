@@ -127,6 +127,14 @@ class Services
     private $showpmshousekeepingnoteondashboard = '0';
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="ShowNextBookingNotes", type="boolean", nullable=false)
+     */
+    private $shownextbookingnotes;
+
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="ChangeOverDays", type="integer", nullable=true)
@@ -3512,5 +3520,29 @@ class Services
     public function getNewBookStatus()
     {
         return $this->newBookStatus;
+    }
+
+    /**
+     * Set shownextbookingnotes.
+     *
+     * @param bool $shownextbookingnotes
+     *
+     * @return Services
+     */
+    public function setShownextbookingnotes($shownextbookingnotes)
+    {
+        $this->shownextbookingnotes = $shownextbookingnotes;
+
+        return $this;
+    }
+
+    /**
+     * Get shownextbookingnotes.
+     *
+     * @return bool
+     */
+    public function getShownextbookingnotes()
+    {
+        return $this->shownextbookingnotes;
     }
 }
