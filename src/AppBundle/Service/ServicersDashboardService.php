@@ -549,7 +549,7 @@ class ServicersDashboardService extends BaseService
         } catch (HttpException $exception) {
             throw $exception;
         } catch (\Exception $exception) {
-            $this->logger->error('Unable to accept task due to: ' .
+            $this->logger->error('Unable to accept/decline task due to: ' .
                 $exception->getMessage());
             throw new HttpException(500, ErrorConstants::INTERNAL_ERR);
         }
@@ -645,7 +645,9 @@ class ServicersDashboardService extends BaseService
         if ($backupWorkDays && strpos((string)$thisDayOfWeek, $backupWorkDays) === false) {
             $funcName = 'getBackupservicerid'.$thisDayOfWeek;
             $backupServicer2 = $backupServicerObj->$funcName();
-            $backupServicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer2);
+            if ((int)$backupServicer2) {
+                $backupServicerObj = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->find($backupServicer2);
+            }
         }
 
         $tasksToServicers = $this->entityManager->getRepository('AppBundle:Taskstoservicers')->findOneBy(array(
@@ -659,7 +661,7 @@ class ServicersDashboardService extends BaseService
 
         if ($tasksToServicers->getDeclineddate() === null) {
             $tasksToServicers->setDeclineddate($currentTime);
-            $tasksToServicers->setServicerid($backupServicer && $backupServicer !== 0 ? $backupServicerObj : null);
+            $tasksToServicers->setServicerid($backupServicerObj);
             $this->entityManager->persist($tasksToServicers);
 
             $taskAcceptDeclines = new Taskacceptdeclines();
