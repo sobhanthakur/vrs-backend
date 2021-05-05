@@ -148,7 +148,7 @@ class ServicersDashboardService extends BaseService
                         $tasks[$i]['NextCheckIn'] &&
                         ($localTime->diff($tasks[$i]['NextCheckIn'])->format('%a')) <= 14
                     ) {
-                        $globalNote = 'Next Booking Note '.$tasks[$i]['NextCheckIn']->format('m-d-y').' '.$tasks[$i]['NextGlobalNote'];
+                        $globalNote = 'Next Booking Note ('.$tasks[$i]['NextCheckIn']->format('m-d-y').') '.$tasks[$i]['NextGlobalNote'];
                     }
                 } else {
                     if ((string)$tasks[$i]['GlobalNote'] !== '') {
