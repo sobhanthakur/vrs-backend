@@ -35,9 +35,19 @@ class ServicersDashboardService extends BaseService
         try {
             $response = [];
             $currentTaskDate = null;
+            $notes = [];
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers,null,$content);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0][GeneralConstants::REGION]);
+
+            // Scheduling Notes
+//            if (!empty($tasks)) {
+                $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE];
+                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicerID,$servicers,$currentTaskDate);
+                foreach ($schedulingCalenderNotes as $calenderNote) {
+                    $notes[$calenderNote['StartDate']->format('Y-m-d')] = $calenderNote;
+                }
+//            }
 
             // Local Time
             $localTime = $this->serviceContainer->get('vrscheduler.util')->UtcToLocalToUtcConversion($servicers[0][GeneralConstants::REGION]);
@@ -60,6 +70,14 @@ class ServicersDashboardService extends BaseService
                 $manage = 0;
                 $started = null;
                 $doneCondition = 0;
+
+                // Scheduling Notes
+                $assignedDate = $tasks[$i][GeneralConstants::ASSIGNEDDATE]->format('Y-m-d');
+                if (!empty($notes) && array_key_exists($assignedDate,$notes)) {
+                    $response[$i]['Notes'] = $notes[$assignedDate];
+                    unset($notes[$assignedDate]);
+                }
+                $response[$i]['IsTask'] = 1;
 
                 // Show AcceptDecline
                 if($servicers[0][GeneralConstants::REQUESTACCEPTTASK] && !$tasks[$i]['AcceptedDate']) {
@@ -433,26 +451,21 @@ class ServicersDashboardService extends BaseService
                 }
                 $response[$i]['Tabs'] = $tabs;
 
-                // Scheduling Notes
-                $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard($servicerID,$tasks[$i][GeneralConstants::ASSIGNEDDATE]);
-                $response[$i]['Notes'] = !empty($schedulingCalenderNotes) ? $schedulingCalenderNotes[0] : null;
-
                 // Team for Each Task
                 $team = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTeamByTask($tasks[$i][GeneralConstants::TASK_ID],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : [];
             }
 
-            // Scheduling Notes
-            if (!empty($tasks)) {
-                $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE];
-            }
-            $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicerID,$servicers,$currentTaskDate);
-            $notes = [];
-            foreach ($schedulingCalenderNotes as $calenderNote) {
-                $notes[$calenderNote['StartDate']->format('Y-m-d')] = $calenderNote;
+            $schedulingNoteForNonTasks = [];
+            foreach ($notes as $note) {
+                $schedulingNoteForNonTasks[] = array(
+                    'IsTask' => 0,
+                    GeneralConstants::ASSIGNEDDATE => $note['StartDate'],
+                    'Notes' => $note
+                );
             }
 
-            return array('Tasks' => $response,'Notes' => $notes);
+            return array('Tasks' => array_merge($response,$schedulingNoteForNonTasks),'Notes' => null);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
