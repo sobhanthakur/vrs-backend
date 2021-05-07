@@ -72,6 +72,7 @@ class ServicersDashboardService extends BaseService
                 $doneCondition = 0;
 
                 // Scheduling Notes
+                $response[$i]['Notes'] = null;
                 $assignedDate = $tasks[$i][GeneralConstants::ASSIGNEDDATE]->format('Y-m-d');
                 if (!empty($notes) && array_key_exists($assignedDate,$notes)) {
                     $response[$i]['Notes'] = $notes[$assignedDate];
@@ -465,7 +466,7 @@ class ServicersDashboardService extends BaseService
                 );
             }
 
-            return array('Tasks' => array_merge($response,$schedulingNoteForNonTasks),'Notes' => null);
+            return array('Tasks' => array_merge($response,$schedulingNoteForNonTasks),'Notes' => []);
         } catch (UnprocessableEntityHttpException $exception) {
             throw $exception;
         } catch (HttpException $exception) {
