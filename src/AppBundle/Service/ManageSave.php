@@ -266,7 +266,7 @@ class ManageSave extends BaseService
                 $taskToCheckListItem->setChecklistitemid($this->entityManager->getRepository('AppBundle:Checklistitems')->find((int)$checklistDetails['ChecklistItemID']));
                 $taskToCheckListItem->setOptionid(0);
                 $taskToCheckListItem->setOptionselected('');
-                $taskToCheckListItem->setChecklisttypeid(12);
+                $taskToCheckListItem->setChecklisttypeid(array_key_exists('CheckListTypeID',$checklistDetails) ? $checklistDetails['CheckListTypeID'] : 12);
                 $taskToCheckListItem->setChecklistitem(array_key_exists('ChecklistItem',$checklistDetails) ? $checklistDetails['ChecklistItem'] : '');
                 $taskToCheckListItem->setDescription(array_key_exists('Description',$checklistDetails) ? $checklistDetails['Description'] : '');
                 $taskToCheckListItem->setImage(array_key_exists('Image',$checklistDetails) ? $checklistDetails['Image'] : '');
