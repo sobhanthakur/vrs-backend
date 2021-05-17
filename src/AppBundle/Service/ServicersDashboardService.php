@@ -467,8 +467,13 @@ class ServicersDashboardService extends BaseService
             // Scheduling Note
             if (!empty($tasks)) {
                 $currentDateTime7Days = clone $localTime;
-                $iteration = clone $lastDay;
-                $iteration->modify('+1 days');
+                if ($lastDay) {
+                    $iteration = clone $lastDay;
+                    $iteration->modify('+1 days');
+                } else {
+                    $iteration = clone $localTime;
+                }
+
                 $currentDateTime7Days->modify('+7 days');
 
                 $interval = \DateInterval::createFromDateString('1 day');
