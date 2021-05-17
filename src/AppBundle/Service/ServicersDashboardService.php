@@ -182,6 +182,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 if (
+                    ($tasks[$i][GeneralConstants::SHORTDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::SHORTDESCRIPTION] !== '' : null) ||
                     ($tasks[$i][GeneralConstants::TASKDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::TASKDESCRIPTION] !== '' : null) ||
                     ($globalNote) ||
                     ($tasks[$i][GeneralConstants::INSTRUCTIONS] !== null ? $tasks[$i][GeneralConstants::INSTRUCTIONS] !== '' : null) ||
@@ -271,7 +272,7 @@ class ServicersDashboardService extends BaseService
                 }
 
                 $response[$i]['Details'] = array(
-                    GeneralConstants::SHORTDESCRIPTION => $tasks[$i][GeneralConstants::SHORTDESCRIPTION],
+                    GeneralConstants::SHORTDESCRIPTION => null,
                     'DoneCondition' => $doneCondition,
                     'PropertyStatus' => (int)$tasks[$i]['ShowPropertyStatusOnDashboards'] ? $tasks[$i]['PropertyStatus'] : null,
                     GeneralConstants::STATUS_CAP => $status,
@@ -280,7 +281,7 @@ class ServicersDashboardService extends BaseService
                     'ParentTaskID' => $tasks[$i]['ParenTaskID'],
                     'ParentServiceAbbreviation' => $tasks[$i]['ParentServiceAbbreviation'],
                     'ParentCompleteConfirmedDate' => $tasks[$i]['ParentCompleteConfirmedDate'],
-                    'SchedulingNote' => $schedulingNote,
+                    'SchedulingNote' => null,
                     'ShowStartTimeOnDashboard' => (int)$servicers[0]['ShowStartTimeOnDashboard'] === 1 ? 1 : 0,
                     GeneralConstants::PIECEPAY => $piecePay,
                     GeneralConstants::QUICKCHANGEABBREVIATION => $quickChangeAbbreviation,
