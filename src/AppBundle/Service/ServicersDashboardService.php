@@ -486,8 +486,10 @@ class ServicersDashboardService extends BaseService
                     if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
                         $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
                     }
-                    $notes[$dt->format('Y-m-d')]['SchedulingNote'] = $schedulingNote;
-                    $notes[$dt->format('Y-m-d')]['StartDate'] = $dt;
+                    if ($schedulingNote) {
+                        $notes[$dt->format('Y-m-d')]['SchedulingNote'] = $schedulingNote;
+                        $notes[$dt->format('Y-m-d')]['StartDate'] = $dt;
+                    }
                 }
             }
 
