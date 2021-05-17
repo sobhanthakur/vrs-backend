@@ -482,7 +482,7 @@ class ServicersDashboardService extends BaseService
                 foreach ($period as $dt) {
                     // Check Scheduling Notes
                     $schedulingNote = null;
-                    $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$iteration->format('N')];
+                    $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$dt->format('N')];
                     if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
                         $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
                     }
