@@ -43,7 +43,6 @@ class ServicersDashboardService extends BaseService
             // Scheduling Notes
             !empty($tasks) ? $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE] : $currentTaskDate = null;
 
-            $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE];
             $schedulingCalenderNotes = $this->entityManager->getRepository('AppBundle:Schedulingcalendarnotes')->SchedulingNotesForDashboard2($servicerID, $servicers, $currentTaskDate);
             foreach ($schedulingCalenderNotes as $calenderNote) {
                 $notes[$calenderNote['StartDate']->format('Y-m-d')] = $calenderNote;
