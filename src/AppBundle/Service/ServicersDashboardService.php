@@ -39,6 +39,7 @@ class ServicersDashboardService extends BaseService
             $servicers = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_SERVICERS)->ServicerDashboardRestrictions((int)$servicerID);
             $tasks = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->FetchTasksForDashboard((int)$servicerID, $servicers,null,$content);
             $timeClockTasks = $this->entityManager->getRepository('AppBundle:Timeclocktasks')->CheckOtherStartedTasks((int)$servicerID,$servicers[0][GeneralConstants::REGION]);
+            $lastDay = null;
 
             // Scheduling Notes
             !empty($tasks) ? $currentTaskDate = $tasks[0][GeneralConstants::ASSIGNEDDATE] : $currentTaskDate = null;
@@ -79,6 +80,11 @@ class ServicersDashboardService extends BaseService
                     unset($notes[$assignedDate]);
                 }
                 $response[$i]['IsTask'] = 1;
+
+                // Set Last Day if assigned day is greater than today
+                if ($tasks[$i][GeneralConstants::ASSIGNEDDATE] >= $localTime) {
+                    $lastDay = $tasks[$i][GeneralConstants::ASSIGNEDDATE];
+                }
 
                 // Show AcceptDecline
                 if($servicers[0][GeneralConstants::REQUESTACCEPTTASK] && !$tasks[$i]['AcceptedDate']) {
@@ -244,6 +250,7 @@ class ServicersDashboardService extends BaseService
                 if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
                     $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
                 }
+                $response[$i]['Notes']['SchedulingNote'] = $schedulingNote;
 
                 // Set Status
                 if ($tasks[$i][GeneralConstants::TASKCOMPLETEBYDATE] < $localTime || ($tasks[$i][GeneralConstants::TASKCOMPLETEBYDATE] === $localTime && $tasks[GeneralConstants::TASKCOMPLETEBYTIME] <=  $localHour)) {
@@ -455,6 +462,28 @@ class ServicersDashboardService extends BaseService
                 // Team for Each Task
                 $team = $this->entityManager->getRepository(GeneralConstants::APPBUNDLE_TASKS)->GetTeamByTask($tasks[$i][GeneralConstants::TASK_ID],$servicers);
                 $response[$i]['Team'] = !empty($team) ? $team : [];
+            }
+
+            // Scheduling Note
+            if (!empty($tasks)) {
+                $currentDateTime7Days = clone $localTime;
+                $iteration = clone $lastDay;
+                $iteration->modify('+1 days');
+                $currentDateTime7Days->modify('+7 days');
+
+                $interval = \DateInterval::createFromDateString('1 day');
+                $period = new \DatePeriod($iteration, $interval, $currentDateTime7Days);
+
+                foreach ($period as $dt) {
+                    // Check Scheduling Notes
+                    $schedulingNote = null;
+                    $thisDayOfWeek =  GeneralConstants::DAYOFWEEK[$iteration->format('N')];
+                    if ((int)$servicers[0]['Schedulenote' . $thisDayOfWeek . 'Show']) {
+                        $schedulingNote = trim($servicers[0]['ScheduleNote' . $thisDayOfWeek]);
+                    }
+                    $notes[$dt->format('Y-m-d')]['SchedulingNote'] = $schedulingNote;
+                    $notes[$dt->format('Y-m-d')]['StartDate'] = $dt;
+                }
             }
 
             $schedulingNoteForNonTasks = [];
