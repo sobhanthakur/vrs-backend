@@ -496,11 +496,13 @@ class ServicersDashboardService extends BaseService
 
             $schedulingNoteForNonTasks = [];
             foreach ($notes as $note) {
-                $schedulingNoteForNonTasks[] = array(
-                    'IsTask' => 0,
-                    GeneralConstants::ASSIGNEDDATE => $note['StartDate'],
-                    'Notes' => $note
-                );
+                if ($note['StartDate'] >= $localTime) {
+                    $schedulingNoteForNonTasks[] = array(
+                        'IsTask' => 0,
+                        GeneralConstants::ASSIGNEDDATE => $note['StartDate'],
+                        'Notes' => $note
+                    );
+                }
             }
 
             return array('Tasks' => array_merge($response,$schedulingNoteForNonTasks),'Notes' => []);
