@@ -183,6 +183,7 @@ class ServicersDashboardService extends BaseService
 
                 if (
                     ($tasks[$i][GeneralConstants::SHORTDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::SHORTDESCRIPTION] !== '' : null) ||
+                    ($tasks[$i]['StaffDashboardNote'] !== null ? $tasks[$i]['StaffDashboardNote'] !== '' : null) ||
                     ($tasks[$i][GeneralConstants::TASKDESCRIPTION] !== null ? $tasks[$i][GeneralConstants::TASKDESCRIPTION] !== '' : null) ||
                     ($globalNote) ||
                     ($tasks[$i][GeneralConstants::INSTRUCTIONS] !== null ? $tasks[$i][GeneralConstants::INSTRUCTIONS] !== '' : null) ||
@@ -195,6 +196,7 @@ class ServicersDashboardService extends BaseService
                     ($tasks[$i][GeneralConstants::PMSHOUSEKEEPINGNOTE] !== null ? $tasks[$i][GeneralConstants::PMSHOUSEKEEPINGNOTE] !== '' : null)
                 ) {
                     $description = array(
+                        'StaffDashboardNote' => $tasks[$i]['StaffDashboardNote'],
                         GeneralConstants::TASKDESCRIPTION => $tasks[$i][GeneralConstants::TASKDESCRIPTION],
                         GeneralConstants::GLOBALNOTE => $globalNote,
                         GeneralConstants::TASKTYPE => $tasks[$i][GeneralConstants::TASKTYPE],
