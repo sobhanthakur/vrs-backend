@@ -48,7 +48,12 @@ class ManageSave extends BaseService
             if (!$task) {
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
-            $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
+
+            // Insert servicer note is exists
+            if (array_key_exists('TaskNote', $content) && $content['TaskNote'] !== '') {
+                $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
+            }
+
             if (array_key_exists('NoteToOwner', $content) && $content['NoteToOwner'] !== '') {
                 $task->setToownernote(trim(substr($content['NoteToOwner'], 0, 5000)));
             } else {
