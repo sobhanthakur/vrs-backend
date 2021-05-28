@@ -49,7 +49,7 @@ class ManageSave extends BaseService
                 throw new UnprocessableEntityHttpException(ErrorConstants::INVALID_TASKID);
             }
 
-            // Insert servicer note is exists
+            // Insert servicer note if exists
             if (array_key_exists('TaskNote', $content) && $content['TaskNote'] !== '') {
                 $task->setServicernotes(trim(substr($content['TaskNote'], 0, 5000)));
             }

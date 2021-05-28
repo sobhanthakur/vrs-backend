@@ -470,12 +470,13 @@ class ServicersDashboardService extends BaseService
             // Scheduling Note
             if (!empty($tasks)) {
                 $currentDateTime7Days = clone $localTime;
-                if ($lastDay) {
-                    $iteration = clone $lastDay;
-                    $iteration->modify('+1 days');
-                } else {
-                    $iteration = clone $localTime;
-                }
+//                if ($lastDay) {
+//                    $iteration = clone $lastDay;
+//                    $iteration->modify('+1 days');
+//                } else {
+//                    $iteration = clone $localTime;
+//                }
+                $iteration = clone $localTime;
 
                 $currentDateTime7Days->modify('+7 days');
 
