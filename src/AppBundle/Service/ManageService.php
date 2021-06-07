@@ -55,15 +55,18 @@ class ManageService extends BaseService
 
             // Create a new Issue
             $issues = new Issues();
-            $issues->setIssuetype((int)$content['IssueType']);
             $issues->setIssue($content['Issue']);
             $issues->setUrgent((int)$content['Urgent']);
             $issues->setPropertyid($propertyObj);
             $issues->setNotes($content['IssueDescription']);
             $issues->setCreatedate($currentDate);
 
+            // Set Issue to 5 if the request is coming from issue form.
             if ($owner) {
                 $issues->setShowonownerdashboard(true);
+                $issues->setIssuetype(5);
+            } else {
+                $issues->setIssuetype((int)$content['IssueType']);
             }
 
             if ($taskID) {

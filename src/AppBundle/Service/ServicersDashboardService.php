@@ -56,7 +56,7 @@ class ServicersDashboardService extends BaseService
             $localTime->setTime(0,0,0);
 
             /*
-             * Make Sure Local time is changed here
+             * Iterate over tasks
              */
             for ($i=0; $i<count($tasks); $i++) {
                 // Initialize local variables
