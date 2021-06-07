@@ -363,7 +363,7 @@ class UnscheduledTask extends BaseService
             $tasksToServicers->setTaskid($task);
             $tasksToServicers->setServicerid($servicerObj);
             $tasksToServicers->setIslead(true);
-            $tasksToServicers->setPayrate($servicerObj->getPayrate());
+            $tasksToServicers->setPayrate($servicerObj->getPayrate() ? $servicerObj->getPayrate() : 0);
             $tasksToServicers->setAccepteddate($today);
             $tasksToServicers->setCreatedate($today);
 
