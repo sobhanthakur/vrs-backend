@@ -85,7 +85,7 @@ class ManageSubmit extends BaseService
                 $issues = new Issues();
                 $issues->setIssuetype(-1);
                 $issues->setUrgent(false);
-                $issues->setIssue(str_replace(["\u2019","\u2018"],"'",substr($taskNote, 0, 150)));
+                $issues->setIssue(utf8_decode(substr(utf8_encode($taskNote), 0, 150)));
                 $issues->setPropertyid($propertyObj);
 
                 if (strlen($taskNote) > 150) {
