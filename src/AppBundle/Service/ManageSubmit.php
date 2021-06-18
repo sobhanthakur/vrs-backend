@@ -82,10 +82,11 @@ class ManageSubmit extends BaseService
             // there is a SERVICER NOTE, Make it an Issue
             if (((string)$taskObj->getServicernotes() !== "") || (trim($content[GeneralConstants::TASKNOTE]) !== "")) {
                 trim($content[GeneralConstants::TASKNOTE]) !== "" ? $taskNote = $content[GeneralConstants::TASKNOTE] : $taskNote = (string)$taskObj->getServicernotes();
+                $taskNote = utf8_decode(utf8_encode($taskNote));
                 $issues = new Issues();
                 $issues->setIssuetype(-1);
                 $issues->setUrgent(false);
-                $issues->setIssue(utf8_decode(substr(utf8_encode($taskNote), 0, 150)));
+                $issues->setIssue(substr($taskNote, 0, 150));
                 $issues->setPropertyid($propertyObj);
 
                 if (strlen($taskNote) > 150) {
