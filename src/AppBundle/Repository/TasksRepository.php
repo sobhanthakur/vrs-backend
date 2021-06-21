@@ -453,32 +453,14 @@ class TasksRepository extends EntityRepository
         // The dashboard should limit tasks to Servicers.ViewTasksWithinDays
         $viewTaskWithinDays = (int)$servicers[0]['ViewTaskWithinDays'];
 
-        // Future Task Computation
         $today = (new \DateTime('now'))->setTimezone(new \DateTimeZone($servicers[0]['Region']))->setTime(0,0,0);
-        if ($offset > 1) {
-            $rsMinDate = $this->MinDateForFutureTasks($servicerID);
-            if (!empty($rsMinDate) && $rsMinDate[0]['TaskDate']) {
-                $thisMinDate = $rsMinDate[0]['TaskDate'];
-            } else {
-                $thisMinDate = $today;
-            }
-            if ($viewTaskWithinDays === 0) {
-                $thisEndDate = $today->modify('+1 year');
-            } else {
-                $thisEndDate = $today->modify('+'.$viewTaskWithinDays.' days');
-            }
-            $thisEndDate->modify('+1 days');
-        }
 
         if ($viewTaskWithinDays === 0) {
             $viewTaskWithinDays = 7;
         }
         // $min = min($viewTaskWithinDays,7);
 
-        $now = (new \DateTime('now'));
-        $now->setTimezone(new \DateTimeZone($servicers[0]['Region']));
-        $today = $now->modify('+'.$viewTaskWithinDays.' days')->format('Y-m-d');
-
+        $today = $today->modify('+'.$viewTaskWithinDays.' days')->format('Y-m-d');
 
         $result =  $this
             ->createQueryBuilder('t2');
