@@ -456,7 +456,7 @@ class TasksRepository extends EntityRepository
         $today = (new \DateTime('now'))->setTimezone(new \DateTimeZone($servicers[0]['Region']))->setTime(0,0,0);
 
         if ($viewTaskWithinDays === 0) {
-            $viewTaskWithinDays = 7;
+            $viewTaskWithinDays = 365;
         }
         // $min = min($viewTaskWithinDays,7);
 
